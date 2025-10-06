@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace TestUtilities
 {
+    //TODO: Summaries
     public class FixtureBuilder<TEntity> where TEntity : class
     {
         private readonly TEntity _fixture;
