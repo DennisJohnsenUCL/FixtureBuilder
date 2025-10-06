@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace TestInfrastructure
+namespace TestUtilities
 {
     public class FixtureBuilder<TEntity> where TEntity : class
     {
