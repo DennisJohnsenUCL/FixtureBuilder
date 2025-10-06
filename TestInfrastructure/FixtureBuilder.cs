@@ -27,6 +27,17 @@ namespace TestUtilities
             return this;
         }
 
+        public FixtureBuilder<TEntity> WithFieldUnsafe(string fieldName, object value)
+        {
+            var fieldInfo = _fixture.GetType().GetField(fieldName,
+                BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException($"Field '{fieldName}' not found.");
+
+            fieldInfo.SetValue(_fixture, value);
+
+            return this;
+        }
+
         private static PropertyInfo GetPropertyInfo<TProp>(Expression<Func<TEntity, TProp>> expr)
         {
             if (expr.Body is MemberExpression memberExpr && memberExpr.Member is PropertyInfo propInfo)
