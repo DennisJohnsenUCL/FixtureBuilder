@@ -8,7 +8,7 @@
 			var text = "New string name";
 			var fieldName = "_privateExplicitField";
 
-			var fixture = FixtureBuilder.New<TestClass>().WithFieldUnsafe(fieldName, text).Build();
+			var fixture = FixtureBuilder.New<TestClass>().WithField(fieldName, text).Build();
 
 			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(text));
 		}
@@ -19,7 +19,7 @@
 			var text = "New string name";
 			var fieldName = "_notAField";
 
-			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().WithFieldUnsafe(fieldName, text).Build());
+			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().WithField(fieldName, text).Build());
 		}
 
 		[Test]
@@ -28,7 +28,7 @@
 			var number = 123;
 			var fieldName = "_privateExplicitField";
 
-			Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestClass>().WithFieldUnsafe(fieldName, number).Build());
+			Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestClass>().WithField(fieldName, number).Build());
 		}
 
 		[Test]
@@ -37,7 +37,7 @@
 			var text = "New string name";
 			var fieldName = "_inheritedField";
 
-			var derivedTestClass = FixtureBuilder.New<DerivedTestClass>().WithFieldUnsafe(fieldName, text).Build();
+			var derivedTestClass = FixtureBuilder.New<DerivedTestClass>().WithField(fieldName, text).Build();
 
 			Assert.That(derivedTestClass.InheritedFieldGetter, Is.EqualTo(text));
 		}

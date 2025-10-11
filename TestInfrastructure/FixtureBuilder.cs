@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -32,15 +33,24 @@ namespace TestUtilities
 			return this;
 		}
 
-		public FixtureBuilder<TEntity> WithFieldUnsafe(string fieldName, object value)
+		public FixtureBuilder<TEntity> WithField(string fieldName, object value)
 		{
-			var fieldInfo = _fixture.GetType().GetField(fieldName,
-				BindingFlags.Instance | BindingFlags.NonPublic)
-				?? throw new InvalidOperationException($"Field '{fieldName}' not found.");
+			if (!TryGetField(fieldName, out var fieldInfo))
+				throw new InvalidOperationException($"Field '{fieldName}' not found.");
 
 			fieldInfo.SetValue(_fixture, value);
 
 			return this;
+		}
+
+		private bool TryGetField(string fieldName, [NotNullWhen(true)] out FieldInfo? fieldInfo) => TryGetField(_fixture.GetType(), fieldName, out fieldInfo);
+
+		private static bool TryGetField(TEntity entity, string fieldName, [NotNullWhen(true)] out FieldInfo? fieldInfo) => TryGetField(entity.GetType(), fieldName, out fieldInfo);
+
+		private static bool TryGetField(Type type, string fieldName, [NotNullWhen(true)] out FieldInfo? fieldInfo)
+		{
+			fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
+			return fieldInfo != null;
 		}
 
 		private static PropertyInfo GetPropertyInfo<TProp>(Expression<Func<TEntity, TProp>> expr)
