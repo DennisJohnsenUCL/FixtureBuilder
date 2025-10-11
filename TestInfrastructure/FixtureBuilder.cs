@@ -9,10 +9,12 @@ namespace TestUtilities
 		private readonly TEntity _fixture;
 		public TEntity Build() => _fixture;
 
-		public FixtureBuilder()
+		internal FixtureBuilder()
 		{
 			_fixture = (TEntity)RuntimeHelpers.GetUninitializedObject(typeof(TEntity));
 		}
+
+		internal FixtureBuilder(TEntity entity) => _fixture = entity;
 
 		public FixtureBuilder<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
@@ -53,5 +55,11 @@ namespace TestUtilities
 
 			throw new ArgumentException("Expression must be a property access", nameof(expr));
 		}
+	}
+
+	public static class FixtureBuilder
+	{
+		public static FixtureBuilder<TEntity> New<TEntity>() where TEntity : class => new();
+		public static FixtureBuilder<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new(entity);
 	}
 }
