@@ -20,8 +20,11 @@ namespace TestUtilities
 		{
 			var propInfo = GetPropertyInfo(expr);
 
-			var backingField = _fixture.GetType().GetField($"<{propInfo.Name}>k__BackingField",
-				BindingFlags.Instance | BindingFlags.NonPublic)
+			var declaringType = propInfo.DeclaringType
+				?? throw new InvalidOperationException($"Property {propInfo.Name} has no declaring type");
+
+			var backingField = declaringType.GetField($"<{propInfo.Name}>k__BackingField",
+				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
 				?? throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}");
 
 			backingField.SetValue(_fixture, value);
