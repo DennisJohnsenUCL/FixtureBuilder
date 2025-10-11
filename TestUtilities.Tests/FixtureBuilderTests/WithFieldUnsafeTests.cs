@@ -1,34 +1,34 @@
 ﻿namespace TestUtilities.Tests.FixtureBuilderTests
 {
-    internal sealed class WithFieldUnsafeTests
-    {
-        [Test]
-        public void ClassPrivateField_SetsField()
-        {
-            var text = "New string name";
-            var fieldName = "_privateField";
+	internal sealed class WithFieldUnsafeTests
+	{
+		[Test]
+		public void ClassPrivateField_SetsField()
+		{
+			var text = "New string name";
+			var fieldName = "_privateExplicitField";
 
-            var fixture = new FixtureBuilder<TestClassObject>().WithFieldUnsafe(fieldName, text).Build();
+			var fixture = FixtureBuilder.New<TestClassObject>().WithFieldUnsafe(fieldName, text).Build();
 
-            Assert.That(fixture.PrivateField, Is.EqualTo(text));
-        }
+			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(text));
+		}
 
-        [Test]
-        public void IncorrectFieldName_ThrowsException()
-        {
-            var text = "New string name";
-            var fieldName = "_notAField";
+		[Test]
+		public void IncorrectFieldName_ThrowsException()
+		{
+			var text = "New string name";
+			var fieldName = "_notAField";
 
-            Assert.Throws<InvalidOperationException>(() => new FixtureBuilder<TestClassObject>().WithFieldUnsafe(fieldName, text).Build());
-        }
+			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClassObject>().WithFieldUnsafe(fieldName, text).Build());
+		}
 
-        [Test]
-        public void IncorrectFieldType_ThrowsException()
-        {
-            var number = 123;
-            var fieldName = "_privateField";
+		[Test]
+		public void IncorrectFieldType_ThrowsException()
+		{
+			var number = 123;
+			var fieldName = "_privateExplicitField";
 
-            Assert.Throws<ArgumentException>(() => new FixtureBuilder<TestClassObject>().WithFieldUnsafe(fieldName, number).Build());
-        }
-    }
+			Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestClassObject>().WithFieldUnsafe(fieldName, number).Build());
+		}
+	}
 }
