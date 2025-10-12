@@ -40,20 +40,24 @@ namespace TestUtilities
 
 		private bool TryGetFixtureField(string propName, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
-			string fieldName = $"<{propName}>k__BackingField";
+			var fieldNames = GetFieldNames(propName);
 
-			TryGetField(fieldName, out fieldInfo);
+			if (TryGetField(fieldNames[0], out fieldInfo)) { }
+			else if (TryGetField(fieldNames[1], out fieldInfo)) { }
+			else if (TryGetField(fieldNames[2], out fieldInfo)) { }
 			return fieldInfo != null;
 		}
 
 		private static bool TryGetDeclaredField(PropertyInfo propInfo, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
-			string fieldName = $"<{propInfo.Name}>k__BackingField";
+			var fieldNames = GetFieldNames(propInfo.Name);
 
 			var declaringType = propInfo.DeclaringType
 				?? throw new InvalidOperationException($"Property {propInfo.Name} has no declaring type");
 
-			TryGetField(declaringType, fieldName, out fieldInfo);
+			if (TryGetField(declaringType, fieldNames[0], out fieldInfo)) { }
+			else if (TryGetField(declaringType, fieldNames[1], out fieldInfo)) { }
+			else if (TryGetField(declaringType, fieldNames[2], out fieldInfo)) { }
 			return fieldInfo != null;
 		}
 
@@ -80,6 +84,11 @@ namespace TestUtilities
 
 			throw new ArgumentException("Expression must be a property access", nameof(expr));
 		}
+
+		private static string[] GetFieldNames(string propName) =>
+			[$"<{propName}>k__BackingField",
+			$"_{char.ToLower(propName[0]) + propName[1..]}",
+			$"{char.ToLower(propName[0]) + propName[1..]}"];
 	}
 
 	public static class FixtureBuilder

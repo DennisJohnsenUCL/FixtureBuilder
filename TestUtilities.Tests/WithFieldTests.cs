@@ -1,6 +1,6 @@
 ﻿namespace TestUtilities.Tests
 {
-	internal sealed class WithFieldUnsafeTests
+	internal sealed class WithFieldTests
 	{
 		[Test]
 		public void ClassPrivateField_SetsField()

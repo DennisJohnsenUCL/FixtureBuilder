@@ -81,7 +81,7 @@
 		{
 			var fixture = FixtureBuilder.New<TestClass>().With(t => t.PrivateExplicitField, _text).Build();
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
+			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
 		}
 
 		[Test]
@@ -89,7 +89,7 @@
 		{
 			var fixture = FixtureBuilder.New<TestClass>().With(t => t.PrivateExplicitNoUnderscoreField, _text).Build();
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
+			Assert.That(fixture.PrivateExplicitNoUnderscoreField, Is.EqualTo(_text));
 		}
 
 		[Test]
