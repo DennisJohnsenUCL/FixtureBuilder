@@ -123,5 +123,13 @@
 
 			Assert.That(((ITestInterface)fixture).ExplicitProperty, Is.EqualTo(_number));
 		}
+
+		[Test]
+		public void TwiceDerivedClass_PropertyInDerivedClass_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TwiceDerivedClass>().With(p => p.Number, _number).Build();
+
+			Assert.That(fixture.Number, Is.EqualTo(_number));
+		}
 	}
 }

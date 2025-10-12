@@ -19,6 +19,8 @@
 		public override int Number { get; protected set; }
 	}
 
+	internal class TwiceDerivedClass : TestClass { }
+
 	internal interface ITestInterface
 	{
 		string ImplicitProperty { get; }
