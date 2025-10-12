@@ -21,15 +21,10 @@ namespace TestUtilities
 		{
 			var propInfo = GetPropertyInfo(expr);
 
-			var declaringType = propInfo.DeclaringType
-				?? throw new InvalidOperationException($"Property {propInfo.Name} has no declaring type");
-
-			var backingField = declaringType.GetField($"<{propInfo.Name}>k__BackingField",
-				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-				?? throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}");
-
+			if (TryGetFixtureField(propInfo.Name, out FieldInfo backingField)) { }
+			else if (TryGetDeclaredField(propInfo, out backingField)) { }
+			else { throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}"); }
 			backingField.SetValue(_fixture, value);
-
 			return this;
 		}
 
@@ -43,11 +38,28 @@ namespace TestUtilities
 			return this;
 		}
 
-		private bool TryGetField(string fieldName, [NotNullWhen(true)] out FieldInfo? fieldInfo) => TryGetField(_fixture.GetType(), fieldName, out fieldInfo);
+		private bool TryGetFixtureField(string propName, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		{
+			string fieldName = $"<{propName}>k__BackingField";
 
-		private static bool TryGetField(TEntity entity, string fieldName, [NotNullWhen(true)] out FieldInfo? fieldInfo) => TryGetField(entity.GetType(), fieldName, out fieldInfo);
+			TryGetField(fieldName, out fieldInfo);
+			return fieldInfo != null;
+		}
 
-		private static bool TryGetField(Type type, string fieldName, [NotNullWhen(true)] out FieldInfo? fieldInfo)
+		private static bool TryGetDeclaredField(PropertyInfo propInfo, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		{
+			string fieldName = $"<{propInfo.Name}>k__BackingField";
+
+			var declaringType = propInfo.DeclaringType
+				?? throw new InvalidOperationException($"Property {propInfo.Name} has no declaring type");
+
+			TryGetField(declaringType, fieldName, out fieldInfo);
+			return fieldInfo != null;
+		}
+
+		private bool TryGetField(string fieldName, [NotNullWhen(true)] out FieldInfo fieldInfo) => TryGetField(_fixture.GetType(), fieldName, out fieldInfo);
+
+		private static bool TryGetField(Type type, string fieldName, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
 			fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
 			return fieldInfo != null;
