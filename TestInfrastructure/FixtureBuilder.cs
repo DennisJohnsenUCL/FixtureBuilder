@@ -20,9 +20,10 @@ namespace TestUtilities
 		public FixtureBuilder<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
 			var propInfo = GetPropertyInfo(expr);
+			var fieldNames = GetFieldNames(propInfo.Name);
 
-			if (TryGetFixtureField(propInfo, out FieldInfo backingField)) { }
-			else if (TryGetDeclaredField(propInfo, out backingField)) { }
+			if (TryGetFixtureField(propInfo, fieldNames, out FieldInfo backingField)) { }
+			else if (TryGetDeclaredField(propInfo, fieldNames, out backingField)) { }
 			else { throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}"); }
 			backingField.SetValue(_fixture, value);
 			return this;
@@ -38,20 +39,16 @@ namespace TestUtilities
 			return this;
 		}
 
-		private bool TryGetFixtureField(PropertyInfo propInfo, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		private bool TryGetFixtureField(PropertyInfo propInfo, string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
-			var fieldNames = GetFieldNames(propInfo.Name);
-
 			var fixtureType = _fixture.GetType();
 
 			TryGetField(fixtureType, fieldNames, out fieldInfo);
 			return fieldInfo != null;
 		}
 
-		private static bool TryGetDeclaredField(PropertyInfo propInfo, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		private static bool TryGetDeclaredField(PropertyInfo propInfo, string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
-			var fieldNames = GetFieldNames(propInfo.Name);
-
 			var declaringType = propInfo.DeclaringType
 				?? throw new InvalidOperationException($"Property {propInfo.Name} has no declaring type");
 
@@ -69,10 +66,12 @@ namespace TestUtilities
 
 		private static bool TryGetField(Type type, string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
-			if (TryGetField(type, fieldNames[0], out fieldInfo)) { }
-			else if (TryGetField(type, fieldNames[1], out fieldInfo)) { }
-			else if (TryGetField(type, fieldNames[2], out fieldInfo)) { }
-			return fieldInfo != null;
+			foreach (var name in fieldNames)
+			{
+				if (TryGetField(type, name, out fieldInfo)) return true;
+			}
+			fieldInfo = null!;
+			return false;
 		}
 
 		private static PropertyInfo GetPropertyInfo<TProp>(Expression<Func<TEntity, TProp>> expr)
