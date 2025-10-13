@@ -21,7 +21,7 @@ namespace TestUtilities
 		{
 			var propInfo = GetPropertyInfo(expr);
 
-			if (TryGetFixtureField(propInfo.Name, out FieldInfo backingField)) { }
+			if (TryGetFixtureField(propInfo, out FieldInfo backingField)) { }
 			else if (TryGetDeclaredField(propInfo, out backingField)) { }
 			else { throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}"); }
 			backingField.SetValue(_fixture, value);
@@ -38,13 +38,13 @@ namespace TestUtilities
 			return this;
 		}
 
-		private bool TryGetFixtureField(string propName, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		private bool TryGetFixtureField(PropertyInfo propInfo, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
-			var fieldNames = GetFieldNames(propName);
+			var fieldNames = GetFieldNames(propInfo.Name);
 
-			if (TryGetField(fieldNames[0], out fieldInfo)) { }
-			else if (TryGetField(fieldNames[1], out fieldInfo)) { }
-			else if (TryGetField(fieldNames[2], out fieldInfo)) { }
+			var fixtureType = _fixture.GetType();
+
+			TryGetField(fixtureType, fieldNames, out fieldInfo);
 			return fieldInfo != null;
 		}
 
@@ -55,9 +55,7 @@ namespace TestUtilities
 			var declaringType = propInfo.DeclaringType
 				?? throw new InvalidOperationException($"Property {propInfo.Name} has no declaring type");
 
-			if (TryGetField(declaringType, fieldNames[0], out fieldInfo)) { }
-			else if (TryGetField(declaringType, fieldNames[1], out fieldInfo)) { }
-			else if (TryGetField(declaringType, fieldNames[2], out fieldInfo)) { }
+			TryGetField(declaringType, fieldNames, out fieldInfo);
 			return fieldInfo != null;
 		}
 
@@ -66,6 +64,14 @@ namespace TestUtilities
 		private static bool TryGetField(Type type, string fieldName, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
 			fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
+			return fieldInfo != null;
+		}
+
+		private static bool TryGetField(Type type, string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		{
+			if (TryGetField(type, fieldNames[0], out fieldInfo)) { }
+			else if (TryGetField(type, fieldNames[1], out fieldInfo)) { }
+			else if (TryGetField(type, fieldNames[2], out fieldInfo)) { }
 			return fieldInfo != null;
 		}
 
