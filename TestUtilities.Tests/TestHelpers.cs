@@ -4,7 +4,7 @@
 
 	internal class TestClass
 	{
-		public string Text { get; protected set; } = null!;
+		public string Text { get; set; } = null!;
 		public virtual int Number { get; protected set; }
 		private readonly string _privateExplicitField = null!;
 		internal string PrivateExplicitField => _privateExplicitField;
@@ -23,15 +23,15 @@
 
 	internal interface ITestInterface
 	{
-		string ImplicitProperty { get; }
-		int ExplicitValueProperty { get; }
-		string ExplicitRefProperty { get; }
+		string ImplicitProperty { get; set; }
+		int ExplicitValueProperty { get; set; }
+		string ExplicitRefProperty { get; set; }
 	}
 
 	internal class InterfaceTestClass : ITestInterface
 	{
-		public string ImplicitProperty { get; } = null!;
-		int ITestInterface.ExplicitValueProperty { get; }
-		string ITestInterface.ExplicitRefProperty { get; } = null!;
+		public string ImplicitProperty { get; set; } = null!;
+		int ITestInterface.ExplicitValueProperty { get; set; }
+		string ITestInterface.ExplicitRefProperty { get; set; } = null!;
 	}
 }

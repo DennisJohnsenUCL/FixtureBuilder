@@ -35,5 +35,22 @@
 
 			Assert.That(fixture.Number, Is.EqualTo(_number));
 		}
+
+		[Test]
+		public void ImplicitInterfaceImplementation_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<InterfaceTestClass>().WithSetter(t => t.ImplicitProperty, _text).Build();
+
+			Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
+		}
+
+
+		[Test]
+		public void ExplicitInterfaceImplementation_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<InterfaceTestClass>().WithSetter<ITestInterface, string>(t => t.ExplicitRefProperty, _text).Build();
+
+			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
+		}
 	}
 }

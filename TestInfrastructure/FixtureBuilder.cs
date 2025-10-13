@@ -73,6 +73,16 @@ namespace TestUtilities
 			return this;
 		}
 
+		public FixtureBuilder<TEntity> WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		{
+			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
+			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+
+			var lambda = ConvertExpression(expr);
+
+			return WithSetter<TProp>(lambda, value);
+		}
+
 		private bool TryGetFixtureField(string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
 			var fixtureType = _fixture.GetType();
