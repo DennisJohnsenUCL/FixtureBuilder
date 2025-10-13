@@ -59,6 +59,20 @@ namespace TestUtilities
 			return this;
 		}
 
+		public FixtureBuilder<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		{
+			var propInfo = GetPropertyInfo(expr);
+
+			var target = Expression.Parameter(typeof(TEntity), "target");
+			var val = Expression.Parameter(typeof(TProp), "value");
+			var setExpr = Expression.Assign(Expression.Property(target, propInfo), val);
+			var setter = Expression.Lambda<Action<TEntity, TProp>>(setExpr, target, val).Compile();
+
+			setter(_fixture, value);
+
+			return this;
+		}
+
 		private bool TryGetFixtureField(string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
 			var fixtureType = _fixture.GetType();
