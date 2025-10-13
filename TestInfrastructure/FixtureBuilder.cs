@@ -5,28 +5,39 @@ using System.Runtime.CompilerServices;
 
 namespace TestUtilities
 {
-	public class FixtureBuilder<TEntity> where TEntity : class
+	internal class FixtureBuilder<TEntity> : IStepOne<TEntity>, IStepTwo<TEntity> where TEntity : class
 	{
-		private readonly TEntity _fixture;
-		public TEntity Build() => _fixture;
+		private TEntity _fixture = null!;
+		TEntity IStepTwo<TEntity>.Build() => _fixture;
 
-		internal FixtureBuilder()
-		{
-			_fixture = (TEntity)RuntimeHelpers.GetUninitializedObject(typeof(TEntity));
-		}
+		internal FixtureBuilder() { }
 
 		internal FixtureBuilder(TEntity entity) => _fixture = entity;
 
-		public FixtureBuilder<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		IStepTwo<TEntity> IStepOne<TEntity>.ByPassConstructor()
+		{
+			_fixture = (TEntity)RuntimeHelpers.GetUninitializedObject(typeof(TEntity));
+			return this;
+		}
+
+		IStepTwo<TEntity> IStepOne<TEntity>.UseConstructor(params object[] args)
+		{
+			_fixture = (TEntity)Activator.CreateInstance(typeof(TEntity), args)!
+				?? throw new InvalidOperationException($"Activator failed to find constructor for {typeof(TEntity)}.");
+
+			return this;
+		}
+
+		IStepTwo<TEntity> IStepTwo<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
 			var propInfo = GetPropertyInfo(expr);
 
 			var fieldNames = GetFieldNames(propInfo.Name);
 
-			return With(propInfo, value, fieldNames);
+			return WithInternal(propInfo, value, fieldNames);
 		}
 
-		public FixtureBuilder<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		IStepTwo<TEntity> IStepTwo<TEntity>.With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
 		{
 			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
 			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
@@ -37,10 +48,10 @@ namespace TestUtilities
 
 			var fieldNames = new[] { $"<{typeof(TInterface).FullName}.{propInfo.Name}>k__BackingField" }.Concat(GetFieldNames(propInfo.Name)).ToArray();
 
-			return With(propInfo, value, fieldNames);
+			return WithInternal(propInfo, value, fieldNames);
 		}
 
-		private FixtureBuilder<TEntity> With<TProp>(PropertyInfo propInfo, TProp value, string[] fieldNames)
+		private FixtureBuilder<TEntity> WithInternal<TProp>(PropertyInfo propInfo, TProp value, string[] fieldNames)
 		{
 			if (TryGetFixtureField(fieldNames, out FieldInfo backingField)) { }
 			else if (TryGetDeclaredField(propInfo, fieldNames, out backingField)) { }
@@ -49,7 +60,7 @@ namespace TestUtilities
 			return this;
 		}
 
-		public FixtureBuilder<TEntity> WithField(string fieldName, object value)
+		IStepTwo<TEntity> IStepTwo<TEntity>.WithField(string fieldName, object value)
 		{
 			if (!TryGetField(fieldName, out var fieldInfo))
 				throw new InvalidOperationException($"Field '{fieldName}' not found.");
@@ -59,7 +70,20 @@ namespace TestUtilities
 			return this;
 		}
 
-		public FixtureBuilder<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		IStepTwo<TEntity> IStepTwo<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+			=> WithSetterInternal(expr, value);
+
+		IStepTwo<TEntity> IStepTwo<TEntity>.WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		{
+			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
+			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+
+			var lambda = ConvertExpression(expr);
+
+			return WithSetterInternal(lambda, value);
+		}
+
+		private FixtureBuilder<TEntity> WithSetterInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
 			var propInfo = GetPropertyInfo(expr);
 
@@ -71,16 +95,6 @@ namespace TestUtilities
 			setter(_fixture, value);
 
 			return this;
-		}
-
-		public FixtureBuilder<TEntity> WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
-		{
-			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
-			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
-
-			var lambda = ConvertExpression(expr);
-
-			return WithSetter<TProp>(lambda, value);
 		}
 
 		private bool TryGetFixtureField(string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
@@ -151,7 +165,22 @@ namespace TestUtilities
 
 	public static class FixtureBuilder
 	{
-		public static FixtureBuilder<TEntity> New<TEntity>() where TEntity : class => new();
-		public static FixtureBuilder<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new(entity);
+		public static IStepOne<TEntity> New<TEntity>() where TEntity : class => new FixtureBuilder<TEntity>();
+		public static IStepOne<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new FixtureBuilder<TEntity>(entity);
+	}
+
+	public interface IStepOne<TEntity> where TEntity : class
+	{
+		IStepTwo<TEntity> ByPassConstructor();
+		IStepTwo<TEntity> UseConstructor(params object[] args);
+	}
+	public interface IStepTwo<TEntity> where TEntity : class
+	{
+		IStepTwo<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+		IStepTwo<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
+		IStepTwo<TEntity> WithField(string fieldName, object value);
+		IStepTwo<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+		IStepTwo<TEntity> WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
+		TEntity Build();
 	}
 }
