@@ -117,11 +117,19 @@
 		}
 
 		[Test]
-		public void ExplicitInterfaceImplementation_SetsProperty()
+		public void ExplicitValueInterfaceImplementation_SetsProperty()
 		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().With(t => ((ITestInterface)t).ExplicitProperty, _number).Build();
+			var fixture = FixtureBuilder.New<InterfaceTestClass>().With<ITestInterface, int>(t => t.ExplicitValueProperty, _number).Build();
 
-			Assert.That(((ITestInterface)fixture).ExplicitProperty, Is.EqualTo(_number));
+			Assert.That(((ITestInterface)fixture).ExplicitValueProperty, Is.EqualTo(_number));
+		}
+
+		[Test]
+		public void ExplicitRefInterfaceImplementation_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<InterfaceTestClass>().With<ITestInterface, string>(t => t.ExplicitRefProperty, _text).Build();
+
+			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
 		}
 
 		[Test]

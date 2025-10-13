@@ -24,13 +24,14 @@
 	internal interface ITestInterface
 	{
 		string ImplicitProperty { get; }
-		int ExplicitProperty { get; }
+		int ExplicitValueProperty { get; }
+		string ExplicitRefProperty { get; }
 	}
 
 	internal class InterfaceTestClass : ITestInterface
 	{
 		public string ImplicitProperty { get; } = null!;
-
-		int ITestInterface.ExplicitProperty { get; }
+		int ITestInterface.ExplicitValueProperty { get; }
+		string ITestInterface.ExplicitRefProperty { get; } = null!;
 	}
 }

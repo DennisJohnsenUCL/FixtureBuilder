@@ -20,9 +20,29 @@ namespace TestUtilities
 		public FixtureBuilder<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
 			var propInfo = GetPropertyInfo(expr);
+
 			var fieldNames = GetFieldNames(propInfo.Name);
 
-			if (TryGetFixtureField(propInfo, fieldNames, out FieldInfo backingField)) { }
+			return With(propInfo, value, fieldNames);
+		}
+
+		public FixtureBuilder<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		{
+			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
+			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+
+			var lambda = ConvertExpression(expr);
+
+			var propInfo = GetPropertyInfo(lambda);
+
+			var fieldNames = new[] { $"<{typeof(TInterface).FullName}.{propInfo.Name}>k__BackingField" }.Concat(GetFieldNames(propInfo.Name)).ToArray();
+
+			return With(propInfo, value, fieldNames);
+		}
+
+		private FixtureBuilder<TEntity> With<TProp>(PropertyInfo propInfo, TProp value, string[] fieldNames)
+		{
+			if (TryGetFixtureField(fieldNames, out FieldInfo backingField)) { }
 			else if (TryGetDeclaredField(propInfo, fieldNames, out backingField)) { }
 			else { throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}"); }
 			backingField.SetValue(_fixture, value);
@@ -39,7 +59,7 @@ namespace TestUtilities
 			return this;
 		}
 
-		private bool TryGetFixtureField(PropertyInfo propInfo, string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
+		private bool TryGetFixtureField(string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
 			var fixtureType = _fixture.GetType();
 
@@ -88,6 +108,15 @@ namespace TestUtilities
 			}
 
 			throw new ArgumentException("Expression must be a property access", nameof(expr));
+		}
+
+		private static Expression<Func<TEntity, TProp>> ConvertExpression<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr)
+		{
+			var param = Expression.Parameter(typeof(TEntity), expr.Parameters[0].Name);
+			var body = Expression.PropertyOrField(Expression.Convert(param, typeof(TInterface)),
+				((MemberExpression)expr.Body).Member.Name);
+			var lambda = Expression.Lambda<Func<TEntity, TProp>>(body, param);
+			return lambda;
 		}
 
 		private static string[] GetFieldNames(string propName) =>
