@@ -34,4 +34,20 @@
 		int ITestInterface.ExplicitValueProperty { get; set; }
 		string ITestInterface.ExplicitRefProperty { get; set; } = null!;
 	}
+
+	internal class NestedClass(string value);
+
+	internal class NoDefaultConstructor
+	{
+		public string Value { get; set; }
+
+		public NoDefaultConstructor(string value) => Value = value;
+	}
+
+	internal class DefaultConstructor
+	{
+		public string Value { get; set; }
+
+		public DefaultConstructor() => Value = "Something";
+	}
 }

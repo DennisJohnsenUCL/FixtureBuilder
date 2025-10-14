@@ -14,7 +14,7 @@ namespace TestUtilities
 
 		internal FixtureBuilder(TEntity entity) => _fixture = entity;
 
-		IStepTwo<TEntity> IStepOne<TEntity>.ByPassConstructor()
+		IStepTwo<TEntity> IStepOne<TEntity>.BypassConstructor()
 		{
 			_fixture = (TEntity)RuntimeHelpers.GetUninitializedObject(typeof(TEntity));
 			return this;
@@ -166,14 +166,15 @@ namespace TestUtilities
 	public static class FixtureBuilder
 	{
 		public static IStepOne<TEntity> New<TEntity>() where TEntity : class => new FixtureBuilder<TEntity>();
-		public static IStepOne<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new FixtureBuilder<TEntity>(entity);
+		public static IStepTwo<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new FixtureBuilder<TEntity>(entity);
 	}
 
 	public interface IStepOne<TEntity> where TEntity : class
 	{
-		IStepTwo<TEntity> ByPassConstructor();
+		IStepTwo<TEntity> BypassConstructor();
 		IStepTwo<TEntity> UseConstructor(params object[] args);
 	}
+
 	public interface IStepTwo<TEntity> where TEntity : class
 	{
 		IStepTwo<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
