@@ -34,35 +34,73 @@ namespace TestUtilities
 			return this;
 		}
 
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
-		{
-			var propInfo = GetPropertyInfo(expr);
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(
+			Expression<Func<TEntity, TProp>> expr,
+			TProp value)
+			=> WithInternal(expr, value);
 
-			var fieldNames = GetFieldNames(propInfo.Name);
-
-			return WithInternal(propInfo, value, fieldNames);
-		}
-
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TInterface, TProp>(
+			Expression<Func<TInterface, TProp>> expr,
+			TProp value)
 		{
 			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
 			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
 
 			var lambda = ConvertExpression(expr);
-
-			var propInfo = GetPropertyInfo(lambda);
-
-			var fieldNames = new[] { $"<{typeof(TInterface).FullName}.{propInfo.Name}>k__BackingField" }.Concat(GetFieldNames(propInfo.Name)).ToArray();
-
-			return WithInternal(propInfo, value, fieldNames);
+			return WithInternal(lambda, value);
 		}
 
-		private FixtureBuilder<TEntity> WithInternal<TProp>(PropertyInfo propInfo, TProp value, string[] fieldNames)
+		private FixtureBuilder<TEntity> WithInternal<TProp>(
+			Expression<Func<TEntity, TProp>> expr,
+			TProp value)
 		{
-			if (TryGetFixtureField(fieldNames, out FieldInfo backingField)) { }
-			else if (TryGetDeclaredField(propInfo, fieldNames, out backingField)) { }
-			else { throw new InvalidOperationException($"Backing field not found for property {propInfo.Name}"); }
-			backingField.SetValue(_fixture, value);
+			var memberExpr = expr.Body as MemberExpression
+				?? throw new ArgumentException("Expression must be a property access", nameof(expr));
+
+			var members = new Stack<MemberInfo>();
+			while (memberExpr != null)
+			{
+				members.Push(memberExpr.Member);
+				memberExpr = memberExpr.Expression as MemberExpression;
+			}
+
+			object current = _fixture!;
+			MemberInfo currentMember;
+
+			while (members.Count > 1)
+			{
+				currentMember = members.Pop();
+				var prop = (PropertyInfo)currentMember;
+
+				var parent = current;
+				current = prop.GetValue(parent)!;
+
+				if (current == null)
+				{
+					var type = prop.PropertyType;
+					current = Activator.CreateInstance(type)!;
+					prop.SetValue(parent, current);
+				}
+			}
+
+			currentMember = members.Pop();
+			var finalProp = (PropertyInfo)currentMember;
+
+			var fieldNames = GetFieldNames(finalProp.Name);
+
+			if (finalProp.DeclaringType != null && finalProp.DeclaringType.IsInterface)
+			{
+				var explicitFieldName = $"<{finalProp.DeclaringType.FullName}.{finalProp.Name}>k__BackingField";
+				fieldNames = [explicitFieldName, .. fieldNames];
+			}
+
+			if (!TryGetFixtureField(fieldNames, out var backingField)
+				&& !TryGetDeclaredField(finalProp, fieldNames, out backingField))
+			{
+				throw new InvalidOperationException($"Backing field not found for property {finalProp.Name}");
+			}
+
+			backingField.SetValue(current, value);
 			return this;
 		}
 
@@ -201,22 +239,6 @@ namespace TestUtilities
 			}
 			fieldInfo = null!;
 			return false;
-		}
-
-		private static PropertyInfo GetPropertyInfo<TProp>(Expression<Func<TEntity, TProp>> expr)
-		{
-			if (expr.Body is MemberExpression memberExpr && memberExpr.Member is PropertyInfo propInfo)
-			{
-				return propInfo;
-			}
-
-			if (expr.Body is UnaryExpression unary && unary.Operand is MemberExpression innerMember
-				&& innerMember.Member is PropertyInfo innerProp)
-			{
-				return innerProp;
-			}
-
-			throw new ArgumentException("Expression must be a property access", nameof(expr));
 		}
 
 		private static string[] GetFieldNames(string propName) =>

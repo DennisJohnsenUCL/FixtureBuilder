@@ -41,7 +41,7 @@
 		[Test]
 		public void NoRecordPropertyBackingField_ThrowsException()
 		{
-			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().With(t => t.Text.Length, _number).Build());
+			Assert.Throws<MissingMethodException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().With(t => t.Text.Length, _number).Build());
 		}
 
 		[Test]
@@ -73,7 +73,7 @@
 		[Test]
 		public void NoClassPropertyBackingField_ThrowsException()
 		{
-			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.Text.Length, _number).Build());
+			Assert.Throws<MissingMethodException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.Text.Length, _number).Build());
 		}
 
 		[Test]
@@ -154,6 +154,22 @@
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.NestedClass.Value, _text).Build();
 
 			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void DerivedNestedProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().With(t => t.NestedClass.Value, _text).Build();
+
+			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void NestedInterfaceProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().With<INestedInterface, string>(t => t.NestedInterfaceClass.Value, _text).Build();
+
+			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
 		}
 	}
 }
