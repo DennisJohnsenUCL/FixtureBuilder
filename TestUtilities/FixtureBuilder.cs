@@ -79,7 +79,9 @@ namespace TestUtilities
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 			=> WithSetterInternal(expr, value);
 
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(
+			Expression<Func<TInterface, TProp>> expr,
+			TProp value)
 		{
 			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
 			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
@@ -89,18 +91,81 @@ namespace TestUtilities
 			return WithSetterInternal(lambda, value);
 		}
 
-		private FixtureBuilder<TEntity> WithSetterInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		private FixtureBuilder<TEntity> WithSetterInternal<TProp>(
+			Expression<Func<TEntity, TProp>> expr,
+			TProp value)
 		{
-			var propInfo = GetPropertyInfo(expr);
+			var memberExpr = expr.Body as MemberExpression
+				?? throw new ArgumentException("Expression must be a property or field access", nameof(expr));
 
-			var target = Expression.Parameter(typeof(TEntity), "target");
-			var val = Expression.Parameter(typeof(TProp), "value");
-			var setExpr = Expression.Assign(Expression.Property(target, propInfo), val);
-			var setter = Expression.Lambda<Action<TEntity, TProp>>(setExpr, target, val).Compile();
+			var members = new Stack<MemberInfo>();
+			while (memberExpr != null)
+			{
+				members.Push(memberExpr.Member);
+				memberExpr = memberExpr.Expression as MemberExpression;
+			}
 
-			setter(_fixture, value);
+			object current = _fixture!;
+			MemberInfo currentMember;
+
+			while (members.Count > 1)
+			{
+				currentMember = members.Pop();
+				var parent = current;
+
+				var prop = currentMember as PropertyInfo;
+
+				current = prop!.GetValue(parent)!;
+
+				if (current == null)
+				{
+					var type = prop.PropertyType;
+					current = Activator.CreateInstance(type!)!;
+
+					prop?.SetValue(parent, current);
+				}
+			}
+
+			currentMember = members.Pop();
+
+			var finalProp = currentMember as PropertyInfo;
+
+			if (finalProp != null)
+				finalProp.SetValue(current, value);
+			else
+				throw new InvalidOperationException("Unsupported member type");
 
 			return this;
+		}
+
+		private static Expression<Func<TEntity, TProp>> ConvertExpression<TInterface, TProp>(
+			Expression<Func<TInterface, TProp>> expr)
+		{
+			if (expr.Body is not MemberExpression memberExpr)
+				throw new ArgumentException("Expression body must be a member expression", nameof(expr));
+
+			var param = Expression.Parameter(typeof(TEntity), expr.Parameters[0].Name);
+
+			Expression Rewrite(MemberExpression me)
+			{
+				if (me.Expression is ParameterExpression pe && pe == expr.Parameters[0])
+				{
+					var converted = Expression.Convert(param, typeof(TInterface));
+					return Expression.MakeMemberAccess(converted, me.Member);
+				}
+				else if (me.Expression is MemberExpression inner)
+				{
+					var innerExpr = Rewrite(inner);
+					return Expression.MakeMemberAccess(innerExpr, me.Member);
+				}
+				else
+				{
+					throw new InvalidOperationException($"Unexpected expression node: {me.Expression?.NodeType}");
+				}
+			}
+
+			var newBody = Rewrite(memberExpr);
+			return Expression.Lambda<Func<TEntity, TProp>>(newBody, param);
 		}
 
 		private bool TryGetFixtureField(string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
@@ -152,15 +217,6 @@ namespace TestUtilities
 			}
 
 			throw new ArgumentException("Expression must be a property access", nameof(expr));
-		}
-
-		private static Expression<Func<TEntity, TProp>> ConvertExpression<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr)
-		{
-			var param = Expression.Parameter(typeof(TEntity), expr.Parameters[0].Name);
-			var body = Expression.PropertyOrField(Expression.Convert(param, typeof(TInterface)),
-				((MemberExpression)expr.Body).Member.Name);
-			var lambda = Expression.Lambda<Func<TEntity, TProp>>(body, param);
-			return lambda;
 		}
 
 		private static string[] GetFieldNames(string propName) =>

@@ -147,5 +147,13 @@
 
 			Assert.That(fixture.Value, Is.EqualTo(_text));
 		}
+
+		[Test]
+		public void NestedProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.NestedClass.Value, _text).Build();
+
+			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+		}
 	}
 }

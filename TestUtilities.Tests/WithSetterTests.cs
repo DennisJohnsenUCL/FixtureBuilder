@@ -68,5 +68,29 @@
 
 			Assert.That(fixture.Value, Is.EqualTo(_text));
 		}
+
+		[Test]
+		public void NestedProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
+
+			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void DerivedNestedProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
+
+			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void NestedInterfaceProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter<INestedInterface, string>(t => t.NestedInterfaceClass.Value, _text).Build();
+
+			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
+		}
 	}
 }

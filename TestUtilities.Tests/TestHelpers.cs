@@ -2,7 +2,7 @@
 {
 	internal record TestValue(string Text, int Number);
 
-	internal class TestClass
+	internal class TestClass : INestedInterface
 	{
 		public string Text { get; set; } = null!;
 		public virtual int Number { get; protected set; }
@@ -13,6 +13,8 @@
 		internal string PrivateExplicitNoUnderscoreField => _privateExplicitNoUnderscoreField;
 		protected string _inheritedField = null!;
 		internal string InheritedFieldGetter => _inheritedField;
+		internal NestedClass NestedClass { get; set; } = null!;
+		NestedClass INestedInterface.NestedInterfaceClass { get; set; } = null!;
 	}
 
 	internal class DerivedTestClass : TestClass
@@ -53,5 +55,17 @@
 	internal class GenericClass<T> where T : class
 	{
 		public T Value { get; set; } = null!;
+	}
+
+	internal class NestedClass
+	{
+		public string Value { get; set; } = null!;
+
+		public NestedClass() { }
+	}
+
+	internal interface INestedInterface
+	{
+		NestedClass NestedInterfaceClass { get; set; }
 	}
 }
