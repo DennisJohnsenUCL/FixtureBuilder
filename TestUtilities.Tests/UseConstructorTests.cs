@@ -35,5 +35,12 @@
 
 			Assert.Throws<MissingMethodException>(() => fixture.UseConstructor("Test value", 123));
 		}
+
+		[Test]
+		public void GenericClass_CanConstruct()
+		{
+			IStepTwo<GenericClass<string>> fixture = null!;
+			Assert.DoesNotThrow(() => fixture = FixtureBuilder.New<GenericClass<string>>().UseConstructor());
+		}
 	}
 }

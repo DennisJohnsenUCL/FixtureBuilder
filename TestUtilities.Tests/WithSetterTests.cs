@@ -60,5 +60,13 @@
 
 			Assert.Throws<ArgumentException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
 		}
+
+		[Test]
+		public void GenericClass_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor().WithSetter(g => g.Value, _text).Build();
+
+			Assert.That(fixture.Value, Is.EqualTo(_text));
+		}
 	}
 }

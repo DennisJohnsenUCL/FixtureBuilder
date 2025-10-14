@@ -139,5 +139,13 @@
 
 			Assert.That(fixture.Number, Is.EqualTo(_number));
 		}
+
+		[Test]
+		public void GenericClass_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor().With(g => g.Value, _text).Build();
+
+			Assert.That(fixture.Value, Is.EqualTo(_text));
+		}
 	}
 }
