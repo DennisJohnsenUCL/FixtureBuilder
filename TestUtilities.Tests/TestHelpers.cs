@@ -6,6 +6,7 @@
 	{
 		public string Text { get; set; } = null!;
 		public virtual int Number { get; protected set; }
+		public string PropWithoutSetter { get; } = null!;
 		private readonly string _privateExplicitField = null!;
 		internal string PrivateExplicitField => _privateExplicitField;
 		private readonly string _privateExplicitNoUnderscoreField = null!;

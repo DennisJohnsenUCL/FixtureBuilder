@@ -52,5 +52,13 @@
 
 			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
 		}
+
+		[Test]
+		public void PropWithoutSetter_ThrowsException()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor();
+
+			Assert.Throws<ArgumentException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
+		}
 	}
 }
