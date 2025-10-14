@@ -5,22 +5,22 @@ using System.Runtime.CompilerServices;
 
 namespace TestUtilities
 {
-	internal class FixtureBuilder<TEntity> : IStepOne<TEntity>, IStepTwo<TEntity> where TEntity : class
+	internal class FixtureBuilder<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
 	{
 		private TEntity _fixture = null!;
-		TEntity IStepTwo<TEntity>.Build() => _fixture;
+		TEntity IFixtureConfigurator<TEntity>.Build() => _fixture;
 
 		internal FixtureBuilder() { }
 
 		internal FixtureBuilder(TEntity entity) => _fixture = entity;
 
-		IStepTwo<TEntity> IStepOne<TEntity>.BypassConstructor()
+		IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.BypassConstructor()
 		{
 			_fixture = (TEntity)RuntimeHelpers.GetUninitializedObject(typeof(TEntity));
 			return this;
 		}
 
-		IStepTwo<TEntity> IStepOne<TEntity>.UseConstructor(params object[] args)
+		IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
 		{
 			_fixture = (TEntity)Activator.CreateInstance(typeof(TEntity), args)!
 				?? throw new InvalidOperationException($"Activator failed to find constructor for {typeof(TEntity)}.");
@@ -28,7 +28,7 @@ namespace TestUtilities
 			return this;
 		}
 
-		IStepTwo<TEntity> IStepTwo<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
 			var propInfo = GetPropertyInfo(expr);
 
@@ -37,7 +37,7 @@ namespace TestUtilities
 			return WithInternal(propInfo, value, fieldNames);
 		}
 
-		IStepTwo<TEntity> IStepTwo<TEntity>.With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
 		{
 			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
 			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
@@ -60,7 +60,7 @@ namespace TestUtilities
 			return this;
 		}
 
-		IStepTwo<TEntity> IStepTwo<TEntity>.WithField(string fieldName, object value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
 		{
 			if (!TryGetField(fieldName, out var fieldInfo))
 				throw new InvalidOperationException($"Field '{fieldName}' not found.");
@@ -70,10 +70,10 @@ namespace TestUtilities
 			return this;
 		}
 
-		IStepTwo<TEntity> IStepTwo<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 			=> WithSetterInternal(expr, value);
 
-		IStepTwo<TEntity> IStepTwo<TEntity>.WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
 		{
 			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
 			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
@@ -165,23 +165,23 @@ namespace TestUtilities
 
 	public static class FixtureBuilder
 	{
-		public static IStepOne<TEntity> New<TEntity>() where TEntity : class => new FixtureBuilder<TEntity>();
-		public static IStepTwo<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new FixtureBuilder<TEntity>(entity);
+		public static IFixtureConstructor<TEntity> New<TEntity>() where TEntity : class => new FixtureBuilder<TEntity>();
+		public static IFixtureConfigurator<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new FixtureBuilder<TEntity>(entity);
 	}
 
-	public interface IStepOne<TEntity> where TEntity : class
+	public interface IFixtureConstructor<TEntity> where TEntity : class
 	{
-		IStepTwo<TEntity> BypassConstructor();
-		IStepTwo<TEntity> UseConstructor(params object[] args);
+		IFixtureConfigurator<TEntity> BypassConstructor();
+		IFixtureConfigurator<TEntity> UseConstructor(params object[] args);
 	}
 
-	public interface IStepTwo<TEntity> where TEntity : class
+	public interface IFixtureConfigurator<TEntity> where TEntity : class
 	{
-		IStepTwo<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-		IStepTwo<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
-		IStepTwo<TEntity> WithField(string fieldName, object value);
-		IStepTwo<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-		IStepTwo<TEntity> WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> WithField(string fieldName, object value);
+		IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		TEntity Build();
 	}
 }

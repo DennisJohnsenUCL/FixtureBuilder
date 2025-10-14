@@ -36,8 +36,6 @@
 		string ITestInterface.ExplicitRefProperty { get; set; } = null!;
 	}
 
-	internal class NestedClass(string value);
-
 	internal class NoDefaultConstructor
 	{
 		public string Value { get; set; }

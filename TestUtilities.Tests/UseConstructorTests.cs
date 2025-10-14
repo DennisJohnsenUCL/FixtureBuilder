@@ -39,7 +39,7 @@
 		[Test]
 		public void GenericClass_CanConstruct()
 		{
-			IStepTwo<GenericClass<string>> fixture = null!;
+			IFixtureConfigurator<GenericClass<string>> fixture = null!;
 			Assert.DoesNotThrow(() => fixture = FixtureBuilder.New<GenericClass<string>>().UseConstructor());
 		}
 	}
