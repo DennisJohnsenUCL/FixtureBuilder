@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -22,7 +23,12 @@ namespace TestUtilities
 
 		IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
 		{
-			_fixture = (TEntity)Activator.CreateInstance(typeof(TEntity), args)!
+			_fixture = (TEntity)Activator.CreateInstance(
+				typeof(TEntity),
+				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+				binder: null,
+				args: args,
+				culture: CultureInfo.CurrentCulture)!
 				?? throw new InvalidOperationException($"Activator failed to find constructor for {typeof(TEntity)}.");
 
 			return this;

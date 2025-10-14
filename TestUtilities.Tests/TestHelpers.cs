@@ -40,14 +40,14 @@
 	{
 		public string Value { get; set; }
 
-		public NoDefaultConstructor(string value) => Value = value;
+		private NoDefaultConstructor(string value) => Value = value;
 	}
 
 	internal class DefaultConstructor
 	{
 		public string Value { get; set; }
 
-		public DefaultConstructor() => Value = "Something";
+		private DefaultConstructor() => Value = "Something";
 	}
 
 	internal class GenericClass<T> where T : class
