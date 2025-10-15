@@ -58,7 +58,7 @@
 		{
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor();
 
-			Assert.Throws<ArgumentException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
+			Assert.Throws<InvalidOperationException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
 		}
 
 		[Test]

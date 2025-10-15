@@ -130,13 +130,17 @@ namespace TestUtilities
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
-			=> WithSetterInternal(expr, value);
+		{
+			if (!IsPropertyWritable(expr)) throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter");
+			return WithSetterInternal(expr, value);
+		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(
 			Expression<Func<TInterface, TProp>> expr,
 			TProp value)
 		{
 			ValidateInterface(typeof(TInterface));
+			if (!IsPropertyWritable(expr)) throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter");
 
 			var lambda = ConvertExpression(expr);
 
@@ -211,7 +215,7 @@ namespace TestUtilities
 			return Expression.Lambda<Func<TEntity, TProp>>(newBody, param);
 		}
 
-		private static bool IsPropertyWritable<TProp>(Expression<Func<TEntity, TProp>> expr)
+		private static bool IsPropertyWritable<TTarget, TProp>(Expression<Func<TTarget, TProp>> expr)
 		{
 			if (expr.Body is not MemberExpression memberExpr)
 				throw new ArgumentException("Expression must be a property access", nameof(expr));
