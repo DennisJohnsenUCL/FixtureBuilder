@@ -79,6 +79,26 @@ namespace TestUtilities
 			Expression<Func<TEntity, TProp>> expr,
 			TProp value)
 		{
+			var (instance, property) = ResolvePropertyPath(_fixture, expr);
+
+			var fieldNames = GetFieldNames(property.Name);
+
+			if (property.DeclaringType != null && property.DeclaringType.IsInterface)
+			{
+				var explicitFieldName = $"<{property.DeclaringType.FullName}.{property.Name}>k__BackingField";
+				fieldNames = [explicitFieldName, .. fieldNames];
+			}
+
+			if (TryGetFixtureField(fieldNames, out var backingField)) { }
+			else if (TryGetDeclaredField(property, fieldNames, out backingField)) { }
+			else throw new InvalidOperationException($"Backing field not found for property {property.Name}");
+
+			backingField.SetValue(instance, value);
+			return this;
+		}
+
+		private static (object instance, PropertyInfo property) ResolvePropertyPath<TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr)
+		{
 			var memberExpr = expr.Body as MemberExpression
 				?? throw new ArgumentException("Expression must be a property access", nameof(expr));
 
@@ -89,7 +109,7 @@ namespace TestUtilities
 				memberExpr = memberExpr.Expression as MemberExpression;
 			}
 
-			object current = _fixture!;
+			object current = root;
 			MemberInfo currentMember;
 
 			while (members.Count > 1)
@@ -111,22 +131,7 @@ namespace TestUtilities
 			currentMember = members.Pop();
 			var finalProp = (PropertyInfo)currentMember;
 
-			var fieldNames = GetFieldNames(finalProp.Name);
-
-			if (finalProp.DeclaringType != null && finalProp.DeclaringType.IsInterface)
-			{
-				var explicitFieldName = $"<{finalProp.DeclaringType.FullName}.{finalProp.Name}>k__BackingField";
-				fieldNames = [explicitFieldName, .. fieldNames];
-			}
-
-			if (!TryGetFixtureField(fieldNames, out var backingField)
-				&& !TryGetDeclaredField(finalProp, fieldNames, out backingField))
-			{
-				throw new InvalidOperationException($"Backing field not found for property {finalProp.Name}");
-			}
-
-			backingField.SetValue(current, value);
-			return this;
+			return (current, finalProp);
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
@@ -158,45 +163,10 @@ namespace TestUtilities
 			Expression<Func<TEntity, TProp>> expr,
 			TProp value)
 		{
-			var memberExpr = expr.Body as MemberExpression
-				?? throw new ArgumentException("Expression must be a property or field access", nameof(expr));
+			var (instance, property) = ResolvePropertyPath(_fixture, expr);
 
-			var members = new Stack<MemberInfo>();
-			while (memberExpr != null)
-			{
-				members.Push(memberExpr.Member);
-				memberExpr = memberExpr.Expression as MemberExpression;
-			}
-
-			object current = _fixture!;
-			MemberInfo currentMember;
-
-			while (members.Count > 1)
-			{
-				currentMember = members.Pop();
-				var parent = current;
-
-				var prop = currentMember as PropertyInfo;
-
-				current = prop!.GetValue(parent)!;
-
-				if (current == null)
-				{
-					var type = prop.PropertyType;
-					current = GetInstantiatedInstance(type);
-
-					prop.SetValue(parent, current);
-				}
-			}
-
-			currentMember = members.Pop();
-
-			var finalProp = currentMember as PropertyInfo;
-
-			if (finalProp != null)
-				finalProp.SetValue(current, value);
-			else
-				throw new InvalidOperationException("Unsupported member type");
+			if (property != null) property.SetValue(instance, value);
+			else throw new InvalidOperationException("Unsupported member type");
 
 			return this;
 		}
