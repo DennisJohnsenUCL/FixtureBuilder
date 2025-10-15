@@ -2,198 +2,42 @@
 {
 	internal sealed class WithTests
 	{
-		private string _text;
-		private int _number;
-
-		[SetUp]
-		public void Setup()
+		[Test]
+		public void PropWithSetter_SetsProperty()
 		{
-			_text = "Test";
-			_number = 123;
+			var text = "Test string";
+
+			var fixture = FixtureBuilder.New<TestClass>().With(t => t.Text, text).Build();
+
+			Assert.That(fixture.Text, Is.EqualTo(text));
 		}
 
 		[Test]
-		public void RecordProperty_SetsProperty()
+		public void PropWithSetterAndUnrecognizedField_SetsProperty()
 		{
-			var fixture = FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).Build();
+			var text = "Test string";
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
+			var fixture = FixtureBuilder.New<TestClass>().With(t => t.PropWithUnrelatedFieldName, text).Build();
+
+			Assert.That(fixture.PropWithUnrelatedFieldName, Is.EqualTo(text));
 		}
 
 		[Test]
-		public void RecordProperties_SetsProperties()
+		public void PropWithoutSetter_SetsProperty()
 		{
-			var fixture = FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
+			var text = "Test string";
 
-			Assert.Multiple(() =>
-			{
-				Assert.That(fixture.Text, Is.EqualTo(_text));
-				Assert.That(fixture.Number, Is.EqualTo(_number));
-			});
+			var fixture = FixtureBuilder.New<TestClass>().With(t => t.PropWithoutSetter, text).Build();
+
+			Assert.That(fixture.PropWithoutSetter, Is.EqualTo(text));
 		}
 
 		[Test]
-		public void NotARecordProperty_ThrowsException()
+		public void PropWithoutSetterAndUnrecognizedField_ThrowsException()
 		{
-			Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.GetHashCode(), _number).Build());
-		}
+			var text = "Test string";
 
-		[Test]
-		public void NoRecordPropertyBackingField_ThrowsException()
-		{
-			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text.Length, _number).Build());
-		}
-
-		[Test]
-		public void ClassProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).Build();
-
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void ClassProperties_SetsProperties()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
-
-			Assert.Multiple(() =>
-			{
-				Assert.That(fixture.Text, Is.EqualTo(_text));
-				Assert.That(fixture.Number, Is.EqualTo(_number));
-			});
-		}
-
-		[Test]
-		public void NotAClassProperty_ThrowsException()
-		{
-			Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.GetHashCode(), _number).Build());
-		}
-
-		[Test]
-		public void NoClassPropertyBackingField_ThrowsException()
-		{
-			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text.Length, _number).Build());
-		}
-
-		[Test]
-		public void ExplicitBackingField_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.PrivateExplicitField, _text).Build();
-
-			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void ExplicitBackingFieldNoUnderscore_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.PrivateExplicitNoUnderscoreField, _text).Build();
-
-			Assert.That(fixture.PrivateExplicitNoUnderscoreField, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void DerivedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(t => t.Text, _text).Build();
-
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void OverriddenProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(t => t.Number, _number).Build();
-
-			Assert.That(fixture.Number, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void ImplicitInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithField(t => t.ImplicitProperty, _text).Build();
-
-			Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void ExplicitValueInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithField<ITestInterface, int>(t => t.ExplicitValueProperty, _number).Build();
-
-			Assert.That(((ITestInterface)fixture).ExplicitValueProperty, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void ExplicitRefInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithField<ITestInterface, string>(t => t.ExplicitRefProperty, _text).Build();
-
-			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void TwiceDerivedClass_PropertyInDerivedClass_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TwiceDerivedClass>().BypassConstructor().WithField(p => p.Number, _number).Build();
-
-			Assert.That(fixture.Number, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void GenericClass_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor().WithField(g => g.Value, _text).Build();
-
-			Assert.That(fixture.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void NestedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.Value, _text).Build();
-
-			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void DerivedNestedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(t => t.NestedClass.Value, _text).Build();
-
-			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void NestedInterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField<INestedInterface, string>(t => t.NestedInterfaceClass.Value, _text).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void DeeperNestedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
-
-			Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void DeeperNestedInterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField<INestedInterface, int>(t => t.NestedInterfaceClass.DeeperNestedClass.Value, _number).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.Value, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void SkipConstructionMethods_ConstructsFixture()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().WithField(t => t.Text, _text).Build();
-
-			Assert.That(fixture.Text, Is.EqualTo(_text));
+			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().With(t => t.PropNoSetterWithUnrelatedFieldName, text).Build());
 		}
 	}
 }

@@ -7,14 +7,18 @@
 		public string Text { get; set; } = null!;
 		public virtual int Number { get; protected set; }
 		public string PropWithoutSetter { get; } = null!;
+		public string PropWithPrivateSetter { get; private set; } = null!;
 		private readonly string _privateExplicitField = null!;
 		internal string PrivateExplicitField => _privateExplicitField;
-		private readonly string _privateExplicitNoUnderscoreField = null!;
-		internal string PrivateExplicitNoUnderscoreField => _privateExplicitNoUnderscoreField;
+		private readonly string privateExplicitNoUnderscoreField = null!;
+		internal string PrivateExplicitNoUnderscoreField => privateExplicitNoUnderscoreField;
 		protected string _inheritedField = null!;
 		internal string InheritedFieldGetter => _inheritedField;
 		internal NestedClass NestedClass { get; set; } = null!;
 		NestedClass INestedInterface.NestedInterfaceClass { get; set; } = null!;
+		private string _unrelatedFieldName = null!;
+		public string PropWithUnrelatedFieldName { get => _unrelatedFieldName; set => _unrelatedFieldName = value; }
+		public string PropNoSetterWithUnrelatedFieldName => _unrelatedFieldName;
 	}
 
 	internal class DerivedTestClass : TestClass

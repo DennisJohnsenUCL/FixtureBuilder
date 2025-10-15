@@ -116,5 +116,13 @@
 
 			Assert.That(fixture.Text, Is.EqualTo(_text));
 		}
+
+		[Test]
+		public void PrivateSetter_CanSetValue()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.PropWithPrivateSetter, _text).Build();
+
+			Assert.That(fixture.PropWithPrivateSetter, Is.EqualTo(_text));
+		}
 	}
 }

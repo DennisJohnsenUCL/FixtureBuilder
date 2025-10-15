@@ -157,6 +157,30 @@ namespace TestUtilities
 			return this;
 		}
 
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
+			return WithInternal(expr, value);
+		}
+
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
+		{
+			ValidateInterface(typeof(TInterface));
+
+			var lambda = ConvertExpression(expr);
+
+			return WithInternal(lambda, value);
+		}
+
+		private FixtureBuilder<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
+			if (IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
+			else return WithFieldInternal(expr, value);
+		}
+
 		private static Expression<Func<TEntity, TProp>> ConvertExpression<TInterface, TProp>(
 			Expression<Func<TInterface, TProp>> expr)
 		{
@@ -185,6 +209,17 @@ namespace TestUtilities
 
 			var newBody = Rewrite(memberExpr);
 			return Expression.Lambda<Func<TEntity, TProp>>(newBody, param);
+		}
+
+		private static bool IsPropertyWritable<TProp>(Expression<Func<TEntity, TProp>> expr)
+		{
+			if (expr.Body is not MemberExpression memberExpr)
+				throw new ArgumentException("Expression must be a property access", nameof(expr));
+
+			if (memberExpr.Member is not PropertyInfo propInfo)
+				throw new ArgumentException("Expression must be a property", nameof(expr));
+
+			return propInfo.CanWrite;
 		}
 
 		private static (object instance, PropertyInfo property) ResolvePropertyPath<TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr)
@@ -283,6 +318,8 @@ namespace TestUtilities
 
 	public interface IFixtureConfigurator<TEntity> where TEntity : class
 	{
+		IFixtureConfigurator<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField(string fieldName, object value);
