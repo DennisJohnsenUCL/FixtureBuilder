@@ -60,8 +60,14 @@
 	internal class NestedClass
 	{
 		public string Value { get; set; } = null!;
+		public DeeperNestedClass DeeperNestedClass { get; set; } = null!;
 
 		public NestedClass() { }
+	}
+
+	internal class DeeperNestedClass
+	{
+		public int Value { get; set; }
 	}
 
 	internal interface INestedInterface

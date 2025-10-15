@@ -171,5 +171,21 @@
 
 			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
 		}
+
+		[Test]
+		public void DeeperNestedProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
+
+			Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
+		}
+
+		[Test]
+		public void DeeperNestedInterfaceProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().With<INestedInterface, int>(t => t.NestedInterfaceClass.DeeperNestedClass.Value, _number).Build();
+
+			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.Value, Is.EqualTo(_number));
+		}
 	}
 }

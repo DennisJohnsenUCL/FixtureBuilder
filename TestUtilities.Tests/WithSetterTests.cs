@@ -78,6 +78,14 @@
 		}
 
 		[Test]
+		public void DeeperNestedProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
+
+			Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
+		}
+
+		[Test]
 		public void DerivedNestedProperty_SetsProperty()
 		{
 			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
@@ -91,6 +99,14 @@
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter<INestedInterface, string>(t => t.NestedInterfaceClass.Value, _text).Build();
 
 			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void DeeperNestedInterfaceProperty_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter<INestedInterface, int>(t => t.NestedInterfaceClass.DeeperNestedClass.Value, _number).Build();
+
+			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.Value, Is.EqualTo(_number));
 		}
 	}
 }
