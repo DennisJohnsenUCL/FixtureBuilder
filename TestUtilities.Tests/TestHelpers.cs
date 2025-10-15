@@ -68,6 +68,8 @@
 	internal class DeeperNestedClass
 	{
 		public int Value { get; set; }
+
+		public DeeperNestedClass(int value) { Value = value; }
 	}
 
 	internal interface INestedInterface

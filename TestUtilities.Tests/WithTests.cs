@@ -41,7 +41,7 @@
 		[Test]
 		public void NoRecordPropertyBackingField_ThrowsException()
 		{
-			Assert.Throws<MissingMethodException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().With(t => t.Text.Length, _number).Build());
+			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().With(t => t.Text.Length, _number).Build());
 		}
 
 		[Test]
@@ -73,7 +73,7 @@
 		[Test]
 		public void NoClassPropertyBackingField_ThrowsException()
 		{
-			Assert.Throws<MissingMethodException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.Text.Length, _number).Build());
+			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().With(t => t.Text.Length, _number).Build());
 		}
 
 		[Test]

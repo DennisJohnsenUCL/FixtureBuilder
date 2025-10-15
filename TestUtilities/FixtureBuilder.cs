@@ -17,21 +17,46 @@ namespace TestUtilities
 
 		IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.BypassConstructor()
 		{
-			_fixture = (TEntity)RuntimeHelpers.GetUninitializedObject(typeof(TEntity));
+			var instance = BypassConstructorInternal(typeof(TEntity))
+				?? throw new InvalidOperationException($"Failed to instantiate {typeof(TEntity)}");
+
+			_fixture = (TEntity)instance;
 			return this;
+		}
+
+		private static object? BypassConstructorInternal(Type type)
+		{
+			try { return RuntimeHelpers.GetUninitializedObject(type); }
+			catch { return null; }
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
 		{
-			_fixture = (TEntity)Activator.CreateInstance(
-				typeof(TEntity),
-				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
-				binder: null,
-				args: args,
-				culture: CultureInfo.CurrentCulture)!
-				?? throw new InvalidOperationException($"Activator failed to find constructor for {typeof(TEntity)}.");
+			var instance = UseConstructorInternal(typeof(TEntity), args)
+				?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)}");
 
+			_fixture = (TEntity)instance;
 			return this;
+		}
+
+		private static object? UseConstructorInternal(Type type, params object[] args)
+		{
+			try
+			{
+				return Activator.CreateInstance(
+					type,
+					BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+					binder: null,
+					args: args,
+					culture: CultureInfo.CurrentCulture);
+			}
+			catch { return null; }
+		}
+
+		private static object GetInstantiatedInstance(Type type)
+		{
+			var instance = UseConstructorInternal(type) ?? BypassConstructorInternal(type);
+			return instance ?? throw new InvalidOperationException($"Failed to instantiate {type}");
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(
@@ -78,7 +103,7 @@ namespace TestUtilities
 				if (current == null)
 				{
 					var type = prop.PropertyType;
-					current = Activator.CreateInstance(type)!;
+					current = GetInstantiatedInstance(type);
 					prop.SetValue(parent, current);
 				}
 			}
@@ -158,9 +183,9 @@ namespace TestUtilities
 				if (current == null)
 				{
 					var type = prop.PropertyType;
-					current = Activator.CreateInstance(type!)!;
+					current = GetInstantiatedInstance(type);
 
-					prop?.SetValue(parent, current);
+					prop.SetValue(parent, current);
 				}
 			}
 
