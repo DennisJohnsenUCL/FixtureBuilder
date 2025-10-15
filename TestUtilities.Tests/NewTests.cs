@@ -10,7 +10,7 @@
 
 			var preBuiltFixture = new TestClass() { Text = text };
 
-			var fixture = FixtureBuilder.New(preBuiltFixture).With(p => p.Number, number).Build();
+			var fixture = FixtureBuilder.New(preBuiltFixture).WithField(p => p.Number, number).Build();
 
 			Assert.Multiple(() =>
 			{

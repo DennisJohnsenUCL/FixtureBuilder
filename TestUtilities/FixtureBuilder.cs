@@ -59,12 +59,12 @@ namespace TestUtilities
 			return instance ?? throw new InvalidOperationException($"Failed to instantiate {type}");
 		}
 
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(
 			Expression<Func<TEntity, TProp>> expr,
 			TProp value)
-			=> WithInternal(expr, value);
+			=> WithFieldInternal(expr, value);
 
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TInterface, TProp>(
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TInterface, TProp>(
 			Expression<Func<TInterface, TProp>> expr,
 			TProp value)
 		{
@@ -72,16 +72,40 @@ namespace TestUtilities
 			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
 
 			var lambda = ConvertExpression(expr);
-			return WithInternal(lambda, value);
+			return WithFieldInternal(lambda, value);
 		}
 
-		private FixtureBuilder<TEntity> WithInternal<TProp>(
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
+		{
+			if (!TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
+				throw new InvalidOperationException($"Field '{fieldName}' not found.");
+
+			fieldInfo.SetValue(_fixture, value);
+
+			return this;
+		}
+
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
+			=> WithFieldInternal(expr, value, fieldName);
+
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TInterface, TProp>(string fieldName, Expression<Func<TInterface, TProp>> expr, TProp value)
+		{
+			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
+			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+
+			var lambda = ConvertExpression(expr);
+
+			return WithFieldInternal(lambda, value, fieldName);
+		}
+
+		private FixtureBuilder<TEntity> WithFieldInternal<TProp>(
 			Expression<Func<TEntity, TProp>> expr,
-			TProp value)
+			TProp value,
+			params string[] fieldNames)
 		{
 			var (instance, property) = ResolvePropertyPath(_fixture, expr);
 
-			var fieldNames = GetFieldNames(property.Name);
+			fieldNames = fieldNames.Length == 0 ? GetFieldNames(property.Name) : fieldNames;
 
 			if (property.DeclaringType != null && property.DeclaringType.IsInterface)
 			{
@@ -132,16 +156,6 @@ namespace TestUtilities
 			var finalProp = (PropertyInfo)currentMember;
 
 			return (current, finalProp);
-		}
-
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
-		{
-			if (!TryGetField(fieldName, out var fieldInfo))
-				throw new InvalidOperationException($"Field '{fieldName}' not found.");
-
-			fieldInfo.SetValue(_fixture, value);
-
-			return this;
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
@@ -218,8 +232,6 @@ namespace TestUtilities
 			return fieldInfo != null;
 		}
 
-		private bool TryGetField(string fieldName, [NotNullWhen(true)] out FieldInfo fieldInfo) => TryGetField(_fixture.GetType(), fieldName, out fieldInfo);
-
 		private static bool TryGetField(Type type, string fieldName, [NotNullWhen(true)] out FieldInfo fieldInfo)
 		{
 			fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
@@ -256,9 +268,11 @@ namespace TestUtilities
 
 	public interface IFixtureConfigurator<TEntity> where TEntity : class
 	{
-		IFixtureConfigurator<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-		IFixtureConfigurator<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> WithField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> WithField<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField(string fieldName, object value);
+		IFixtureConfigurator<TEntity> WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value);
+		IFixtureConfigurator<TEntity> WithField<TInterface, TProp>(string fieldName, Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithSetter<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		TEntity Build();

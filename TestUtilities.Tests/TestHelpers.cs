@@ -69,6 +69,9 @@
 	{
 		public int Value { get; set; }
 
+		private readonly string _privateField = null!;
+		public string PrivateFieldGetter => _privateField;
+
 		public DeeperNestedClass(int value) { Value = value; }
 	}
 

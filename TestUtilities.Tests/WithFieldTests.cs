@@ -41,5 +41,27 @@
 
 			Assert.That(derivedTestClass.InheritedFieldGetter, Is.EqualTo(text));
 		}
+
+		[Test]
+		public void DeeperNestedProperty_SetsProperty()
+		{
+			var text = "New string name";
+			var fieldName = "_privateField";
+
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, text).Build();
+
+			Assert.That(fixture.NestedClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(text));
+		}
+
+		[Test]
+		public void DeeperNestedInterfaceProperty_SetsProperty()
+		{
+			var text = "New string name";
+			var fieldName = "_privateField";
+
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField<INestedInterface, string>(fieldName, t => t.NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, text).Build();
+
+			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(text));
+		}
 	}
 }
