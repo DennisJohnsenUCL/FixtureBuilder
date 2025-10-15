@@ -187,5 +187,13 @@
 
 			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.Value, Is.EqualTo(_number));
 		}
+
+		[Test]
+		public void SkipConstructionMethods_ConstructsFixture()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().WithField(t => t.Text, _text).Build();
+
+			Assert.That(fixture.Text, Is.EqualTo(_text));
+		}
 	}
 }

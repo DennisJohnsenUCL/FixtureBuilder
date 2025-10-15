@@ -9,7 +9,13 @@ namespace TestUtilities
 	internal class FixtureBuilder<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
 	{
 		private TEntity _fixture = null!;
-		TEntity IFixtureConfigurator<TEntity>.Build() => _fixture;
+
+		TEntity IFixtureConfigurator<TEntity>.Build()
+		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
+			return _fixture;
+		}
 
 		internal FixtureBuilder() { }
 
@@ -76,6 +82,8 @@ namespace TestUtilities
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
 		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
 			if (!TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
 				throw new InvalidOperationException($"Field '{fieldName}' not found.");
 
@@ -101,6 +109,8 @@ namespace TestUtilities
 			TProp value,
 			string? fieldName = null)
 		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
 			var (instance, property) = ResolvePropertyPath(_fixture, expr);
 
 			var fieldNames = fieldName == null ? GetFieldNames(property.Name) : [fieldName];
@@ -117,6 +127,64 @@ namespace TestUtilities
 
 			backingField.SetValue(instance, value);
 			return this;
+		}
+
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+			=> WithSetterInternal(expr, value);
+
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(
+			Expression<Func<TInterface, TProp>> expr,
+			TProp value)
+		{
+			ValidateInterface(typeof(TInterface));
+
+			var lambda = ConvertExpression(expr);
+
+			return WithSetterInternal(lambda, value);
+		}
+
+		private FixtureBuilder<TEntity> WithSetterInternal<TProp>(
+			Expression<Func<TEntity, TProp>> expr,
+			TProp value)
+		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
+			var (instance, property) = ResolvePropertyPath(_fixture, expr);
+
+			if (property != null) property.SetValue(instance, value);
+			else throw new InvalidOperationException("Unsupported member type");
+
+			return this;
+		}
+
+		private static Expression<Func<TEntity, TProp>> ConvertExpression<TInterface, TProp>(
+			Expression<Func<TInterface, TProp>> expr)
+		{
+			if (expr.Body is not MemberExpression memberExpr)
+				throw new ArgumentException("Expression body must be a member expression", nameof(expr));
+
+			var param = Expression.Parameter(typeof(TEntity), expr.Parameters[0].Name);
+
+			Expression Rewrite(MemberExpression me)
+			{
+				if (me.Expression is ParameterExpression pe && pe == expr.Parameters[0])
+				{
+					var converted = Expression.Convert(param, typeof(TInterface));
+					return Expression.MakeMemberAccess(converted, me.Member);
+				}
+				else if (me.Expression is MemberExpression inner)
+				{
+					var innerExpr = Rewrite(inner);
+					return Expression.MakeMemberAccess(innerExpr, me.Member);
+				}
+				else
+				{
+					throw new InvalidOperationException($"Unexpected expression node: {me.Expression?.NodeType}");
+				}
+			}
+
+			var newBody = Rewrite(memberExpr);
+			return Expression.Lambda<Func<TEntity, TProp>>(newBody, param);
 		}
 
 		private static (object instance, PropertyInfo property) ResolvePropertyPath<TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr)
@@ -154,62 +222,6 @@ namespace TestUtilities
 			var finalProp = (PropertyInfo)currentMember;
 
 			return (current, finalProp);
-		}
-
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
-			=> WithSetterInternal(expr, value);
-
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(
-			Expression<Func<TInterface, TProp>> expr,
-			TProp value)
-		{
-			ValidateInterface(typeof(TInterface));
-
-			var lambda = ConvertExpression(expr);
-
-			return WithSetterInternal(lambda, value);
-		}
-
-		private FixtureBuilder<TEntity> WithSetterInternal<TProp>(
-			Expression<Func<TEntity, TProp>> expr,
-			TProp value)
-		{
-			var (instance, property) = ResolvePropertyPath(_fixture, expr);
-
-			if (property != null) property.SetValue(instance, value);
-			else throw new InvalidOperationException("Unsupported member type");
-
-			return this;
-		}
-
-		private static Expression<Func<TEntity, TProp>> ConvertExpression<TInterface, TProp>(
-			Expression<Func<TInterface, TProp>> expr)
-		{
-			if (expr.Body is not MemberExpression memberExpr)
-				throw new ArgumentException("Expression body must be a member expression", nameof(expr));
-
-			var param = Expression.Parameter(typeof(TEntity), expr.Parameters[0].Name);
-
-			Expression Rewrite(MemberExpression me)
-			{
-				if (me.Expression is ParameterExpression pe && pe == expr.Parameters[0])
-				{
-					var converted = Expression.Convert(param, typeof(TInterface));
-					return Expression.MakeMemberAccess(converted, me.Member);
-				}
-				else if (me.Expression is MemberExpression inner)
-				{
-					var innerExpr = Rewrite(inner);
-					return Expression.MakeMemberAccess(innerExpr, me.Member);
-				}
-				else
-				{
-					throw new InvalidOperationException($"Unexpected expression node: {me.Expression?.NodeType}");
-				}
-			}
-
-			var newBody = Rewrite(memberExpr);
-			return Expression.Lambda<Func<TEntity, TProp>>(newBody, param);
 		}
 
 		private bool TryGetFixtureField(string[] fieldNames, [NotNullWhen(true)] out FieldInfo fieldInfo)
@@ -263,7 +275,7 @@ namespace TestUtilities
 		public static IFixtureConfigurator<TEntity> New<TEntity>(TEntity entity) where TEntity : class => new FixtureBuilder<TEntity>(entity);
 	}
 
-	public interface IFixtureConstructor<TEntity> where TEntity : class
+	public interface IFixtureConstructor<TEntity> : IFixtureConfigurator<TEntity> where TEntity : class
 	{
 		IFixtureConfigurator<TEntity> BypassConstructor();
 		IFixtureConfigurator<TEntity> UseConstructor(params object[] args);

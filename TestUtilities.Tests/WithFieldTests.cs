@@ -63,5 +63,16 @@
 
 			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(text));
 		}
+
+		[Test]
+		public void SkipConstructionMethods_ConstructsFixture()
+		{
+			var text = "New string name";
+			var fieldName = "_privateExplicitField";
+
+			var fixture = FixtureBuilder.New<TestClass>().WithField(fieldName, text).Build();
+
+			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(text));
+		}
 	}
 }
