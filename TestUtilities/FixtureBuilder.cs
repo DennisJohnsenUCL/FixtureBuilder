@@ -85,9 +85,47 @@ namespace TestUtilities
 			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
 
 			if (!TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
-				throw new InvalidOperationException($"Field '{fieldName}' not found.");
+				throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
-			fieldInfo.SetValue(_fixture, value);
+			var fieldType = fieldInfo.FieldType;
+
+			// If field is a collection type
+			if (typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
+			{
+				var existingValue = fieldInfo.GetValue(_fixture);
+
+				if (existingValue == null)
+				{
+					// Try to create an instance of the collection
+					existingValue = Activator.CreateInstance(fieldType);
+					fieldInfo.SetValue(_fixture, existingValue);
+				}
+
+				// Try to add elements
+				var addMethod = fieldType.GetMethod("Add");
+				if (addMethod != null)
+				{
+					if (value is System.Collections.IEnumerable enumerable && value is not string)
+					{
+						foreach (var item in enumerable)
+							addMethod.Invoke(existingValue, new[] { item });
+					}
+					else
+					{
+						addMethod.Invoke(existingValue, new[] { value });
+					}
+				}
+				else
+				{
+					// Fallback: if no Add() method, just set the value
+					fieldInfo.SetValue(_fixture, value);
+				}
+			}
+			else
+			{
+				// Non-collection field, set directly
+				fieldInfo.SetValue(_fixture, value);
+			}
 
 			return this;
 		}
