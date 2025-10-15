@@ -68,8 +68,7 @@ namespace TestUtilities
 			Expression<Func<TInterface, TProp>> expr,
 			TProp value)
 		{
-			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
-			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+			ValidateInterface(typeof(TInterface));
 
 			var lambda = ConvertExpression(expr);
 			return WithFieldInternal(lambda, value);
@@ -90,8 +89,7 @@ namespace TestUtilities
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TInterface, TProp>(string fieldName, Expression<Func<TInterface, TProp>> expr, TProp value)
 		{
-			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
-			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+			ValidateInterface(typeof(TInterface));
 
 			var lambda = ConvertExpression(expr);
 
@@ -101,11 +99,11 @@ namespace TestUtilities
 		private FixtureBuilder<TEntity> WithFieldInternal<TProp>(
 			Expression<Func<TEntity, TProp>> expr,
 			TProp value,
-			params string[] fieldNames)
+			string? fieldName = null)
 		{
 			var (instance, property) = ResolvePropertyPath(_fixture, expr);
 
-			fieldNames = fieldNames.Length == 0 ? GetFieldNames(property.Name) : fieldNames;
+			var fieldNames = fieldName == null ? GetFieldNames(property.Name) : [fieldName];
 
 			if (property.DeclaringType != null && property.DeclaringType.IsInterface)
 			{
@@ -165,8 +163,7 @@ namespace TestUtilities
 			Expression<Func<TInterface, TProp>> expr,
 			TProp value)
 		{
-			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
-			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
+			ValidateInterface(typeof(TInterface));
 
 			var lambda = ConvertExpression(expr);
 
@@ -246,6 +243,12 @@ namespace TestUtilities
 			}
 			fieldInfo = null!;
 			return false;
+		}
+
+		private static void ValidateInterface(Type TInterface)
+		{
+			if (!TInterface.IsInterface) throw new ArgumentException($"{TInterface} must be an interface type");
+			if (!typeof(TEntity).IsAssignableTo(TInterface)) throw new ArgumentException($"{TInterface} must be assignable from TEntity");
 		}
 
 		private static string[] GetFieldNames(string propName) =>
