@@ -1,4 +1,4 @@
-﻿namespace TestUtilities.Tests
+﻿namespace Shared.TestUtilities.Tests
 {
 	internal record TestValue(string Text, int Number);
 

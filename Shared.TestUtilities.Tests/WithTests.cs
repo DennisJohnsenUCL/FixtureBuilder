@@ -1,4 +1,4 @@
-﻿namespace TestUtilities.Tests
+﻿namespace Shared.TestUtilities.Tests
 {
 	internal sealed class WithTests
 	{
