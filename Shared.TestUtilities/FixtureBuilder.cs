@@ -28,6 +28,8 @@ namespace Shared.TestUtilities
 				?? throw new InvalidOperationException($"Failed to instantiate {typeof(TEntity)}");
 
 			_fixture = (TEntity)instance;
+			InstantiateMembers(_fixture);
+
 			return this;
 		}
 
@@ -43,6 +45,8 @@ namespace Shared.TestUtilities
 				?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)}");
 
 			_fixture = (TEntity)instance;
+			InstantiateMembers(_fixture);
+
 			return this;
 		}
 
@@ -62,8 +66,12 @@ namespace Shared.TestUtilities
 
 		private static object GetInstantiatedInstance(Type type)
 		{
-			var instance = UseConstructorInternal(type) ?? BypassConstructorInternal(type);
-			return instance ?? throw new InvalidOperationException($"Failed to instantiate {type}");
+			var instance = UseConstructorInternal(type) ?? BypassConstructorInternal(type)
+				?? throw new InvalidOperationException($"Failed to instantiate {type}");
+
+			InstantiateMembers(instance);
+
+			return instance;
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(
@@ -109,11 +117,11 @@ namespace Shared.TestUtilities
 					if (value is System.Collections.IEnumerable enumerable && value is not string)
 					{
 						foreach (var item in enumerable)
-							addMethod.Invoke(existingValue, new[] { item });
+							addMethod.Invoke(existingValue, [item]);
 					}
 					else
 					{
-						addMethod.Invoke(existingValue, new[] { value });
+						addMethod.Invoke(existingValue, [value]);
 					}
 				}
 				else
@@ -202,8 +210,6 @@ namespace Shared.TestUtilities
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
-			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
-
 			return WithInternal(expr, value);
 		}
 
