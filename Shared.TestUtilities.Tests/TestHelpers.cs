@@ -19,6 +19,8 @@
 		private string _unrelatedFieldName = null!;
 		public string PropWithUnrelatedFieldName { get => _unrelatedFieldName; set => _unrelatedFieldName = value; }
 		public string PropNoSetterWithUnrelatedFieldName => _unrelatedFieldName;
+		private List<string> _stringListField = null!;
+		public List<string> StringListProp { get => _stringListField; set => _stringListField = value; }
 	}
 
 	internal class DerivedTestClass : TestClass

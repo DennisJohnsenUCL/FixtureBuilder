@@ -273,5 +273,40 @@ namespace Shared.TestUtilities.Tests
 
 			Assert.That(field.NestedClass, Is.Not.Null);
 		}
+
+		[Test]
+		public void CollectionTypeField_OneParameter_SetsField()
+		{
+			var fieldName = "_stringListField";
+
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
+
+			Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void CollectionTypeField_CollectionParameter_SetsField()
+		{
+			var fieldName = "_stringListField";
+
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, [_text]).Build();
+
+			Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void CollectionTypeField_CollectionParameters_SetsField()
+		{
+			var fieldName = "_stringListField";
+			var secondEntry = "More test";
+
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, [_text, secondEntry]).Build();
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+				Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
+			}
+		}
 	}
 }
