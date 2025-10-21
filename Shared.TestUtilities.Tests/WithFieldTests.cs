@@ -1,4 +1,6 @@
-﻿namespace Shared.TestUtilities.Tests
+﻿using System.Reflection;
+
+namespace Shared.TestUtilities.Tests
 {
 	internal sealed class WithFieldTests
 	{
@@ -25,11 +27,11 @@
 		{
 			var fixture = FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(fixture.Text, Is.EqualTo(_text));
 				Assert.That(fixture.Number, Is.EqualTo(_number));
-			});
+			}
 		}
 
 		[Test]
@@ -57,11 +59,11 @@
 		{
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(fixture.Text, Is.EqualTo(_text));
 				Assert.That(fixture.Number, Is.EqualTo(_number));
-			});
+			}
 		}
 
 		[Test]
@@ -260,6 +262,16 @@
 			var fixture = FixtureBuilder.New<TestClass>().WithField(fieldName, _text).Build();
 
 			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void ClassWithMembers_InstantiatesClassMembers()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().WithField(t => t.Text, _text);
+
+			var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+
+			Assert.That(field.NestedClass, Is.Not.Null);
 		}
 	}
 }

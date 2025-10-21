@@ -1,4 +1,6 @@
-﻿namespace Shared.TestUtilities.Tests
+﻿using System.Reflection;
+
+namespace Shared.TestUtilities.Tests
 {
 	internal sealed class WithTests
 	{
@@ -38,6 +40,18 @@
 			var text = "Test string";
 
 			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().With(t => t.PropNoSetterWithUnrelatedFieldName, text).Build());
+		}
+
+		[Test]
+		public void ClassWithMembers_InstantiatesClassMembers()
+		{
+			var text = "Test string";
+
+			var fixture = FixtureBuilder.New<TestClass>().With(t => t.Text, text);
+
+			var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+
+			Assert.That(field.NestedClass, Is.Not.Null);
 		}
 	}
 }

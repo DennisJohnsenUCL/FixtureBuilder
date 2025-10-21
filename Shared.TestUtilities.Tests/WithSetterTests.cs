@@ -1,4 +1,6 @@
-﻿namespace Shared.TestUtilities.Tests
+﻿using System.Reflection;
+
+namespace Shared.TestUtilities.Tests
 {
 	internal class WithSetterTests
 	{
@@ -123,6 +125,16 @@
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.PropWithPrivateSetter, _text).Build();
 
 			Assert.That(fixture.PropWithPrivateSetter, Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void ClassWithMembers_InstantiatesClassMembers()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
+
+			var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+
+			Assert.That(field.NestedClass, Is.Not.Null);
 		}
 	}
 }
