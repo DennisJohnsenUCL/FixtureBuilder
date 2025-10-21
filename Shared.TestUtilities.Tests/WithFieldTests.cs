@@ -308,5 +308,15 @@ namespace Shared.TestUtilities.Tests
 				Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
 			}
 		}
+
+		[Test]
+		public void CollectionTypeFieldWithProp_CollectionParameters_SetsField()
+		{
+			var fieldName = "_stringListField";
+
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.StringListProp, [_text]).Build();
+
+			Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+		}
 	}
 }
