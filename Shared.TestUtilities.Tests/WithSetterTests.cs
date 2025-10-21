@@ -136,5 +136,26 @@ namespace Shared.TestUtilities.Tests
 
 			Assert.That(field.NestedClass, Is.Not.Null);
 		}
+
+		[Test]
+		public void CollectionTypeProperty_OneParameter_SetsProperty()
+		{
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text]).Build();
+
+			Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+		}
+
+		[Test]
+		public void CollectionTypeProperty_TwoParameters_SetsProperty()
+		{
+			var secondEntry = "More test";
+			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text, secondEntry]).Build();
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+				Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
+			}
+		}
 	}
 }
