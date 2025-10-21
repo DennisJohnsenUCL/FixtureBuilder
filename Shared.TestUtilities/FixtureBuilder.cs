@@ -93,7 +93,23 @@ namespace Shared.TestUtilities
 		{
 			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
 
-			if (!TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
+			SetField(_fixture, fieldName, [value], allowNonCollection: true);
+
+			return this;
+		}
+
+		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, IEnumerable<object> values)
+		{
+			_fixture ??= (TEntity)GetInstantiatedInstance(typeof(TEntity));
+
+			SetField(_fixture, fieldName, values, allowNonCollection: false);
+
+			return this;
+		}
+
+		private static void SetField(object instance, string fieldName, IEnumerable<object> values, bool allowNonCollection)
+		{
+			if (!TryGetField(instance.GetType(), fieldName, out var fieldInfo))
 				throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
 			var fieldType = fieldInfo.FieldType;
@@ -101,42 +117,22 @@ namespace Shared.TestUtilities
 			// If field is a collection type
 			if (typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
 			{
-				var existingValue = fieldInfo.GetValue(_fixture);
-
-				if (existingValue == null)
-				{
-					// Try to create an instance of the collection
-					existingValue = Activator.CreateInstance(fieldType);
-					fieldInfo.SetValue(_fixture, existingValue);
-				}
+				// Try to create an instance of the collection
+				var existingValue = Activator.CreateInstance(fieldType);
+				fieldInfo.SetValue(instance, existingValue);
 
 				// Try to add elements
-				var addMethod = fieldType.GetMethod("Add");
-				if (addMethod != null)
-				{
-					if (value is System.Collections.IEnumerable enumerable && value is not string)
-					{
-						foreach (var item in enumerable)
-							addMethod.Invoke(existingValue, [item]);
-					}
-					else
-					{
-						addMethod.Invoke(existingValue, [value]);
-					}
-				}
-				else
-				{
-					// Fallback: if no Add() method, just set the value
-					fieldInfo.SetValue(_fixture, value);
-				}
+				var addMethod = fieldType.GetMethod("Add")
+					?? throw new InvalidOperationException("Cannot assign collection to field without Add method");
+
+				foreach (var item in values)
+					addMethod.Invoke(existingValue, [item]);
 			}
 			else
 			{
-				// Non-collection field, set directly
-				fieldInfo.SetValue(_fixture, value);
+				if (!allowNonCollection) throw new InvalidOperationException("Cannot assign collection to non-collection field");
+				fieldInfo.SetValue(instance, values.Cast<object>().FirstOrDefault());
 			}
-
-			return this;
 		}
 
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
@@ -352,6 +348,7 @@ namespace Shared.TestUtilities
 			foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
 			{
 				if (!prop.CanRead || !prop.CanWrite) continue;
+				if (prop.GetIndexParameters().Length > 0) continue;
 				if (IsNullableReferenceType(prop) || IsNullableValueType(prop)) continue;
 
 				var propType = prop.PropertyType;
@@ -508,6 +505,7 @@ namespace Shared.TestUtilities
 		IFixtureConfigurator<TEntity> WithField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField(string fieldName, object value);
+		IFixtureConfigurator<TEntity> WithField(string fieldName, IEnumerable<object> value);
 		IFixtureConfigurator<TEntity> WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField<TInterface, TProp>(string fieldName, Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
