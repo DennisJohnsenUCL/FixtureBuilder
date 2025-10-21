@@ -483,7 +483,8 @@ namespace Shared.TestUtilities
 		private static string[] GetFieldNames(string propName) =>
 			[$"<{propName}>k__BackingField",
 			$"_{char.ToLower(propName[0]) + propName[1..]}",
-			$"{char.ToLower(propName[0]) + propName[1..]}"];
+			$"{char.ToLower(propName[0]) + propName[1..]}",
+			$"_{propName}"];
 	}
 
 	public static class FixtureBuilder
