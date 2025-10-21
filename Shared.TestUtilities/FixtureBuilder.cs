@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -332,6 +333,139 @@ namespace Shared.TestUtilities
 			}
 			fieldInfo = null!;
 			return false;
+		}
+
+		private static void InstantiateMembers(object obj)
+		{
+			if (obj == null) throw new InvalidOperationException($"Cannot instantiate members of a null member");
+
+			var type = obj.GetType();
+
+			foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
+			{
+				if (!prop.CanRead || !prop.CanWrite) continue;
+				if (IsNullableReferenceType(prop) || IsNullableValueType(prop)) continue;
+
+				var propType = prop.PropertyType;
+
+				if (propType.IsAbstract) continue;
+
+				var value = prop.GetValue(obj);
+
+				if (value == null)
+				{
+					if (propType.IsPrimitive) value = default;
+					else if (propType == typeof(string)) value = "";
+					else if (propType == typeof(decimal)) value = 0m;
+					else if (propType.IsEnum) value = Enum.GetValues(propType).GetValue(0);
+					else if (propType.IsValueType) value = default;
+					else if (propType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(propType))
+					{
+						try { value = GetInstantiatedInstance(propType); }
+						catch { }
+					}
+
+					if (value != null) prop.SetValue(obj, value);
+				}
+
+				if (value != null) InstantiateMembers(value);
+			}
+
+			foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
+			{
+				if (field.IsInitOnly) continue;
+				if (IsNullableReferenceType(field) || IsNullableValueType(field)) continue;
+
+				var fieldType = field.FieldType;
+
+				if (fieldType.IsAbstract) continue;
+
+				var value = field.GetValue(obj);
+
+				if (value == null)
+				{
+					if (fieldType.IsPrimitive) value = default;
+					else if (fieldType == typeof(string)) value = "";
+					else if (fieldType == typeof(decimal)) value = 0m;
+					else if (fieldType.IsEnum) value = Enum.GetValues(fieldType).GetValue(0);
+					else if (fieldType.IsValueType) value = default;
+					else if (fieldType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType))
+					{
+						try { value = GetInstantiatedInstance(fieldType); }
+						catch { }
+					}
+
+					if (value != null) field.SetValue(obj, value);
+				}
+
+				if (value != null) InstantiateMembers(value);
+			}
+		}
+
+		public static bool IsNullableValueType(PropertyInfo property)
+		{
+			var type = property.PropertyType;
+
+			return Nullable.GetUnderlyingType(type) != null;
+		}
+
+		public static bool IsNullableValueType(FieldInfo field)
+		{
+			var type = field.FieldType;
+
+			return Nullable.GetUnderlyingType(type) != null;
+		}
+
+		private static bool IsNullableReferenceType(PropertyInfo property)
+		{
+			if (property.PropertyType.IsValueType)
+			{
+				// Value types can be Nullable<T> - handled elsewhere
+				return false;
+			}
+
+			return IsNullableReferenceTypeInternal(property.CustomAttributes);
+		}
+
+		private static bool IsNullableReferenceType(FieldInfo field)
+		{
+			if (field.FieldType.IsValueType)
+			{
+				// Value types can be Nullable<T> - handled elsewhere
+				return false;
+			}
+
+			return IsNullableReferenceTypeInternal(field.CustomAttributes);
+		}
+
+		private static bool IsNullableReferenceTypeInternal(IEnumerable<CustomAttributeData> attr)
+		{
+			// Check NullableAttribute on the field
+			var nullableAttr = attr
+				.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
+
+			if (nullableAttr != null && nullableAttr.ConstructorArguments.Count == 1)
+			{
+				var arg = nullableAttr.ConstructorArguments[0];
+
+				if (arg.ArgumentType == typeof(byte[]) &&
+					arg.Value is ReadOnlyCollection<CustomAttributeTypedArgument> args &&
+					args.Count > 0 &&
+					args[0].Value is byte b &&
+					b == 2)
+				{
+					return true; // Nullable reference type
+				}
+				else if (arg.ArgumentType == typeof(byte))
+				{
+					if (arg.Value is byte by && by == 2)
+					{
+						return true; // Nullable reference type
+					}
+				}
+			}
+
+			return false; // Default: not nullable reference type
 		}
 
 		private static void ValidateInterface(Type TInterface)
