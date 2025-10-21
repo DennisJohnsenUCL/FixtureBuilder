@@ -341,9 +341,11 @@ namespace Shared.TestUtilities
 			return false;
 		}
 
-		private static void InstantiateMembers(object obj)
+		private static void InstantiateMembers(object obj, HashSet<object>? seen = null)
 		{
 			if (obj == null) throw new InvalidOperationException($"Cannot instantiate members of a null member");
+			seen ??= new HashSet<object>(ReferenceEqualityComparer.Instance);
+			if (!seen.Add(obj)) return;
 
 			var type = obj.GetType();
 
@@ -374,7 +376,7 @@ namespace Shared.TestUtilities
 					if (value != null) prop.SetValue(obj, value);
 				}
 
-				if (value != null) InstantiateMembers(value);
+				if (value != null) InstantiateMembers(value, seen);
 			}
 
 			foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
@@ -404,7 +406,7 @@ namespace Shared.TestUtilities
 					if (value != null) field.SetValue(obj, value);
 				}
 
-				if (value != null) InstantiateMembers(value);
+				if (value != null) InstantiateMembers(value, seen);
 			}
 		}
 
