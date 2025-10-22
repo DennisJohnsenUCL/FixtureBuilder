@@ -43,7 +43,7 @@ namespace Shared.TestUtilities
 		{
 			_fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
-			FieldHelpers.SetField(_fixture, fieldName, [value], allowNonCollection: true);
+			FieldHelpers.SetField(_fixture, fieldName, value, allowNonCollection: true);
 
 			return this;
 		}

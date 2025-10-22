@@ -4,6 +4,9 @@ namespace Shared.TestUtilities
 {
 	internal static class FieldHelpers
 	{
+		public static void SetField(object instance, string fieldName, object value, bool allowNonCollection)
+			=> SetField(instance, fieldName, [value], allowNonCollection);
+
 		public static void SetField(object instance, string fieldName, IEnumerable<object> values, bool allowNonCollection)
 		{
 			if (!TryGetField(instance.GetType(), fieldName, out var fieldInfo))
