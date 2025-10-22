@@ -66,7 +66,7 @@ namespace Shared.TestUtilities
 					else if (propType.IsValueType) value = default;
 					else if (propType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(propType))
 					{
-						try { value = GetInstantiatedInstance(propType); }
+						try { value = GetInstantiatedInstance(propType, instantiateMembers: false); }
 						catch { }
 					}
 
@@ -96,7 +96,7 @@ namespace Shared.TestUtilities
 					else if (fieldType.IsValueType) value = default;
 					else if (fieldType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType))
 					{
-						try { value = GetInstantiatedInstance(fieldType); }
+						try { value = GetInstantiatedInstance(fieldType, instantiateMembers: false); }
 						catch { }
 					}
 

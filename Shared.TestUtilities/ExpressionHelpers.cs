@@ -33,7 +33,7 @@ namespace Shared.TestUtilities
 				if (current == null)
 				{
 					var type = prop.PropertyType;
-					current = InstantiationHelpers.GetInstantiatedInstance(type);
+					current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: true);
 					prop.SetValue(parent, current);
 				}
 			}
