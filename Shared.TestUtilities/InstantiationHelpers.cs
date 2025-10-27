@@ -47,6 +47,9 @@ namespace Shared.TestUtilities
 
 			foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
 			{
+				if (prop.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
+				if (prop.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
+				if (prop.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
 				if (!prop.CanRead || !prop.CanWrite) continue;
 				if (prop.GetIndexParameters().Length > 0) continue;
 				if (IsNullableReferenceType(prop) || IsNullableValueType(prop)) continue;
@@ -78,10 +81,10 @@ namespace Shared.TestUtilities
 
 			foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
 			{
-				if (field.IsStatic) continue;
 				if (field.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
 				if (field.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
 				if (field.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
+				if (field.IsStatic) continue;
 				if (IsNullableReferenceType(field) || IsNullableValueType(field)) continue;
 
 				var fieldType = field.FieldType;
