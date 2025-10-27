@@ -78,7 +78,10 @@ namespace Shared.TestUtilities
 
 			foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
 			{
-				if (field.IsInitOnly) continue;
+				if (field.IsStatic) continue;
+				if (field.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
+				if (field.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
+				if (field.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
 				if (IsNullableReferenceType(field) || IsNullableValueType(field)) continue;
 
 				var fieldType = field.FieldType;
