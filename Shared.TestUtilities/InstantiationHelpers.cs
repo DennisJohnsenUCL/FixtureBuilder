@@ -45,112 +45,56 @@ namespace Shared.TestUtilities
 
 			var type = obj.GetType();
 
-			foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
+			var dataMembers = type.GetDataMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+
+			foreach (var dataMember in dataMembers)
 			{
-				if (prop.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
-				if (prop.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
-				if (prop.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
-				if (!prop.CanRead || !prop.CanWrite) continue;
-				if (prop.GetIndexParameters().Length > 0) continue;
-				if (IsNullableReferenceType(prop) || IsNullableValueType(prop)) continue;
-
-				var propType = prop.PropertyType;
-
-				if (propType.IsAbstract) continue;
-
-				var value = prop.GetValue(obj);
-
-				if (value == null)
+				if (dataMember.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
+				if (dataMember.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
+				if (dataMember.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
+				if (dataMember.IsPropertyInfo)
 				{
-					if (propType.IsPrimitive) value = default;
-					else if (propType == typeof(string)) value = "";
-					else if (propType == typeof(decimal)) value = 0m;
-					else if (propType.IsEnum) value = Enum.GetValues(propType).GetValue(0);
-					else if (propType.IsValueType) value = default;
-					else if (propType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(propType))
-					{
-						try { value = GetInstantiatedInstance(propType, instantiateMembers: false); }
-						catch { }
-					}
-
-					if (value != null) prop.SetValue(obj, value);
+					if (!dataMember.CanReadProperty || !dataMember.CanWriteProperty) continue;
+					if (dataMember.GetPropertyIndexParameters().Length > 0) continue;
 				}
+				if (dataMember.IsFieldInfo && dataMember.IsStaticField) continue;
 
-				if (value != null) InstantiateMembers(value, seen);
-			}
+				var dataMemberType = dataMember.DataMemberType;
 
-			foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
-			{
-				if (field.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
-				if (field.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
-				if (field.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
-				if (field.IsStatic) continue;
-				if (IsNullableReferenceType(field) || IsNullableValueType(field)) continue;
+				if (IsNullableReferenceType(dataMember) || IsNullableValueType(dataMemberType)) continue;
+				if (dataMemberType.IsAbstract) continue;
 
-				var fieldType = field.FieldType;
-
-				if (fieldType.IsAbstract) continue;
-
-				var value = field.GetValue(obj);
+				var value = dataMember.GetValue(obj);
 
 				if (value == null)
 				{
-					if (fieldType.IsPrimitive) value = default;
-					else if (fieldType == typeof(string)) value = "";
-					else if (fieldType == typeof(decimal)) value = 0m;
-					else if (fieldType.IsEnum) value = Enum.GetValues(fieldType).GetValue(0);
-					else if (fieldType.IsValueType) value = default;
-					else if (fieldType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType))
+					if (dataMemberType.IsPrimitive) value = default;
+					else if (dataMemberType == typeof(string)) value = "";
+					else if (dataMemberType == typeof(decimal)) value = 0m;
+					else if (dataMemberType.IsEnum) value = Enum.GetValues(dataMemberType).GetValue(0);
+					else if (dataMemberType.IsValueType) value = default;
+					else if (dataMemberType.IsClass || typeof(System.Collections.IEnumerable).IsAssignableFrom(dataMemberType))
 					{
-						try { value = GetInstantiatedInstance(fieldType, instantiateMembers: false); }
+						try { value = GetInstantiatedInstance(dataMemberType, instantiateMembers: false); }
 						catch { }
 					}
 
-					if (value != null) field.SetValue(obj, value);
+					if (value != null) dataMember.SetValue(obj, value);
 				}
 
 				if (value != null) InstantiateMembers(value, seen);
 			}
 		}
 
-		private static bool IsNullableValueType(PropertyInfo property)
+		private static bool IsNullableValueType(Type type)
 		{
-			var type = property.PropertyType;
-
 			return Nullable.GetUnderlyingType(type) != null;
 		}
 
-		private static bool IsNullableValueType(FieldInfo field)
+		private static bool IsNullableReferenceType(DataMemberInfo dataMember)
 		{
-			var type = field.FieldType;
+			var attr = dataMember.CustomAttributes;
 
-			return Nullable.GetUnderlyingType(type) != null;
-		}
-
-		private static bool IsNullableReferenceType(PropertyInfo property)
-		{
-			if (property.PropertyType.IsValueType)
-			{
-				// Value types can be Nullable<T> - handled elsewhere
-				return false;
-			}
-
-			return IsNullableReferenceTypeInternal(property.CustomAttributes);
-		}
-
-		private static bool IsNullableReferenceType(FieldInfo field)
-		{
-			if (field.FieldType.IsValueType)
-			{
-				// Value types can be Nullable<T> - handled elsewhere
-				return false;
-			}
-
-			return IsNullableReferenceTypeInternal(field.CustomAttributes);
-		}
-
-		private static bool IsNullableReferenceTypeInternal(IEnumerable<CustomAttributeData> attr)
-		{
 			// Check NullableAttribute on the field
 			var nullableAttr = attr
 				.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
