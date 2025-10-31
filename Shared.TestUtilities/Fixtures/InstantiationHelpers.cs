@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace Shared.TestUtilities
+namespace Shared.TestUtilities.Fixtures
 {
 	internal static class InstantiationHelpers
 	{

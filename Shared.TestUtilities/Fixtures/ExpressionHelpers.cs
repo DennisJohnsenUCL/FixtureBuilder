@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Shared.TestUtilities
+namespace Shared.TestUtilities.Fixtures
 {
 	internal static class ExpressionHelpers
 	{

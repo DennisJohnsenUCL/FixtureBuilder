@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Shared.TestUtilities
+namespace Shared.TestUtilities.Fixtures
 {
 	public static class FixtureBuilderExtensions
 	{

@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using Shared.TestUtilities.Fixtures;
+using System.Reflection;
 
-namespace Shared.TestUtilities.Tests
+namespace Shared.TestUtilities.Tests.Fixtures
 {
 	internal sealed class UseConstructorTests
 	{

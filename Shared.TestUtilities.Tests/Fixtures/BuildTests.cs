@@ -1,4 +1,6 @@
-﻿namespace Shared.TestUtilities.Tests
+﻿using Shared.TestUtilities.Fixtures;
+
+namespace Shared.TestUtilities.Tests.Fixtures
 {
 	internal sealed class BuildTests
 	{

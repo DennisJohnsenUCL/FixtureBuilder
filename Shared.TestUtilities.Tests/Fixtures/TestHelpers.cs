@@ -1,4 +1,4 @@
-﻿namespace Shared.TestUtilities.Tests
+﻿namespace Shared.TestUtilities.Tests.Fixtures
 {
 	internal record TestValue(string Text, int Number);
 

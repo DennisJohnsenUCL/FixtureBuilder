@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Shared.TestUtilities
+namespace Shared.TestUtilities.Fixtures
 {
 	internal class FixtureBuilder<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
 	{

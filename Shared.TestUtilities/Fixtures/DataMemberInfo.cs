@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Shared.TestUtilities
+namespace Shared.TestUtilities.Fixtures
 {
 	internal class DataMemberInfo
 	{
