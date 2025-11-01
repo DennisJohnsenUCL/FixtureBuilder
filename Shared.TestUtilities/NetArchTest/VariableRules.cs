@@ -32,7 +32,7 @@ namespace Shared.TestUtilities.NetArchTest
 		}
 	}
 
-	internal class EntityFrameworkLeakageRule(string _namespace) : IVariableRule
+	public class EntityFrameworkLeakageRule(string _namespace) : IVariableRule
 	{
 		public TestResult GetResultFor(Types types)
 		{
@@ -45,7 +45,7 @@ namespace Shared.TestUtilities.NetArchTest
 		}
 	}
 
-	internal class DependencyInjectionLeakageRule(string _namespace) : IVariableRule
+	public class DependencyInjectionLeakageRule(string _namespace) : IVariableRule
 	{
 		public TestResult GetResultFor(Types types)
 		{
