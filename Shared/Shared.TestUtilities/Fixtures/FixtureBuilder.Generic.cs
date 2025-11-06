@@ -13,7 +13,11 @@ namespace Shared.TestUtilities.Fixtures
 			return _fixture;
 		}
 
-		internal FixtureBuilder() { }
+		internal FixtureBuilder()
+		{
+			if (typeof(TEntity).IsInterface)
+				throw new InvalidOperationException($"Cannot instantiate interface type: {typeof(TEntity).Name}");
+		}
 
 		internal FixtureBuilder(TEntity entity) => _fixture = entity;
 

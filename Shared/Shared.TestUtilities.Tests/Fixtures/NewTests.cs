@@ -35,5 +35,11 @@ namespace Shared.TestUtilities.Tests.Fixtures
 				Assert.That(fixture.Number, Is.EqualTo(number));
 			}
 		}
+
+		[Test]
+		public void GenericTypeInterface_ThrowsException()
+		{
+			Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<INestedInterface>());
+		}
 	}
 }
