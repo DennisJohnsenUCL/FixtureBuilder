@@ -85,4 +85,6 @@
 	{
 		NestedClass NestedInterfaceClass { get; set; }
 	}
+
+	internal interface INotImplementedInterface;
 }

@@ -10,6 +10,7 @@ namespace Shared.TestUtilities.Fixtures
 
 	public interface IFixtureConfigurator<TEntity> where TEntity : class
 	{
+		IFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;
 		IFixtureConfigurator<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value);
 		IFixtureConfigurator<TEntity> WithField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);

@@ -43,6 +43,16 @@ namespace Shared.TestUtilities.Fixtures
 			return this;
 		}
 
+		IFixtureConfigurator<TTarget> IFixtureConfigurator<TEntity>.CastTo<TTarget>()
+		{
+			_fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+
+			if (_fixture is not TTarget target)
+				throw new InvalidCastException($"Cannot cast {typeof(TEntity).Name} to {typeof(TTarget).Name}");
+
+			return new FixtureBuilder<TTarget>(target);
+		}
+
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
 		{
 			_fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
