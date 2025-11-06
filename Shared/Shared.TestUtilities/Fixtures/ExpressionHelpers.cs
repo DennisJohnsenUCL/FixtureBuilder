@@ -44,39 +44,6 @@ namespace Shared.TestUtilities.Fixtures
 			return (current, finalProp);
 		}
 
-		public static Expression<Func<TEntity, TProp>> ConvertExpression<TEntity, TInterface, TProp>(
-			Expression<Func<TInterface, TProp>> expr)
-		{
-			if (expr.Body is not MemberExpression memberExpr)
-				throw new ArgumentException("Expression body must be a member expression", nameof(expr));
-
-			if (!typeof(TInterface).IsInterface) throw new ArgumentException($"{typeof(TInterface)} must be an interface type");
-			if (!typeof(TEntity).IsAssignableTo(typeof(TInterface))) throw new ArgumentException($"{typeof(TInterface)} must be assignable from TEntity");
-
-			var param = Expression.Parameter(typeof(TEntity), expr.Parameters[0].Name);
-
-			Expression Rewrite(MemberExpression me)
-			{
-				if (me.Expression is ParameterExpression pe && pe == expr.Parameters[0])
-				{
-					var converted = Expression.Convert(param, typeof(TInterface));
-					return Expression.MakeMemberAccess(converted, me.Member);
-				}
-				else if (me.Expression is MemberExpression inner)
-				{
-					var innerExpr = Rewrite(inner);
-					return Expression.MakeMemberAccess(innerExpr, me.Member);
-				}
-				else
-				{
-					throw new InvalidOperationException($"Unexpected expression node: {me.Expression?.NodeType}");
-				}
-			}
-
-			var newBody = Rewrite(memberExpr);
-			return Expression.Lambda<Func<TEntity, TProp>>(newBody, param);
-		}
-
 		public static bool IsPropertyWritable<TTarget, TProp>(Expression<Func<TTarget, TProp>> expr)
 		{
 			if (expr.Body is not MemberExpression memberExpr)

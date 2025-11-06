@@ -76,23 +76,8 @@ namespace Shared.TestUtilities.Fixtures
 			TProp value)
 			=> WithFieldInternal(expr, value);
 
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TInterface, TProp>(
-			Expression<Func<TInterface, TProp>> expr,
-			TProp value)
-		{
-			var lambda = ExpressionHelpers.ConvertExpression<TEntity, TInterface, TProp>(expr);
-			return WithFieldInternal(lambda, value);
-		}
-
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
 			=> WithFieldInternal(expr, value, fieldName);
-
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TInterface, TProp>(string fieldName, Expression<Func<TInterface, TProp>> expr, TProp value)
-		{
-			var lambda = ExpressionHelpers.ConvertExpression<TEntity, TInterface, TProp>(expr);
-
-			return WithFieldInternal(lambda, value, fieldName);
-		}
 
 		private FixtureBuilder<TEntity> WithFieldInternal<TProp>(
 			Expression<Func<TEntity, TProp>> expr,
@@ -126,17 +111,6 @@ namespace Shared.TestUtilities.Fixtures
 			return WithSetterInternal(expr, value);
 		}
 
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TInterface, TProp>(
-			Expression<Func<TInterface, TProp>> expr,
-			TProp value)
-		{
-			if (!ExpressionHelpers.IsPropertyWritable(expr)) throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter");
-
-			var lambda = ExpressionHelpers.ConvertExpression<TEntity, TInterface, TProp>(expr);
-
-			return WithSetterInternal(lambda, value);
-		}
-
 		private FixtureBuilder<TEntity> WithSetterInternal<TProp>(
 			Expression<Func<TEntity, TProp>> expr,
 			TProp value)
@@ -154,13 +128,6 @@ namespace Shared.TestUtilities.Fixtures
 		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
 		{
 			return WithInternal(expr, value);
-		}
-
-		IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TInterface, TProp>(Expression<Func<TInterface, TProp>> expr, TProp value)
-		{
-			var lambda = ExpressionHelpers.ConvertExpression<TEntity, TInterface, TProp>(expr);
-
-			return WithInternal(lambda, value);
 		}
 
 		private FixtureBuilder<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)

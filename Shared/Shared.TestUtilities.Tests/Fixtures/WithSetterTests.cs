@@ -47,15 +47,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 			Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
 		}
 
-
-		[Test]
-		public void ExplicitInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithSetter<ITestInterface, string>(t => t.ExplicitRefProperty, _text).Build();
-
-			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
-		}
-
 		[Test]
 		public void PropWithoutSetter_ThrowsException()
 		{
@@ -94,22 +85,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
 
 			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void NestedInterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter<INestedInterface, string>(t => t.NestedInterfaceClass.Value, _text).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void DeeperNestedInterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter<INestedInterface, int>(t => t.NestedInterfaceClass.DeeperNestedClass.Value, _number).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.Value, Is.EqualTo(_number));
 		}
 
 		[Test]

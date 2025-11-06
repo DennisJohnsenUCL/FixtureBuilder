@@ -4,7 +4,7 @@ namespace Shared.TestUtilities.Tests.Fixtures
 {
 	internal sealed class ExtensionTests
 	{
-		private static string _text = "Test string";
+		private readonly static string _text = "Test string";
 
 		[Test]
 		public void With_Property_SetsProperty()
@@ -17,16 +17,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 		}
 
 		[Test]
-		public void With_InterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().Build();
-
-			fixture = fixture.With<TestClass, INestedInterface, string>(f => f.NestedInterfaceClass.Value, _text);
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
 		public void WithField_Property_SetsProperty()
 		{
 			var fixture = FixtureBuilder.New<TestClass>().Build();
@@ -34,16 +24,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 			fixture = fixture.WithField(f => f.Text, _text);
 
 			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void WithField_InterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().Build();
-
-			fixture = fixture.WithField<TestClass, INestedInterface, string>(f => f.NestedInterfaceClass.Value, _text);
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
 		}
 
 		[Test]
@@ -86,18 +66,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 		}
 
 		[Test]
-		public void WithField_FieldNameAndInterfaceProperty_SetsProperty()
-		{
-			var fieldName = "_privateField";
-
-			var fixture = FixtureBuilder.New<TestClass>().Build();
-
-			fixture = fixture.WithField<TestClass, INestedInterface, string>(fieldName, t => t.NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, _text);
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(_text));
-		}
-
-		[Test]
 		public void WithSetter_Property_SetsProperty()
 		{
 			var fixture = FixtureBuilder.New<TestClass>().Build();
@@ -105,16 +73,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 			fixture = fixture.WithSetter(t => t.Text, _text);
 
 			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void WithSetter_InterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().Build();
-
-			fixture = fixture.WithSetter<InterfaceTestClass, ITestInterface, string>(t => t.ExplicitRefProperty, _text);
-
-			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
 		}
 	}
 }

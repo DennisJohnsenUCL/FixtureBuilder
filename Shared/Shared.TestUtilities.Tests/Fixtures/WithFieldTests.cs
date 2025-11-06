@@ -120,22 +120,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 		}
 
 		[Test]
-		public void ExplicitValueInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithField<ITestInterface, int>(t => t.ExplicitValueProperty, _number).Build();
-
-			Assert.That(((ITestInterface)fixture).ExplicitValueProperty, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void ExplicitRefInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithField<ITestInterface, string>(t => t.ExplicitRefProperty, _text).Build();
-
-			Assert.That(((ITestInterface)fixture).ExplicitRefProperty, Is.EqualTo(_text));
-		}
-
-		[Test]
 		public void TwiceDerivedClass_PropertyInDerivedClass_SetsProperty()
 		{
 			var fixture = FixtureBuilder.New<TwiceDerivedClass>().BypassConstructor().WithField(p => p.Number, _number).Build();
@@ -168,27 +152,11 @@ namespace Shared.TestUtilities.Tests.Fixtures
 		}
 
 		[Test]
-		public void NestedInterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField<INestedInterface, string>(t => t.NestedInterfaceClass.Value, _text).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.Value, Is.EqualTo(_text));
-		}
-
-		[Test]
 		public void DeeperNestedProperty_SetsProperty()
 		{
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
 
 			Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
-		}
-
-		[Test]
-		public void DeeperNestedInterfaceProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField<INestedInterface, int>(t => t.NestedInterfaceClass.DeeperNestedClass.Value, _number).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.Value, Is.EqualTo(_number));
 		}
 
 		[Test]
@@ -243,16 +211,6 @@ namespace Shared.TestUtilities.Tests.Fixtures
 			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, _text).Build();
 
 			Assert.That(fixture.NestedClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(_text));
-		}
-
-		[Test]
-		public void FieldNameGiven_DeeperNestedInterfaceProperty_SetsProperty()
-		{
-			var fieldName = "_privateField";
-
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField<INestedInterface, string>(fieldName, t => t.NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, _text).Build();
-
-			Assert.That(((INestedInterface)fixture).NestedInterfaceClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(_text));
 		}
 
 		[Test]
