@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.TestUtilities\Shared.TestUtilities.csproj" />
+    <ProjectReference Include="..\FixtureBuilder\FixtureBuilder.csproj" />
   </ItemGroup>
 
   <ItemGroup>
