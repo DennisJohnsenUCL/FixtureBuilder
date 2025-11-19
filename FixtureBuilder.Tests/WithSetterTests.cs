@@ -1,137 +1,136 @@
-﻿using Shared.TestUtilities.Fixtures;
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace Shared.TestUtilities.Tests.Fixtures
+namespace FixtureBuilder.Tests
 {
-	internal class WithSetterTests
-	{
-		private string _text;
-		private int _number;
+    internal class WithSetterTests
+    {
+        private string _text;
+        private int _number;
 
-		[SetUp]
-		public void Setup()
-		{
-			_text = "Test";
-			_number = 123;
-		}
+        [SetUp]
+        public void Setup()
+        {
+            _text = "Test";
+            _number = 123;
+        }
 
-		[Test]
-		public void SetterInFixture_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text).Build();
+        [Test]
+        public void SetterInFixture_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text).Build();
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.Text, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void DerivedSetter_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Text, _text).Build();
+        [Test]
+        public void DerivedSetter_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Text, _text).Build();
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.Text, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void OverriddenSetter_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Number, _number).Build();
+        [Test]
+        public void OverriddenSetter_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Number, _number).Build();
 
-			Assert.That(fixture.Number, Is.EqualTo(_number));
-		}
+            Assert.That(fixture.Number, Is.EqualTo(_number));
+        }
 
-		[Test]
-		public void ImplicitInterfaceImplementation_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithSetter(t => t.ImplicitProperty, _text).Build();
+        [Test]
+        public void ImplicitInterfaceImplementation_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithSetter(t => t.ImplicitProperty, _text).Build();
 
-			Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void PropWithoutSetter_ThrowsException()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor();
+        [Test]
+        public void PropWithoutSetter_ThrowsException()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor();
 
-			Assert.Throws<InvalidOperationException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
-		}
+            Assert.Throws<InvalidOperationException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
+        }
 
-		[Test]
-		public void GenericClass_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor().WithSetter(g => g.Value, _text).Build();
+        [Test]
+        public void GenericClass_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor().WithSetter(g => g.Value, _text).Build();
 
-			Assert.That(fixture.Value, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.Value, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void NestedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
+        [Test]
+        public void NestedProperty_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
 
-			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void DeeperNestedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
+        [Test]
+        public void DeeperNestedProperty_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
 
-			Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
-		}
+            Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
+        }
 
-		[Test]
-		public void DerivedNestedProperty_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
+        [Test]
+        public void DerivedNestedProperty_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
 
-			Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void SkipConstructionMethods_ConstructsFixture()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().WithSetter(t => t.Text, _text).Build();
+        [Test]
+        public void SkipConstructionMethods_ConstructsFixture()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().WithSetter(t => t.Text, _text).Build();
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.Text, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void PrivateSetter_CanSetValue()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.PropWithPrivateSetter, _text).Build();
+        [Test]
+        public void PrivateSetter_CanSetValue()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.PropWithPrivateSetter, _text).Build();
 
-			Assert.That(fixture.PropWithPrivateSetter, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.PropWithPrivateSetter, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void ClassWithMembers_InstantiatesClassMembers()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
+        [Test]
+        public void ClassWithMembers_InstantiatesClassMembers()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
 
-			var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+            var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
 
-			Assert.That(field.NestedClass, Is.Not.Null);
-		}
+            Assert.That(field.NestedClass, Is.Not.Null);
+        }
 
-		[Test]
-		public void CollectionTypeProperty_OneParameter_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text]).Build();
+        [Test]
+        public void CollectionTypeProperty_OneParameter_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text]).Build();
 
-			Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
-		}
+            Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void CollectionTypeProperty_TwoParameters_SetsProperty()
-		{
-			var secondEntry = "More test";
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text, secondEntry]).Build();
+        [Test]
+        public void CollectionTypeProperty_TwoParameters_SetsProperty()
+        {
+            var secondEntry = "More test";
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text, secondEntry]).Build();
 
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
-				Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
-			}
-		}
-	}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+                Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
+            }
+        }
+    }
 }

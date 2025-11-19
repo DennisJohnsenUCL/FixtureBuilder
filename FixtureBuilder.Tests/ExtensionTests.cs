@@ -1,78 +1,76 @@
-﻿using Shared.TestUtilities.Fixtures;
-
-namespace Shared.TestUtilities.Tests.Fixtures
+﻿namespace FixtureBuilder.Tests
 {
-	internal sealed class ExtensionTests
-	{
-		private readonly static string _text = "Test string";
+    internal sealed class ExtensionTests
+    {
+        private readonly static string _text = "Test string";
 
-		[Test]
-		public void With_Property_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().Build();
+        [Test]
+        public void With_Property_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().Build();
 
-			fixture = fixture.With(f => f.Text, _text);
+            fixture = fixture.With(f => f.Text, _text);
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.Text, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void WithField_Property_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().Build();
+        [Test]
+        public void WithField_Property_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().Build();
 
-			fixture = fixture.WithField(f => f.Text, _text);
+            fixture = fixture.WithField(f => f.Text, _text);
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.Text, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void WithField_FieldName_SetsField()
-		{
-			var fieldName = "_privateExplicitField";
+        [Test]
+        public void WithField_FieldName_SetsField()
+        {
+            var fieldName = "_privateExplicitField";
 
-			var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
+            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
 
-			Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void WithField_FieldName_CollectionTypeField_SetsField()
-		{
-			var fieldName = "_stringListField";
-			var secondEntry = "More test";
+        [Test]
+        public void WithField_FieldName_CollectionTypeField_SetsField()
+        {
+            var fieldName = "_stringListField";
+            var secondEntry = "More test";
 
-			var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = FixtureBuilder.New<TestClass>().Build();
 
-			fixture = fixture.WithField(fieldName, [_text, secondEntry]);
+            fixture = fixture.WithField(fieldName, [_text, secondEntry]);
 
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
-				Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+                Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
+            }
+        }
 
-		[Test]
-		public void WithField_FieldNameAndProperty_SetsProperty()
-		{
-			var fieldName = "_privateField";
+        [Test]
+        public void WithField_FieldNameAndProperty_SetsProperty()
+        {
+            var fieldName = "_privateField";
 
-			var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = FixtureBuilder.New<TestClass>().Build();
 
-			fixture = fixture.WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, _text);
+            fixture = fixture.WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, _text);
 
-			Assert.That(fixture.NestedClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(_text));
-		}
+            Assert.That(fixture.NestedClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(_text));
+        }
 
-		[Test]
-		public void WithSetter_Property_SetsProperty()
-		{
-			var fixture = FixtureBuilder.New<TestClass>().Build();
+        [Test]
+        public void WithSetter_Property_SetsProperty()
+        {
+            var fixture = FixtureBuilder.New<TestClass>().Build();
 
-			fixture = fixture.WithSetter(t => t.Text, _text);
+            fixture = fixture.WithSetter(t => t.Text, _text);
 
-			Assert.That(fixture.Text, Is.EqualTo(_text));
-		}
-	}
+            Assert.That(fixture.Text, Is.EqualTo(_text));
+        }
+    }
 }
