@@ -7,7 +7,7 @@
         [Test]
         public void With_Property_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = Fixture.New<TestClass>().Build();
 
             fixture = fixture.With(f => f.Text, _text);
 
@@ -17,7 +17,7 @@
         [Test]
         public void WithField_Property_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = Fixture.New<TestClass>().Build();
 
             fixture = fixture.WithField(f => f.Text, _text);
 
@@ -29,7 +29,7 @@
         {
             var fieldName = "_privateExplicitField";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
 
             Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
         }
@@ -40,7 +40,7 @@
             var fieldName = "_stringListField";
             var secondEntry = "More test";
 
-            var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = Fixture.New<TestClass>().Build();
 
             fixture = fixture.WithField(fieldName, [_text, secondEntry]);
 
@@ -56,7 +56,7 @@
         {
             var fieldName = "_privateField";
 
-            var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = Fixture.New<TestClass>().Build();
 
             fixture = fixture.WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, _text);
 
@@ -66,7 +66,7 @@
         [Test]
         public void WithSetter_Property_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = Fixture.New<TestClass>().Build();
 
             fixture = fixture.WithSetter(t => t.Text, _text);
 

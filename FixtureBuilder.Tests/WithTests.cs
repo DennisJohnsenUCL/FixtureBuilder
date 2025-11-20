@@ -9,7 +9,7 @@ namespace FixtureBuilder.Tests
         {
             var text = "Test string";
 
-            var fixture = FixtureBuilder.New<TestClass>().With(t => t.Text, text).Build();
+            var fixture = Fixture.New<TestClass>().With(t => t.Text, text).Build();
 
             Assert.That(fixture.Text, Is.EqualTo(text));
         }
@@ -19,7 +19,7 @@ namespace FixtureBuilder.Tests
         {
             var text = "Test string";
 
-            var fixture = FixtureBuilder.New<TestClass>().With(t => t.PropWithUnrelatedFieldName, text).Build();
+            var fixture = Fixture.New<TestClass>().With(t => t.PropWithUnrelatedFieldName, text).Build();
 
             Assert.That(fixture.PropWithUnrelatedFieldName, Is.EqualTo(text));
         }
@@ -29,7 +29,7 @@ namespace FixtureBuilder.Tests
         {
             var text = "Test string";
 
-            var fixture = FixtureBuilder.New<TestClass>().With(t => t.PropWithoutSetter, text).Build();
+            var fixture = Fixture.New<TestClass>().With(t => t.PropWithoutSetter, text).Build();
 
             Assert.That(fixture.PropWithoutSetter, Is.EqualTo(text));
         }
@@ -39,7 +39,7 @@ namespace FixtureBuilder.Tests
         {
             var text = "Test string";
 
-            Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().With(t => t.PropNoSetterWithUnrelatedFieldName, text).Build());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(t => t.PropNoSetterWithUnrelatedFieldName, text).Build());
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace FixtureBuilder.Tests
         {
             var text = "Test string";
 
-            var fixture = FixtureBuilder.New<TestClass>().With(t => t.Text, text);
+            var fixture = Fixture.New<TestClass>().With(t => t.Text, text);
 
             var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
 

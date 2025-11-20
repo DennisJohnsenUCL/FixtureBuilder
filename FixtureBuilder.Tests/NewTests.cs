@@ -10,7 +10,7 @@
 
             var preBuiltFixture = new TestClass() { Text = text };
 
-            var fixture = FixtureBuilder.New(preBuiltFixture).WithField(p => p.Number, number).Build();
+            var fixture = Fixture.New(preBuiltFixture).WithField(p => p.Number, number).Build();
 
             using (Assert.EnterMultipleScope())
             {
@@ -24,7 +24,7 @@
         {
             var number = 123;
 
-            var fixture = FixtureBuilder.New<TestClass>().WithField(p => p.Number, number).Build();
+            var fixture = Fixture.New<TestClass>().WithField(p => p.Number, number).Build();
 
             using (Assert.EnterMultipleScope())
             {
@@ -37,7 +37,7 @@
         [Test]
         public void GenericTypeInterface_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<INestedInterface>());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<INestedInterface>());
         }
     }
 }

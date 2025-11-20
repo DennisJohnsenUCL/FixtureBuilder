@@ -1,9 +1,9 @@
-﻿using System.Linq.Expressions;
-using Shared.TestUtilities.Fixtures;
+﻿using Shared.TestUtilities.Fixtures;
+using System.Linq.Expressions;
 
 namespace FixtureBuilder
 {
-    internal class FixtureBuilder<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
+    internal class Fixture<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
     {
         private TEntity _fixture = null!;
 
@@ -20,13 +20,13 @@ namespace FixtureBuilder
             return _fixture;
         }
 
-        internal FixtureBuilder()
+        internal Fixture()
         {
             if (typeof(TEntity).IsInterface)
                 throw new InvalidOperationException($"Cannot instantiate interface type: {typeof(TEntity).Name}");
         }
 
-        internal FixtureBuilder(TEntity entity) => _fixture = entity;
+        internal Fixture(TEntity entity) => _fixture = entity;
 
         /// <summary>
         /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
@@ -76,7 +76,7 @@ namespace FixtureBuilder
             if (_fixture is not TTarget target)
                 throw new InvalidCastException($"Cannot cast {typeof(TEntity).Name} to {typeof(TTarget).Name}");
 
-            return new FixtureBuilder<TTarget>(target);
+            return new Fixture<TTarget>(target);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
             => WithFieldInternal(expr, value, fieldName);
 
-        private FixtureBuilder<TEntity> WithFieldInternal<TProp>(
+        private Fixture<TEntity> WithFieldInternal<TProp>(
             Expression<Func<TEntity, TProp>> expr,
             TProp value,
             string? fieldName = null)
@@ -182,7 +182,7 @@ namespace FixtureBuilder
             return WithSetterInternal(expr, value);
         }
 
-        private FixtureBuilder<TEntity> WithSetterInternal<TProp>(
+        private Fixture<TEntity> WithSetterInternal<TProp>(
             Expression<Func<TEntity, TProp>> expr,
             TProp value)
         {
@@ -211,7 +211,7 @@ namespace FixtureBuilder
             return WithInternal(expr, value);
         }
 
-        private FixtureBuilder<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+        private Fixture<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
         {
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 

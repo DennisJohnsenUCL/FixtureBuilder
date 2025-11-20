@@ -5,7 +5,7 @@
         [Test]
         public void ClassWithMembers_InstantiatesClassMembers()
         {
-            var fixture = FixtureBuilder.New<TestClass>().Build();
+            var fixture = Fixture.New<TestClass>().Build();
 
             Assert.That(fixture.NestedClass, Is.Not.Null);
         }

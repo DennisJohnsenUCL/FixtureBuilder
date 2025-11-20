@@ -5,13 +5,13 @@
         [Test]
         public void NotImplementedInterface_ThrowsException()
         {
-            Assert.Throws<InvalidCastException>(() => FixtureBuilder.New<TestClass>().CastTo<INotImplementedInterface>());
+            Assert.Throws<InvalidCastException>(() => Fixture.New<TestClass>().CastTo<INotImplementedInterface>());
         }
 
         [Test]
         public void ImplementedInterface_CastsToInterface()
         {
-            INestedInterface fixture = FixtureBuilder.New<TestClass>().CastTo<INestedInterface>().Build();
+            INestedInterface fixture = Fixture.New<TestClass>().CastTo<INestedInterface>().Build();
 
             Assert.That(fixture, Is.Not.Null);
         }
@@ -19,7 +19,7 @@
         [Test]
         public void ImplementedInterface_ExplicitMembersCanBeSet()
         {
-            var fixture = FixtureBuilder.New<TestClass>()
+            var fixture = Fixture.New<TestClass>()
                 .WithSetter(t => t.Text, "Class member string")
                 .CastTo<INestedInterface>()
                 .WithSetter(t => t.NestedInterfaceClass.Value, "Explicit interface member string")

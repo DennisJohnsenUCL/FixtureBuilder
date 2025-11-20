@@ -17,7 +17,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void RecordProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).Build();
+            var fixture = Fixture.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).Build();
 
             Assert.That(fixture.Text, Is.EqualTo(_text));
         }
@@ -25,7 +25,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void RecordProperties_SetsProperties()
         {
-            var fixture = FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
+            var fixture = Fixture.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
 
             using (Assert.EnterMultipleScope())
             {
@@ -37,19 +37,19 @@ namespace FixtureBuilder.Tests
         [Test]
         public void NotARecordProperty_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.GetHashCode(), _number).Build());
+            Assert.Throws<ArgumentException>(() => Fixture.New<TestValue>().BypassConstructor().WithField(t => t.GetHashCode(), _number).Build());
         }
 
         [Test]
         public void NoRecordPropertyBackingField_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestValue>().BypassConstructor().WithField(t => t.Text.Length, _number).Build());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestValue>().BypassConstructor().WithField(t => t.Text.Length, _number).Build());
         }
 
         [Test]
         public void ClassProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).Build();
 
             Assert.That(fixture.Text, Is.EqualTo(_text));
         }
@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void ClassProperties_SetsProperties()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(t => t.Text, _text).WithField(t => t.Number, _number).Build();
 
             using (Assert.EnterMultipleScope())
             {
@@ -69,19 +69,19 @@ namespace FixtureBuilder.Tests
         [Test]
         public void NotAClassProperty_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.GetHashCode(), _number).Build());
+            Assert.Throws<ArgumentException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(t => t.GetHashCode(), _number).Build());
         }
 
         [Test]
         public void NoClassPropertyBackingField_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.Text.Length, _number).Build());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(t => t.Text.Length, _number).Build());
         }
 
         [Test]
         public void ExplicitBackingField_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.PrivateExplicitField, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(t => t.PrivateExplicitField, _text).Build();
 
             Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
         }
@@ -89,7 +89,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void ExplicitBackingFieldNoUnderscore_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.PrivateExplicitNoUnderscoreField, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(t => t.PrivateExplicitNoUnderscoreField, _text).Build();
 
             Assert.That(fixture.PrivateExplicitNoUnderscoreField, Is.EqualTo(_text));
         }
@@ -97,7 +97,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void DerivedProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(t => t.Text, _text).Build();
+            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithField(t => t.Text, _text).Build();
 
             Assert.That(fixture.Text, Is.EqualTo(_text));
         }
@@ -105,7 +105,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void OverriddenProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(t => t.Number, _number).Build();
+            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithField(t => t.Number, _number).Build();
 
             Assert.That(fixture.Number, Is.EqualTo(_number));
         }
@@ -113,7 +113,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void ImplicitInterfaceImplementation_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<InterfaceTestClass>().BypassConstructor().WithField(t => t.ImplicitProperty, _text).Build();
+            var fixture = Fixture.New<InterfaceTestClass>().BypassConstructor().WithField(t => t.ImplicitProperty, _text).Build();
 
             Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
         }
@@ -121,7 +121,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void TwiceDerivedClass_PropertyInDerivedClass_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TwiceDerivedClass>().BypassConstructor().WithField(p => p.Number, _number).Build();
+            var fixture = Fixture.New<TwiceDerivedClass>().BypassConstructor().WithField(p => p.Number, _number).Build();
 
             Assert.That(fixture.Number, Is.EqualTo(_number));
         }
@@ -129,7 +129,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void GenericClass_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor().WithField(g => g.Value, _text).Build();
+            var fixture = Fixture.New<GenericClass<string>>().BypassConstructor().WithField(g => g.Value, _text).Build();
 
             Assert.That(fixture.Value, Is.EqualTo(_text));
         }
@@ -137,7 +137,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void NestedProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.Value, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.Value, _text).Build();
 
             Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
         }
@@ -145,7 +145,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void DerivedNestedProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(t => t.NestedClass.Value, _text).Build();
+            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithField(t => t.NestedClass.Value, _text).Build();
 
             Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
         }
@@ -153,7 +153,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void DeeperNestedProperty_SetsProperty()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
 
             Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
         }
@@ -161,7 +161,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void SkipConstructionMethods_ConstructsFixture()
         {
-            var fixture = FixtureBuilder.New<TestClass>().WithField(t => t.Text, _text).Build();
+            var fixture = Fixture.New<TestClass>().WithField(t => t.Text, _text).Build();
 
             Assert.That(fixture.Text, Is.EqualTo(_text));
         }
@@ -171,7 +171,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_privateExplicitField";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
 
             Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
         }
@@ -181,7 +181,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_notAField";
 
-            Assert.Throws<InvalidOperationException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build());
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_privateExplicitField";
 
-            Assert.Throws<ArgumentException>(() => FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _number).Build());
+            Assert.Throws<ArgumentException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _number).Build());
         }
 
         [Test]
@@ -197,7 +197,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_inheritedField";
 
-            var derivedTestClass = FixtureBuilder.New<DerivedTestClass>().BypassConstructor().WithField(fieldName, _text).Build();
+            var derivedTestClass = Fixture.New<DerivedTestClass>().BypassConstructor().WithField(fieldName, _text).Build();
 
             Assert.That(derivedTestClass.InheritedFieldGetter, Is.EqualTo(_text));
         }
@@ -207,7 +207,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_privateField";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.NestedClass.DeeperNestedClass.PrivateFieldGetter, _text).Build();
 
             Assert.That(fixture.NestedClass.DeeperNestedClass.PrivateFieldGetter, Is.EqualTo(_text));
         }
@@ -217,7 +217,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_privateExplicitField";
 
-            var fixture = FixtureBuilder.New<TestClass>().WithField(fieldName, _text).Build();
+            var fixture = Fixture.New<TestClass>().WithField(fieldName, _text).Build();
 
             Assert.That(fixture.PrivateExplicitField, Is.EqualTo(_text));
         }
@@ -225,7 +225,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void ClassWithMembers_InstantiatesClassMembers()
         {
-            var fixture = FixtureBuilder.New<TestClass>().WithField(t => t.Text, _text);
+            var fixture = Fixture.New<TestClass>().WithField(t => t.Text, _text);
 
             var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
 
@@ -237,7 +237,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_stringListField";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
 
             Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
         }
@@ -247,7 +247,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_stringListField";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, [_text]).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_text]).Build();
 
             Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
         }
@@ -258,7 +258,7 @@ namespace FixtureBuilder.Tests
             var fieldName = "_stringListField";
             var secondEntry = "More test";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, [_text, secondEntry]).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_text, secondEntry]).Build();
 
             using (Assert.EnterMultipleScope())
             {
@@ -272,7 +272,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_stringListField";
 
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.StringListProp, [_text]).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, t => t.StringListProp, [_text]).Build();
 
             Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
         }

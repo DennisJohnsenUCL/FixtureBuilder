@@ -9,13 +9,13 @@ namespace FixtureBuilder.Tests
         public void GenericClass_CanConstruct()
         {
             IFixtureConfigurator<GenericClass<string>> fixture = null!;
-            Assert.DoesNotThrow(() => fixture = FixtureBuilder.New<GenericClass<string>>().BypassConstructor());
+            Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().BypassConstructor());
         }
 
         [Test]
         public void ClassWithMembers_InstantiatesClassMembers()
         {
-            var fixture = FixtureBuilder.New<TestClass>().BypassConstructor();
+            var fixture = Fixture.New<TestClass>().BypassConstructor();
 
             var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
 

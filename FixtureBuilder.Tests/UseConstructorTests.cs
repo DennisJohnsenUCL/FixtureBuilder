@@ -8,7 +8,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void NoParameters_UsesDefaultConstructor()
         {
-            var fixture = FixtureBuilder.New<DefaultConstructor>().UseConstructor().Build();
+            var fixture = Fixture.New<DefaultConstructor>().UseConstructor().Build();
 
             Assert.That(!string.IsNullOrWhiteSpace(fixture.Value));
         }
@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests
         {
             var text = "Test value";
 
-            var fixture = FixtureBuilder.New<NoDefaultConstructor>().UseConstructor(text).Build();
+            var fixture = Fixture.New<NoDefaultConstructor>().UseConstructor(text).Build();
 
             Assert.That(fixture.Value, Is.EqualTo(text));
         }
@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void NoParameters_NoDefaultConstructor_ThrowsException()
         {
-            var fixture = FixtureBuilder.New<NoDefaultConstructor>();
+            var fixture = Fixture.New<NoDefaultConstructor>();
 
             Assert.Throws<MissingMethodException>(() => fixture.UseConstructor());
         }
@@ -34,7 +34,7 @@ namespace FixtureBuilder.Tests
         [Test]
         public void Parameters_NoMatchingConstructor_ThrowsException()
         {
-            var fixture = FixtureBuilder.New<NoDefaultConstructor>();
+            var fixture = Fixture.New<NoDefaultConstructor>();
 
             Assert.Throws<MissingMethodException>(() => fixture.UseConstructor("Test value", 123));
         }
@@ -43,13 +43,13 @@ namespace FixtureBuilder.Tests
         public void GenericClass_CanConstruct()
         {
             IFixtureConfigurator<GenericClass<string>> fixture = null!;
-            Assert.DoesNotThrow(() => fixture = FixtureBuilder.New<GenericClass<string>>().UseConstructor());
+            Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().UseConstructor());
         }
 
         [Test]
         public void ClassWithMembers_InstantiatesClassMembers()
         {
-            var fixture = FixtureBuilder.New<TestClass>().UseConstructor();
+            var fixture = Fixture.New<TestClass>().UseConstructor();
 
             var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
 
