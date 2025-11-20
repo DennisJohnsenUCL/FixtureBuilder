@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using FixtureBuilder.Helpers;
+using System.Reflection;
 
-namespace FixtureBuilder
+namespace FixtureBuilder.Extensions
 {
     internal static class TypeExtensions
     {

@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests
+﻿using FixtureBuilder.Extensions;
+
+namespace FixtureBuilder.Tests
 {
     internal sealed class ExtensionTests
     {

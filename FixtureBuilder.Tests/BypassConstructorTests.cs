@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Shared.TestUtilities.Fixtures;
 
 namespace FixtureBuilder.Tests
 {

@@ -1,6 +1,4 @@
-﻿using Shared.TestUtilities.Fixtures;
-
-namespace FixtureBuilder
+﻿namespace FixtureBuilder
 {
     public static class Fixture
     {

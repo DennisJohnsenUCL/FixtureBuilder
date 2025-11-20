@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace FixtureBuilder
+namespace FixtureBuilder.Helpers
 {
     internal static class FieldHelpers
     {

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace FixtureBuilder
+namespace FixtureBuilder.Helpers
 {
     internal static class ExpressionHelpers
     {

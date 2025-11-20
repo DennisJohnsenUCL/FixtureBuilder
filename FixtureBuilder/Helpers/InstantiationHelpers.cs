@@ -1,9 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using FixtureBuilder.Extensions;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace FixtureBuilder
+namespace FixtureBuilder.Helpers
 {
     internal static class InstantiationHelpers
     {

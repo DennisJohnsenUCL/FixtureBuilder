@@ -1,4 +1,4 @@
-﻿using Shared.TestUtilities.Fixtures;
+﻿using FixtureBuilder.Helpers;
 using System.Linq.Expressions;
 
 namespace FixtureBuilder
