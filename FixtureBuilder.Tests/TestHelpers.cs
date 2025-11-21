@@ -21,6 +21,12 @@
         public string PropNoSetterWithUnrelatedFieldName => _unrelatedFieldName;
         private List<string> _stringListField = null!;
         public List<string> StringListProp { get => _stringListField; set => _stringListField = value; }
+
+        private readonly List<string> _collectionDifferentType = null!;
+        public IReadOnlyList<string> CollectionDifferentType => _collectionDifferentType.AsReadOnly();
+
+        private readonly List<int> _collectionDifferentTypeInt = null!;
+        public IReadOnlyList<int> CollectionDifferentTypeInt => _collectionDifferentTypeInt.AsReadOnly();
     }
 
     internal class DerivedTestClass : TestClass

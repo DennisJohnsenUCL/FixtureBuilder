@@ -1,5 +1,5 @@
-﻿using FixtureBuilder.Helpers;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder
 {
@@ -164,7 +164,28 @@ namespace FixtureBuilder
             else if (declaringType != null && FieldHelpers.TryGetField(declaringType, fieldNames, out backingField)) { }
             else throw new InvalidOperationException($"Backing field not found for property {property.Name}");
 
-            backingField.SetValue(instance, value);
+            var fieldType = backingField.FieldType;
+
+            if (fieldType != typeof(TProp)
+                && fieldType != typeof(string)
+                && value != null
+                && typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType)
+                && typeof(System.Collections.IEnumerable).IsAssignableFrom(typeof(TProp)))
+            {
+                var emptyCollection = Activator.CreateInstance(fieldType);
+                backingField.SetValue(instance, emptyCollection);
+
+                var addMethod = fieldType.GetMethod("Add")
+                    ?? throw new InvalidOperationException("Cannot assign collection to field without Add method");
+
+                foreach (var item in (System.Collections.IEnumerable)value)
+                    addMethod.Invoke(emptyCollection, [item]);
+            }
+            else
+            {
+                backingField.SetValue(instance, value);
+            }
+
             return this;
         }
 

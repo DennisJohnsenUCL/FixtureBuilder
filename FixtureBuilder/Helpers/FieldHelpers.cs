@@ -14,19 +14,16 @@ namespace FixtureBuilder.Helpers
 
             var fieldType = fieldInfo.FieldType;
 
-            // If field is a collection type
             if (typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
             {
-                // Try to create an instance of the collection
-                var existingValue = Activator.CreateInstance(fieldType);
-                fieldInfo.SetValue(instance, existingValue);
+                var emptyCollection = Activator.CreateInstance(fieldType);
+                fieldInfo.SetValue(instance, emptyCollection);
 
-                // Try to add elements
                 var addMethod = fieldType.GetMethod("Add")
                     ?? throw new InvalidOperationException("Cannot assign collection to field without Add method");
 
                 foreach (var item in values)
-                    addMethod.Invoke(existingValue, [item]);
+                    addMethod.Invoke(emptyCollection, [item]);
             }
             else
             {

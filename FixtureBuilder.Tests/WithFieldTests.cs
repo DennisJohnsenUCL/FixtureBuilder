@@ -276,5 +276,21 @@ namespace FixtureBuilder.Tests
 
             Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
         }
+
+        [Test]
+        public void BackingFieldDifferentCollectionType_SetsField()
+        {
+            var fixture = Fixture.New<TestClass>().WithField(t => t.CollectionDifferentType, [_text]).Build();
+
+            Assert.That(fixture.CollectionDifferentType[0], Is.EqualTo(_text));
+        }
+
+        [Test]
+        public void BackingFieldDifferentCollectionTypeInt_SetsField()
+        {
+            var fixture = Fixture.New<TestClass>().WithField(t => t.CollectionDifferentTypeInt, [_number]).Build();
+
+            Assert.That(fixture.CollectionDifferentTypeInt[0], Is.EqualTo(_number));
+        }
     }
 }
