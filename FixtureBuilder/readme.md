@@ -2,6 +2,7 @@
 
 **FixtureBuilder** is a flexible fixture creation library for .NET. It enables advanced construction and configuration of test objects, supporting scenarios where you need to set fields (even private or backing fields), initialize read-only properties, or bypass constructors during test setup.
 
+If you want to write clean tests that focus only on the method you want to test, then this is the tool for you. With FixtureBuilder you can construct a test object to be in the exact state you want it to be in for your test, and write tests that are dependent only on the specific method being tested.
 
 ## Features
 
@@ -18,12 +19,10 @@
 
 using FixtureBuilder;
 
-// Suppose you have a class:
 public class User
 
 {
 	public string Name { get; }
-
 	private int _age;
 
 	public User(string name) { Name = name; }
@@ -42,18 +41,20 @@ var fixture = new Fixture<User>()
 ## Core APIs
 
 - `BypassConstructor()`: Instantiates the entity without invoking its constructor.
-- 
-- `UseConstructor(params object\[] args)`: Instantiates with specific constructor arguments.
+
+- `UseConstructor(params object[] args)`: Instantiates with specific constructor arguments.
 
 - `WithField(string fieldName, object value)`: Sets a field value directly.
 
+- `WithField(Expression<Func<TEntity, TProp>> expr, object value)`: Sets the value of the backing field for a given property.
+
 - `WithSetter(Expression<Func<TEntity, TProp>> expr, TProp value)`: Sets a writable property via its setter.
 
-- `With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)`: Sets either a property (if writable) or its backing field.
+- `With(Expression<Func<TEntity, TProp>> expr, TProp value)`: Sets either a property (if writable) or its backing field.
 
 - `CastTo<TTarget>()`: Casts fixture to another type for chaining configurations.
 
-- 
+ 
 ## When to Use
 
 - Complex test object setup where constructors enforce constraints

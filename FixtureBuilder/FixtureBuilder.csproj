@@ -11,17 +11,18 @@
 		<Authors>Dennis Johnsen</Authors>
 		<Description>Provides advanced fixture creation and configuration utilities for .NET unit testing, supporting construction and setup of entities—including setting fields, properties, and bypassing constructors.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Title>FixtureBuilder</Title>
 		<PackageId>FixtureBuilder</PackageId>
 		<Company>$(Authors)</Company>
-		<AssemblyVersion>1.0.1</AssemblyVersion>
-		<FileVersion>1.0.1</FileVersion>
-		<PackageReadmeFile>nuget.md</PackageReadmeFile>
+		<AssemblyVersion>1.02</AssemblyVersion>
+		<FileVersion>1.0.2</FileVersion>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageReleaseNotes>Added support to WithField for properties with backing fields of different collection types.</PackageReleaseNotes>
 	</PropertyGroup>
 
   <ItemGroup>
-    <None Update="nuget.md">
+    <None Update="readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
