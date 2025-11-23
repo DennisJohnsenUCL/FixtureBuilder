@@ -1,5 +1,5 @@
-﻿using System.Linq.Expressions;
-using FixtureBuilder.Helpers;
+﻿using FixtureBuilder.Helpers;
+using System.Linq.Expressions;
 
 namespace FixtureBuilder
 {
@@ -172,14 +172,7 @@ namespace FixtureBuilder
                 && typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(System.Collections.IEnumerable).IsAssignableFrom(typeof(TProp)))
             {
-                var emptyCollection = Activator.CreateInstance(fieldType);
-                backingField.SetValue(instance, emptyCollection);
-
-                var addMethod = fieldType.GetMethod("Add")
-                    ?? throw new InvalidOperationException("Cannot assign collection to field without Add method");
-
-                foreach (var item in (System.Collections.IEnumerable)value)
-                    addMethod.Invoke(emptyCollection, [item]);
+                CollectionHelpers.CastToCollection(backingField, instance, value);
             }
             else
             {
