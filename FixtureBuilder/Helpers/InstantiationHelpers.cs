@@ -1,8 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using FixtureBuilder.Extensions;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Helpers
 {
@@ -83,7 +83,7 @@ namespace FixtureBuilder.Helpers
                     if (value != null) dataMember.SetValue(obj, value);
                 }
 
-                if (value != null) InstantiateMembers(value, seen);
+                if (value != null && dataMemberType != typeof(string)) InstantiateMembers(value, seen);
             }
         }
 
