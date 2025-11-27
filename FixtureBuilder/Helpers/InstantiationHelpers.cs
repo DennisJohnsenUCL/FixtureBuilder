@@ -58,7 +58,11 @@ namespace FixtureBuilder.Helpers
                     if (!dataMember.CanReadProperty || !dataMember.CanWriteProperty) continue;
                     if (dataMember.GetPropertyIndexParameters().Length > 0) continue;
                 }
-                if (dataMember.IsFieldInfo && dataMember.IsStaticField) continue;
+                if (dataMember.IsFieldInfo)
+                {
+                    if (dataMember.IsStaticField) continue;
+                    if (dataMember.IsDefined(typeof(CompilerGeneratedAttribute), false)) continue;
+                }
 
                 var dataMemberType = dataMember.DataMemberType;
 

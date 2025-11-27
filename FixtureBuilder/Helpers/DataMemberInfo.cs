@@ -20,6 +20,7 @@ namespace FixtureBuilder.Helpers
         public object? GetValue(object? obj) => IsPropertyInfo ? _property!.GetValue(obj) : _field!.GetValue(obj);
         public void SetValue(object? obj, object? value) { if (IsPropertyInfo) { _property!.SetValue(obj, value); } else { _field!.SetValue(obj, value); } }
         public IEnumerable<CustomAttributeData> CustomAttributes => IsPropertyInfo ? _property!.CustomAttributes : _field!.CustomAttributes;
+        public bool IsDefined(Type attributeType, bool inherit) => IsPropertyInfo ? _property!.IsDefined(attributeType, inherit) : _field!.IsDefined(attributeType, inherit);
 
         public Module Module => IsPropertyInfo ? _property!.Module : _field!.Module;
 
