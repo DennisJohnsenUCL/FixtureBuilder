@@ -9,12 +9,13 @@
         public string PropWithoutSetter { get; } = null!;
         public string PropWithPrivateSetter { get; private set; } = null!;
         private readonly string _privateExplicitField = null!;
-        internal string PrivateExplicitField => _privateExplicitField;
+        public string PrivateExplicitField => _privateExplicitField;
         private readonly string privateExplicitNoUnderscoreField = null!;
-        internal string PrivateExplicitNoUnderscoreField => privateExplicitNoUnderscoreField;
+        public string PrivateExplicitNoUnderscoreField => privateExplicitNoUnderscoreField;
         protected string _inheritedField = null!;
-        internal string InheritedFieldGetter => _inheritedField;
-        internal NestedClass NestedClass { get; set; } = null!;
+        public string InheritedFieldGetter => _inheritedField;
+        public NestedClass? NullableClass { get; set; }
+        public NestedClass NestedClass { get; set; } = null!;
         NestedClass INestedInterface.NestedInterfaceClass { get; set; } = null!;
         private string _unrelatedFieldName = null!;
         public string PropWithUnrelatedFieldName { get => _unrelatedFieldName; set => _unrelatedFieldName = value; }
@@ -27,6 +28,11 @@
 
         private readonly List<int> _collectionDifferentTypeInt = null!;
         public IReadOnlyList<int> CollectionDifferentTypeInt => _collectionDifferentTypeInt.AsReadOnly();
+    }
+
+    internal class ClassWithOnlyNullable
+    {
+        public NestedClass? NestedNullableClass { get; set; }
     }
 
     internal class DerivedTestClass : TestClass

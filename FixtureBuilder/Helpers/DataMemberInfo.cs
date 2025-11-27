@@ -21,6 +21,8 @@ namespace FixtureBuilder.Helpers
         public void SetValue(object? obj, object? value) { if (IsPropertyInfo) { _property!.SetValue(obj, value); } else { _field!.SetValue(obj, value); } }
         public IEnumerable<CustomAttributeData> CustomAttributes => IsPropertyInfo ? _property!.CustomAttributes : _field!.CustomAttributes;
 
+        public Module Module => IsPropertyInfo ? _property!.Module : _field!.Module;
+
         public bool CanReadProperty => IsPropertyInfo ? _property!.CanRead : throw new InvalidOperationException("");
         public bool CanWriteProperty => IsPropertyInfo ? _property!.CanWrite : throw new InvalidOperationException("");
         public ParameterInfo[] GetPropertyIndexParameters() => IsPropertyInfo ? _property!.GetIndexParameters() : throw new InvalidOperationException("");

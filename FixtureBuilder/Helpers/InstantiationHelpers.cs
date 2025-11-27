@@ -1,8 +1,8 @@
-﻿using FixtureBuilder.Extensions;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Helpers
 {
@@ -119,6 +119,17 @@ namespace FixtureBuilder.Helpers
                         return true; // Nullable reference type
                     }
                 }
+            }
+            else if (nullableAttr == null)
+            {
+                var contextAttr = dataMember.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
+                if (contextAttr != null) return (contextAttr.ConstructorArguments[0].Value as byte?) == 2;
+
+                contextAttr = dataMember.DeclaringType?.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
+                if (contextAttr != null) return (contextAttr.ConstructorArguments[0].Value as byte?) == 2;
+
+                contextAttr = dataMember.Module.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute");
+                if (contextAttr != null) return (contextAttr.ConstructorArguments[0].Value as byte?) == 2;
             }
 
             return false; // Default: not nullable reference type
