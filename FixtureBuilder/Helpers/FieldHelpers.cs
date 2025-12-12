@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 
 namespace FixtureBuilder.Helpers
 {
@@ -14,7 +15,7 @@ namespace FixtureBuilder.Helpers
 
             var fieldType = fieldInfo.FieldType;
 
-            if (typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
+            if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
             {
                 CollectionHelpers.CastToCollection(fieldInfo, instance, values);
             }

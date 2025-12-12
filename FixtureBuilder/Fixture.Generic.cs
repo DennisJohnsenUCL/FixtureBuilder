@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Helpers;
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace FixtureBuilder
@@ -169,10 +170,10 @@ namespace FixtureBuilder
             if (fieldType != typeof(TProp)
                 && fieldType != typeof(string)
                 && value != null
-                && typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldType)
-                && typeof(System.Collections.IEnumerable).IsAssignableFrom(typeof(TProp)))
+                && typeof(IEnumerable).IsAssignableFrom(fieldType)
+                && typeof(IEnumerable).IsAssignableFrom(typeof(TProp)))
             {
-                CollectionHelpers.CastToCollection(backingField, instance, value);
+                CollectionHelpers.CastToCollection(backingField, instance, (IEnumerable)value);
             }
             else
             {
