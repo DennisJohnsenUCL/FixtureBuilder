@@ -96,6 +96,9 @@ namespace FixtureBuilder
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {_fixture.GetType().Name}.");
 
+            if (value != null && !fieldInfo.FieldType.IsAssignableFrom(value.GetType()))
+                throw new InvalidOperationException($"{value.GetType().Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}");
+
             fieldInfo.SetValue(_fixture, value);
 
             return this;
