@@ -189,7 +189,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_privateExplicitField";
 
-            Assert.Throws<ArgumentException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _number).Build());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _number).Build());
         }
 
         [Test]

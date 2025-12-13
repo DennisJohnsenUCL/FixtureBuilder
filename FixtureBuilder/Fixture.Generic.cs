@@ -94,7 +94,7 @@ namespace FixtureBuilder
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
-                throw new InvalidOperationException($"Field '{fieldName}' not found on {_fixture.GetType().Name}.");
+                throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
             if (value != null && !fieldInfo.FieldType.IsAssignableFrom(value.GetType()))
                 throw new InvalidOperationException($"{value.GetType().Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}");
@@ -115,11 +115,15 @@ namespace FixtureBuilder
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
-                throw new InvalidOperationException($"Field '{fieldName}' not found on {_fixture.GetType().Name}.");
+                throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
             var fieldType = fieldInfo.FieldType;
 
-            if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
+            if (fieldType.IsAssignableFrom(values.GetType()))
+            {
+                fieldInfo.SetValue(_fixture, values);
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
             {
                 CollectionHelpers.CastToCollection(fieldInfo, _fixture, values);
             }
