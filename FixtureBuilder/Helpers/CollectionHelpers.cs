@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Reflection;
 
 namespace FixtureBuilder.Helpers
 {
@@ -6,9 +7,10 @@ namespace FixtureBuilder.Helpers
     {
         public static IEnumerable CastToCollection(Type fieldType, IEnumerable values)
         {
+            var valuesList = values.Cast<object>().ToList();
+
             if (fieldType.IsArray)
             {
-                var valuesList = values.Cast<object>().ToList();
                 var elementType = fieldType.GetElementType()!;
                 var array = Array.CreateInstance(elementType, valuesList.Count);
                 for (int i = 0; i < valuesList.Count; i++)
@@ -16,6 +18,37 @@ namespace FixtureBuilder.Helpers
                     array.SetValue(valuesList[i], i);
                 }
                 return array;
+            }
+
+            if (fieldType.IsGenericType)
+            {
+                var genericTypeDef = fieldType.GetGenericTypeDefinition();
+                var elementType = fieldType.GetGenericArguments()[0];
+
+                if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") == true)
+                {
+                    var factoryTypeName = genericTypeDef.FullName.Replace("`1", "");
+                    var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
+                        ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}");
+
+                    var createRangeMethod = factoryType
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .FirstOrDefault(m =>
+                            m.Name == "CreateRange" &&
+                            m.IsGenericMethodDefinition &&
+                            m.GetParameters().Length == 1)
+                        ?? throw new InvalidOperationException($"Failed to get CreateRange method for {fieldType.Name}");
+
+                    var genericCreateRange = createRangeMethod.MakeGenericMethod(elementType);
+
+                    var typedList = typeof(Enumerable)
+                        .GetMethod("Cast")!
+                        .MakeGenericMethod(elementType)
+                        .Invoke(null, [valuesList]);
+
+                    return genericCreateRange.Invoke(null, [typedList]) as IEnumerable
+                        ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
+                }
             }
 
             var collection = InstantiationHelpers.GetInstantiatedInstance(fieldType, instantiateMembers: false) as IEnumerable
