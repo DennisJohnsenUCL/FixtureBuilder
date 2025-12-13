@@ -93,7 +93,10 @@ namespace FixtureBuilder
         {
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
-            FieldHelpers.SetField(_fixture, fieldName, value, allowNonCollection: true);
+            if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
+                throw new InvalidOperationException($"Field '{fieldName}' not found on {_fixture.GetType().Name}.");
+
+            fieldInfo.SetValue(_fixture, value);
 
             return this;
         }
@@ -108,7 +111,16 @@ namespace FixtureBuilder
         {
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
-            FieldHelpers.SetField(_fixture, fieldName, values, allowNonCollection: false);
+            if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
+                throw new InvalidOperationException($"Field '{fieldName}' not found on {_fixture.GetType().Name}.");
+
+            var fieldType = fieldInfo.FieldType;
+
+            if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
+            {
+                CollectionHelpers.CastToCollection(fieldInfo, _fixture, values);
+            }
+            else throw new InvalidOperationException("Cannot assign collection to non-collection field");
 
             return this;
         }

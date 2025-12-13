@@ -237,9 +237,7 @@ namespace FixtureBuilder.Tests
         {
             var fieldName = "_stringListField";
 
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build();
-
-            Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, _text).Build());
         }
 
         [Test]

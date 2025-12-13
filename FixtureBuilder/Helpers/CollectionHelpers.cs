@@ -7,8 +7,6 @@ namespace FixtureBuilder.Helpers
     {
         public static void CastToCollection(FieldInfo fieldInfo, object instance, IEnumerable values)
         {
-            if (values == null) throw new InvalidOperationException("Cannot cast null to a collection");
-
             var fieldType = fieldInfo.FieldType;
 
             if (!typeof(IEnumerable).IsAssignableFrom(fieldType))
