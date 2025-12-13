@@ -290,5 +290,55 @@ namespace FixtureBuilder.Tests
 
             Assert.That(fixture.CollectionDifferentTypeInt[0], Is.EqualTo(_number));
         }
+
+        [Test]
+        public void HashSetField_SetsField()
+        {
+            var fieldName = "_hashSet";
+
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.HashSet.Single(), Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void ArrayField_SetsField()
+        {
+            var fieldName = "_array";
+
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.Array[0], Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void ArrayListField_SetsField()
+        {
+            var fieldName = "_arrayList";
+
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.ArrayList[0], Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void ReadOnlyListField_SetsField()
+        {
+            var fieldName = "_readOnlyList";
+
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.IReadOnlyList[0], Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void ImmutableListField_SetsField()
+        {
+            var fieldName = "_immutableList";
+
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.ImmutableList[0], Is.EqualTo(_number));
+        }
     }
 }

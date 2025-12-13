@@ -1,4 +1,7 @@
-﻿namespace FixtureBuilder.Tests
+﻿using System.Collections;
+using System.Collections.Immutable;
+
+namespace FixtureBuilder.Tests
 {
     internal record TestValue(string Text, int Number);
 
@@ -20,6 +23,7 @@
         private string _unrelatedFieldName = null!;
         public string PropWithUnrelatedFieldName { get => _unrelatedFieldName; set => _unrelatedFieldName = value; }
         public string PropNoSetterWithUnrelatedFieldName => _unrelatedFieldName;
+
         private List<string> _stringListField = null!;
         public List<string> StringListProp { get => _stringListField; set => _stringListField = value; }
 
@@ -28,6 +32,17 @@
 
         private readonly List<int> _collectionDifferentTypeInt = null!;
         public IReadOnlyList<int> CollectionDifferentTypeInt => _collectionDifferentTypeInt.AsReadOnly();
+
+        private readonly HashSet<int> _hashSet = null!;
+        public HashSet<int> HashSet => _hashSet;
+        private readonly int[] _array = null!;
+        public int[] Array => _array;
+        private readonly ArrayList _arrayList = null!;
+        public ArrayList ArrayList => _arrayList;
+        private readonly IReadOnlyList<int> _readOnlyList = null!;
+        public IReadOnlyList<int> IReadOnlyList => _readOnlyList;
+        private readonly ImmutableList<int> _immutableList = null!;
+        public ImmutableList<int> ImmutableList => _immutableList;
     }
 
     internal class ClassWithOnlyNullable
