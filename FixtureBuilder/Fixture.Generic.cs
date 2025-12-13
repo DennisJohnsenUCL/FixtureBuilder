@@ -125,7 +125,8 @@ namespace FixtureBuilder
             }
             else if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
             {
-                CollectionHelpers.CastToCollection(fieldInfo, _fixture, values);
+                var collection = CollectionHelpers.CastToCollection(fieldType, values);
+                fieldInfo.SetValue(_fixture, collection);
             }
             else throw new InvalidOperationException("Cannot assign collection to non-collection field");
 
@@ -192,7 +193,8 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(typeof(TProp)))
             {
-                CollectionHelpers.CastToCollection(backingField, instance, (IEnumerable)value);
+                var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
+                backingField.SetValue(instance, collection);
             }
             else
             {
