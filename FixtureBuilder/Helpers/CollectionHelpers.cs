@@ -22,20 +22,18 @@ namespace FixtureBuilder.Helpers
             if (fieldType.IsGenericType)
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
-                var elementType = fieldType.GetGenericArguments()[0];
-                var typedList = typeof(Enumerable)
-                    .GetMethod("Cast")!
-                    .MakeGenericMethod(elementType)
-                    .Invoke(null, [values]) as IEnumerable
-                    ?? throw new InvalidOperationException($"Failed to cast values to IEnumerable<{elementType.Name}>");
 
                 if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
+                    var elementType = fieldType.GetGenericArguments()[0];
+                    var typedList = CastElements(values, elementType);
                     return CastToImmutable(fieldType, genericTypeDef, elementType, typedList);
                 }
 
                 else if (genericTypeDef == typeof(ReadOnlyCollection<>))
                 {
+                    var elementType = fieldType.GetGenericArguments()[0];
+                    var typedList = CastElements(values, elementType);
                     return CastToReadOnlyCollection(fieldType, elementType, typedList);
                 }
             }
@@ -118,6 +116,16 @@ namespace FixtureBuilder.Helpers
             listType.GetMethod("AddRange")!.Invoke(list, [typedValues]);
             var readOnlyCollection = Activator.CreateInstance(fieldType, list)!;
             return (IEnumerable)readOnlyCollection;
+        }
+
+        private static IEnumerable CastElements(IEnumerable values, Type elementType)
+        {
+            var typedList = typeof(Enumerable)
+                .GetMethod("Cast")!
+                .MakeGenericMethod(elementType)
+                .Invoke(null, [values]) as IEnumerable
+                ?? throw new InvalidOperationException($"Failed to cast values to IEnumerable<{elementType.Name}>");
+            return typedList;
         }
     }
 }
