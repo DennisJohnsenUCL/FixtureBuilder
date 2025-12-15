@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace FixtureBuilder.Helpers
@@ -8,10 +9,9 @@ namespace FixtureBuilder.Helpers
     {
         public static IEnumerable CastToCollection(Type fieldType, IEnumerable values)
         {
-            var valuesList = values.Cast<object>().ToList();
-
             if (fieldType.IsArray)
             {
+                var valuesList = values.Cast<object>().ToList();
                 var elementType = fieldType.GetElementType()!;
                 var array = Array.CreateInstance(elementType, valuesList.Count);
                 for (int i = 0; i < valuesList.Count; i++)
@@ -71,10 +71,24 @@ namespace FixtureBuilder.Helpers
                     var typedList = typeof(Enumerable)
                         .GetMethod("Cast")!
                         .MakeGenericMethod(elementType)
-                        .Invoke(null, [valuesList]);
+                        .Invoke(null, [values]);
 
                     return genericCreateRange.Invoke(null, [typedList]) as IEnumerable
                         ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
+                }
+                else if (genericTypeDef == typeof(ReadOnlyCollection<>))
+                {
+                    var listType = typeof(List<>).MakeGenericType(elementType);
+                    var list = Activator.CreateInstance(listType);
+
+                    var typedList = typeof(Enumerable)
+                        .GetMethod("Cast")!
+                        .MakeGenericMethod(elementType)
+                        .Invoke(null, [values]);
+
+                    listType.GetMethod("AddRange")!.Invoke(list, [typedList]);
+                    var readOnlyCollection = Activator.CreateInstance(fieldType, list)!;
+                    return (IEnumerable)readOnlyCollection;
                 }
             }
 
