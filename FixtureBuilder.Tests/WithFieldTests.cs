@@ -234,7 +234,7 @@ namespace FixtureBuilder.Tests
         }
 
         [Test]
-        public void CollectionTypeField_OneParameter_SetsField()
+        public void CollectionTypeField_StringParameter_ThrowsException()
         {
             var fieldName = "_stringListField";
 

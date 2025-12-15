@@ -110,7 +110,7 @@ namespace FixtureBuilder
         /// <param name="fieldName">The name of the field to configure. This must correspond to a valid field in the fixture object.</param>
         /// <param name="values">A collection of values to assign to the specified field. The field must be a collection type.</param>
         /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, IEnumerable<object> values)
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, IEnumerable<T> values)
         {
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
