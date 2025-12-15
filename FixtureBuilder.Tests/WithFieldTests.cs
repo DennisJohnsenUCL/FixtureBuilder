@@ -322,7 +322,7 @@ namespace FixtureBuilder.Tests
         }
 
         [Test]
-        public void ReadOnlyListField_SetsField()
+        public void IReadOnlyListField_SetsField()
         {
             var fieldName = "_readOnlyList";
 
@@ -339,6 +339,16 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
 
             Assert.That(fixture.ImmutableList[0], Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void ReadOnlyCollectionField_SetsField()
+        {
+            var fieldName = "_readOnlyCollection";
+
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.ReadOnlyCollection[0], Is.EqualTo(_number));
         }
     }
 }

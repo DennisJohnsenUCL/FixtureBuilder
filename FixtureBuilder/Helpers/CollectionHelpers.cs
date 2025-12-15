@@ -49,6 +49,28 @@ namespace FixtureBuilder.Helpers
                     return genericCreateRange.Invoke(null, [typedList]) as IEnumerable
                         ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
                 }
+
+                if (fieldType.IsInterface)
+                {
+                    Type concreteType;
+
+                    if (genericTypeDef == typeof(IList<>) ||
+                        genericTypeDef == typeof(IReadOnlyList<>) ||
+                        genericTypeDef == typeof(IEnumerable<>) ||
+                        genericTypeDef == typeof(IReadOnlyCollection<>) ||
+                        genericTypeDef == typeof(ICollection<>))
+                    {
+                        concreteType = typeof(List<>).MakeGenericType(elementType);
+                    }
+                    else if (genericTypeDef == typeof(ISet<>) ||
+                        genericTypeDef == typeof(IReadOnlySet<>))
+                    {
+                        concreteType = typeof(HashSet<>).MakeGenericType(elementType);
+                    }
+                    else throw new InvalidOperationException($"Unsupported interface type: {fieldType.Name}");
+
+                    if (concreteType != null) fieldType = concreteType;
+                }
             }
 
             var collection = InstantiationHelpers.GetInstantiatedInstance(fieldType, instantiateMembers: false) as IEnumerable

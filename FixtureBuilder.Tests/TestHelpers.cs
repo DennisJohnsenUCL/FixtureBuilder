@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 
 namespace FixtureBuilder.Tests
 {
@@ -43,6 +44,8 @@ namespace FixtureBuilder.Tests
         public IReadOnlyList<int> IReadOnlyList => _readOnlyList;
         private readonly ImmutableList<int> _immutableList = null!;
         public ImmutableList<int> ImmutableList => _immutableList;
+        private readonly ReadOnlyCollection<int> _readOnlyCollection = null!;
+        public ReadOnlyCollection<int> ReadOnlyCollection => _readOnlyCollection;
     }
 
     internal class ClassWithOnlyNullable
