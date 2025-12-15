@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Immutable;
+using System.Reflection;
 
 namespace FixtureBuilder.Tests
 {
@@ -349,6 +350,21 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
 
             Assert.That(fixture.ReadOnlyCollection[0], Is.EqualTo(_number));
+        }
+
+        class IImmutableListClass
+        {
+            private readonly IImmutableList<int> _iImmutableList = null!;
+            public IImmutableList<int> IImmutableList => _iImmutableList;
+        }
+        [Test]
+        public void IImmutableListField_SetsField()
+        {
+            var fieldName = "_iImmutableList";
+
+            var fixture = Fixture.New<IImmutableListClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+
+            Assert.That(fixture.IImmutableList[0], Is.EqualTo(_number));
         }
     }
 }

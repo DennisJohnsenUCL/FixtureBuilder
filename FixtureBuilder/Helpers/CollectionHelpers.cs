@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace FixtureBuilder.Helpers
@@ -18,6 +19,32 @@ namespace FixtureBuilder.Helpers
                     array.SetValue(valuesList[i], i);
                 }
                 return array;
+            }
+
+            if (fieldType.IsInterface)
+            {
+                Type concreteType;
+                var genericTypeDef = fieldType.GetGenericTypeDefinition();
+                var elementType = fieldType.GetGenericArguments()[0];
+
+                if (genericTypeDef == typeof(IList<>) ||
+                    genericTypeDef == typeof(IReadOnlyList<>) ||
+                    genericTypeDef == typeof(IEnumerable<>) ||
+                    genericTypeDef == typeof(IReadOnlyCollection<>) ||
+                    genericTypeDef == typeof(ICollection<>))
+                {
+                    concreteType = typeof(List<>);
+                }
+                else if (genericTypeDef == typeof(ISet<>) ||
+                    genericTypeDef == typeof(IReadOnlySet<>))
+                {
+                    concreteType = typeof(HashSet<>);
+                }
+                else if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
+                else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
+                else throw new InvalidOperationException($"Unsupported interface type: {fieldType.Name}");
+
+                if (concreteType != null) fieldType = concreteType.MakeGenericType(elementType);
             }
 
             if (fieldType.IsGenericType)
@@ -48,28 +75,6 @@ namespace FixtureBuilder.Helpers
 
                     return genericCreateRange.Invoke(null, [typedList]) as IEnumerable
                         ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
-                }
-
-                if (fieldType.IsInterface)
-                {
-                    Type concreteType;
-
-                    if (genericTypeDef == typeof(IList<>) ||
-                        genericTypeDef == typeof(IReadOnlyList<>) ||
-                        genericTypeDef == typeof(IEnumerable<>) ||
-                        genericTypeDef == typeof(IReadOnlyCollection<>) ||
-                        genericTypeDef == typeof(ICollection<>))
-                    {
-                        concreteType = typeof(List<>).MakeGenericType(elementType);
-                    }
-                    else if (genericTypeDef == typeof(ISet<>) ||
-                        genericTypeDef == typeof(IReadOnlySet<>))
-                    {
-                        concreteType = typeof(HashSet<>).MakeGenericType(elementType);
-                    }
-                    else throw new InvalidOperationException($"Unsupported interface type: {fieldType.Name}");
-
-                    if (concreteType != null) fieldType = concreteType;
                 }
             }
 
