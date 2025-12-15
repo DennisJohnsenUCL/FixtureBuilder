@@ -25,16 +25,12 @@ namespace FixtureBuilder.Helpers
 
                 if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
-                    var elementType = fieldType.GetGenericArguments()[0];
-                    var typedList = CastElements(values, elementType);
-                    return CastToImmutable(fieldType, genericTypeDef, elementType, typedList);
+                    return CastToImmutable(fieldType, genericTypeDef, values);
                 }
 
                 else if (genericTypeDef == typeof(ReadOnlyCollection<>))
                 {
-                    var elementType = fieldType.GetGenericArguments()[0];
-                    var typedList = CastElements(values, elementType);
-                    return CastToReadOnlyCollection(fieldType, elementType, typedList);
+                    return CastToReadOnlyCollection(fieldType, values);
                 }
             }
 
@@ -88,8 +84,11 @@ namespace FixtureBuilder.Helpers
             return concreteType.MakeGenericType(elementType);
         }
 
-        private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, Type elementType, IEnumerable typedValues)
+        private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, IEnumerable values)
         {
+            var elementType = fieldType.GetGenericArguments()[0];
+            var typedList = CastElements(values, elementType);
+
             var factoryTypeName = genericTypeDef.FullName!.Replace("`1", "");
             var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
                 ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}");
@@ -104,16 +103,19 @@ namespace FixtureBuilder.Helpers
 
             var genericCreateRange = createRangeMethod.MakeGenericMethod(elementType);
 
-            return genericCreateRange.Invoke(null, [typedValues]) as IEnumerable
+            return genericCreateRange.Invoke(null, [typedList]) as IEnumerable
                 ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
         }
 
-        private static IEnumerable CastToReadOnlyCollection(Type fieldType, Type elementType, IEnumerable typedValues)
+        private static IEnumerable CastToReadOnlyCollection(Type fieldType, IEnumerable values)
         {
+            var elementType = fieldType.GetGenericArguments()[0];
+            var typedList = CastElements(values, elementType);
+
             var listType = typeof(List<>).MakeGenericType(elementType);
             var list = Activator.CreateInstance(listType);
 
-            listType.GetMethod("AddRange")!.Invoke(list, [typedValues]);
+            listType.GetMethod("AddRange")!.Invoke(list, [typedList]);
             var readOnlyCollection = Activator.CreateInstance(fieldType, list)!;
             return (IEnumerable)readOnlyCollection;
         }
@@ -126,6 +128,19 @@ namespace FixtureBuilder.Helpers
                 .Invoke(null, [values]) as IEnumerable
                 ?? throw new InvalidOperationException($"Failed to cast values to IEnumerable<{elementType.Name}>");
             return typedList;
+        }
+
+        public static bool ElementTypeIsAssignable(Type fieldType, Type elementType)
+        {
+            if (!typeof(IEnumerable).IsAssignableFrom(fieldType)) return false;
+
+            Type? fieldElementType;
+            if (fieldType.IsGenericType) fieldElementType = fieldType.GetGenericArguments()[0];
+            else if (fieldType.IsArray) fieldElementType = fieldType.GetElementType();
+            else return true;
+
+            if (fieldElementType != null && fieldElementType.IsAssignableFrom(elementType)) return true;
+            else return false;
         }
     }
 }

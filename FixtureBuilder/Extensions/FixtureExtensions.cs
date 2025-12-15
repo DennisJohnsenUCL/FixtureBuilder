@@ -19,9 +19,9 @@ namespace FixtureBuilder.Extensions
             return Fixture.New(fixture).WithField(fieldName, value).Build();
         }
 
-        public static TEntity WithField<TEntity>(this TEntity fixture, string fieldName, IEnumerable<object> value) where TEntity : class
+        public static TEntity WithField<TEntity, T>(this TEntity fixture, string fieldName, IEnumerable<T> values) where TEntity : class
         {
-            return Fixture.New(fixture).WithField(fieldName, value).Build();
+            return Fixture.New(fixture).WithField(fieldName, values).Build();
         }
 
         public static TEntity WithField<TEntity, TProp>(this TEntity fixture, string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value) where TEntity : class
