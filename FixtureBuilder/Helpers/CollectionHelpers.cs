@@ -137,7 +137,16 @@ namespace FixtureBuilder.Helpers
             Type? fieldElementType;
             if (fieldType.IsGenericType) fieldElementType = fieldType.GetGenericArguments()[0];
             else if (fieldType.IsArray) fieldElementType = fieldType.GetElementType();
-            else return true;
+            else
+            {
+                var enumerableInterface = fieldType.GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+                if (enumerableInterface != null)
+                    fieldElementType = enumerableInterface.GetGenericArguments()[0];
+                else
+                    return true;
+            }
 
             if (fieldElementType != null && fieldElementType.IsAssignableFrom(elementType)) return true;
             else return false;
