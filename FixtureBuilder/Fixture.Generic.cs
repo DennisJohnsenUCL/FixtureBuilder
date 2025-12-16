@@ -181,6 +181,7 @@ namespace FixtureBuilder
             var fieldType = backingField.FieldType;
 
             if (fieldType != typeof(TProp)
+                && !fieldType.IsAssignableFrom(typeof(TProp))
                 && fieldType != typeof(string)
                 && value != null
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
