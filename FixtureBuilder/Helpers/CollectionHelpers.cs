@@ -151,7 +151,7 @@ namespace FixtureBuilder.Helpers
             else if (fieldType.IsArray) fieldElementType = fieldType.GetElementType();
             else return true;
 
-            if (fieldElementType != null && fieldElementType.IsAssignableFrom(elementType)) return true;
+            if (fieldElementType != null && (fieldElementType == elementType || fieldElementType.IsAssignableFrom(elementType))) return true;
             else return false;
         }
     }

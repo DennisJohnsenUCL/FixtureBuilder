@@ -191,6 +191,9 @@ namespace FixtureBuilder
                 Type? sourceElementType = null;
                 if (sourceType.IsGenericType) sourceElementType = sourceType.GetGenericArguments()[0];
 
+                if (sourceElementType != null && !CollectionHelpers.ElementTypeIsAssignable(fieldType, sourceElementType))
+                    throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}");
+
                 var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value, sourceElementType);
                 backingField.SetValue(instance, collection);
             }
