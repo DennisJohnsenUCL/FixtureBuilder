@@ -128,7 +128,7 @@ namespace FixtureBuilder
                 if (!CollectionHelpers.ElementTypeIsAssignable(fieldType, typeof(T)))
                     throw new InvalidOperationException($"Cannot assign type {typeof(T).Name} as element in collection of type {fieldType.Name}");
 
-                var collection = CollectionHelpers.CastToCollection(fieldType, values);
+                var collection = CollectionHelpers.CastToCollection(fieldType, values, typeof(T));
                 fieldInfo.SetValue(_fixture, collection);
             }
             else throw new InvalidOperationException("Cannot assign collection to non-collection field");

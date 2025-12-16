@@ -7,7 +7,7 @@ namespace FixtureBuilder.Helpers
 {
     internal static class CollectionHelpers
     {
-        public static IEnumerable CastToCollection(Type fieldType, IEnumerable values)
+        public static IEnumerable CastToCollection(Type fieldType, IEnumerable values, Type? sourceElementType = null)
         {
             if (fieldType.IsArray)
             {
@@ -22,20 +22,22 @@ namespace FixtureBuilder.Helpers
             if (fieldType.IsGenericType)
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
+                var elementType = fieldType.GetGenericArguments()[0];
+                var typedList = sourceElementType != null && sourceElementType == elementType ? values : CastElements(values, elementType);
 
                 if (genericTypeDef == typeof(List<>))
                 {
-                    return CastToList(fieldType, values);
+                    return CastToList(fieldType, typedList);
                 }
 
                 else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
-                    return CastToImmutable(fieldType, genericTypeDef, values);
+                    return CastToImmutable(fieldType, genericTypeDef, typedList);
                 }
 
                 else if (genericTypeDef == typeof(ReadOnlyCollection<>))
                 {
-                    return CastToReadOnlyCollection(fieldType, values);
+                    return CastToReadOnlyCollection(fieldType, typedList);
                 }
             }
 
@@ -91,17 +93,13 @@ namespace FixtureBuilder.Helpers
 
         private static IEnumerable CastToList(Type fieldType, IEnumerable values)
         {
-            var elementType = fieldType.GetGenericArguments()[0];
-            var typedList = CastElements(values, elementType);
-
-            var list = Activator.CreateInstance(fieldType, typedList)!;
+            var list = Activator.CreateInstance(fieldType, values)!;
             return (IEnumerable)list;
         }
 
         private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, IEnumerable values)
         {
             var elementType = fieldType.GetGenericArguments()[0];
-            var typedList = CastElements(values, elementType);
 
             var factoryTypeName = genericTypeDef.FullName!.Replace("`1", "");
             var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
@@ -117,17 +115,16 @@ namespace FixtureBuilder.Helpers
 
             var genericCreateRange = createRangeMethod.MakeGenericMethod(elementType);
 
-            return genericCreateRange.Invoke(null, [typedList]) as IEnumerable
+            return genericCreateRange.Invoke(null, [values]) as IEnumerable
                 ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
         }
 
         private static IEnumerable CastToReadOnlyCollection(Type fieldType, IEnumerable values)
         {
             var elementType = fieldType.GetGenericArguments()[0];
-            var typedList = CastElements(values, elementType);
 
             var listType = typeof(List<>).MakeGenericType(elementType);
-            var list = Activator.CreateInstance(listType, typedList);
+            var list = Activator.CreateInstance(listType, values);
 
             var readOnlyCollection = Activator.CreateInstance(fieldType, list)!;
             return (IEnumerable)readOnlyCollection;
