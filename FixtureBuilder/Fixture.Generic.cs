@@ -175,18 +175,8 @@ namespace FixtureBuilder
 
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
 
-            var fieldNames = fieldName == null ? FieldHelpers.GetCommonFieldNames(property.Name) : [fieldName];
-            var declaringType = property.DeclaringType;
-
-            if (declaringType != null && declaringType.IsInterface)
-            {
-                var explicitFieldName = $"<{declaringType.FullName}.{property.Name}>k__BackingField";
-                fieldNames = [explicitFieldName, .. fieldNames];
-            }
-
-            if (FieldHelpers.TryGetField(_fixture.GetType(), fieldNames, out var backingField)) { }
-            else if (declaringType != null && FieldHelpers.TryGetField(declaringType, fieldNames, out backingField)) { }
-            else throw new InvalidOperationException($"Backing field not found for property {property.Name}");
+            if (!FieldHelpers.TryGetPropertyBackingField<TEntity>(property, fieldName, out var backingField))
+                throw new InvalidOperationException($"Backing field not found for property {property.Name}");
 
             var fieldType = backingField.FieldType;
 
