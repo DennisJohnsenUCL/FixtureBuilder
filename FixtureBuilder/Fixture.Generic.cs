@@ -179,15 +179,19 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}");
 
             var fieldType = backingField.FieldType;
+            var sourceType = typeof(TProp);
 
-            if (fieldType != typeof(TProp)
-                && !fieldType.IsAssignableFrom(typeof(TProp))
+            if (fieldType != sourceType
+                && !fieldType.IsAssignableFrom(sourceType)
                 && fieldType != typeof(string)
                 && value != null
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
-                && typeof(IEnumerable).IsAssignableFrom(typeof(TProp)))
+                && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
-                var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
+                Type? sourceElementType = null;
+                if (sourceType.IsGenericType) sourceElementType = sourceType.GetGenericArguments()[0];
+
+                var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value, sourceElementType);
                 backingField.SetValue(instance, collection);
             }
             else

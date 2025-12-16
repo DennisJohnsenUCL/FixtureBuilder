@@ -23,7 +23,9 @@ namespace FixtureBuilder.Helpers
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
                 var elementType = fieldType.GetGenericArguments()[0];
-                var typedList = sourceElementType != null && sourceElementType == elementType ? values : CastElements(values, elementType);
+                var typedList = sourceElementType != null && sourceElementType == elementType
+                    ? values
+                    : CastElements(values, elementType);
 
                 if (genericTypeDef == typeof(List<>))
                 {
