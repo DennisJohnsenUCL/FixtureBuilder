@@ -23,7 +23,12 @@ namespace FixtureBuilder.Helpers
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
-                if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
+                if (genericTypeDef == typeof(List<>))
+                {
+                    return CastToList(fieldType, values);
+                }
+
+                else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
                     return CastToImmutable(fieldType, genericTypeDef, values);
                 }
@@ -84,6 +89,15 @@ namespace FixtureBuilder.Helpers
             return concreteType.MakeGenericType(elementType);
         }
 
+        private static IEnumerable CastToList(Type fieldType, IEnumerable values)
+        {
+            var elementType = fieldType.GetGenericArguments()[0];
+            var typedList = CastElements(values, elementType);
+
+            var list = Activator.CreateInstance(fieldType, typedList)!;
+            return (IEnumerable)list;
+        }
+
         private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, IEnumerable values)
         {
             var elementType = fieldType.GetGenericArguments()[0];
@@ -113,9 +127,8 @@ namespace FixtureBuilder.Helpers
             var typedList = CastElements(values, elementType);
 
             var listType = typeof(List<>).MakeGenericType(elementType);
-            var list = Activator.CreateInstance(listType);
+            var list = Activator.CreateInstance(listType, typedList);
 
-            listType.GetMethod("AddRange")!.Invoke(list, [typedList]);
             var readOnlyCollection = Activator.CreateInstance(fieldType, list)!;
             return (IEnumerable)readOnlyCollection;
         }
@@ -137,16 +150,7 @@ namespace FixtureBuilder.Helpers
             Type? fieldElementType;
             if (fieldType.IsGenericType) fieldElementType = fieldType.GetGenericArguments()[0];
             else if (fieldType.IsArray) fieldElementType = fieldType.GetElementType();
-            else
-            {
-                var enumerableInterface = fieldType.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-
-                if (enumerableInterface != null)
-                    fieldElementType = enumerableInterface.GetGenericArguments()[0];
-                else
-                    return true;
-            }
+            else return true;
 
             if (fieldElementType != null && fieldElementType.IsAssignableFrom(elementType)) return true;
             else return false;
