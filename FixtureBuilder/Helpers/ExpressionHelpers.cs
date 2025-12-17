@@ -8,24 +8,24 @@ namespace FixtureBuilder.Helpers
         public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr)
         {
             var memberExpr = expr.Body as MemberExpression
-                ?? throw new ArgumentException("Expression must be a property access", nameof(expr));
+                ?? throw new ArgumentException($"Argument '{expr}' is invalid. Please use a direct property access, e.g., x => x.Property1.Property2, not a method, field, or computed value.", nameof(expr));
 
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
-            var members = new Stack<MemberInfo>();
+            var members = new Stack<PropertyInfo>();
             while (memberExpr != null)
             {
-                members.Push(memberExpr.Member);
+                members.Push((PropertyInfo)memberExpr.Member);
                 memberExpr = memberExpr.Expression as MemberExpression;
             }
 
             object current = root;
-            MemberInfo currentMember;
+            PropertyInfo currentMember;
 
             while (members.Count > 1)
             {
                 currentMember = members.Pop();
-                var prop = (PropertyInfo)currentMember;
+                var prop = currentMember;
 
                 var parent = current;
                 current = prop.GetValue(parent)!;
@@ -39,7 +39,7 @@ namespace FixtureBuilder.Helpers
             }
 
             currentMember = members.Pop();
-            var finalProp = (PropertyInfo)currentMember;
+            var finalProp = currentMember;
 
             return (current, finalProp);
         }

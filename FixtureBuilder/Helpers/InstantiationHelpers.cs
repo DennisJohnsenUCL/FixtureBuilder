@@ -11,7 +11,7 @@ namespace FixtureBuilder.Helpers
         public static object GetInstantiatedInstance(Type type, bool instantiateMembers)
         {
             var instance = UseConstructor(type) ?? BypassConstructor(type)
-                ?? throw new InvalidOperationException($"Failed to instantiate {type}");
+                ?? throw new InvalidOperationException($"Failed to instantiate {type.Name} with default constructor and by bypassing constructor. Please use 'UseConstructor' and supply known constructor parameters as arguments.");
 
             if (instantiateMembers) InstantiateMembers(instance);
 
@@ -40,7 +40,7 @@ namespace FixtureBuilder.Helpers
 
         public static void InstantiateMembers(object obj, HashSet<object>? seen = null)
         {
-            if (obj == null) throw new InvalidOperationException($"Cannot instantiate members of a null member");
+            if (obj == null) throw new InvalidOperationException($"Cannot instantiate members of a null member.");
             seen ??= new HashSet<object>(ReferenceEqualityComparer.Instance);
             if (!seen.Add(obj)) return;
 

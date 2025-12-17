@@ -47,7 +47,7 @@ namespace FixtureBuilder.Helpers
                 ?? throw new InvalidOperationException($"Failed to create collection instance for type {fieldType.Name}. Type must implement IEnumerable.");
 
             var addMethod = fieldType.GetMethod("Add")
-                ?? throw new InvalidOperationException("Cannot assign collection to field without Add method");
+                ?? throw new InvalidOperationException($"Cannot assign collection to field without Add method {fieldType.Name}.");
 
             foreach (var item in values)
                 addMethod.Invoke(collection, [item]);
@@ -88,7 +88,7 @@ namespace FixtureBuilder.Helpers
             }
             else if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
             else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
-            else throw new InvalidOperationException($"Unsupported interface type: {interfaceType.Name}");
+            else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
 
             return concreteType.MakeGenericType(elementType);
         }
@@ -105,7 +105,7 @@ namespace FixtureBuilder.Helpers
 
             var factoryTypeName = genericTypeDef.FullName!.Replace("`1", "");
             var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
-                ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}");
+                ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}.");
 
             var createRangeMethod = factoryType
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -113,12 +113,12 @@ namespace FixtureBuilder.Helpers
                     m.Name == "CreateRange" &&
                     m.IsGenericMethodDefinition &&
                     m.GetParameters().Length == 1)
-                ?? throw new InvalidOperationException($"Failed to get CreateRange method for {fieldType.Name}");
+                ?? throw new InvalidOperationException($"Failed to get CreateRange method for {fieldType.Name}.");
 
             var genericCreateRange = createRangeMethod.MakeGenericMethod(elementType);
 
             return genericCreateRange.Invoke(null, [values]) as IEnumerable
-                ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}");
+                ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}.");
         }
 
         private static IEnumerable CastToReadOnlyCollection(Type fieldType, IEnumerable values)

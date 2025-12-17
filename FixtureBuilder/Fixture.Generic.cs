@@ -24,7 +24,7 @@ namespace FixtureBuilder
         internal Fixture()
         {
             if (typeof(TEntity).IsInterface)
-                throw new InvalidOperationException($"Cannot instantiate interface type: {typeof(TEntity).Name}");
+                throw new InvalidOperationException($"Cannot create fixtures of interface types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
         }
 
         internal Fixture(TEntity entity) => _fixture = entity;
@@ -39,7 +39,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.BypassConstructor()
         {
             var instance = InstantiationHelpers.BypassConstructor(typeof(TEntity))
-                ?? throw new InvalidOperationException($"Failed to instantiate {typeof(TEntity)}");
+                ?? throw new InvalidOperationException($"Failed to instantiate {typeof(TEntity)} by bypassing constructor. Please try to instantiate with 'UseConstructor' instead.");
 
             _fixture = (TEntity)instance;
             InstantiationHelpers.InstantiateMembers(_fixture);
@@ -56,7 +56,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
         {
             var instance = InstantiationHelpers.UseConstructor(typeof(TEntity), args)
-                ?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)}");
+                ?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)} with given constructor arguments. Please ensure a matching constructor exists.");
 
             _fixture = (TEntity)instance;
             InstantiationHelpers.InstantiateMembers(_fixture);
@@ -75,7 +75,7 @@ namespace FixtureBuilder
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
             if (_fixture is not TTarget target)
-                throw new InvalidCastException($"Cannot cast {typeof(TEntity).Name} to {typeof(TTarget).Name}");
+                throw new InvalidCastException($"Cannot cast {typeof(TEntity).Name} to {typeof(TTarget).Name}.");
 
             return new Fixture<TTarget>(target);
         }
@@ -97,7 +97,7 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
             if (value != null && (fieldInfo.FieldType != value.GetType() || !fieldInfo.FieldType.IsAssignableFrom(value.GetType())))
-                throw new InvalidOperationException($"{value.GetType().Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}");
+                throw new InvalidOperationException($"{value.GetType().Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}.");
 
             fieldInfo.SetValue(_fixture, value);
 
@@ -126,7 +126,7 @@ namespace FixtureBuilder
             else if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
             {
                 if (!CollectionHelpers.ElementTypeIsAssignable(fieldType, typeof(T)))
-                    throw new InvalidOperationException($"Cannot assign type {typeof(T).Name} as element in collection of type {fieldType.Name}");
+                    throw new InvalidOperationException($"Cannot assign type {typeof(T).Name} as element in collection of type {fieldType.Name}.");
 
                 var collection = CollectionHelpers.CastToCollection(fieldType, values, typeof(T));
                 fieldInfo.SetValue(_fixture, collection);
@@ -176,7 +176,7 @@ namespace FixtureBuilder
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
 
             if (!FieldHelpers.TryGetPropertyBackingField<TEntity>(property, fieldName, out var backingField))
-                throw new InvalidOperationException($"Backing field not found for property {property.Name}");
+                throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
             var fieldType = backingField.FieldType;
             var sourceType = typeof(TProp);
@@ -192,7 +192,7 @@ namespace FixtureBuilder
                 if (sourceType.IsGenericType) sourceElementType = sourceType.GetGenericArguments()[0];
 
                 if (sourceElementType != null && !CollectionHelpers.ElementTypeIsAssignable(fieldType, sourceElementType))
-                    throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}");
+                    throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}.");
 
                 var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value, sourceElementType);
                 backingField.SetValue(instance, collection);
@@ -215,7 +215,7 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
         {
-            if (!ExpressionHelpers.IsPropertyWritable(expr)) throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter");
+            if (!ExpressionHelpers.IsPropertyWritable(expr)) throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
             return WithSetterInternal(expr, value);
         }
 
@@ -227,8 +227,7 @@ namespace FixtureBuilder
 
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
 
-            if (property != null) property.SetValue(instance, value);
-            else throw new InvalidOperationException("Unsupported member type");
+            property.SetValue(instance, value);
 
             return this;
         }
