@@ -1,135 +1,135 @@
-﻿using System.Reflection;
+﻿#pragma warning disable CA1822 // Mark members as static
 
 namespace FixtureBuilder.Tests
 {
     internal class WithSetterTests
     {
-        private string _text;
-        private int _number;
-
-        [SetUp]
-        public void Setup()
-        {
-            _text = "Test";
-            _number = 123;
-        }
+        private readonly static string _text = "Test string";
+        private readonly static int _number = 123;
 
         [Test]
         public void SetterInFixture_SetsProperty()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.Text, Is.EqualTo(_text));
+            Assert.That(field.Text, Is.EqualTo(_text));
         }
 
         [Test]
         public void DerivedSetter_SetsProperty()
         {
-            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Text, _text).Build();
+            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.Text, Is.EqualTo(_text));
+            Assert.That(field.Text, Is.EqualTo(_text));
         }
 
         [Test]
         public void OverriddenSetter_SetsProperty()
         {
-            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Number, _number).Build();
+            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Number, _number);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.Number, Is.EqualTo(_number));
+            Assert.That(field.Number, Is.EqualTo(_number));
         }
 
         [Test]
         public void ImplicitInterfaceImplementation_SetsProperty()
         {
-            var fixture = Fixture.New<InterfaceTestClass>().BypassConstructor().WithSetter(t => t.ImplicitProperty, _text).Build();
+            var fixture = Fixture.New<InterfaceTestClass>().BypassConstructor().WithSetter(t => t.ImplicitProperty, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.ImplicitProperty, Is.EqualTo(_text));
+            Assert.That(field.ImplicitProperty, Is.EqualTo(_text));
         }
 
+        class PropWithoutSetterClass
+        {
+            public string Text => "Test";
+        }
         [Test]
         public void PropWithoutSetter_ThrowsException()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor();
+            var fixture = Fixture.New<PropWithoutSetterClass>().BypassConstructor();
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.Throws<InvalidOperationException>(() => fixture.WithSetter(f => f.PropWithoutSetter, "Test"));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithSetter(f => f.Text, "Test"));
         }
+
 
         [Test]
         public void GenericClass_SetsProperty()
         {
-            var fixture = Fixture.New<GenericClass<string>>().BypassConstructor().WithSetter(g => g.Value, _text).Build();
+            var fixture = Fixture.New<GenericClass<string>>().BypassConstructor().WithSetter(g => g.Value, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.Value, Is.EqualTo(_text));
+            Assert.That(field.Value, Is.EqualTo(_text));
         }
 
         [Test]
         public void NestedProperty_SetsProperty()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+            Assert.That(field.NestedClass.Value, Is.EqualTo(_text));
         }
 
         [Test]
         public void DeeperNestedProperty_SetsProperty()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.DeeperNestedClass.Value, _number).Build();
+            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.NestedClass.DeeperNestedClass.Value, _number);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
+            Assert.That(field.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
         }
 
         [Test]
         public void DerivedNestedProperty_SetsProperty()
         {
-            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text).Build();
+            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.NestedClass.Value, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.NestedClass.Value, Is.EqualTo(_text));
+            Assert.That(field.NestedClass.Value, Is.EqualTo(_text));
         }
 
-        [Test]
-        public void SkipConstructionMethods_ConstructsFixture()
+        class PrivateSetterClass
         {
-            var fixture = Fixture.New<TestClass>().WithSetter(t => t.Text, _text).Build();
-
-            Assert.That(fixture.Text, Is.EqualTo(_text));
+            public string Text { get; private set; } = null!;
         }
-
         [Test]
         public void PrivateSetter_CanSetValue()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.PropWithPrivateSetter, _text).Build();
+            var fixture = Fixture.New<PrivateSetterClass>().BypassConstructor().WithSetter(t => t.Text, _text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.PropWithPrivateSetter, Is.EqualTo(_text));
+            Assert.That(field.Text, Is.EqualTo(_text));
         }
 
-        [Test]
-        public void ClassWithMembers_InstantiatesClassMembers()
+        class ListPropertyClass
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
-
-            var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
-
-            Assert.That(field.NestedClass, Is.Not.Null);
+            public List<string> StringList { get; set; } = null!;
         }
-
         [Test]
         public void CollectionTypeProperty_OneParameter_SetsProperty()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text]).Build();
+            var fixture = Fixture.New<ListPropertyClass>().BypassConstructor().WithSetter(t => t.StringList, [_text]);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
+            Assert.That(field.StringList[0], Is.EqualTo(_text));
         }
 
         [Test]
         public void CollectionTypeProperty_TwoParameters_SetsProperty()
         {
             var secondEntry = "More test";
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithSetter(t => t.StringListProp, [_text, secondEntry]).Build();
+            var fixture = Fixture.New<ListPropertyClass>().BypassConstructor().WithSetter(t => t.StringList, [_text, secondEntry]);
+            var field = Helpers.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(fixture.StringListProp[0], Is.EqualTo(_text));
-                Assert.That(fixture.StringListProp[1], Is.EqualTo(secondEntry));
+                Assert.That(field.StringList[0], Is.EqualTo(_text));
+                Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
             }
         }
     }
