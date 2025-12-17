@@ -6,7 +6,7 @@
         [Test]
         public void RecordProperty_SetsProperty()
         {
-            var fixture = Fixture.New<TestValue>().BypassConstructor().WithField(t => t.Text, _text);
+            var fixture = Fixture.New<TestRecord>().BypassConstructor().WithField(t => t.Text, _text);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));

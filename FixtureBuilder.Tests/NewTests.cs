@@ -30,7 +30,7 @@
         [Test]
         public void GenericTypeInterface_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<INestedInterface>());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<IList<string>>());
         }
     }
 }
