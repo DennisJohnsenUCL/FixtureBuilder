@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace FixtureBuilder.Tests
@@ -342,12 +343,17 @@ namespace FixtureBuilder.Tests
             Assert.That(fixture.ImmutableList[0], Is.EqualTo(_number));
         }
 
+        class ReadOnlyCollectionClass
+        {
+            private readonly ReadOnlyCollection<int> _readOnlyCollection = null!;
+            public ReadOnlyCollection<int> ReadOnlyCollection => _readOnlyCollection;
+        }
         [Test]
         public void ReadOnlyCollectionField_SetsField()
         {
             var fieldName = "_readOnlyCollection";
 
-            var fixture = Fixture.New<TestClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
+            var fixture = Fixture.New<ReadOnlyCollectionClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
 
             Assert.That(fixture.ReadOnlyCollection[0], Is.EqualTo(_number));
         }
@@ -365,6 +371,22 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<IImmutableListClass>().BypassConstructor().WithField(fieldName, [_number]).Build();
 
             Assert.That(fixture.IImmutableList[0], Is.EqualTo(_number));
+        }
+
+        class DictionaryClass
+        {
+            private readonly Dictionary<int, string> _dictionary = null!;
+            public Dictionary<int, string> Dictionary => _dictionary;
+        }
+        [Test]
+        public void DictionaryField_SetsField()
+        {
+            var fieldName = "_dictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<DictionaryClass>().BypassConstructor().WithField(fieldName, dictionary).Build();
+
+            Assert.That(fixture.Dictionary[1], Is.EqualTo("test"));
         }
     }
 }

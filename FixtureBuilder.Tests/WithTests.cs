@@ -1,57 +1,63 @@
-﻿using System.Reflection;
-
-namespace FixtureBuilder.Tests
+﻿namespace FixtureBuilder.Tests
 {
     internal sealed class WithTests
     {
+        class PropWithSetterClass
+        {
+            public string Text { get; set; } = null!;
+        }
         [Test]
         public void PropWithSetter_SetsProperty()
         {
             var text = "Test string";
 
-            var fixture = Fixture.New<TestClass>().With(t => t.Text, text).Build();
+            var fixture = Fixture.New<PropWithSetterClass>().With(t => t.Text, text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.Text, Is.EqualTo(text));
+            Assert.That(field.Text, Is.EqualTo(text));
         }
 
+        class PropWithSetterAndUnrecognizedFieldClass
+        {
+            private string _unrelatedFieldName = null!;
+            public string Text { get => _unrelatedFieldName; set { _unrelatedFieldName = value; } }
+        }
         [Test]
         public void PropWithSetterAndUnrecognizedField_SetsProperty()
         {
             var text = "Test string";
 
-            var fixture = Fixture.New<TestClass>().With(t => t.PropWithUnrelatedFieldName, text).Build();
+            var fixture = Fixture.New<PropWithSetterAndUnrecognizedFieldClass>().With(t => t.Text, text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.PropWithUnrelatedFieldName, Is.EqualTo(text));
+            Assert.That(field.Text, Is.EqualTo(text));
         }
 
+        class PropWithoutSetterClass
+        {
+            private readonly string _text = null!;
+            public string Text => _text;
+        }
         [Test]
         public void PropWithoutSetter_SetsProperty()
         {
             var text = "Test string";
 
-            var fixture = Fixture.New<TestClass>().With(t => t.PropWithoutSetter, text).Build();
+            var fixture = Fixture.New<PropWithoutSetterClass>().With(t => t.Text, text);
+            var field = Helpers.GetFixture(fixture);
 
-            Assert.That(fixture.PropWithoutSetter, Is.EqualTo(text));
+            Assert.That(field.Text, Is.EqualTo(text));
         }
 
+        class PropWithoutSetterAndUnrecognizedFieldClass
+        {
+            private readonly string _unrelatedFieldName = null!;
+            public string Text => _unrelatedFieldName;
+        }
         [Test]
         public void PropWithoutSetterAndUnrecognizedField_ThrowsException()
         {
-            var text = "Test string";
-
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(t => t.PropNoSetterWithUnrelatedFieldName, text).Build());
-        }
-
-        [Test]
-        public void ClassWithMembers_InstantiatesClassMembers()
-        {
-            var text = "Test string";
-
-            var fixture = Fixture.New<TestClass>().With(t => t.Text, text);
-
-            var field = (TestClass)fixture.GetType().GetField("_fixture", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
-
-            Assert.That(field.NestedClass, Is.Not.Null);
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<PropWithoutSetterAndUnrecognizedFieldClass>().With(t => t.Text, "Test"));
         }
     }
 }

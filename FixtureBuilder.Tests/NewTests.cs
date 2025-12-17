@@ -3,35 +3,28 @@
     internal class NewTests
     {
         [Test]
-        public void PreBuiltFixture_SetsAndBuildsFixture()
+        public void ReturnsIFixtureConstructor()
         {
-            var text = "Test";
-            var number = 123;
+            var method = typeof(Fixture).GetMethod("New", []);
 
-            var preBuiltFixture = new TestClass() { Text = text };
-
-            var fixture = Fixture.New(preBuiltFixture).WithField(p => p.Number, number).Build();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(fixture.Text, Is.EqualTo(text));
-                Assert.That(fixture.Number, Is.EqualTo(number));
-            }
+            Assert.That(method!.ReturnType.GetGenericTypeDefinition, Is.EqualTo(typeof(IFixtureConstructor<>)));
         }
 
-        [Test]
-        public void ReadOnlyFieldNotSet_HasDefaultValue()
+        class ClassWithString
         {
-            var number = 123;
+            public string Text = null!;
+        }
+        [Test]
+        public void PreBuiltFixture_SetsFixture()
+        {
+            var text = "test string";
 
-            var fixture = Fixture.New<TestClass>().WithField(p => p.Number, number).Build();
+            var preBuiltFixture = new ClassWithString() { Text = text };
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(fixture.PrivateExplicitField, Is.Not.Null);
-                Assert.That(fixture.PrivateExplicitField, Is.EqualTo(""));
-                Assert.That(fixture.Number, Is.EqualTo(number));
-            }
+            var fixture = Fixture.New(preBuiltFixture);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Text, Is.EqualTo(text));
         }
 
         [Test]

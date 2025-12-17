@@ -1,9 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace FixtureBuilder.Tests
 {
+    internal class Helpers
+    {
+        internal static T GetFixture<T>(IFixtureConfigurator<T> fixture) where T : class
+        {
+            return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+        }
+
+        internal static T GetFixture<T>(IFixtureConstructor<T> fixture) where T : class
+        {
+            return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+        }
+    }
+
     internal record TestValue(string Text, int Number);
 
     internal class TestClass : INestedInterface
