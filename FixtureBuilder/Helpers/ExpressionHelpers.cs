@@ -33,7 +33,7 @@ namespace FixtureBuilder.Helpers
                 if (current == null)
                 {
                     var type = prop.PropertyType;
-                    current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: true);
+                    current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
                     prop.SetValue(parent, current);
                 }
             }
