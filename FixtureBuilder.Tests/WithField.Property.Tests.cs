@@ -78,16 +78,16 @@
 
         class ExplicitBackingFieldClass
         {
-            private readonly string _privateExplicitField = null!;
-            public string PrivateExplicitField => _privateExplicitField;
+            private readonly string _text = null!;
+            public string Text => _text;
         }
         [Test]
         public void ExplicitBackingField_SetsProperty()
         {
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().BypassConstructor().WithField(t => t.PrivateExplicitField, _text);
+            var fixture = Fixture.New<ExplicitBackingFieldClass>().BypassConstructor().WithField(t => t.Text, _text);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.PrivateExplicitField, Is.EqualTo(_text));
+            Assert.That(field.Text, Is.EqualTo(_text));
         }
 
         class ExplicitBackingFieldNoUnderscoreClass
