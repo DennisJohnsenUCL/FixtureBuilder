@@ -120,7 +120,7 @@ namespace FixtureBuilder.Tests
         public int Value { get; set; }
 
         private readonly string _privateField = null!;
-        public string PrivateFieldGetter => _privateField;
+        public string Text => _privateField;
 
         public DeeperNestedClass(int value) { Value = value; }
     }
