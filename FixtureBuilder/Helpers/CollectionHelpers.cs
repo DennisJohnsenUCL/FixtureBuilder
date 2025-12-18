@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace FixtureBuilder.Helpers
@@ -9,12 +8,7 @@ namespace FixtureBuilder.Helpers
     {
         public static IEnumerable CastToCollection(Type fieldType, IEnumerable values, Type? sourceElementType = null)
         {
-            if (fieldType.IsArray)
-            {
-                return CastToArray(fieldType, values);
-            }
-
-            else if (fieldType.IsInterface)
+            if (fieldType.IsInterface)
             {
                 fieldType = GetConcreteType(fieldType);
             }
@@ -27,32 +21,29 @@ namespace FixtureBuilder.Helpers
                     ? values
                     : CastElements(values, elementType);
 
-                if (genericTypeDef == typeof(List<>))
-                {
-                    return CastToList(fieldType, typedList);
-                }
+                var enumerable = InstantiationHelpers.UseConstructor(fieldType, typedList)!;
+                if (enumerable != null) return (IEnumerable)enumerable;
 
                 else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
                     return CastToImmutable(fieldType, genericTypeDef, typedList);
                 }
-
-                else if (genericTypeDef == typeof(ReadOnlyCollection<>))
-                {
-                    return CastToReadOnlyCollection(fieldType, typedList);
-                }
             }
 
-            var collection = InstantiationHelpers.GetInstantiatedInstance(fieldType, instantiateMembers: false) as IEnumerable
-                ?? throw new InvalidOperationException($"Failed to create collection instance for type {fieldType.Name}. Type must implement IEnumerable.");
+            else if (fieldType.IsArray)
+            {
+                return CastToArray(fieldType, values);
+            }
 
-            var addMethod = fieldType.GetMethod("Add")
-                ?? throw new InvalidOperationException($"Cannot assign collection to field without Add method {fieldType.Name}.");
+            else if (fieldType == typeof(ArrayList))
+            {
+                var arrayList = InstantiationHelpers.UseConstructor(fieldType, (ICollection)values)
+                    ?? throw new InvalidOperationException($"Failed to instantiate ArrayList.");
 
-            foreach (var item in values)
-                addMethod.Invoke(collection, [item]);
+                return (IEnumerable)arrayList;
+            }
 
-            return collection;
+            throw new InvalidOperationException($"Failed to cast to collection type: {fieldType.Name}");
         }
 
         private static Array CastToArray(Type fieldType, IEnumerable values)
@@ -93,12 +84,6 @@ namespace FixtureBuilder.Helpers
             return concreteType.MakeGenericType(elementType);
         }
 
-        private static IEnumerable CastToList(Type fieldType, IEnumerable values)
-        {
-            var list = Activator.CreateInstance(fieldType, values)!;
-            return (IEnumerable)list;
-        }
-
         private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, IEnumerable values)
         {
             var elementType = fieldType.GetGenericArguments()[0];
@@ -119,17 +104,6 @@ namespace FixtureBuilder.Helpers
 
             return genericCreateRange.Invoke(null, [values]) as IEnumerable
                 ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}.");
-        }
-
-        private static IEnumerable CastToReadOnlyCollection(Type fieldType, IEnumerable values)
-        {
-            var elementType = fieldType.GetGenericArguments()[0];
-
-            var listType = typeof(List<>).MakeGenericType(elementType);
-            var list = Activator.CreateInstance(listType, values);
-
-            var readOnlyCollection = Activator.CreateInstance(fieldType, list)!;
-            return (IEnumerable)readOnlyCollection;
         }
 
         private static IEnumerable CastElements(IEnumerable values, Type elementType)

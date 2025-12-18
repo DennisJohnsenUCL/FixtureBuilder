@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -29,11 +28,11 @@ namespace FixtureBuilder.Helpers
             try
             {
                 return Activator.CreateInstance(
-                    type,
-                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+                    type: type,
+                    bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
                     binder: null,
                     args: args,
-                    culture: CultureInfo.CurrentCulture);
+                    culture: null);
             }
             catch { return null; }
         }
