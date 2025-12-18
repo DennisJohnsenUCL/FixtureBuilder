@@ -37,6 +37,12 @@
         }
 
         [Test]
+        public void GenericTypeRecord_DoesNotThrow()
+        {
+            Assert.DoesNotThrow(() => Fixture.New<TestRecord>());
+        }
+
+        [Test]
         public void GenericTypeGenericClass_DoesNotThrow()
         {
             Assert.DoesNotThrow(() => Fixture.New<GenericClass<string>>());

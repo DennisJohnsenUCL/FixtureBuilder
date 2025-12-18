@@ -16,6 +16,18 @@
         }
 
         [Test]
+        public void Record_CanConstruct()
+        {
+            IFixtureConfigurator<TestRecord> fixture = null!;
+
+            Assert.DoesNotThrow(() => fixture = Fixture.New<TestRecord>().BypassConstructor());
+
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field, Is.Not.Null);
+        }
+
+        [Test]
         public void GenericClass_CanConstruct()
         {
             IFixtureConfigurator<GenericClass<string>> fixture = null!;

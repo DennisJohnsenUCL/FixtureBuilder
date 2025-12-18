@@ -63,13 +63,38 @@ namespace FixtureBuilder.Tests
             Assert.Throws<MissingMethodException>(() => fixture.UseConstructor("Test value", 123));
         }
 
-        class GenericClass<T>();
         [Test]
         public void GenericClass_CanConstruct()
         {
             IFixtureConfigurator<GenericClass<string>> fixture = null!;
 
             Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().UseConstructor());
+
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field, Is.Not.Null);
+        }
+
+        record EmptyRecord;
+        [Test]
+        public void Record_CanConstruct()
+        {
+            IFixtureConfigurator<EmptyRecord> fixture = null!;
+
+            Assert.DoesNotThrow(() => fixture = Fixture.New<EmptyRecord>().UseConstructor());
+
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field, Is.Not.Null);
+        }
+
+        record StringRecord(string Text);
+        [Test]
+        public void RecordWithParameter_CanConstruct()
+        {
+            IFixtureConfigurator<StringRecord> fixture = null!;
+
+            Assert.DoesNotThrow(() => fixture = Fixture.New<StringRecord>().UseConstructor("Test"));
 
             var field = Helpers.GetFixture(fixture);
 
