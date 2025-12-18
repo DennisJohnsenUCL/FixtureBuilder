@@ -15,7 +15,6 @@
             Assert.That(field, Is.Not.Null);
         }
 
-        class GenericClass<T>();
         [Test]
         public void GenericClass_CanConstruct()
         {
@@ -25,20 +24,6 @@
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
-        }
-
-        class ClassWithMember
-        {
-            public NestedClass NestedClass = null!;
-        }
-        [Test]
-        public void ClassWithMembers_InstantiatesClassMembers()
-        {
-            var fixture = Fixture.New<ClassWithMember>().BypassConstructor();
-
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.NestedClass, Is.Not.Null);
         }
 
         class ReadOnlyFieldClass()
@@ -55,6 +40,19 @@
             {
                 Assert.That(field.ReadOnlyField, Is.Not.Null);
                 Assert.That(field.ReadOnlyField, Is.EqualTo(""));
+            }
+        }
+
+        [Test]
+        public void ClassWithMembers_InstantiatesNonNullables()
+        {
+            var fixture = Fixture.New<ClassWithNullable>().BypassConstructor();
+            var field = Helpers.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.NullableClass, Is.Null);
+                Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
     }

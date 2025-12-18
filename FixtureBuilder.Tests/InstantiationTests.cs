@@ -26,11 +26,6 @@
             Assert.That(fixture.NullableClass, Is.Null);
         }
 
-        class ClassWithNullable
-        {
-            public NestedClass? NullableClass { get; set; }
-            public string Text = null!;
-        }
         [Test]
         public void ClassWithNullable_DoesNotInstantiateNullableMember()
         {

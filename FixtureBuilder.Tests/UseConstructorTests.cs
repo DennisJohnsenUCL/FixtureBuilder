@@ -76,18 +76,17 @@ namespace FixtureBuilder.Tests
             Assert.That(field, Is.Not.Null);
         }
 
-        class ClassWithMember
-        {
-            public NestedClass NestedClass = null!;
-        }
         [Test]
-        public void ClassWithMembers_InstantiatesClassMembers()
+        public void ClassWithMembers_InstantiatesNonNullables()
         {
-            var fixture = Fixture.New<ClassWithMember>().UseConstructor();
-
+            var fixture = Fixture.New<ClassWithNullable>().UseConstructor();
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.NestedClass, Is.Not.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.NullableClass, Is.Null);
+                Assert.That(field.NonNullableClass, Is.Not.Null);
+            }
         }
     }
 }

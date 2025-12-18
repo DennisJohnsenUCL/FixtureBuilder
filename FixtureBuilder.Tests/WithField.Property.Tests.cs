@@ -2,7 +2,6 @@
 {
     internal sealed partial class WithFieldTests
     {
-        record TestRecord(string Text, int Number);
         [Test]
         public void RecordProperty_SetsProperty()
         {
@@ -215,6 +214,19 @@
             var fixture = Fixture.New<CollectionDifferentTypeClass>().WithField(t => t.StringList, [_text]).Build();
 
             Assert.That(fixture.StringList[0], Is.EqualTo(_text));
+        }
+
+        [Test]
+        public void Property_ConstructionNotChosen_InstantiatesNonNullables()
+        {
+            var fixture = Fixture.New<ClassWithNullable>().WithField(c => c.Text, "test");
+            var field = Helpers.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.NullableClass, Is.Null);
+                Assert.That(field.NonNullableClass, Is.Not.Null);
+            }
         }
     }
 }

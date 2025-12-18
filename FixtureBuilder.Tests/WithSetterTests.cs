@@ -18,6 +18,15 @@ namespace FixtureBuilder.Tests
         }
 
         [Test]
+        public void SetterInRecord_SetsProperty()
+        {
+            var fixture = Fixture.New<TestRecord>().BypassConstructor().WithSetter(t => t.Text, _text);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Text, Is.EqualTo(_text));
+        }
+
+        [Test]
         public void DerivedSetter_SetsProperty()
         {
             var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithSetter(t => t.Text, _text);
@@ -131,6 +140,19 @@ namespace FixtureBuilder.Tests
             {
                 Assert.That(field.StringList[0], Is.EqualTo(_text));
                 Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
+            }
+        }
+
+        [Test]
+        public void ConstructionNotChosen_InstantiatesNonNullables()
+        {
+            var fixture = Fixture.New<ClassWithNullable>().WithSetter(c => c.Text, "test");
+            var field = Helpers.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.NullableClass, Is.Null);
+                Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
     }

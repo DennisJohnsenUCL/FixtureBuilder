@@ -59,5 +59,18 @@
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<PropWithoutSetterAndUnrecognizedFieldClass>().With(t => t.Text, "Test"));
         }
+
+        [Test]
+        public void ConstructionNotChosen_InstantiatesNonNullables()
+        {
+            var fixture = Fixture.New<ClassWithNullable>().With(c => c.Text, "test");
+            var field = Helpers.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.NullableClass, Is.Null);
+                Assert.That(field.NonNullableClass, Is.Not.Null);
+            }
+        }
     }
 }

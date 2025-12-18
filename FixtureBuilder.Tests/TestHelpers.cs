@@ -24,9 +24,19 @@ namespace FixtureBuilder.Tests
         public NestedClass NestedClass { get; set; } = null!;
     }
 
+    record TestRecord(string Text, int Number);
+
     internal class DerivedTestClass : TestClass
     {
         public override int Number { get; protected set; }
+    }
+
+    class ClassWithNullable
+    {
+        public NestedClass? NullableClass { get; set; } = null;
+        public NestedClass NonNullableClass { get; set; } = null!;
+        private string _text = null!;
+        public string Text { get => _text; set { _text = value; } }
     }
 
     internal class TwiceDerivedClass : TestClass { }

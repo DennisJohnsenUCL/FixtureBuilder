@@ -45,5 +45,18 @@
                 Assert.That(field.Text, Is.EqualTo(text));
             }
         }
+
+        [Test]
+        public void ConstructionNotChosen_InstantiatesNonNullables()
+        {
+            var fixture = Fixture.New<ClassWithNullable>().CastTo<ClassWithNullable>();
+            var field = Helpers.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.NullableClass, Is.Null);
+                Assert.That(field.NonNullableClass, Is.Not.Null);
+            }
+        }
     }
 }
