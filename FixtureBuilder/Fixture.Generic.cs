@@ -25,6 +25,9 @@ namespace FixtureBuilder
         {
             if (typeof(TEntity).IsInterface)
                 throw new InvalidOperationException($"Cannot create fixtures of interface types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
+
+            if (typeof(TEntity).IsAbstract)
+                throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
         }
 
         internal Fixture(TEntity entity) => _fixture = entity;
