@@ -10,7 +10,7 @@ namespace FixtureBuilder.Helpers
         {
             if (fieldType.IsInterface)
             {
-                fieldType = GetConcreteType(fieldType);
+                fieldType = GetConcreteType(fieldType, sourceElementType);
             }
 
             if (fieldType.IsGenericType)
@@ -58,30 +58,48 @@ namespace FixtureBuilder.Helpers
             return array;
         }
 
-        private static Type GetConcreteType(Type interfaceType)
+        private static Type GetConcreteType(Type interfaceType, Type? sourceElementType)
         {
             Type concreteType;
-            var genericTypeDef = interfaceType.GetGenericTypeDefinition();
-            var elementType = interfaceType.GetGenericArguments()[0];
 
-            if (genericTypeDef == typeof(IList<>) ||
-                genericTypeDef == typeof(IReadOnlyList<>) ||
-                genericTypeDef == typeof(IEnumerable<>) ||
-                genericTypeDef == typeof(IReadOnlyCollection<>) ||
-                genericTypeDef == typeof(ICollection<>))
+            if (interfaceType.IsGenericType)
             {
-                concreteType = typeof(List<>);
-            }
-            else if (genericTypeDef == typeof(ISet<>) ||
-                     genericTypeDef == typeof(IReadOnlySet<>))
-            {
-                concreteType = typeof(HashSet<>);
-            }
-            else if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
-            else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
-            else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
+                var genericTypeDef = interfaceType.GetGenericTypeDefinition();
+                var elementType = interfaceType.GetGenericArguments()[0];
 
-            return concreteType.MakeGenericType(elementType);
+                if (genericTypeDef == typeof(IList<>) ||
+                    genericTypeDef == typeof(IReadOnlyList<>) ||
+                    genericTypeDef == typeof(IEnumerable<>) ||
+                    genericTypeDef == typeof(IReadOnlyCollection<>) ||
+                    genericTypeDef == typeof(ICollection<>))
+                {
+                    concreteType = typeof(List<>);
+                }
+                else if (genericTypeDef == typeof(ISet<>) ||
+                         genericTypeDef == typeof(IReadOnlySet<>))
+                {
+                    concreteType = typeof(HashSet<>);
+                }
+                else if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
+                else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
+                else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
+
+                return concreteType.MakeGenericType(elementType);
+            }
+            else
+            {
+                if (interfaceType == typeof(IList) ||
+                    interfaceType == typeof(ICollection) ||
+                    interfaceType == typeof(IEnumerable))
+                {
+                    concreteType = typeof(List<>);
+                }
+                else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
+
+                if (sourceElementType == null) sourceElementType = typeof(object);
+
+                return concreteType.MakeGenericType(sourceElementType);
+            }
         }
 
         private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, IEnumerable values)

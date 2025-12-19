@@ -121,8 +121,9 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
             var fieldType = fieldInfo.FieldType;
+            var sourceIsCompilerType = values.GetType().FullName?.StartsWith("<>z__ReadOnly") ?? false;
 
-            if (fieldType.IsAssignableFrom(values.GetType()))
+            if (!sourceIsCompilerType && fieldType.IsAssignableFrom(values.GetType()))
             {
                 fieldInfo.SetValue(_fixture, values);
             }
