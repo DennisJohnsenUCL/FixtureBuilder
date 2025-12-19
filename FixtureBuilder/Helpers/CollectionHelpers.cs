@@ -9,6 +9,9 @@ namespace FixtureBuilder.Helpers
     {
         public static IEnumerable CastToCollection(Type fieldType, IEnumerable values, Type? sourceElementType = null)
         {
+            if (sourceElementType != null && !ElementTypeIsAssignable(fieldType, sourceElementType))
+                throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}.");
+
             if (fieldType.IsInterface)
             {
                 fieldType = GetConcreteType(fieldType, sourceElementType);

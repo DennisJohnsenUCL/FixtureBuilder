@@ -133,9 +133,6 @@ namespace FixtureBuilder
             }
             else if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
             {
-                if (!CollectionHelpers.ElementTypeIsAssignable(fieldType, typeof(T)))
-                    throw new InvalidOperationException($"Cannot assign type {typeof(T).Name} as element in collection of type {fieldType.Name}.");
-
                 var collection = CollectionHelpers.CastToCollection(fieldType, values, typeof(T));
                 fieldInfo.SetValue(_fixture, collection);
             }
