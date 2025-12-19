@@ -190,14 +190,14 @@
             Assert.That(field.NestedClass.DeeperNestedClass.Text, Is.EqualTo(_text));
         }
 
-        class CollectionClass
+        class ListPropertyClass
         {
             public List<string> StringList { get; } = null!;
         }
         [Test]
         public void CollectionTypeFieldWithProp_CollectionParameters_SetsField()
         {
-            var fixture = Fixture.New<CollectionClass>().BypassConstructor().WithField(t => t.StringList, [_text]);
+            var fixture = Fixture.New<ListPropertyClass>().BypassConstructor().WithField(t => t.StringList, [_text]);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.StringList[0], Is.EqualTo(_text));

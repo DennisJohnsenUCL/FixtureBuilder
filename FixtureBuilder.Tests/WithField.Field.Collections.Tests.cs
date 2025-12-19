@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
@@ -6,6 +7,7 @@ namespace FixtureBuilder.Tests
 {
     internal sealed partial class WithFieldTests
     {
+        #region General
         class StringListClass
         {
             private readonly List<string> _stringList = null!;
@@ -45,53 +47,57 @@ namespace FixtureBuilder.Tests
                 Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
             }
         }
+        #endregion
 
-        class HashSetClass
+        #region Lists
+        class ListClass
         {
-            private readonly HashSet<string> _stringHashSet = null!;
-            public HashSet<string> StringHashSet => _stringHashSet;
+            private readonly List<string> _list = null!;
+            public List<string> List => _list;
         }
         [Test]
-        public void HashSetField_SetsField()
+        public void ListField_SetsField()
         {
-            var fieldName = "_stringHashSet";
+            var fieldName = "_list";
 
-            var fixture = Fixture.New<HashSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var fixture = Fixture.New<ListClass>().BypassConstructor().WithField(fieldName, [_text]);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.StringHashSet.Single(), Is.EqualTo(_text));
+            Assert.That(field.List[0], Is.EqualTo(_text));
         }
 
-        class ArrayClass
+        class SortedListClass
         {
-            private readonly string[] _stringArray = null!;
-            public string[] StringArray => _stringArray;
+            private readonly SortedList<int, string> _sortedList = null!;
+            public SortedList<int, string> SortedList => _sortedList;
         }
         [Test]
-        public void ArrayField_SetsField()
+        public void SortedListField_SetsField()
         {
-            var fieldName = "_stringArray";
+            var fieldName = "_sortedList";
+            var sortedList = new SortedList<int, string>() { { 1, _text } };
 
-            var fixture = Fixture.New<ArrayClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var fixture = Fixture.New<SortedListClass>().BypassConstructor().WithField(fieldName, sortedList);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.StringArray[0], Is.EqualTo(_text));
+            Assert.That(field.SortedList[1], Is.EqualTo(_text));
         }
 
-        class ArrayListClass
+        class SortedListNonGenericClass
         {
-            private readonly ArrayList _arrayList = null!;
-            public ArrayList ArrayList => _arrayList;
+            private readonly SortedList _sortedList = null!;
+            public SortedList SortedList => _sortedList;
         }
         [Test]
-        public void ArrayListField_SetsField()
+        public void SortedListNonGenericField_SetsField()
         {
-            var fieldName = "_arrayList";
+            var fieldName = "_sortedList";
+            var sortedList = new SortedList() { { 1, _text } };
 
-            var fixture = Fixture.New<ArrayListClass>().BypassConstructor().WithField(fieldName, [_number]);
+            var fixture = Fixture.New<SortedListNonGenericClass>().BypassConstructor().WithField(fieldName, sortedList);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.ArrayList[0], Is.EqualTo(_number));
+            Assert.That(field.SortedList[1], Is.EqualTo(_text));
         }
 
         class IReadOnlyListClass
@@ -126,22 +132,6 @@ namespace FixtureBuilder.Tests
             Assert.That(field.ImmutableList[0], Is.EqualTo(_text));
         }
 
-        class ReadOnlyCollectionClass
-        {
-            private readonly ReadOnlyCollection<string> _readOnlyCollection = null!;
-            public ReadOnlyCollection<string> ReadOnlyCollection => _readOnlyCollection;
-        }
-        [Test]
-        public void ReadOnlyCollectionField_SetsField()
-        {
-            var fieldName = "_readOnlyCollection";
-
-            var fixture = Fixture.New<ReadOnlyCollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ReadOnlyCollection[0], Is.EqualTo(_text));
-        }
-
         class IImmutableListClass
         {
             private readonly IImmutableList<string> _iImmutableList = null!;
@@ -158,6 +148,418 @@ namespace FixtureBuilder.Tests
             Assert.That(field.IImmutableList[0], Is.EqualTo(_text));
         }
 
+        class IListClass
+        {
+            private readonly IList<string> _iList = null!;
+            public IList<string> IList => _iList;
+        }
+        [Test]
+        public void IListField_SetsField()
+        {
+            var fieldName = "_iList";
+
+            var fixture = Fixture.New<IListClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IList[0], Is.EqualTo(_text));
+        }
+
+        class IListNonGenericClass
+        {
+            private readonly IList _iList = null!;
+            public IList IList => _iList;
+        }
+        [Test]
+        public void IListNonGenericField_SetsField()
+        {
+            var fieldName = "_iList";
+
+            var fixture = Fixture.New<IListNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IList[0], Is.EqualTo(_text));
+        }
+        #endregion
+
+        #region Arrays
+        class ArrayClass
+        {
+            private readonly string[] _stringArray = null!;
+            public string[] StringArray => _stringArray;
+        }
+        [Test]
+        public void ArrayField_SetsField()
+        {
+            var fieldName = "_stringArray";
+
+            var fixture = Fixture.New<ArrayClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.StringArray[0], Is.EqualTo(_text));
+        }
+
+        class ImmutableArrayClass
+        {
+            private readonly ImmutableArray<string> _immutableArray;
+            public ImmutableArray<string> ImmutableArray => _immutableArray;
+        }
+        [Test]
+        public void ImmutableArrayField_SetsField()
+        {
+            var fieldName = "_immutableArray";
+
+            var fixture = Fixture.New<ImmutableArrayClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableArray[0], Is.EqualTo(_text));
+        }
+        #endregion
+
+        #region Sets
+        class HashSetClass
+        {
+            private readonly HashSet<string> _stringHashSet = null!;
+            public HashSet<string> StringHashSet => _stringHashSet;
+        }
+        [Test]
+        public void HashSetField_SetsField()
+        {
+            var fieldName = "_stringHashSet";
+
+            var fixture = Fixture.New<HashSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.StringHashSet.Single(), Is.EqualTo(_text));
+        }
+
+        class SortedSetClass
+        {
+            private readonly SortedSet<string> _sortedSet = null!;
+            public SortedSet<string> SortedSet => _sortedSet;
+        }
+        [Test]
+        public void SortedSetField_SetsField()
+        {
+            var fieldName = "_sortedSet";
+
+            var fixture = Fixture.New<SortedSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.SortedSet.Single(), Is.EqualTo(_text));
+        }
+
+        class ImmutableSortedSetClass
+        {
+            private readonly ImmutableSortedSet<string> _immutableSortedSet = null!;
+            public ImmutableSortedSet<string> ImmutableSortedSet => _immutableSortedSet;
+        }
+        [Test]
+        public void ImmutableSortedSetField_SetsField()
+        {
+            var fieldName = "_immutableSortedSet";
+
+            var fixture = Fixture.New<ImmutableSortedSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableSortedSet.Single(), Is.EqualTo(_text));
+        }
+
+        class ISetClass
+        {
+            private readonly ISet<string> _iSet = null!;
+            public ISet<string> ISet => _iSet;
+        }
+        [Test]
+        public void ISetField_SetsField()
+        {
+            var fieldName = "_iSet";
+
+            var fixture = Fixture.New<ISetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ISet.First(), Is.EqualTo(_text));
+        }
+
+        class IReadOnlySetClass
+        {
+            private readonly IReadOnlySet<string> _iReadOnlySet = null!;
+            public IReadOnlySet<string> IReadOnlySet => _iReadOnlySet;
+        }
+        [Test]
+        public void IReadOnlySetField_SetsField()
+        {
+            var fieldName = "_iReadOnlySet";
+
+            var fixture = Fixture.New<IReadOnlySetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IReadOnlySet.First(), Is.EqualTo(_text));
+        }
+
+        class IImmutableSetClass
+        {
+            private readonly IImmutableSet<string> _iImmutableSet = null!;
+            public IImmutableSet<string> IImmutableSet => _iImmutableSet;
+        }
+        [Test]
+        public void IImmutableSetField_SetsField()
+        {
+            var fieldName = "_iImmutableSet";
+
+            var fixture = Fixture.New<IImmutableSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IImmutableSet.First(), Is.EqualTo(_text));
+        }
+
+        class ImmutableHashSetClass
+        {
+            private readonly ImmutableHashSet<string> _immutableHashSet = null!;
+            public ImmutableHashSet<string> ImmutableHashSet => _immutableHashSet;
+        }
+        [Test]
+        public void ImmutableHashSetField_SetsField()
+        {
+            var fieldName = "_immutableHashSet";
+
+            var fixture = Fixture.New<ImmutableHashSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableHashSet.Single(), Is.EqualTo(_text));
+        }
+
+        class FrozenSetClass
+        {
+            private readonly FrozenSet<string> _frozenSet = null!;
+            public FrozenSet<string> FrozenSet => _frozenSet;
+        }
+        [Test]
+        public void FrozenSetField_SetsField()
+        {
+            var fieldName = "_frozenSet";
+
+            var fixture = Fixture.New<FrozenSetClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.FrozenSet.Single(), Is.EqualTo(_text));
+        }
+        #endregion
+
+        #region Collections
+        class CollectionClass
+        {
+            private readonly Collection<string> _collection = null!;
+            public Collection<string> Collection => _collection;
+        }
+        [Test]
+        public void CollectionField_SetsField()
+        {
+            var fieldName = "_collection";
+
+            var fixture = Fixture.New<CollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Collection[0], Is.EqualTo(_text));
+        }
+
+        class ReadOnlyCollectionClass
+        {
+            private readonly ReadOnlyCollection<string> _readOnlyCollection = null!;
+            public ReadOnlyCollection<string> ReadOnlyCollection => _readOnlyCollection;
+        }
+        [Test]
+        public void ReadOnlyCollectionField_SetsField()
+        {
+            var fieldName = "_readOnlyCollection";
+
+            var fixture = Fixture.New<ReadOnlyCollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ReadOnlyCollection[0], Is.EqualTo(_text));
+        }
+
+        class IReadOnlyCollectionClass
+        {
+            private readonly IReadOnlyCollection<string> _iReadOnlyCollection = null!;
+            public IReadOnlyCollection<string> IReadOnlyCollection => _iReadOnlyCollection;
+        }
+        [Test]
+        public void IReadOnlyCollectionField_SetsField()
+        {
+            var fieldName = "_iReadOnlyCollection";
+
+            var fixture = Fixture.New<IReadOnlyCollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IReadOnlyCollection.First(), Is.EqualTo(_text));
+        }
+
+        class ICollectionClass
+        {
+            private readonly ICollection<string> _iCollection = null!;
+            public ICollection<string> ICollection => _iCollection;
+        }
+        [Test]
+        public void ICollectionField_SetsField()
+        {
+            var fieldName = "_iCollection";
+
+            var fixture = Fixture.New<ICollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ICollection.First(), Is.EqualTo(_text));
+        }
+
+        class ICollectionNonGenericClass
+        {
+            private readonly ICollection _iCollection = null!;
+            public ICollection ICollection => _iCollection;
+        }
+        [Test]
+        public void ICollectionNonGenericField_SetsField()
+        {
+            var fieldName = "_iCollection";
+
+            var fixture = Fixture.New<ICollectionNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ICollection.Cast<string>().Single(), Is.EqualTo(_text));
+        }
+        #endregion
+
+        #region Stacks
+        class StackClass
+        {
+            private readonly Stack<string> _stack = null!;
+            public Stack<string> Stack => _stack;
+        }
+        [Test]
+        public void StackField_SetsField()
+        {
+            var fieldName = "_stack";
+
+            var fixture = Fixture.New<StackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Stack.Single(), Is.EqualTo(_text));
+        }
+
+        class ImmutableStackClass
+        {
+            private readonly ImmutableStack<string> _immutableStack = null!;
+            public ImmutableStack<string> ImmutableStack => _immutableStack;
+        }
+        [Test]
+        public void ImmutableStackField_SetsField()
+        {
+            var fieldName = "_immutableStack";
+
+            var fixture = Fixture.New<ImmutableStackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableStack.Single(), Is.EqualTo(_text));
+        }
+
+        class IImmutableStackClass
+        {
+            private readonly IImmutableStack<string> _iImmutableStack = null!;
+            public IImmutableStack<string> IImmutableStack => _iImmutableStack;
+        }
+        [Test]
+        public void IImmutableStackField_SetsField()
+        {
+            var fieldName = "_iImmutableStack";
+
+            var fixture = Fixture.New<IImmutableStackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IImmutableStack.Single(), Is.EqualTo(_text));
+        }
+
+        class StackNonGenericClass
+        {
+            private readonly Stack _stack = null!;
+            public Stack Stack => _stack;
+        }
+        [Test]
+        public void StackNonGenericField_SetsField()
+        {
+            var fieldName = "_stack";
+
+            var fixture = Fixture.New<StackNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Stack.Cast<string>().Single(), Is.EqualTo(_text));
+        }
+        #endregion
+
+        #region Queues
+        class QueueClass
+        {
+            private readonly Queue<string> _queue = null!;
+            public Queue<string> Queue => _queue;
+        }
+        [Test]
+        public void QueueField_SetsField()
+        {
+            var fieldName = "_queue";
+
+            var fixture = Fixture.New<QueueClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Queue.Single(), Is.EqualTo(_text));
+        }
+
+        class ImmutableQueueClass
+        {
+            private readonly ImmutableQueue<string> _immutableQueue = null!;
+            public ImmutableQueue<string> ImmutableQueue => _immutableQueue;
+        }
+        [Test]
+        public void ImmutableQueueField_SetsField()
+        {
+            var fieldName = "_immutableQueue";
+
+            var fixture = Fixture.New<ImmutableQueueClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableQueue.Single(), Is.EqualTo(_text));
+        }
+
+        class IImmutableQueueClass
+        {
+            private readonly IImmutableQueue<string> _iImmutableQueue = null!;
+            public IImmutableQueue<string> IImmutableQueue => _iImmutableQueue;
+        }
+        [Test]
+        public void IImmutableQueueField_SetsField()
+        {
+            var fieldName = "_iImmutableQueue";
+
+            var fixture = Fixture.New<IImmutableQueueClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IImmutableQueue.Single(), Is.EqualTo(_text));
+        }
+
+        class QueueNonGenericClass
+        {
+            private readonly Queue _queue = null!;
+            public Queue Queue => _queue;
+        }
+        [Test]
+        public void QueueNonGenericField_SetsField()
+        {
+            var fieldName = "_queue";
+
+            var fixture = Fixture.New<QueueNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Queue.Cast<string>().Single(), Is.EqualTo(_text));
+        }
+        #endregion
+
+        #region Dictionaries
         class DictionaryClass
         {
             private readonly Dictionary<int, string> _dictionary = null!;
@@ -243,22 +645,93 @@ namespace FixtureBuilder.Tests
             Assert.That(field.IImmutableDictionary[1], Is.EqualTo("test"));
         }
 
-        class IListClass
+        class SortedDictionaryClass
         {
-            private readonly IList<string> _iList = null!;
-            public IList<string> IList => _iList;
+            private readonly SortedDictionary<int, string> _sortedDictionary = null!;
+            public SortedDictionary<int, string> SortedDictionary => _sortedDictionary;
         }
         [Test]
-        public void IListField_SetsField()
+        public void SortedDictionaryField_SetsField()
         {
-            var fieldName = "_iList";
+            var fieldName = "_sortedDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
 
-            var fixture = Fixture.New<IListClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var fixture = Fixture.New<SortedDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.IList[0], Is.EqualTo(_text));
+            Assert.That(field.SortedDictionary[1], Is.EqualTo("test"));
         }
 
+        class ImmutableSortedDictionaryClass
+        {
+            private readonly ImmutableSortedDictionary<int, string> _immutableSortedDictionary = null!;
+            public ImmutableSortedDictionary<int, string> ImmutableSortedDictionary => _immutableSortedDictionary;
+        }
+        [Test]
+        public void ImmutableSortedDictionaryField_SetsField()
+        {
+            var fieldName = "_immutableSortedDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<ImmutableSortedDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableSortedDictionary[1], Is.EqualTo("test"));
+        }
+
+        class FrozenDictionaryClass
+        {
+            private readonly FrozenDictionary<int, string> _frozenDictionary = null!;
+            public FrozenDictionary<int, string> FrozenDictionary => _frozenDictionary;
+        }
+        [Test]
+        public void FrozenDictionaryField_SetsField()
+        {
+            var fieldName = "_frozenDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<FrozenDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.FrozenDictionary[1], Is.EqualTo("test"));
+        }
+
+        class ReadOnlyDictionaryClass
+        {
+            private readonly ReadOnlyDictionary<int, string> _readOnlyDictionary = null!;
+            public ReadOnlyDictionary<int, string> ReadOnlyDictionary => _readOnlyDictionary;
+        }
+        [Test]
+        public void ReadOnlyDictionaryField_SetsField()
+        {
+            var fieldName = "_readOnlyDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<ReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ReadOnlyDictionary[1], Is.EqualTo("test"));
+        }
+
+        class IReadOnlyDictionaryClass
+        {
+            private readonly IReadOnlyDictionary<int, string> _iReadOnlyDictionary = null!;
+            public IReadOnlyDictionary<int, string> IReadOnlyDictionary => _iReadOnlyDictionary;
+        }
+        [Test]
+        public void IReadOnlyDictionaryField_SetsField()
+        {
+            var fieldName = "_iReadOnlyDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<IReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IReadOnlyDictionary[1], Is.EqualTo("test"));
+        }
+        #endregion
+
+        #region IEnumerable
         class IEnumerableClass
         {
             private readonly IEnumerable<string> _iEnumerable = null!;
@@ -273,166 +746,6 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IEnumerable.First(), Is.EqualTo(_text));
-        }
-
-        class IReadOnlyCollectionClass
-        {
-            private readonly IReadOnlyCollection<string> _iReadOnlyCollection = null!;
-            public IReadOnlyCollection<string> IReadOnlyCollection => _iReadOnlyCollection;
-        }
-        [Test]
-        public void IReadOnlyCollectionField_SetsField()
-        {
-            var fieldName = "_iReadOnlyCollection";
-
-            var fixture = Fixture.New<IReadOnlyCollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.IReadOnlyCollection.First(), Is.EqualTo(_text));
-        }
-
-        class ICollectionClass
-        {
-            private readonly ICollection<string> _iCollection = null!;
-            public ICollection<string> ICollection => _iCollection;
-        }
-        [Test]
-        public void ICollectionField_SetsField()
-        {
-            var fieldName = "_iCollection";
-
-            var fixture = Fixture.New<ICollectionClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ICollection.First(), Is.EqualTo(_text));
-        }
-
-        class ISetClass
-        {
-            private readonly ISet<string> _iSet = null!;
-            public ISet<string> ISet => _iSet;
-        }
-        [Test]
-        public void ISetField_SetsField()
-        {
-            var fieldName = "_iSet";
-
-            var fixture = Fixture.New<ISetClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ISet.First(), Is.EqualTo(_text));
-        }
-
-        class IReadOnlySetClass
-        {
-            private readonly IReadOnlySet<string> _iReadOnlySet = null!;
-            public IReadOnlySet<string> IReadOnlySet => _iReadOnlySet;
-        }
-        [Test]
-        public void IReadOnlySetField_SetsField()
-        {
-            var fieldName = "_iReadOnlySet";
-
-            var fixture = Fixture.New<IReadOnlySetClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.IReadOnlySet.First(), Is.EqualTo(_text));
-        }
-
-        class IImmutableSetClass
-        {
-            private readonly IImmutableSet<string> _iImmutableSet = null!;
-            public IImmutableSet<string> IImmutableSet => _iImmutableSet;
-        }
-        [Test]
-        public void IImmutableSetField_SetsField()
-        {
-            var fieldName = "_iImmutableSet";
-
-            var fixture = Fixture.New<IImmutableSetClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.IImmutableSet.First(), Is.EqualTo(_text));
-        }
-
-        class ListClass
-        {
-            private readonly List<string> _list = null!;
-            public List<string> List => _list;
-        }
-        [Test]
-        public void ListField_SetsField()
-        {
-            var fieldName = "_list";
-
-            var fixture = Fixture.New<ListClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.List[0], Is.EqualTo(_text));
-        }
-
-        class ImmutableArrayClass
-        {
-            private readonly ImmutableArray<string> _immutableArray;
-            public ImmutableArray<string> ImmutableArray => _immutableArray;
-        }
-        [Test]
-        public void ImmutableArrayField_SetsField()
-        {
-            var fieldName = "_immutableArray";
-
-            var fixture = Fixture.New<ImmutableArrayClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ImmutableArray[0], Is.EqualTo(_text));
-        }
-
-        class ImmutableHashSetClass
-        {
-            private readonly ImmutableHashSet<string> _immutableHashSet = null!;
-            public ImmutableHashSet<string> ImmutableHashSet => _immutableHashSet;
-        }
-        [Test]
-        public void ImmutableHashSetField_SetsField()
-        {
-            var fieldName = "_immutableHashSet";
-
-            var fixture = Fixture.New<ImmutableHashSetClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ImmutableHashSet.Single(), Is.EqualTo(_text));
-        }
-
-        class IListNonGenericClass
-        {
-            private readonly IList _iList = null!;
-            public IList IList => _iList;
-        }
-        [Test]
-        public void IListNonGenericField_SetsField()
-        {
-            var fieldName = "_iList";
-
-            var fixture = Fixture.New<IListNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.IList[0], Is.EqualTo(_text));
-        }
-
-        class ICollectionNonGenericClass
-        {
-            private readonly ICollection _iCollection = null!;
-            public ICollection ICollection => _iCollection;
-        }
-        [Test]
-        public void ICollectionNonGenericField_SetsField()
-        {
-            var fieldName = "_iCollection";
-
-            var fixture = Fixture.New<ICollectionNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ICollection.Cast<string>().Single(), Is.EqualTo(_text));
         }
 
         class IEnumerableNonGenericClass
@@ -450,133 +763,24 @@ namespace FixtureBuilder.Tests
 
             Assert.That(field.IEnumerable.Cast<string>().Single(), Is.EqualTo(_text));
         }
+        #endregion
 
-        class StackClass
+        #region ArrayList
+        class ArrayListClass
         {
-            private readonly Stack<string> _stack = null!;
-            public Stack<string> Stack => _stack;
+            private readonly ArrayList _arrayList = null!;
+            public ArrayList ArrayList => _arrayList;
         }
         [Test]
-        public void StackField_SetsField()
+        public void ArrayListField_SetsField()
         {
-            var fieldName = "_stack";
+            var fieldName = "_arrayList";
 
-            var fixture = Fixture.New<StackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var fixture = Fixture.New<ArrayListClass>().BypassConstructor().WithField(fieldName, [_number]);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.Stack.Single(), Is.EqualTo(_text));
+            Assert.That(field.ArrayList[0], Is.EqualTo(_number));
         }
-
-        class ImmutableStackClass
-        {
-            private readonly ImmutableStack<string> _immutableStack = null!;
-            public ImmutableStack<string> ImmutableStack => _immutableStack;
-        }
-        [Test]
-        public void ImmutableStackField_SetsField()
-        {
-            var fieldName = "_immutableStack";
-
-            var fixture = Fixture.New<ImmutableStackClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ImmutableStack.Single(), Is.EqualTo(_text));
-        }
-
-        class IImmutableStackClass
-        {
-            private readonly IImmutableStack<string> _iImmutableStack = null!;
-            public IImmutableStack<string> IImmutableStack => _iImmutableStack;
-        }
-        [Test]
-        public void IImmutableStackField_SetsField()
-        {
-            var fieldName = "_iImmutableStack";
-
-            var fixture = Fixture.New<IImmutableStackClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.IImmutableStack.Single(), Is.EqualTo(_text));
-        }
-
-        class StackNonGenericClass
-        {
-            private readonly Stack _stack = null!;
-            public Stack Stack => _stack;
-        }
-        [Test]
-        public void StackNonGenericField_SetsField()
-        {
-            var fieldName = "_stack";
-
-            var fixture = Fixture.New<StackNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.Stack.Cast<string>().Single(), Is.EqualTo(_text));
-        }
-
-        class QueueClass
-        {
-            private readonly Queue<string> _queue = null!;
-            public Queue<string> Queue => _queue;
-        }
-        [Test]
-        public void QueueField_SetsField()
-        {
-            var fieldName = "_queue";
-
-            var fixture = Fixture.New<QueueClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.Queue.Single(), Is.EqualTo(_text));
-        }
-
-        class ImmutableQueueClass
-        {
-            private readonly ImmutableQueue<string> _immutableQueue = null!;
-            public ImmutableQueue<string> ImmutableQueue => _immutableQueue;
-        }
-        [Test]
-        public void ImmutableQueueField_SetsField()
-        {
-            var fieldName = "_immutableQueue";
-
-            var fixture = Fixture.New<ImmutableQueueClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.ImmutableQueue.Single(), Is.EqualTo(_text));
-        }
-
-        class IImmutableQueueClass
-        {
-            private readonly IImmutableQueue<string> _iImmutableQueue = null!;
-            public IImmutableQueue<string> IImmutableQueue => _iImmutableQueue;
-        }
-        [Test]
-        public void IImmutableQueueField_SetsField()
-        {
-            var fieldName = "_iImmutableQueue";
-
-            var fixture = Fixture.New<IImmutableQueueClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.IImmutableQueue.Single(), Is.EqualTo(_text));
-        }
-
-        class QueueNonGenericClass
-        {
-            private readonly Queue _queue = null!;
-            public Queue Queue => _queue;
-        }
-        [Test]
-        public void QueueNonGenericField_SetsField()
-        {
-            var fieldName = "_queue";
-
-            var fixture = Fixture.New<QueueNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
-
-            Assert.That(field.Queue.Cast<string>().Single(), Is.EqualTo(_text));
-        }
+        #endregion
     }
 }
