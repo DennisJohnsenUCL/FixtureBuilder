@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Reflection;
 
@@ -28,6 +29,11 @@ namespace FixtureBuilder.Helpers
                 {
                     return CastToImmutable(fieldType, genericTypeDef, typedList);
                 }
+
+                else if (genericTypeDef == typeof(FrozenSet<>))
+                {
+                    return CastToFrozenSet(fieldType, typedList);
+                }
             }
 
             else if (fieldType.IsArray)
@@ -35,10 +41,10 @@ namespace FixtureBuilder.Helpers
                 return CastToArray(fieldType, values);
             }
 
-            else if (fieldType == typeof(ArrayList))
+            else if (fieldType == typeof(ArrayList) || fieldType == typeof(Stack) || fieldType == typeof(Queue))
             {
                 var arrayList = InstantiationHelpers.UseConstructor(fieldType, (ICollection)values)
-                    ?? throw new InvalidOperationException($"Failed to instantiate ArrayList.");
+                    ?? throw new InvalidOperationException($"Failed to instantiate nongeneric collection: {fieldType.Name}.");
 
                 return (IEnumerable)arrayList;
             }
@@ -82,6 +88,8 @@ namespace FixtureBuilder.Helpers
                 }
                 else if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
                 else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
+                else if (genericTypeDef == typeof(IImmutableStack<>)) concreteType = typeof(ImmutableStack<>);
+                else if (genericTypeDef == typeof(IImmutableQueue<>)) concreteType = typeof(ImmutableQueue<>);
                 else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
 
                 return concreteType.MakeGenericType(elementType);
@@ -122,6 +130,24 @@ namespace FixtureBuilder.Helpers
 
             return genericCreateRange.Invoke(null, [values]) as IEnumerable
                 ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}.");
+        }
+
+        private static IEnumerable CastToFrozenSet(Type fieldType, IEnumerable values)
+        {
+            var elementType = fieldType.GetGenericArguments()[0];
+
+            var ToFrozenSetMethod = typeof(FrozenSet)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .FirstOrDefault(m =>
+                m.Name == "ToFrozenSet" &&
+                m.IsGenericMethodDefinition &&
+                m.GetParameters().Length == 2)
+            ?? throw new InvalidOperationException($"Failed to get ToFrozenSet method for {fieldType.Name}.");
+
+            var genericToFrozenSet = ToFrozenSetMethod.MakeGenericMethod(elementType);
+
+            return genericToFrozenSet.Invoke(null, [values, null]) as IEnumerable
+                ?? throw new InvalidOperationException($"Failed to create FrozenSet collection for {fieldType.Name}.");
         }
 
         private static IEnumerable CastElements(IEnumerable values, Type elementType)
