@@ -175,10 +175,27 @@ namespace FixtureBuilder.Tests
             Assert.That(field.Dictionary[1], Is.EqualTo("test"));
         }
 
-        class IDictionaryClass
+        class IDictionaryNonGenericClass
         {
             private readonly IDictionary _iDictionary = null!;
             public IDictionary IDictionary => _iDictionary;
+        }
+        [Test]
+        public void IDictionaryNonGenericField_SetsField()
+        {
+            var fieldName = "_iDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IDictionary[1], Is.EqualTo("test"));
+        }
+
+        class IDictionaryClass
+        {
+            private readonly IDictionary<int, string> _iDictionary = null!;
+            public IDictionary<int, string> IDictionary => _iDictionary;
         }
         [Test]
         public void IDictionaryField_SetsField()
@@ -190,6 +207,40 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IDictionary[1], Is.EqualTo("test"));
+        }
+
+        class ImmutableDictionaryClass
+        {
+            private readonly ImmutableDictionary<int, string> _immutableDictionary = null!;
+            public ImmutableDictionary<int, string> ImmutableDictionary => _immutableDictionary;
+        }
+        [Test]
+        public void ImmutableDictionaryField_SetsField()
+        {
+            var fieldName = "_immutableDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<ImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableDictionary[1], Is.EqualTo("test"));
+        }
+
+        class IImmutableDictionaryClass
+        {
+            private readonly IImmutableDictionary<int, string> _iImmutableDictionary = null!;
+            public IImmutableDictionary<int, string> IImmutableDictionary => _iImmutableDictionary;
+        }
+        [Test]
+        public void IImmutableDictionaryField_SetsField()
+        {
+            var fieldName = "_iImmutableDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<IImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IImmutableDictionary[1], Is.EqualTo("test"));
         }
 
         class IListClass
@@ -349,7 +400,7 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<ImmutableHashSetClass>().BypassConstructor().WithField(fieldName, [_text]);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.ImmutableHashSet.First(), Is.EqualTo(_text));
+            Assert.That(field.ImmutableHashSet.Single(), Is.EqualTo(_text));
         }
 
         class IListNonGenericClass
@@ -381,7 +432,7 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<ICollectionNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.ICollection.Cast<string>().First(), Is.EqualTo(_text));
+            Assert.That(field.ICollection.Cast<string>().Single(), Is.EqualTo(_text));
         }
 
         class IEnumerableNonGenericClass
@@ -397,7 +448,135 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<IEnumerableNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.IEnumerable.Cast<string>().First(), Is.EqualTo(_text));
+            Assert.That(field.IEnumerable.Cast<string>().Single(), Is.EqualTo(_text));
+        }
+
+        class StackClass
+        {
+            private readonly Stack<string> _stack = null!;
+            public Stack<string> Stack => _stack;
+        }
+        [Test]
+        public void StackField_SetsField()
+        {
+            var fieldName = "_stack";
+
+            var fixture = Fixture.New<StackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Stack.Single(), Is.EqualTo(_text));
+        }
+
+        class ImmutableStackClass
+        {
+            private readonly ImmutableStack<string> _immutableStack = null!;
+            public ImmutableStack<string> ImmutableStack => _immutableStack;
+        }
+        [Test]
+        public void ImmutableStackField_SetsField()
+        {
+            var fieldName = "_immutableStack";
+
+            var fixture = Fixture.New<ImmutableStackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableStack.Single(), Is.EqualTo(_text));
+        }
+
+        class IImmutableStackClass
+        {
+            private readonly IImmutableStack<string> _iImmutableStack = null!;
+            public IImmutableStack<string> IImmutableStack => _iImmutableStack;
+        }
+        [Test]
+        public void IImmutableStackField_SetsField()
+        {
+            var fieldName = "_iImmutableStack";
+
+            var fixture = Fixture.New<IImmutableStackClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IImmutableStack.Single(), Is.EqualTo(_text));
+        }
+
+        class StackNonGenericClass
+        {
+            private readonly Stack _stack = null!;
+            public Stack Stack => _stack;
+        }
+        [Test]
+        public void StackNonGenericField_SetsField()
+        {
+            var fieldName = "_stack";
+
+            var fixture = Fixture.New<StackNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Stack.Cast<string>().Single(), Is.EqualTo(_text));
+        }
+
+        class QueueClass
+        {
+            private readonly Queue<string> _queue = null!;
+            public Queue<string> Queue => _queue;
+        }
+        [Test]
+        public void QueueField_SetsField()
+        {
+            var fieldName = "_queue";
+
+            var fixture = Fixture.New<QueueClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Queue.Single(), Is.EqualTo(_text));
+        }
+
+        class ImmutableQueueClass
+        {
+            private readonly ImmutableQueue<string> _immutableQueue = null!;
+            public ImmutableQueue<string> ImmutableQueue => _immutableQueue;
+        }
+        [Test]
+        public void ImmutableQueueField_SetsField()
+        {
+            var fieldName = "_immutableQueue";
+
+            var fixture = Fixture.New<ImmutableQueueClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableQueue.Single(), Is.EqualTo(_text));
+        }
+
+        class IImmutableQueueClass
+        {
+            private readonly IImmutableQueue<string> _iImmutableQueue = null!;
+            public IImmutableQueue<string> IImmutableQueue => _iImmutableQueue;
+        }
+        [Test]
+        public void IImmutableQueueField_SetsField()
+        {
+            var fieldName = "_iImmutableQueue";
+
+            var fixture = Fixture.New<IImmutableQueueClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IImmutableQueue.Single(), Is.EqualTo(_text));
+        }
+
+        class QueueNonGenericClass
+        {
+            private readonly Stack _queue = null!;
+            public Stack Queue => _queue;
+        }
+        [Test]
+        public void QueueNonGenericField_SetsField()
+        {
+            var fieldName = "_queue";
+
+            var fixture = Fixture.New<QueueNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Queue.Cast<string>().Single(), Is.EqualTo(_text));
         }
     }
 }
