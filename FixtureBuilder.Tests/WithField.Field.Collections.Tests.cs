@@ -175,6 +175,23 @@ namespace FixtureBuilder.Tests
             Assert.That(field.Dictionary[1], Is.EqualTo("test"));
         }
 
+        class IDictionaryClass
+        {
+            private readonly IDictionary _iDictionary = null!;
+            public IDictionary IDictionary => _iDictionary;
+        }
+        [Test]
+        public void IDictionaryField_SetsField()
+        {
+            var fieldName = "_iDictionary";
+            var dictionary = new Dictionary<int, string>() { { 1, "test" } };
+
+            var fixture = Fixture.New<IDictionaryClass>().BypassConstructor().WithField(fieldName, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IDictionary[1], Is.EqualTo("test"));
+        }
+
         class IListClass
         {
             private readonly IList<string> _iList = null!;
@@ -333,6 +350,54 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ImmutableHashSet.First(), Is.EqualTo(_text));
+        }
+
+        class IListNonGenericClass
+        {
+            private readonly IList _iList = null!;
+            public IList IList => _iList;
+        }
+        [Test]
+        public void IListNonGenericField_SetsField()
+        {
+            var fieldName = "_iList";
+
+            var fixture = Fixture.New<IListNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IList[0], Is.EqualTo(_text));
+        }
+
+        class ICollectionNonGenericClass
+        {
+            private readonly ICollection _iCollection = null!;
+            public ICollection ICollection => _iCollection;
+        }
+        [Test]
+        public void ICollectionNonGenericField_SetsField()
+        {
+            var fieldName = "_iCollection";
+
+            var fixture = Fixture.New<ICollectionNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ICollection.Cast<string>().First(), Is.EqualTo(_text));
+        }
+
+        class IEnumerableNonGenericClass
+        {
+            private readonly IEnumerable _iEnumerable = null!;
+            public IEnumerable IEnumerable => _iEnumerable;
+        }
+        [Test]
+        public void IEnumerableNonGenericField_SetsField()
+        {
+            var fieldName = "_iEnumerable";
+
+            var fixture = Fixture.New<IEnumerableNonGenericClass>().BypassConstructor().WithField(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IEnumerable.Cast<string>().First(), Is.EqualTo(_text));
         }
     }
 }
