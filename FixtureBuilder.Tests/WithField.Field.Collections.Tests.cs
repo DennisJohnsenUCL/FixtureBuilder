@@ -565,8 +565,8 @@ namespace FixtureBuilder.Tests
 
         class QueueNonGenericClass
         {
-            private readonly Stack _queue = null!;
-            public Stack Queue => _queue;
+            private readonly Queue _queue = null!;
+            public Queue Queue => _queue;
         }
         [Test]
         public void QueueNonGenericField_SetsField()
