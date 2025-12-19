@@ -30,7 +30,10 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
         }
 
-        internal Fixture(TEntity entity) => _fixture = entity;
+        internal Fixture(TEntity entity)
+        {
+            _fixture = entity ?? throw new InvalidOperationException($"Cannot use a null instance as fixture {typeof(TEntity).Name}. Please use generic parameter instead for generating new fixtures.");
+        }
 
         /// <summary>
         /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
