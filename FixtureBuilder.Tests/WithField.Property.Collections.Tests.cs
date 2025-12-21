@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -101,6 +102,22 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<IListNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IList, [_text]);
             var field = Helpers.GetFixture(fixture);
             Assert.That(field.IList.Single(), Is.EqualTo(_text));
+        }
+
+        class ConcurrentBagClass
+        {
+            private readonly ConcurrentBag<string> _concurrentBag = null!;
+            public IEnumerable<string> ConcurrentBag => _concurrentBag;
+        }
+        [Test]
+        public void ConcurrentBagField_SetsField()
+        {
+            var fieldName = "_concurrentBag";
+
+            var fixture = Fixture.New<ConcurrentBagClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentBag, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ConcurrentBag.Single(), Is.EqualTo(_text));
         }
         #endregion
 
@@ -414,6 +431,22 @@ namespace FixtureBuilder.Tests
 
             Assert.That(field.Stack.Single(), Is.EqualTo(_text));
         }
+
+        class ConcurrentStackClass
+        {
+            private readonly ConcurrentStack<string> _concurrentStack = null!;
+            public IEnumerable<string> ConcurrentStack => _concurrentStack;
+        }
+        [Test]
+        public void ConcurrentStackField_SetsField()
+        {
+            var fieldName = "_concurrentStack";
+
+            var fixture = Fixture.New<ConcurrentStackClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentStack, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ConcurrentStack.Single(), Is.EqualTo(_text));
+        }
         #endregion
 
         #region Queues
@@ -479,6 +512,22 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Queue.Single(), Is.EqualTo(_text));
+        }
+
+        class ConcurrentQueueClass
+        {
+            private readonly ConcurrentQueue<string> _concurrentQueue = null!;
+            public IEnumerable<string> ConcurrentQueue => _concurrentQueue;
+        }
+        [Test]
+        public void ConcurrentQueueField_SetsField()
+        {
+            var fieldName = "_concurrentQueue";
+
+            var fixture = Fixture.New<ConcurrentQueueClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentQueue, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ConcurrentQueue.Single(), Is.EqualTo(_text));
         }
         #endregion
 
@@ -719,6 +768,23 @@ namespace FixtureBuilder.Tests
         //    var field = Helpers.GetFixture(fixture);
 
         //    Assert.That(field.Hashtable.Single().Value, Is.EqualTo(_text));
+        //}
+
+        //class ConcurrentDictionaryClass
+        //{
+        //    private readonly ConcurrentDictionary<int, string> _concurrentDictionary = null!;
+        //    public List<KeyValuePair<int, string>> ConcurrentDictionary => [.. _concurrentDictionary];
+        //}
+        //[Test]
+        //public void ConcurrentDictionaryField_SetsField()
+        //{
+        //    var fieldName = "_concurrentDictionary";
+        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+
+        //    var fixture = Fixture.New<ConcurrentDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentDictionary, dictionary);
+        //    var field = Helpers.GetFixture(fixture);
+
+        //    Assert.That(field.ConcurrentDictionary.Single().Value, Is.EqualTo("test"));
         //}
         #endregion
 
