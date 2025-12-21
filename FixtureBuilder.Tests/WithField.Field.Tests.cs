@@ -68,5 +68,45 @@
                 Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
+
+        class StringListClass
+        {
+            private readonly List<string> _stringList = null!;
+            public List<string> StringList => _stringList;
+        }
+        [Test]
+        public void CollectionTypeField_StringParameter_ThrowsException()
+        {
+            var fieldName = "_stringList";
+
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<StringListClass>().BypassConstructor().WithField(fieldName, _text));
+        }
+
+        [Test]
+        public void CollectionTypeField_CollectionParameter_SetsField()
+        {
+            var fieldName = "_stringList";
+
+            var fixture = Fixture.New<StringListClass>().BypassConstructor().WithField<List<string>>(fieldName, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.StringList[0], Is.EqualTo(_text));
+        }
+
+        [Test]
+        public void CollectionTypeField_CollectionParameters_SetsField()
+        {
+            var fieldName = "_stringList";
+            var secondEntry = "More test";
+
+            var fixture = Fixture.New<StringListClass>().BypassConstructor().WithField<List<string>>(fieldName, [_text, secondEntry]);
+            var field = Helpers.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(field.StringList[0], Is.EqualTo(_text));
+                Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
+            }
+        }
     }
 }

@@ -206,14 +206,14 @@
         class CollectionDifferentTypeClass
         {
             private readonly List<string> _stringList = null!;
-            public IReadOnlyList<string> StringList { get; } = null!;
+            public IReadOnlyList<string> StringList => _stringList;
         }
         [Test]
         public void BackingFieldDifferentCollectionType_SetsField()
         {
             var fixture = Fixture.New<CollectionDifferentTypeClass>().WithField(t => t.StringList, [_text]).Build();
 
-            Assert.That(fixture.StringList[0], Is.EqualTo(_text));
+            Assert.That(fixture.StringList.Single(), Is.EqualTo(_text));
         }
 
         [Test]
