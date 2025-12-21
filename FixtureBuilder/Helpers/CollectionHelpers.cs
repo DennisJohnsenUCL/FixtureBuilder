@@ -7,8 +7,11 @@ namespace FixtureBuilder.Helpers
 {
     internal static class CollectionHelpers
     {
-        public static IEnumerable CastToCollection(Type fieldType, IEnumerable values, Type? sourceElementType = null)
+        public static IEnumerable CastToCollection(Type fieldType, IEnumerable values)
         {
+            var sourceType = values.GetType();
+            var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : null;
+
             if (sourceElementType != null && !ElementTypeIsAssignable(fieldType, sourceElementType))
                 throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}.");
 
@@ -46,10 +49,10 @@ namespace FixtureBuilder.Helpers
 
             else if (fieldType == typeof(ArrayList) || fieldType == typeof(Stack) || fieldType == typeof(Queue))
             {
-                var arrayList = InstantiationHelpers.UseConstructor(fieldType, (ICollection)values)
+                var collection = InstantiationHelpers.UseConstructor(fieldType, (ICollection)values)
                     ?? throw new InvalidOperationException($"Failed to instantiate nongeneric collection: {fieldType.Name}.");
 
-                return (IEnumerable)arrayList;
+                return (IEnumerable)collection;
             }
 
             throw new InvalidOperationException($"Failed to cast to collection type: {fieldType.Name}");

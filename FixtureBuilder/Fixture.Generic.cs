@@ -95,48 +95,19 @@ namespace FixtureBuilder
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
         /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField(string fieldName, object value)
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, T value)
         {
             _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
 
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
-            if (value != null && (fieldInfo.FieldType != value.GetType() || !fieldInfo.FieldType.IsAssignableFrom(value.GetType())))
-                throw new InvalidOperationException($"{value.GetType().Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}.");
+            var sourceType = value?.GetType();
+
+            if (value != null && (fieldInfo.FieldType != sourceType || !fieldInfo.FieldType.IsAssignableFrom(sourceType)))
+                throw new InvalidOperationException($"{sourceType?.Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}.");
 
             fieldInfo.SetValue(_fixture, value);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the fixture by setting the specified field to the provided collection of values.
-        /// </summary>
-        /// <param name="fieldName">The name of the field to configure. This must correspond to a valid field in the fixture object.</param>
-        /// <param name="values">A collection of values to assign to the specified field. The field must be a collection type.</param>
-        /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, IEnumerable<T> values)
-        {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
-
-            if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
-                throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
-
-            var fieldType = fieldInfo.FieldType;
-            var sourceType = values.GetType();
-            var sourceIsCompilerType = sourceType.FullName?.StartsWith("<>z__ReadOnly") ?? false;
-
-            if (!sourceIsCompilerType && (fieldType == sourceType || fieldType.IsAssignableFrom(sourceType)))
-            {
-                fieldInfo.SetValue(_fixture, values);
-            }
-            else if (typeof(IEnumerable).IsAssignableFrom(fieldType) && fieldType != typeof(string))
-            {
-                var collection = CollectionHelpers.CastToCollection(fieldType, values, typeof(T));
-                fieldInfo.SetValue(_fixture, collection);
-            }
-            else throw new InvalidOperationException("Cannot assign collection to non-collection field");
 
             return this;
         }
@@ -184,7 +155,7 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
             var fieldType = backingField.FieldType;
-            var sourceType = typeof(TProp);
+            var sourceType = value?.GetType();
 
             if (fieldType != sourceType
                 && !fieldType.IsAssignableFrom(sourceType)
@@ -193,13 +164,7 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
-                Type? sourceElementType = null;
-                if (sourceType.IsGenericType) sourceElementType = sourceType.GetGenericArguments()[0];
-
-                if (sourceElementType != null && !CollectionHelpers.ElementTypeIsAssignable(fieldType, sourceElementType))
-                    throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}.");
-
-                var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value, sourceElementType);
+                var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
                 backingField.SetValue(instance, collection);
             }
             else

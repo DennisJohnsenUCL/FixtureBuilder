@@ -12,8 +12,7 @@ namespace FixtureBuilder
     {
         IFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;
         IFixtureConfigurator<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-        IFixtureConfigurator<TEntity> WithField(string fieldName, object value);
-        IFixtureConfigurator<TEntity> WithField<T>(string fieldName, IEnumerable<T> values);
+        IFixtureConfigurator<TEntity> WithField<T>(string fieldName, T value);
         IFixtureConfigurator<TEntity> WithField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
         IFixtureConfigurator<TEntity> WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value);
         IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
