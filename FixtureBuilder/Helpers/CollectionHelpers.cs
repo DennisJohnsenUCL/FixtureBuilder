@@ -97,7 +97,7 @@ namespace FixtureBuilder.Helpers
                 else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
                 else if (genericTypeDef == typeof(IImmutableStack<>)) concreteType = typeof(ImmutableStack<>);
                 else if (genericTypeDef == typeof(IImmutableQueue<>)) concreteType = typeof(ImmutableQueue<>);
-                else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
+                else throw new InvalidOperationException($"Unsupported generic collection interface type: {interfaceType.Name}");
 
                 return concreteType.MakeGenericType(elementType);
             }
@@ -289,19 +289,18 @@ namespace FixtureBuilder.Helpers
                 }
             }
 
-            if (fieldType == typeof(SortedList))
+            else if (fieldType == typeof(SortedList) || fieldType == typeof(Hashtable))
             {
-                var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-                var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
-                if (iDictionary != null)
+                var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
+                var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
+                if (dictionary != null)
                 {
-                    var readOnlyDictionary = InstantiationHelpers.UseConstructor(fieldType, iDictionary);
-                    if (readOnlyDictionary != null) return (IEnumerable)readOnlyDictionary;
+                    var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, dictionary);
+                    if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
                     throw new InvalidOperationException("Failed to instantiate ReadOnlyDictionary.");
                 }
             }
-
-            throw new ApplicationException();
+            throw new InvalidOperationException($"Failed to cast to collection type: {fieldType.Name}");
         }
 
         public static bool IsDictionary(Type fieldType)
