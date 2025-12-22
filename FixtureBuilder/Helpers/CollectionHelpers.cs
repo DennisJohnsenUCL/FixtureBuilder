@@ -240,9 +240,13 @@ namespace FixtureBuilder.Helpers
                 var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
                 if (dictionary != null) return (IEnumerable)dictionary;
 
-                else if (genericTypeDef == typeof(ImmutableDictionary<,>))
+                else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
-                    var createRangeMethod = typeof(ImmutableDictionary)
+                    var factoryTypeName = genericTypeDef.FullName!.Replace("`2", "");
+                    var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
+                        ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}.");
+
+                    var createRangeMethod = factoryType
                         .GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .FirstOrDefault(m =>
                             m.Name == "CreateRange" &&
