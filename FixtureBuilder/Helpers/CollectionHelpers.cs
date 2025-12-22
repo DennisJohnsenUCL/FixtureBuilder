@@ -181,22 +181,22 @@ namespace FixtureBuilder.Helpers
 
         public static IEnumerable CastToDictionary(Type fieldType, IEnumerable values)
         {
-            //var keyValueTypes = values.GetType()
-            //    .GetInterfaces()
-            //    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            //    .Select(i => i.GetGenericArguments()[0])
-            //    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-            //    .Select(t => t.GetGenericArguments())
-            //    .FirstOrDefault(args => args.Length == 2);
+            var keyValueTypes = values.GetType()
+                .GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(i => i.GetGenericArguments()[0])
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                .Select(t => t.GetGenericArguments())
+                .FirstOrDefault(args => args.Length == 2);
 
-            //Type sourceKeyType = typeof(object);
-            //Type sourceValueType = typeof(object);
+            Type sourceKeyType = typeof(object);
+            Type sourceValueType = typeof(object);
 
-            //if (keyValueTypes != null)
-            //{
-            //    sourceKeyType = keyValueTypes[0];
-            //    sourceValueType = keyValueTypes[1];
-            //}
+            if (keyValueTypes != null)
+            {
+                sourceKeyType = keyValueTypes[0];
+                sourceValueType = keyValueTypes[1];
+            }
 
             if (fieldType.IsInterface)
             {
@@ -209,16 +209,16 @@ namespace FixtureBuilder.Helpers
                     var valueType = fieldType.GetGenericArguments()[1];
 
                     if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
-                    //        else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
+                    //else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
                     else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
                     else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
 
                     fieldType = concreteType.MakeGenericType(keyType, valueType);
                 }
-                //    else if (fieldType == typeof(IDictionary))
-                //    {
-                //        fieldType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-                //    }
+                else if (fieldType == typeof(IDictionary))
+                {
+                    fieldType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
+                }
             }
 
             Type fieldKeyType = typeof(object);
