@@ -210,7 +210,7 @@ namespace FixtureBuilder.Helpers
 
                     if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
                     //        else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
-                    //else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
+                    else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
                     else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
 
                     fieldType = concreteType.MakeGenericType(keyType, valueType);
