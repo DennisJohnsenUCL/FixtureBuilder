@@ -254,20 +254,20 @@ namespace FixtureBuilder.Helpers
                     return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
                 }
 
-                //if (genericTypeDef == typeof(FrozenDictionary<,>))
-                //{
-                //    var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
-                //        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                //        .FirstOrDefault(m =>
-                //            m.Name == "ToFrozenDictionary" &&
-                //            m.IsGenericMethodDefinition &&
-                //            m.GetParameters().Length == 2)
-                //        ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
+                if (genericTypeDef == typeof(FrozenDictionary<,>))
+                {
+                    var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .FirstOrDefault(m =>
+                            m.Name == "ToFrozenDictionary" &&
+                            m.IsGenericMethodDefinition &&
+                            m.GetParameters().Length == 2)
+                        ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
 
-                //    var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+                    var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
 
-                //    return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
-                //}
+                    return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
+                }
             }
             throw new ApplicationException();
         }
