@@ -166,7 +166,7 @@ namespace FixtureBuilder.Helpers
             return typedList;
         }
 
-        public static bool ElementTypeIsAssignable(Type fieldType, Type elementType)
+        private static bool ElementTypeIsAssignable(Type fieldType, Type elementType)
         {
             if (!typeof(IEnumerable).IsAssignableFrom(fieldType)) return false;
 
@@ -177,6 +177,116 @@ namespace FixtureBuilder.Helpers
 
             if (fieldElementType != null && (fieldElementType == elementType || fieldElementType.IsAssignableFrom(elementType))) return true;
             else return false;
+        }
+
+        public static IEnumerable CastToDictionary(Type fieldType, IEnumerable values)
+        {
+            //var keyValueTypes = values.GetType()
+            //    .GetInterfaces()
+            //    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            //    .Select(i => i.GetGenericArguments()[0])
+            //    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+            //    .Select(t => t.GetGenericArguments())
+            //    .FirstOrDefault(args => args.Length == 2);
+
+            //Type sourceKeyType = typeof(object);
+            //Type sourceValueType = typeof(object);
+
+            //if (keyValueTypes != null)
+            //{
+            //    sourceKeyType = keyValueTypes[0];
+            //    sourceValueType = keyValueTypes[1];
+            //}
+
+            //if (fieldType.IsInterface)
+            //{
+            //    Type concreteType;
+
+            //    if (fieldType.IsGenericType)
+            //    {
+            //        var genericTypeDef = fieldType.GetGenericTypeDefinition();
+            //        var keyType = fieldType.GetGenericArguments()[0];
+            //        var valueType = fieldType.GetGenericArguments()[1];
+
+            //        if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
+            //        else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
+            //        else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
+            //        else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
+
+            //        fieldType = concreteType.MakeGenericType(keyType, valueType);
+            //    }
+            //    else if (fieldType == typeof(IDictionary))
+            //    {
+            //        fieldType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
+            //    }
+            //}
+
+            //Type fieldKeyType = typeof(object);
+            //Type fieldValueType = typeof(object);
+
+            if (fieldType.IsGenericType)
+            {
+                //var genericTypeDef = fieldType.GetGenericTypeDefinition();
+
+                //var fieldGenArgs = fieldType.GetGenericArguments();
+
+                //if (fieldGenArgs.Length == 2)
+                //{
+                //    fieldKeyType = fieldGenArgs[0];
+                //    fieldValueType = fieldGenArgs[1];
+                //}
+
+                var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
+                if (dictionary != null) return (IEnumerable)dictionary;
+
+                //if (genericTypeDef == typeof(ImmutableDictionary<,>))
+                //{
+                //    var createRangeMethod = typeof(ImmutableDictionary)
+                //        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                //        .FirstOrDefault(m =>
+                //            m.Name == "CreateRange" &&
+                //            m.IsGenericMethodDefinition &&
+                //            m.GetParameters().Length == 1)
+                //        ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
+
+                //    var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+
+                //    return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
+                //}
+
+                //if (genericTypeDef == typeof(FrozenDictionary<,>))
+                //{
+                //    var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
+                //        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                //        .FirstOrDefault(m =>
+                //            m.Name == "ToFrozenDictionary" &&
+                //            m.IsGenericMethodDefinition &&
+                //            m.GetParameters().Length == 2)
+                //        ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
+
+                //    var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+
+                //    return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
+                //}
+            }
+            throw new ApplicationException();
+        }
+
+        public static bool IsDictionary(Type fieldType)
+        {
+            var genericInterfaces = fieldType.GetInterfaces().Where(i => i.IsGenericType).Select(i => i.GetGenericTypeDefinition());
+            if (genericInterfaces.Contains(typeof(IDictionary<,>)) || genericInterfaces.Contains(typeof(IReadOnlyDictionary<,>)))
+                return true;
+
+            else if (fieldType.IsGenericType)
+            {
+                var genericTypeDef = fieldType.GetGenericTypeDefinition();
+
+                if (genericTypeDef == typeof(IDictionary<,>) || genericTypeDef == typeof(IReadOnlyDictionary<,>))
+                    return true;
+            }
+            else if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
+            return false;
         }
     }
 }

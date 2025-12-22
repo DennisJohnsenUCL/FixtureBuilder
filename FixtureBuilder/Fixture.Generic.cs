@@ -164,7 +164,9 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
-                var collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
+                IEnumerable collection;
+                if (CollectionHelpers.IsDictionary(fieldType)) collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
+                else collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
                 backingField.SetValue(instance, collection);
             }
             else
