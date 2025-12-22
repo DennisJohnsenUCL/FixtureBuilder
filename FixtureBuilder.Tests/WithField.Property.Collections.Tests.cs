@@ -532,260 +532,260 @@ namespace FixtureBuilder.Tests
         #endregion
 
         #region Dictionaries
-        //class DictionaryClass
-        //{
-        //    private readonly Dictionary<int, string> _dictionary = null!;
-        //    public List<KeyValuePair<int, string>> Dictionary => [.. _dictionary];
-        //}
-        //[Test]
-        //public void DictionaryField_SetsField()
-        //{
-        //    var fieldName = "_dictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class DictionaryClass
+        {
+            private readonly Dictionary<int, string> _dictionary = null!;
+            public List<KeyValuePair<int, string>> Dictionary => [.. _dictionary];
+        }
+        [Test]
+        public void DictionaryField_SetsField()
+        {
+            var fieldName = "_dictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<DictionaryClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<DictionaryClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.Dictionary.Single().Value, Is.EqualTo("test"));
-        //}
+            Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class IDictionaryNonGenericClass
-        //{
-        //    private readonly IDictionary _iDictionary = null!;
-        //    public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<KeyValuePair<int, string>>()];
-        //}
-        //[Test]
-        //public void IDictionaryNonGenericField_SetsField()
-        //{
-        //    var fieldName = "_iDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class IDictionaryNonGenericClass
+        {
+            private readonly IDictionary _iDictionary = null!;
+            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<KeyValuePair<int, string>>()];
+        }
+        [Test]
+        public void IDictionaryNonGenericField_SetsField()
+        {
+            var fieldName = "_iDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.IDictionary.Cast<KeyValuePair<int, string>>().Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.IDictionary.Cast<KeyValuePair<int, string>>().Single().Value, Is.EqualTo(_text));
+        }
 
-        //class IDictionaryClass
-        //{
-        //    private readonly IDictionary<int, string> _iDictionary = null!;
-        //    public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary];
-        //}
-        //[Test]
-        //public void IDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_iDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class IDictionaryClass
+        {
+            private readonly IDictionary<int, string> _iDictionary = null!;
+            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary];
+        }
+        [Test]
+        public void IDictionaryField_SetsField()
+        {
+            var fieldName = "_iDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<IDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<IDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class ImmutableDictionaryClass
-        //{
-        //    private readonly ImmutableDictionary<int, string> _immutableDictionary = null!;
-        //    public List<KeyValuePair<int, string>> ImmutableDictionary => [.. _immutableDictionary];
-        //}
-        //[Test]
-        //public void ImmutableDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_immutableDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class ImmutableDictionaryClass
+        {
+            private readonly ImmutableDictionary<int, string> _immutableDictionary = null!;
+            public List<KeyValuePair<int, string>> ImmutableDictionary => [.. _immutableDictionary];
+        }
+        [Test]
+        public void ImmutableDictionaryField_SetsField()
+        {
+            var fieldName = "_immutableDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<ImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ImmutableDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<ImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ImmutableDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.ImmutableDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.ImmutableDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class IImmutableDictionaryClass
-        //{
-        //    private readonly IImmutableDictionary<int, string> _iImmutableDictionary = null!;
-        //    public List<KeyValuePair<int, string>> IImmutableDictionary => [.. _iImmutableDictionary];
-        //}
-        //[Test]
-        //public void IImmutableDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_iImmutableDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class IImmutableDictionaryClass
+        {
+            private readonly IImmutableDictionary<int, string> _iImmutableDictionary = null!;
+            public List<KeyValuePair<int, string>> IImmutableDictionary => [.. _iImmutableDictionary];
+        }
+        [Test]
+        public void IImmutableDictionaryField_SetsField()
+        {
+            var fieldName = "_iImmutableDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<IImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IImmutableDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<IImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IImmutableDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.IImmutableDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.IImmutableDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class SortedDictionaryClass
-        //{
-        //    private readonly SortedDictionary<int, string> _sortedDictionary = null!;
-        //    public List<KeyValuePair<int, string>> SortedDictionary => [.. _sortedDictionary];
-        //}
-        //[Test]
-        //public void SortedDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_sortedDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class SortedDictionaryClass
+        {
+            private readonly SortedDictionary<int, string> _sortedDictionary = null!;
+            public List<KeyValuePair<int, string>> SortedDictionary => [.. _sortedDictionary];
+        }
+        [Test]
+        public void SortedDictionaryField_SetsField()
+        {
+            var fieldName = "_sortedDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<SortedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.SortedDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<SortedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.SortedDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.SortedDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.SortedDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class OrderedDictionaryClass
-        //{
-        //    private readonly OrderedDictionary<int, string> _orderedDictionary = null!;
-        //    public List<KeyValuePair<int, string>> OrderedDictionary => [.. _orderedDictionary];
-        //}
-        //[Test]
-        //public void OrderedDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_orderedDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class OrderedDictionaryClass
+        {
+            private readonly OrderedDictionary<int, string> _orderedDictionary = null!;
+            public List<KeyValuePair<int, string>> OrderedDictionary => [.. _orderedDictionary];
+        }
+        [Test]
+        public void OrderedDictionaryField_SetsField()
+        {
+            var fieldName = "_orderedDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<OrderedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.OrderedDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<OrderedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.OrderedDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.OrderedDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.OrderedDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class ImmutableSortedDictionaryClass
-        //{
-        //    private readonly ImmutableSortedDictionary<int, string> _immutableSortedDictionary = null!;
-        //    public List<KeyValuePair<int, string>> ImmutableSortedDictionary => [.. _immutableSortedDictionary];
-        //}
-        //[Test]
-        //public void ImmutableSortedDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_immutableSortedDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class ImmutableSortedDictionaryClass
+        {
+            private readonly ImmutableSortedDictionary<int, string> _immutableSortedDictionary = null!;
+            public List<KeyValuePair<int, string>> ImmutableSortedDictionary => [.. _immutableSortedDictionary];
+        }
+        [Test]
+        public void ImmutableSortedDictionaryField_SetsField()
+        {
+            var fieldName = "_immutableSortedDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<ImmutableSortedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ImmutableSortedDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<ImmutableSortedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ImmutableSortedDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.ImmutableSortedDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.ImmutableSortedDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class FrozenDictionaryClass
-        //{
-        //    private readonly FrozenDictionary<int, string> _frozenDictionary = null!;
-        //    public List<KeyValuePair<int, string>> FrozenDictionary => [.. _frozenDictionary];
-        //}
-        //[Test]
-        //public void FrozenDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_frozenDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class FrozenDictionaryClass
+        {
+            private readonly FrozenDictionary<int, string> _frozenDictionary = null!;
+            public List<KeyValuePair<int, string>> FrozenDictionary => [.. _frozenDictionary];
+        }
+        [Test]
+        public void FrozenDictionaryField_SetsField()
+        {
+            var fieldName = "_frozenDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<FrozenDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.FrozenDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<FrozenDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.FrozenDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.FrozenDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.FrozenDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class ReadOnlyDictionaryClass
-        //{
-        //    private readonly ReadOnlyDictionary<int, string> _readOnlyDictionary = null!;
-        //    public List<KeyValuePair<int, string>> ReadOnlyDictionary => [.. _readOnlyDictionary];
-        //}
-        //[Test]
-        //public void ReadOnlyDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_readOnlyDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class ReadOnlyDictionaryClass
+        {
+            private readonly ReadOnlyDictionary<int, string> _readOnlyDictionary = null!;
+            public List<KeyValuePair<int, string>> ReadOnlyDictionary => [.. _readOnlyDictionary];
+        }
+        [Test]
+        public void ReadOnlyDictionaryField_SetsField()
+        {
+            var fieldName = "_readOnlyDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<ReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ReadOnlyDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<ReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ReadOnlyDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.ReadOnlyDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.ReadOnlyDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class IReadOnlyDictionaryClass
-        //{
-        //    private readonly IReadOnlyDictionary<int, string> _iReadOnlyDictionary = null!;
-        //    public List<KeyValuePair<int, string>> IReadOnlyDictionary => [.. _iReadOnlyDictionary];
-        //}
-        //[Test]
-        //public void IReadOnlyDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_iReadOnlyDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class IReadOnlyDictionaryClass
+        {
+            private readonly IReadOnlyDictionary<int, string> _iReadOnlyDictionary = null!;
+            public List<KeyValuePair<int, string>> IReadOnlyDictionary => [.. _iReadOnlyDictionary];
+        }
+        [Test]
+        public void IReadOnlyDictionaryField_SetsField()
+        {
+            var fieldName = "_iReadOnlyDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<IReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IReadOnlyDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<IReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IReadOnlyDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.IReadOnlyDictionary.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.IReadOnlyDictionary.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class SortedListClass
-        //{
-        //    private readonly SortedList<int, string> _sortedList = null!;
-        //    public List<KeyValuePair<int, string>> SortedList => [.. _sortedList];
-        //}
-        //[Test]
-        //public void SortedListField_SetsField()
-        //{
-        //    var fieldName = "_sortedList";
-        //    var sortedList = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class SortedListClass
+        {
+            private readonly SortedList<int, string> _sortedList = null!;
+            public List<KeyValuePair<int, string>> SortedList => [.. _sortedList];
+        }
+        [Test]
+        public void SortedListField_SetsField()
+        {
+            var fieldName = "_sortedList";
+            var sortedList = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<SortedListClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<SortedListClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.SortedList.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.SortedList.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class SortedListNonGenericClass
-        //{
-        //    private readonly SortedList _sortedList = null!;
-        //    public List<KeyValuePair<int, string>> SortedList => [.. _sortedList.Cast<KeyValuePair<int, string>>()];
-        //}
-        //[Test]
-        //public void SortedListNonGenericField_SetsField()
-        //{
-        //    var fieldName = "_sortedList";
-        //    var sortedList = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class SortedListNonGenericClass
+        {
+            private readonly SortedList _sortedList = null!;
+            public List<KeyValuePair<int, string>> SortedList => [.. _sortedList.Cast<KeyValuePair<int, string>>()];
+        }
+        [Test]
+        public void SortedListNonGenericField_SetsField()
+        {
+            var fieldName = "_sortedList";
+            var sortedList = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<SortedListNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<SortedListNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.SortedList.Cast<KeyValuePair<object, object>>().Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.SortedList.Cast<KeyValuePair<object, object>>().Single().Value, Is.EqualTo(_text));
+        }
 
-        //class HashtableClass
-        //{
-        //    private readonly Hashtable _hashtable = null!;
-        //    public List<KeyValuePair<int, string>> Hashtable => [.. _hashtable.Cast<KeyValuePair<int, string>>()];
-        //}
-        //[Test]
-        //public void HashtableField_SetsField()
-        //{
-        //    var fieldName = "_hashtable";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class HashtableClass
+        {
+            private readonly Hashtable _hashtable = null!;
+            public List<KeyValuePair<int, string>> Hashtable => [.. _hashtable.Cast<KeyValuePair<int, string>>()];
+        }
+        [Test]
+        public void HashtableField_SetsField()
+        {
+            var fieldName = "_hashtable";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<HashtableClass>().BypassConstructor().WithField(fieldName, c => c.Hashtable, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<HashtableClass>().BypassConstructor().WithField(fieldName, c => c.Hashtable, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.Hashtable.Single().Value, Is.EqualTo(_text));
-        //}
+            Assert.That(field.Hashtable.Single().Value, Is.EqualTo(_text));
+        }
 
-        //class ConcurrentDictionaryClass
-        //{
-        //    private readonly ConcurrentDictionary<int, string> _concurrentDictionary = null!;
-        //    public List<KeyValuePair<int, string>> ConcurrentDictionary => [.. _concurrentDictionary];
-        //}
-        //[Test]
-        //public void ConcurrentDictionaryField_SetsField()
-        //{
-        //    var fieldName = "_concurrentDictionary";
-        //    var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+        class ConcurrentDictionaryClass
+        {
+            private readonly ConcurrentDictionary<int, string> _concurrentDictionary = null!;
+            public List<KeyValuePair<int, string>> ConcurrentDictionary => [.. _concurrentDictionary];
+        }
+        [Test]
+        public void ConcurrentDictionaryField_SetsField()
+        {
+            var fieldName = "_concurrentDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-        //    var fixture = Fixture.New<ConcurrentDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentDictionary, dictionary);
-        //    var field = Helpers.GetFixture(fixture);
+            var fixture = Fixture.New<ConcurrentDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
 
-        //    Assert.That(field.ConcurrentDictionary.Single().Value, Is.EqualTo("test"));
-        //}
+            Assert.That(field.ConcurrentDictionary.Single().Value, Is.EqualTo(_text));
+        }
         #endregion
 
         #region IEnumerable
