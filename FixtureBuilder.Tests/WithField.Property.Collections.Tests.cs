@@ -563,7 +563,7 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.IDictionary.Cast<KeyValuePair<int, string>>().Single().Value, Is.EqualTo(_text));
+            Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
         }
 
         class IDictionaryClass
@@ -739,7 +739,7 @@ namespace FixtureBuilder.Tests
         class SortedListNonGenericClass
         {
             private readonly SortedList _sortedList = null!;
-            public List<KeyValuePair<int, string>> SortedList => [.. _sortedList.Cast<KeyValuePair<int, string>>()];
+            public List<KeyValuePair<int, string>> SortedList => [.. _sortedList.Cast<DictionaryEntry>().Select(de => new KeyValuePair<int, string>((int)de.Key, (string)de.Value!))];
         }
         [Test]
         public void SortedListNonGenericField_SetsField()
@@ -750,13 +750,13 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<SortedListNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.SortedList.Cast<KeyValuePair<object, object>>().Single().Value, Is.EqualTo(_text));
+            Assert.That(field.SortedList.Single().Value, Is.EqualTo(_text));
         }
 
         class HashtableClass
         {
             private readonly Hashtable _hashtable = null!;
-            public List<KeyValuePair<int, string>> Hashtable => [.. _hashtable.Cast<KeyValuePair<int, string>>()];
+            public List<KeyValuePair<int, string>> Hashtable => [.. _hashtable.Cast<DictionaryEntry>().Select(de => new KeyValuePair<int, string>((int)de.Key, (string)de.Value!))];
         }
         [Test]
         public void HashtableField_SetsField()
