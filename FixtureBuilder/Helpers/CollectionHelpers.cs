@@ -274,7 +274,9 @@ namespace FixtureBuilder.Helpers
                     return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
                 }
 
-                else if (genericTypeDef == typeof(ReadOnlyDictionary<,>) || genericTypeDef == typeof(SortedDictionary<,>))
+                else if (genericTypeDef == typeof(ReadOnlyDictionary<,>)
+                    || genericTypeDef == typeof(SortedDictionary<,>)
+                    || genericTypeDef == typeof(SortedList<,>))
                 {
                     var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
                     var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
