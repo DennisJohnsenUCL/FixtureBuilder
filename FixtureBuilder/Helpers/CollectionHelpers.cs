@@ -210,7 +210,7 @@ namespace FixtureBuilder.Helpers
 
                     if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
                     //        else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
-                    //        else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
+                    //else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
                     else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
 
                     fieldType = concreteType.MakeGenericType(keyType, valueType);
@@ -221,38 +221,38 @@ namespace FixtureBuilder.Helpers
                 //    }
             }
 
-            //Type fieldKeyType = typeof(object);
-            //Type fieldValueType = typeof(object);
+            Type fieldKeyType = typeof(object);
+            Type fieldValueType = typeof(object);
 
             if (fieldType.IsGenericType)
             {
-                //var genericTypeDef = fieldType.GetGenericTypeDefinition();
+                var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
-                //var fieldGenArgs = fieldType.GetGenericArguments();
+                var fieldGenArgs = fieldType.GetGenericArguments();
 
-                //if (fieldGenArgs.Length == 2)
-                //{
-                //    fieldKeyType = fieldGenArgs[0];
-                //    fieldValueType = fieldGenArgs[1];
-                //}
+                if (fieldGenArgs.Length == 2)
+                {
+                    fieldKeyType = fieldGenArgs[0];
+                    fieldValueType = fieldGenArgs[1];
+                }
 
                 var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
                 if (dictionary != null) return (IEnumerable)dictionary;
 
-                //if (genericTypeDef == typeof(ImmutableDictionary<,>))
-                //{
-                //    var createRangeMethod = typeof(ImmutableDictionary)
-                //        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                //        .FirstOrDefault(m =>
-                //            m.Name == "CreateRange" &&
-                //            m.IsGenericMethodDefinition &&
-                //            m.GetParameters().Length == 1)
-                //        ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
+                if (genericTypeDef == typeof(ImmutableDictionary<,>))
+                {
+                    var createRangeMethod = typeof(ImmutableDictionary)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .FirstOrDefault(m =>
+                            m.Name == "CreateRange" &&
+                            m.IsGenericMethodDefinition &&
+                            m.GetParameters().Length == 1)
+                        ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
 
-                //    var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+                    var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
 
-                //    return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
-                //}
+                    return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
+                }
 
                 //if (genericTypeDef == typeof(FrozenDictionary<,>))
                 //{
