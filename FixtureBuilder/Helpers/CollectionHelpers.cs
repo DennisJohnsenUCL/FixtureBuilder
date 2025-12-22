@@ -288,6 +288,19 @@ namespace FixtureBuilder.Helpers
                     }
                 }
             }
+
+            if (fieldType == typeof(SortedList))
+            {
+                var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
+                var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
+                if (iDictionary != null)
+                {
+                    var readOnlyDictionary = InstantiationHelpers.UseConstructor(fieldType, iDictionary);
+                    if (readOnlyDictionary != null) return (IEnumerable)readOnlyDictionary;
+                    throw new InvalidOperationException("Failed to instantiate ReadOnlyDictionary.");
+                }
+            }
+
             throw new ApplicationException();
         }
 
