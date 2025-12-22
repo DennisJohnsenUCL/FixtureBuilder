@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace FixtureBuilder.Helpers
@@ -239,7 +240,7 @@ namespace FixtureBuilder.Helpers
                 var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
                 if (dictionary != null) return (IEnumerable)dictionary;
 
-                if (genericTypeDef == typeof(ImmutableDictionary<,>))
+                else if (genericTypeDef == typeof(ImmutableDictionary<,>))
                 {
                     var createRangeMethod = typeof(ImmutableDictionary)
                         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -254,7 +255,7 @@ namespace FixtureBuilder.Helpers
                     return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
                 }
 
-                if (genericTypeDef == typeof(FrozenDictionary<,>))
+                else if (genericTypeDef == typeof(FrozenDictionary<,>))
                 {
                     var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
                         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -267,6 +268,18 @@ namespace FixtureBuilder.Helpers
                     var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
 
                     return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
+                }
+
+                else if (genericTypeDef == typeof(ReadOnlyDictionary<,>))
+                {
+                    var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
+                    var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
+                    if (iDictionary != null)
+                    {
+                        var readOnlyDictionary = InstantiationHelpers.UseConstructor(fieldType, iDictionary);
+                        if (readOnlyDictionary != null) return (IEnumerable)readOnlyDictionary;
+                        throw new InvalidOperationException("Failed to instantiate ReadOnlyDictionary.");
+                    }
                 }
             }
             throw new ApplicationException();
