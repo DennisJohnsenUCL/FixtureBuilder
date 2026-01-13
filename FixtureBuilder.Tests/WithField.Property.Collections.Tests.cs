@@ -628,21 +628,21 @@ namespace FixtureBuilder.Tests
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
         }
 
-        class IDictionaryNonGenericClass
+        class DictionarySortedListClass
         {
-            private readonly IDictionary _iDictionary = null!;
-            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<KeyValuePair<int, string>>()];
+            private readonly Dictionary<int, string> _dictionary = null!;
+            public SortedList Dictionary => new(_dictionary);
         }
         [Test]
-        public void IDictionaryNonGenericField_SetsField()
+        public void DictionaryField_SortedListProperty_SetsField()
         {
-            var fieldName = "_iDictionary";
-            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+            var fieldName = "_dictionary";
+            var dictionary = new SortedList() { { 1, _text } };
 
-            var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var fixture = Fixture.New<DictionarySortedListClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
-            Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
+            Assert.That(field.Dictionary[1], Is.EqualTo(_text));
         }
 
         class IDictionaryClass
@@ -660,6 +660,40 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
+        }
+
+        class IDictionaryNonGenericClass
+        {
+            private readonly IDictionary _iDictionary = null!;
+            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<KeyValuePair<int, string>>()];
+        }
+        [Test]
+        public void IDictionaryNonGenericField_SetsField()
+        {
+            var fieldName = "_iDictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+
+            var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
+        }
+
+        class IDictionaryNonGenericSortedListClass
+        {
+            private readonly IDictionary _iDictionary = null!;
+            public SortedList IDictionary => new(_iDictionary);
+        }
+        [Test]
+        public void IDictionaryNonGenericField_SortedListProperty_SetsField()
+        {
+            var fieldName = "_iDictionary";
+            var dictionary = new SortedList { { 1, _text } };
+
+            var fixture = Fixture.New<IDictionaryNonGenericSortedListClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IDictionary[1], Is.EqualTo(_text));
         }
 
         class ImmutableDictionaryClass
@@ -832,6 +866,23 @@ namespace FixtureBuilder.Tests
             Assert.That(field.SortedList.Single().Value, Is.EqualTo(_text));
         }
 
+        class SortedListNonGenericHashTableClass
+        {
+            private readonly SortedList _sortedList = null!;
+            public Hashtable SortedList => new(_sortedList);
+        }
+        [Test]
+        public void SortedListNonGenericField_HashTableProperty_SetsField()
+        {
+            var fieldName = "_sortedList";
+            var sortedList = new Hashtable() { { 1, _text } };
+
+            var fixture = Fixture.New<SortedListNonGenericHashTableClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.SortedList[1], Is.EqualTo(_text));
+        }
+
         class HashtableClass
         {
             private readonly Hashtable _hashtable = null!;
@@ -847,6 +898,23 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Hashtable.Single().Value, Is.EqualTo(_text));
+        }
+
+        class HashtableSortedListClass
+        {
+            private readonly Hashtable _hashtable = null!;
+            public SortedList Hashtable => new(_hashtable);
+        }
+        [Test]
+        public void HashtableField_SortedListProperty_SetsField()
+        {
+            var fieldName = "_hashtable";
+            var dictionary = new SortedList() { { 1, _text } };
+
+            var fixture = Fixture.New<HashtableSortedListClass>().BypassConstructor().WithField(fieldName, c => c.Hashtable, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Hashtable[1], Is.EqualTo(_text));
         }
 
         class ConcurrentDictionaryClass
