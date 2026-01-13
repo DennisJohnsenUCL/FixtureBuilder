@@ -665,7 +665,7 @@ namespace FixtureBuilder.Tests
         class IDictionaryNonGenericClass
         {
             private readonly IDictionary _iDictionary = null!;
-            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<KeyValuePair<int, string>>()];
+            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<DictionaryEntry>().Select(de => new KeyValuePair<int, string>((int)de.Key, (string)de.Value!))];
         }
         [Test]
         public void IDictionaryNonGenericField_SetsField()
