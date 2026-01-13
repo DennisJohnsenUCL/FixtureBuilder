@@ -18,7 +18,7 @@ namespace FixtureBuilder.Helpers
 
             if (fieldType.IsInterface)
             {
-                fieldType = GetConcreteType(fieldType, sourceElementType);
+                fieldType = GetConcreteType(fieldType);
             }
 
             if (fieldType.IsGenericType)
@@ -50,7 +50,9 @@ namespace FixtureBuilder.Helpers
 
             else if (fieldType == typeof(ArrayList) || fieldType == typeof(Stack) || fieldType == typeof(Queue))
             {
-                var collection = InstantiationHelpers.UseConstructor(fieldType, (ICollection)values)
+                if (values is not ICollection) values = CastToArray(fieldType, values);
+
+                var collection = InstantiationHelpers.UseConstructor(fieldType, values)
                     ?? throw new InvalidOperationException($"Failed to instantiate nongeneric collection: {fieldType.Name}.");
 
                 return (IEnumerable)collection;
@@ -62,7 +64,7 @@ namespace FixtureBuilder.Helpers
         private static Array CastToArray(Type fieldType, IEnumerable values)
         {
             var valuesList = values.Cast<object>().ToList();
-            var elementType = fieldType.GetElementType()!;
+            var elementType = fieldType.GetElementType() ?? typeof(object);
             var array = Array.CreateInstance(elementType, valuesList.Count);
             for (int i = 0; i < valuesList.Count; i++)
             {
@@ -71,7 +73,7 @@ namespace FixtureBuilder.Helpers
             return array;
         }
 
-        private static Type GetConcreteType(Type interfaceType, Type? sourceElementType)
+        private static Type GetConcreteType(Type interfaceType)
         {
             Type concreteType;
 
@@ -107,13 +109,9 @@ namespace FixtureBuilder.Helpers
                     interfaceType == typeof(ICollection) ||
                     interfaceType == typeof(IEnumerable))
                 {
-                    concreteType = typeof(List<>);
+                    return typeof(ArrayList);
                 }
                 else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
-
-                if (sourceElementType == null) sourceElementType = typeof(object);
-
-                return concreteType.MakeGenericType(sourceElementType);
             }
         }
 
