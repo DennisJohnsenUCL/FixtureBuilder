@@ -180,102 +180,34 @@ namespace FixtureBuilder.Helpers
 
         public static IEnumerable CastToDictionary(Type fieldType, IEnumerable values)
         {
-            var keyValueTypes = values.GetType()
-                .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(i => i.GetGenericArguments()[0])
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                .Select(t => t.GetGenericArguments())
-                .FirstOrDefault(args => args.Length == 2);
-
-            Type sourceKeyType = typeof(object);
-            Type sourceValueType = typeof(object);
-
-            if (keyValueTypes != null)
-            {
-                sourceKeyType = keyValueTypes[0];
-                sourceValueType = keyValueTypes[1];
-            }
-
             if (fieldType.IsInterface)
             {
-                Type concreteType;
-
-                if (fieldType.IsGenericType)
-                {
-                    var genericTypeDef = fieldType.GetGenericTypeDefinition();
-                    var keyType = fieldType.GetGenericArguments()[0];
-                    var valueType = fieldType.GetGenericArguments()[1];
-
-                    if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
-                    else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
-                    else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
-                    else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
-
-                    fieldType = concreteType.MakeGenericType(keyType, valueType);
-                }
-                else if (fieldType == typeof(IDictionary))
-                {
-                    fieldType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-                }
+                fieldType = GetConcreteDictionaryType(fieldType);
             }
-
-            Type fieldKeyType = typeof(object);
-            Type fieldValueType = typeof(object);
 
             if (fieldType.IsGenericType)
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
-
-                var fieldGenArgs = fieldType.GetGenericArguments();
-
-                if (fieldGenArgs.Length == 2)
-                {
-                    fieldKeyType = fieldGenArgs[0];
-                    fieldValueType = fieldGenArgs[1];
-                }
 
                 var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
                 if (dictionary != null) return (IEnumerable)dictionary;
 
                 else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
-                    var factoryTypeName = genericTypeDef.FullName!.Replace("`2", "");
-                    var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
-                        ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}.");
-
-                    var createRangeMethod = factoryType
-                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .FirstOrDefault(m =>
-                            m.Name == "CreateRange" &&
-                            m.IsGenericMethodDefinition &&
-                            m.GetParameters().Length == 1)
-                        ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
-
-                    var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
-
-                    return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
+                    return CastToImmutableDictionary(fieldType, values);
                 }
 
                 else if (genericTypeDef == typeof(FrozenDictionary<,>))
                 {
-                    var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
-                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .FirstOrDefault(m =>
-                            m.Name == "ToFrozenDictionary" &&
-                            m.IsGenericMethodDefinition &&
-                            m.GetParameters().Length == 2)
-                        ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
-
-                    var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
-
-                    return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
+                    return CastToFrozenDictionary(fieldType, values);
                 }
 
                 else if (genericTypeDef == typeof(ReadOnlyDictionary<,>)
                     || genericTypeDef == typeof(SortedDictionary<,>)
                     || genericTypeDef == typeof(SortedList<,>))
                 {
+                    var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
+
                     var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
                     var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
                     if (iDictionary != null)
@@ -289,16 +221,9 @@ namespace FixtureBuilder.Helpers
 
             else if (fieldType == typeof(SortedList) || fieldType == typeof(Hashtable))
             {
-                var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-                var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
-                if (dictionary != null)
-                {
-                    var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, dictionary);
-                    if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
-                    throw new InvalidOperationException("Failed to instantiate ReadOnlyDictionary.");
-                }
+                return CastToNonGenericDictionary(fieldType, values);
             }
-            throw new InvalidOperationException($"Failed to cast to collection type: {fieldType.Name}");
+            throw new InvalidOperationException($"Failed to cast to dictionary type: {fieldType.Name}");
         }
 
         public static bool IsDictionary(Type fieldType)
@@ -316,6 +241,116 @@ namespace FixtureBuilder.Helpers
             }
             else if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
             return false;
+        }
+
+        private static Type GetConcreteDictionaryType(Type fieldType)
+        {
+            Type concreteType;
+
+            if (fieldType.IsGenericType)
+            {
+                var genericTypeDef = fieldType.GetGenericTypeDefinition();
+                var keyType = fieldType.GetGenericArguments()[0];
+                var valueType = fieldType.GetGenericArguments()[1];
+
+                if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
+                else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
+                else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
+                else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
+
+                return concreteType.MakeGenericType(keyType, valueType);
+            }
+            else if (fieldType == typeof(IDictionary))
+            {
+                return typeof(Hashtable);
+            }
+            else throw new InvalidOperationException($"Unsupported dictionary interface type {fieldType.Name}");
+        }
+
+        private static (Type fieldKeyType, Type fieldValueType) GetFieldKeyValueTypes(Type fieldType)
+        {
+            Type fieldKeyType = typeof(object);
+            Type fieldValueType = typeof(object);
+
+            var fieldGenArgs = fieldType.GetGenericArguments();
+
+            if (fieldGenArgs.Length == 2)
+            {
+                fieldKeyType = fieldGenArgs[0];
+                fieldValueType = fieldGenArgs[1];
+            }
+
+            return (fieldKeyType, fieldValueType);
+        }
+
+        private static IEnumerable CastToImmutableDictionary(Type fieldType, IEnumerable values)
+        {
+            var genericTypeDef = fieldType.GetGenericTypeDefinition();
+
+            var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
+
+            var factoryTypeName = genericTypeDef.FullName!.Replace("`2", "");
+            var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
+                ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}.");
+
+            var createRangeMethod = factoryType
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .FirstOrDefault(m =>
+                    m.Name == "CreateRange" &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 1)
+                ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
+
+            var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+
+            return (IEnumerable)genericCreateRange.Invoke(null, [values])!;
+        }
+
+        private static IEnumerable CastToFrozenDictionary(Type fieldType, IEnumerable values)
+        {
+            var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
+
+            var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .FirstOrDefault(m =>
+                    m.Name == "ToFrozenDictionary" &&
+                    m.IsGenericMethodDefinition &&
+                    m.GetParameters().Length == 2)
+                ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
+
+            var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+
+            return (IEnumerable)genericToFrozenDictionary.Invoke(null, [values, null])!;
+        }
+
+        private static IEnumerable CastToNonGenericDictionary(Type fieldType, IEnumerable values)
+        {
+            var keyValueTypes = values.GetType()
+                .GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(i => i.GetGenericArguments()[0])
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                .Select(t => t.GetGenericArguments())
+                .FirstOrDefault(args => args.Length == 2);
+
+            Type sourceKeyType = typeof(object);
+            Type sourceValueType = typeof(object);
+
+            if (keyValueTypes != null)
+            {
+                sourceKeyType = keyValueTypes[0];
+                sourceValueType = keyValueTypes[1];
+            }
+
+            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
+            var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
+            if (dictionary != null)
+            {
+                var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, dictionary);
+                if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
+                throw new InvalidOperationException("Failed to instantiate non-generic Dictionary.");
+            }
+            throw new InvalidOperationException($"Failed to cast to non-generic dictionary type: {fieldType.Name}");
         }
     }
 }
