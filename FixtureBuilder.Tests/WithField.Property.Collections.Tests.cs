@@ -25,6 +25,22 @@ namespace FixtureBuilder.Tests
             Assert.That(field.List.Single(), Is.EqualTo(_text));
         }
 
+        class ListArrayListClass
+        {
+            private readonly List<string> _list = null!;
+            public ArrayList List => new(_list);
+        }
+        [Test]
+        public void ListField_ArrayListProperty_SetsField()
+        {
+            var fieldName = "_list";
+
+            var fixture = Fixture.New<ListClass>().BypassConstructor().WithField(fieldName, c => c.List, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.Single(), Is.EqualTo(_text));
+        }
+
         class IReadOnlyListClass
         {
             private readonly IReadOnlyList<string> _iReadOnlyList = null!;
@@ -102,6 +118,21 @@ namespace FixtureBuilder.Tests
             var fixture = Fixture.New<IListNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IList, [_text]);
             var field = Helpers.GetFixture(fixture);
             Assert.That(field.IList.Single(), Is.EqualTo(_text));
+        }
+
+        class IListNonGenericStackClass
+        {
+            private readonly IList _iList = null!;
+            public Stack IList => new(_iList);
+        }
+        [Test]
+        public void IListNonGenericField_StackProperty_SetsField()
+        {
+            var fieldName = "_iList";
+
+            var fixture = Fixture.New<IListNonGenericStackClass>().BypassConstructor().WithField(fieldName, c => c.IList, new Stack(new List<string>([_text])));
+            var field = Helpers.GetFixture(fixture);
+            Assert.That(field.IList.Peek(), Is.EqualTo(_text));
         }
 
         class ConcurrentBagClass
@@ -365,6 +396,22 @@ namespace FixtureBuilder.Tests
 
             Assert.That(field.ICollection.Single(), Is.EqualTo(_text));
         }
+
+        class ICollectionNonGenericStackClass
+        {
+            private readonly ICollection _iCollection = null!;
+            public ArrayList ICollection => new(_iCollection);
+        }
+        [Test]
+        public void ICollectionNonGenericField_StackProperty_SetsField()
+        {
+            var fieldName = "_iCollection";
+
+            var fixture = Fixture.New<ICollectionNonGenericStackClass>().BypassConstructor().WithField(fieldName, c => c.ICollection, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ICollection.ToArray().First(), Is.EqualTo(_text));
+        }
         #endregion
 
         #region Stacks
@@ -430,6 +477,22 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Stack.Single(), Is.EqualTo(_text));
+        }
+
+        class StackNonGenericArrayListClass
+        {
+            private readonly Stack _stack = null!;
+            public ArrayList Stack => new(_stack);
+        }
+        [Test]
+        public void StackNonGenericField_ArrayListProperty_SetsField()
+        {
+            var fieldName = "_stack";
+
+            var fixture = Fixture.New<StackNonGenericArrayListClass>().BypassConstructor().WithField(fieldName, c => c.Stack, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Stack.ToArray().First(), Is.EqualTo(_text));
         }
 
         class ConcurrentStackClass
@@ -512,6 +575,22 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Queue.Single(), Is.EqualTo(_text));
+        }
+
+        class QueueNonGenericArrayListClass
+        {
+            private readonly Queue _queue = null!;
+            public ArrayList Queue => new(_queue);
+        }
+        [Test]
+        public void QueueNonGenericField_ArrayListProperty_SetsField()
+        {
+            var fieldName = "_queue";
+
+            var fixture = Fixture.New<QueueNonGenericArrayListClass>().BypassConstructor().WithField(fieldName, c => c.Queue, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Queue.ToArray().Single(), Is.EqualTo(_text));
         }
 
         class ConcurrentQueueClass
@@ -819,6 +898,22 @@ namespace FixtureBuilder.Tests
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IEnumerable.Cast<string>().Single(), Is.EqualTo(_text));
+        }
+
+        class IEnumerableNonGenericArrayListClass
+        {
+            private readonly IEnumerable _iEnumerable = null!;
+            public ArrayList IEnumerable => new(Enumerable.Cast<object>(_iEnumerable).ToList());
+        }
+        [Test]
+        public void IEnumerableNonGenericField_ArrayListProperty_SetsField()
+        {
+            var fieldName = "_iEnumerable";
+
+            var fixture = Fixture.New<IEnumerableNonGenericArrayListClass>().BypassConstructor().WithField(fieldName, c => c.IEnumerable, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.IEnumerable.ToArray().Single(), Is.EqualTo(_text));
         }
         #endregion
 
