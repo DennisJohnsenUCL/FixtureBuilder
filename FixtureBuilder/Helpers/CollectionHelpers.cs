@@ -180,6 +180,8 @@ namespace FixtureBuilder.Helpers
 
         public static IEnumerable CastToDictionary(Type fieldType, IEnumerable values)
         {
+            var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
+
             if (fieldType.IsInterface)
             {
                 fieldType = GetConcreteDictionaryType(fieldType);
@@ -187,6 +189,14 @@ namespace FixtureBuilder.Helpers
 
             if (fieldType.IsGenericType)
             {
+                if (!values.GetType().IsGenericType)
+                {
+                    var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
+                    foreach (DictionaryEntry de in values)
+                        dict.Add(Convert.ChangeType(de.Key, fieldKeyType), Convert.ChangeType(de.Value, fieldValueType));
+                    values = dict;
+                }
+
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
                 var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
@@ -206,8 +216,6 @@ namespace FixtureBuilder.Helpers
                     || genericTypeDef == typeof(SortedDictionary<,>)
                     || genericTypeDef == typeof(SortedList<,>))
                 {
-                    var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
-
                     var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
                     var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
                     if (iDictionary != null)
@@ -325,30 +333,38 @@ namespace FixtureBuilder.Helpers
 
         private static IEnumerable CastToNonGenericDictionary(Type fieldType, IEnumerable values)
         {
-            var keyValueTypes = values.GetType()
-                .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(i => i.GetGenericArguments()[0])
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                .Select(t => t.GetGenericArguments())
-                .FirstOrDefault(args => args.Length == 2);
-
-            Type sourceKeyType = typeof(object);
-            Type sourceValueType = typeof(object);
-
-            if (keyValueTypes != null)
+            if (values is IDictionary)
             {
-                sourceKeyType = keyValueTypes[0];
-                sourceValueType = keyValueTypes[1];
+                var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, values);
+                if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
             }
 
-            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-            var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
-            if (dictionary != null)
+            else
             {
-                var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, dictionary);
-                if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
-                throw new InvalidOperationException("Failed to instantiate non-generic Dictionary.");
+                var keyValueTypes = values.GetType()
+                    .GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    .Select(i => i.GetGenericArguments()[0])
+                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                    .Select(t => t.GetGenericArguments())
+                    .FirstOrDefault(args => args.Length == 2);
+
+                Type sourceKeyType = typeof(object);
+                Type sourceValueType = typeof(object);
+
+                if (keyValueTypes != null)
+                {
+                    sourceKeyType = keyValueTypes[0];
+                    sourceValueType = keyValueTypes[1];
+                }
+
+                var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
+                var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
+                if (dictionary != null)
+                {
+                    var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, dictionary);
+                    if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
+                }
             }
             throw new InvalidOperationException($"Failed to cast to non-generic dictionary type: {fieldType.Name}");
         }
