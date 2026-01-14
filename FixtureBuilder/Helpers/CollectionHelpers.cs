@@ -2,6 +2,7 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FixtureBuilder.Helpers
@@ -188,20 +189,11 @@ namespace FixtureBuilder.Helpers
             if (fieldType.IsGenericType)
             {
                 var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
+                var (sourceKeyType, sourceValueType) = GetSourceKeyValueTypes(values);
 
-                var sourceType = values.GetType();
-
-                //TODO: Method to cast to field kvp types if not identical
-
-                //TODO: else do this below. Maybe combine with incompatible above, same strategy, since this casts
-                // And there probably is not a better way of casting
-
-                if (!sourceType.IsGenericType)
+                if (fieldKeyType != sourceKeyType || fieldValueType != sourceValueType)
                 {
-                    var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
-                    foreach (DictionaryEntry de in values)
-                        dict.Add(Convert.ChangeType(de.Key, fieldKeyType), Convert.ChangeType(de.Value, fieldValueType));
-                    values = dict;
+                    values = CastDictionaryElements(fieldKeyType, fieldValueType, values);
                 }
 
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
@@ -224,6 +216,7 @@ namespace FixtureBuilder.Helpers
                     || genericTypeDef == typeof(SortedList<,>))
                 {
                     //TODO: Method for this, unify with nongeneric?
+                    //TODO: Or cast to IDictionary earlier in the process, then these can be removed entirely?
 
                     var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
                     var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
@@ -262,6 +255,30 @@ namespace FixtureBuilder.Helpers
             //    return true;
 
             return false;
+        }
+
+        private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values)
+        {
+            var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
+            Func<object, (object Key, object Value)>? getter = null;
+            foreach (object item in values)
+            {
+                object key;
+                object value;
+
+                if (item is DictionaryEntry de)
+                {
+                    key = de.Key;
+                    value = de.Value!;
+                }
+                else
+                {
+                    getter ??= MakeKeyValueGetter(item.GetType());
+                    (key, value) = getter(item);
+                }
+                dict.Add(Convert.ChangeType(key, fieldKeyType), Convert.ChangeType(value, fieldValueType));
+            }
+            return dict;
         }
 
         private static Type GetConcreteDictionaryType(Type fieldType)
@@ -306,6 +323,9 @@ namespace FixtureBuilder.Helpers
 
         private static (Type sourceKeyType, Type sourceValueType) GetSourceKeyValueTypes(IEnumerable values)
         {
+            Type sourceKeyType = typeof(object);
+            Type sourceValueType = typeof(object);
+
             var keyValueTypes = values.GetType()
                 .GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
@@ -313,9 +333,6 @@ namespace FixtureBuilder.Helpers
                 .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                 .Select(t => t.GetGenericArguments())
                 .FirstOrDefault(args => args.Length == 2);
-
-            Type sourceKeyType = typeof(object);
-            Type sourceValueType = typeof(object);
 
             if (keyValueTypes != null)
             {
@@ -387,6 +404,40 @@ namespace FixtureBuilder.Helpers
                 }
             }
             throw new InvalidOperationException($"Failed to cast to non-generic dictionary type: {fieldType.Name}");
+        }
+
+        private static Func<object, (object Key, object Value)> MakeKeyValueGetter(Type pairType)
+        {
+            // Parameter: object boxedItem
+            var param = Expression.Parameter(typeof(object), "item");
+
+            // Unbox (cast) to original type
+            var cast = Expression.Convert(param, pairType);
+
+            // Get Key property
+            var keyProp = pairType.GetProperty("Key", BindingFlags.Instance | BindingFlags.Public);
+            var valProp = pairType.GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
+
+            if (keyProp == null || valProp == null)
+                throw new ArgumentException("Type does not have Key/Value props");
+
+            // Access properties
+            var keyExpr = Expression.Property(cast, keyProp);
+            var valExpr = Expression.Property(cast, valProp);
+
+            // Box to object
+            var keyBox = Expression.Convert(keyExpr, typeof(object));
+            var valBox = Expression.Convert(valExpr, typeof(object));
+
+            // Create tuple (object, object)
+            var tuple = Expression.New(
+                typeof(ValueTuple<object, object>).GetConstructor([typeof(object), typeof(object)])!,
+                keyBox, valBox);
+
+            // Lambda: object item => (object)item.Key, (object)item.Value
+            var lambda = Expression.Lambda<Func<object, (object, object)>>(tuple, param);
+
+            return lambda.Compile();
         }
     }
 }
