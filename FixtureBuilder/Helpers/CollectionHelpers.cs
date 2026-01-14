@@ -211,25 +211,20 @@ namespace FixtureBuilder.Helpers
                     return CastToFrozenDictionary(fieldType, values);
                 }
 
-                else if (genericTypeDef == typeof(ReadOnlyDictionary<,>)
-                    || genericTypeDef == typeof(SortedDictionary<,>)
-                    || genericTypeDef == typeof(SortedList<,>))
+                else
                 {
-                    //TODO: Method for this, unify with nongeneric?
-                    //TODO: Or cast to IDictionary earlier in the process, then these can be removed entirely?
-
-                    var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
-                    var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
-                    if (iDictionary != null)
+                    if (values is not IDictionary)
                     {
-                        var readOnlyDictionary = InstantiationHelpers.UseConstructor(fieldType, iDictionary);
-                        if (readOnlyDictionary != null) return (IEnumerable)readOnlyDictionary;
-                        throw new InvalidOperationException("Failed to instantiate ReadOnlyDictionary.");
+                        var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
+                        values = (IEnumerable)InstantiationHelpers.UseConstructor(iDictionaryType, values)!;
                     }
+                    var readOnlyDictionary = InstantiationHelpers.UseConstructor(fieldType, values);
+                    if (readOnlyDictionary != null) return (IEnumerable)readOnlyDictionary;
+                    throw new InvalidOperationException("Failed to instantiate ReadOnlyDictionary.");
                 }
             }
 
-            else if (fieldType == typeof(SortedList) || fieldType == typeof(Hashtable))
+            else
             {
                 return CastToNonGenericDictionary(fieldType, values);
             }
@@ -240,7 +235,7 @@ namespace FixtureBuilder.Helpers
         {
             if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
 
-            else if (fieldType.IsGenericType)
+            else if (fieldType.IsInterface && fieldType.IsGenericType)
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
@@ -250,35 +245,24 @@ namespace FixtureBuilder.Helpers
                     return true;
             }
 
-            //var genericInterfaces = fieldType.GetInterfaces().Where(i => i.IsGenericType).Select(i => i.GetGenericTypeDefinition());
-            //if (genericInterfaces.Contains(typeof(IDictionary<,>)) || genericInterfaces.Contains(typeof(IReadOnlyDictionary<,>)))
-            //    return true;
-
             return false;
         }
 
         private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values)
         {
-            var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
-            Func<object, (object Key, object Value)>? getter = null;
-            foreach (object item in values)
+            var enumerator = values.GetEnumerator();
+            if (enumerator.MoveNext())
             {
-                object key;
-                object value;
-
-                if (item is DictionaryEntry de)
+                var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
+                var getter = MakeKeyValueGetter(enumerator.Current.GetType());
+                do
                 {
-                    key = de.Key;
-                    value = de.Value!;
-                }
-                else
-                {
-                    getter ??= MakeKeyValueGetter(item.GetType());
-                    (key, value) = getter(item);
-                }
-                dict.Add(Convert.ChangeType(key, fieldKeyType), Convert.ChangeType(value, fieldValueType));
+                    var (key, value) = getter(enumerator.Current);
+                    dict.Add(Convert.ChangeType(key, fieldKeyType), Convert.ChangeType(value, fieldValueType));
+                } while (enumerator.MoveNext());
+                values = dict;
             }
-            return dict;
+            return values;
         }
 
         private static Type GetConcreteDictionaryType(Type fieldType)
@@ -385,24 +369,16 @@ namespace FixtureBuilder.Helpers
 
         private static IEnumerable CastToNonGenericDictionary(Type fieldType, IEnumerable values)
         {
-            if (values is IDictionary)
-            {
-                var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, values);
-                if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
-            }
-
-            else
+            if (values is not IDictionary)
             {
                 var (sourceKeyType, sourceValueType) = GetSourceKeyValueTypes(values);
-
                 var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-                var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
-                if (dictionary != null)
-                {
-                    var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, dictionary);
-                    if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
-                }
+
+                values = (IEnumerable)InstantiationHelpers.UseConstructor(dictionaryType, values)!;
             }
+
+            var nonGenericDictionary = InstantiationHelpers.UseConstructor(fieldType, values);
+            if (nonGenericDictionary != null) return (IEnumerable)nonGenericDictionary;
             throw new InvalidOperationException($"Failed to cast to non-generic dictionary type: {fieldType.Name}");
         }
 
