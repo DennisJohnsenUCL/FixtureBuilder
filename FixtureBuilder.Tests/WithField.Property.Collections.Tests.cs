@@ -628,6 +628,40 @@ namespace FixtureBuilder.Tests
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
         }
 
+        class DictionaryObjectClass
+        {
+            private readonly Dictionary<object, object> _dictionary = null!;
+            public List<KeyValuePair<int, string>> Dictionary => [.. _dictionary.Select(kvp => new KeyValuePair<int, string>((int)kvp.Key, (string)kvp.Value))];
+        }
+        [Test]
+        public void DictionaryField_ObjectGenericParameters_SetsField()
+        {
+            var fieldName = "_dictionary";
+            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
+
+            var fixture = Fixture.New<DictionaryObjectClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
+        }
+
+        class DictionaryTypedClass
+        {
+            private readonly Dictionary<int, string> _dictionary = null!;
+            public List<KeyValuePair<object, object>> Dictionary => [.. _dictionary.Select(kvp => new KeyValuePair<object, object>(kvp.Key, kvp.Value))];
+        }
+        [Test]
+        public void DictionaryField_ObjectListTyping_SetsField()
+        {
+            var fieldName = "_dictionary";
+            var dictionary = new List<KeyValuePair<object, object>>([new KeyValuePair<object, object>(1, _text)]);
+
+            var fixture = Fixture.New<DictionaryTypedClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
+        }
+
         class DictionarySortedListClass
         {
             private readonly Dictionary<int, string> _dictionary = null!;
