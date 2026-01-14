@@ -180,8 +180,6 @@ namespace FixtureBuilder.Helpers
 
         public static IEnumerable CastToDictionary(Type fieldType, IEnumerable values)
         {
-            var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
-
             if (fieldType.IsInterface)
             {
                 fieldType = GetConcreteDictionaryType(fieldType);
@@ -189,7 +187,16 @@ namespace FixtureBuilder.Helpers
 
             if (fieldType.IsGenericType)
             {
-                if (!values.GetType().IsGenericType)
+                var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
+
+                var sourceType = values.GetType();
+
+                //TODO: Method to cast to field kvp types if not identical
+
+                //TODO: else do this below. Maybe combine with incompatible above, same strategy, since this casts
+                // And there probably is not a better way of casting
+
+                if (!sourceType.IsGenericType)
                 {
                     var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
                     foreach (DictionaryEntry de in values)
@@ -216,6 +223,8 @@ namespace FixtureBuilder.Helpers
                     || genericTypeDef == typeof(SortedDictionary<,>)
                     || genericTypeDef == typeof(SortedList<,>))
                 {
+                    //TODO: Method for this, unify with nongeneric?
+
                     var iDictionaryType = typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType);
                     var iDictionary = InstantiationHelpers.UseConstructor(iDictionaryType, values);
                     if (iDictionary != null)
@@ -236,18 +245,22 @@ namespace FixtureBuilder.Helpers
 
         public static bool IsDictionary(Type fieldType)
         {
-            var genericInterfaces = fieldType.GetInterfaces().Where(i => i.IsGenericType).Select(i => i.GetGenericTypeDefinition());
-            if (genericInterfaces.Contains(typeof(IDictionary<,>)) || genericInterfaces.Contains(typeof(IReadOnlyDictionary<,>)))
-                return true;
+            if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
 
             else if (fieldType.IsGenericType)
             {
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
-                if (genericTypeDef == typeof(IDictionary<,>) || genericTypeDef == typeof(IReadOnlyDictionary<,>))
+                if (genericTypeDef == typeof(IDictionary<,>) ||
+                    genericTypeDef == typeof(IReadOnlyDictionary<,>) ||
+                    genericTypeDef == typeof(IImmutableDictionary<,>))
                     return true;
             }
-            else if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
+
+            //var genericInterfaces = fieldType.GetInterfaces().Where(i => i.IsGenericType).Select(i => i.GetGenericTypeDefinition());
+            //if (genericInterfaces.Contains(typeof(IDictionary<,>)) || genericInterfaces.Contains(typeof(IReadOnlyDictionary<,>)))
+            //    return true;
+
             return false;
         }
 
@@ -289,6 +302,28 @@ namespace FixtureBuilder.Helpers
             }
 
             return (fieldKeyType, fieldValueType);
+        }
+
+        private static (Type sourceKeyType, Type sourceValueType) GetSourceKeyValueTypes(IEnumerable values)
+        {
+            var keyValueTypes = values.GetType()
+                .GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(i => i.GetGenericArguments()[0])
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                .Select(t => t.GetGenericArguments())
+                .FirstOrDefault(args => args.Length == 2);
+
+            Type sourceKeyType = typeof(object);
+            Type sourceValueType = typeof(object);
+
+            if (keyValueTypes != null)
+            {
+                sourceKeyType = keyValueTypes[0];
+                sourceValueType = keyValueTypes[1];
+            }
+
+            return (sourceKeyType, sourceValueType);
         }
 
         private static IEnumerable CastToImmutableDictionary(Type fieldType, IEnumerable values)
@@ -341,22 +376,7 @@ namespace FixtureBuilder.Helpers
 
             else
             {
-                var keyValueTypes = values.GetType()
-                    .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    .Select(i => i.GetGenericArguments()[0])
-                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                    .Select(t => t.GetGenericArguments())
-                    .FirstOrDefault(args => args.Length == 2);
-
-                Type sourceKeyType = typeof(object);
-                Type sourceValueType = typeof(object);
-
-                if (keyValueTypes != null)
-                {
-                    sourceKeyType = keyValueTypes[0];
-                    sourceValueType = keyValueTypes[1];
-                }
+                var (sourceKeyType, sourceValueType) = GetSourceKeyValueTypes(values);
 
                 var dictionaryType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
                 var dictionary = InstantiationHelpers.UseConstructor(dictionaryType, values);
