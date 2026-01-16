@@ -102,12 +102,8 @@ namespace FixtureBuilder
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
-            var sourceType = value?.GetType();
-
-            if (value != null && (fieldInfo.FieldType != sourceType || !fieldInfo.FieldType.IsAssignableFrom(sourceType)))
-                throw new InvalidOperationException($"{sourceType?.Name} cannot be assigned to {fieldName} of type {fieldInfo.FieldType.Name}.");
-
-            fieldInfo.SetValue(_fixture, value);
+            try { fieldInfo.SetValue(_fixture, value); }
+            catch (Exception ex) { throw new InvalidOperationException($"Failed to assign {value} to field {fieldName}", ex); }
 
             return this;
         }
@@ -157,6 +153,7 @@ namespace FixtureBuilder
             var fieldType = backingField.FieldType;
             var sourceType = value?.GetType();
 
+            //TODO: Check for IEnumerable and not assignable first, then try-catch setting it
             if (fieldType != sourceType
                 && !fieldType.IsAssignableFrom(sourceType)
                 && fieldType != typeof(string)
