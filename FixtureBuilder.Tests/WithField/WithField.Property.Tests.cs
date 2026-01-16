@@ -1,7 +1,10 @@
-﻿namespace FixtureBuilder.Tests
+﻿namespace FixtureBuilder.Tests.WithField
 {
-    internal sealed partial class WithFieldTests
+    internal sealed class WithFieldPropertyTests
     {
+        private readonly static string _text = "Test string";
+        private readonly static int _number = 123;
+
         [Test]
         public void RecordProperty_SetsProperty()
         {
@@ -75,11 +78,6 @@
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().BypassConstructor().WithField(t => t.Text.Length, _number));
         }
 
-        class ExplicitBackingFieldClass
-        {
-            private readonly string _text = null!;
-            public string Text => _text;
-        }
         [Test]
         public void ExplicitBackingField_SetsProperty()
         {

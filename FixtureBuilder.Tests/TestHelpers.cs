@@ -24,6 +24,12 @@ namespace FixtureBuilder.Tests
         public NestedClass NestedClass { get; set; } = null!;
     }
 
+    class ExplicitBackingFieldClass
+    {
+        private readonly string _text = null!;
+        public string Text => _text;
+    }
+
     record TestRecord(string Text, int Number);
 
     internal class DerivedTestClass : TestClass
