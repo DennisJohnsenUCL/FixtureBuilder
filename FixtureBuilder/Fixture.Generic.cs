@@ -102,6 +102,9 @@ namespace FixtureBuilder
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
+            if (value == null && fieldInfo.FieldType.IsValueType && !(fieldInfo.FieldType.IsGenericType && fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
+
             try { fieldInfo.SetValue(_fixture, value); }
             catch (Exception ex) { throw new InvalidOperationException($"Failed to assign {value} to field {fieldName}", ex); }
 
