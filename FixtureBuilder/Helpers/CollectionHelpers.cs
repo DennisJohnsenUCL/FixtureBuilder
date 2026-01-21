@@ -258,7 +258,7 @@ namespace FixtureBuilder.Helpers
                 do
                 {
                     var (key, value) = getter(enumerator.Current);
-                    dict.Add(Convert.ChangeType(key, fieldKeyType), Convert.ChangeType(value, fieldValueType));
+                    dict.Add(key, value);
                 } while (enumerator.MoveNext());
                 values = dict;
             }
