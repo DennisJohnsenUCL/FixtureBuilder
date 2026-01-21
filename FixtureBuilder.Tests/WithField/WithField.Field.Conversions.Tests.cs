@@ -118,6 +118,16 @@
         }
 
         [Test]
+        public void NonNullableValueTypeField_NullableValueTypeValue_()
+        {
+            var fieldName = "NonNullableInt";
+
+            var fixture = Fixture.New<ValueTypesClass>().BypassConstructor();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField<int?>(fieldName, null));
+        }
+
+        [Test]
         public void NullableValueTypeField_NonNullableValueTypeValue_SetsField()
         {
             var fieldName = "NullableInt";
