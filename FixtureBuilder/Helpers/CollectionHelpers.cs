@@ -161,12 +161,12 @@ namespace FixtureBuilder.Helpers
             var typedList = typeof(Enumerable)
                 .GetMethod("Cast")!
                 .MakeGenericMethod(elementType)
-                .Invoke(null, [values]) as IEnumerable
-                ?? throw new InvalidOperationException($"Failed to cast values to IEnumerable<{elementType.Name}>");
-            return typedList;
+                .Invoke(null, [values])!;
+
+            return (IEnumerable)typedList;
         }
 
-        private static bool ElementTypeIsAssignable(Type fieldType, Type elementType)
+        private static bool ElementTypeIsAssignable(Type fieldType, Type sourceElementType)
         {
             if (!typeof(IEnumerable).IsAssignableFrom(fieldType)) return false;
 
@@ -175,7 +175,7 @@ namespace FixtureBuilder.Helpers
             else if (fieldType.IsArray) fieldElementType = fieldType.GetElementType();
             else return true;
 
-            if (fieldElementType != null && (fieldElementType == elementType || fieldElementType.IsAssignableFrom(elementType))) return true;
+            if (fieldElementType != null && (fieldElementType == sourceElementType || fieldElementType.IsAssignableFrom(sourceElementType))) return true;
             else return false;
         }
 

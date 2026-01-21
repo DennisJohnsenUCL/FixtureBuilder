@@ -102,11 +102,17 @@ namespace FixtureBuilder
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
 
-            if (value == null && fieldInfo.FieldType.IsValueType && !(fieldInfo.FieldType.IsGenericType && fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            var fieldType = fieldInfo.FieldType;
+
+            if (value == null && fieldType.IsValueType && !(fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
 
-            try { fieldInfo.SetValue(_fixture, value); }
-            catch (Exception ex) { throw new InvalidOperationException($"Failed to assign {value} to field {fieldName}", ex); }
+            var sourceType = value?.GetType();
+            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
+            {
+                fieldInfo.SetValue(_fixture, value);
+            }
+            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
 
             return this;
         }
@@ -154,12 +160,17 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
             var fieldType = backingField.FieldType;
+
+            if (value == null && fieldType.IsValueType && !(fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                throw new InvalidOperationException("Cannot assign null to a non-nullable value type.");
+
             var sourceType = value?.GetType();
 
-            //TODO: Check for IEnumerable and not assignable first, then try-catch setting it
-            if (fieldType != sourceType
-                && !fieldType.IsAssignableFrom(sourceType)
-                && fieldType != typeof(string)
+            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
+            {
+                backingField.SetValue(instance, value);
+            }
+            else if (fieldType != typeof(string)
                 && value != null
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
@@ -167,12 +178,10 @@ namespace FixtureBuilder
                 IEnumerable collection;
                 if (CollectionHelpers.IsDictionary(fieldType)) collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
                 else collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
+
                 backingField.SetValue(instance, collection);
             }
-            else
-            {
-                backingField.SetValue(instance, value);
-            }
+            else throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}");
 
             return this;
         }
