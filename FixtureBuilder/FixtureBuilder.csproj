@@ -11,21 +11,23 @@
 		<Authors>Dennis Johnsen</Authors>
 		<Description>Provides advanced fixture creation and configuration utilities for .NET unit testing, supporting construction and setup of entities—including setting fields, properties, and bypassing constructors.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<Title>FixtureBuilder</Title>
 		<PackageId>FixtureBuilder</PackageId>
 		<Company>$(Authors)</Company>
-		<AssemblyVersion>1.0.3</AssemblyVersion>
-		<FileVersion>1.0.3</FileVersion>
+		<AssemblyVersion>1.0.4</AssemblyVersion>
+		<FileVersion>1.0.4</FileVersion>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
-		<PackageReleaseNotes>Added better detection of nullability of reference types.</PackageReleaseNotes>
+		<PackageReleaseNotes>- Added .NET 10 as a target framework for compatibility.
+- Optimized instantiation of members when constructing fixture.
+- Added support for more types of collections when setting backing fields for properties of differing types with WithField.
+- Fixed errors related to setting nullable value type fields with WithField.</PackageReleaseNotes>
+		<PackageProjectUrl>https://www.nuget.org/packages/FixtureBuilder</PackageProjectUrl>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <None Update="readme.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="readme.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
 
 </Project>
