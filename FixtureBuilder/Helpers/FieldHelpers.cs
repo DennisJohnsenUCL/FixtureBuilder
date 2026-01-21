@@ -22,14 +22,20 @@ namespace FixtureBuilder.Helpers
 
         public static bool TryGetPropertyBackingField<TEntity>(PropertyInfo property, string? fieldName, out FieldInfo backingField)
         {
-            var fieldNames = fieldName == null ? GetCommonFieldNames(property.Name) : [fieldName];
             var declaringType = property.DeclaringType;
+            string[] fieldNames;
 
-            if (declaringType != null && declaringType.IsInterface)
+            if (fieldName == null)
             {
-                var explicitFieldName = $"<{declaringType.FullName}.{property.Name}>k__BackingField";
-                fieldNames = [explicitFieldName, .. fieldNames];
+                fieldNames = GetCommonFieldNames(property.Name);
+
+                if (declaringType != null && declaringType.IsInterface)
+                {
+                    var explicitFieldName = $"<{declaringType.FullName}.{property.Name}>k__BackingField";
+                    fieldNames = [explicitFieldName, .. fieldNames];
+                }
             }
+            else fieldNames = [fieldName];
 
             if (TryGetField(typeof(TEntity), fieldNames, out backingField)) { }
             else if (declaringType != null && TryGetField(declaringType, fieldNames, out backingField)) { }
