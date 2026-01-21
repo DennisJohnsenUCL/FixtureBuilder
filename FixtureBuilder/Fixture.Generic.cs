@@ -16,7 +16,7 @@ namespace FixtureBuilder
         /// <returns>The configured fixture instance of type <typeparamref name="TEntity"/>.</returns>
         TEntity IFixtureConfigurator<TEntity>.Build()
         {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            _fixture ??= InstantiateFixture();
 
             return _fixture;
         }
@@ -78,7 +78,7 @@ namespace FixtureBuilder
         /// <exception cref="InvalidCastException"/>
         IFixtureConfigurator<TTarget> IFixtureConfigurator<TEntity>.CastTo<TTarget>()
         {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            _fixture ??= InstantiateFixture();
 
             if (_fixture is not TTarget target)
                 throw new InvalidCastException($"Cannot cast {typeof(TEntity).Name} to {typeof(TTarget).Name}.");
@@ -97,7 +97,7 @@ namespace FixtureBuilder
         /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, T value)
         {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            _fixture ??= InstantiateFixture();
 
             if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
@@ -146,7 +146,7 @@ namespace FixtureBuilder
             TProp value,
             string? fieldName = null)
         {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            _fixture ??= InstantiateFixture();
 
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
 
@@ -195,7 +195,7 @@ namespace FixtureBuilder
             Expression<Func<TEntity, TProp>> expr,
             TProp value)
         {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            _fixture ??= InstantiateFixture();
 
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
 
@@ -221,10 +221,15 @@ namespace FixtureBuilder
 
         private Fixture<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
         {
-            _fixture ??= (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            _fixture ??= InstantiateFixture();
 
             if (ExpressionHelpers.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
             else return WithFieldInternal(expr, value);
+        }
+
+        private static TEntity InstantiateFixture()
+        {
+            return (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
         }
     }
 }
