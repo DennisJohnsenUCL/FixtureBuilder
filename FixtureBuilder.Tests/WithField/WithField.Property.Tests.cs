@@ -226,5 +226,18 @@
                 Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
+
+        class ComputedPropertyClass
+        {
+            public int Computed => SomeMethod();
+            private static int SomeMethod() => 2;
+        }
+        [Test]
+        public void ComputedProperty_ThrowsException()
+        {
+            var fixture = Fixture.New<ComputedPropertyClass>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField(c => c.Computed, 5));
+        }
     }
 }
