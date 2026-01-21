@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.WithField
+﻿#pragma warning disable CA1822 // Mark members as static
+
+namespace FixtureBuilder.Tests.WithField
 {
     internal sealed class WithFieldPropertyTests
     {
@@ -238,6 +240,100 @@
             var fixture = Fixture.New<ComputedPropertyClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.WithField(c => c.Computed, 5));
+        }
+
+        class NullableValueListClass
+        {
+            private readonly List<int?> _list = null!;
+            public IEnumerable<int> List => _list.Cast<int>();
+        }
+        [Test]
+        public void NullableValueListField_NonNullableValueListValue_SetsField()
+        {
+            var fieldName = "_list";
+            var list = new List<int>() { _number };
+
+            var fixture = Fixture.New<NullableValueListClass>().BypassConstructor().WithField(fieldName, c => c.List, list);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.Single(), Is.EqualTo(_number));
+        }
+
+        class NonNullableValueListClass
+        {
+            private readonly List<int> _list = null!;
+            public IEnumerable<int?> List => _list.Cast<int?>();
+        }
+        [Test]
+        [Ignore("It is undecided whether this should be allowed. Potentially with allowConversion bool.")]
+        public void NonNullableValueListField_NullableValueListValue_SetsField()
+        {
+            var fieldName = "_list";
+            var list = new List<int?>() { _number };
+
+            var fixture = Fixture.New<NonNullableValueListClass>().BypassConstructor().WithField(fieldName, c => c.List, list);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.First(), Is.EqualTo(_number));
+        }
+
+        [Test]
+        [Ignore("It is undecided whether this should be allowed. Potentially with allowConversion bool.")]
+        public void NonNullableValueListField_NullableValueListValue_WithNull_SetsField()
+        {
+            var fieldName = "_list";
+            var list = new List<int?>() { _number, null };
+
+            var fixture = Fixture.New<NonNullableValueListClass>().BypassConstructor().WithField(fieldName, c => c.List, list);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.First(), Is.EqualTo(_number));
+        }
+
+        class NullableReferenceListClass
+        {
+            private readonly List<string?> _list = null!;
+            public IEnumerable<string> List => _list.Cast<string>();
+        }
+        [Test]
+        public void NullableReferenceListField_NonNullableReferenceListValue_SetsField()
+        {
+            var fieldName = "_list";
+            var list = new List<string>() { _text };
+
+            var fixture = Fixture.New<NullableReferenceListClass>().BypassConstructor().WithField(fieldName, c => c.List, list);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.Single(), Is.EqualTo(_text));
+        }
+
+        class NonNullableReferenceListClass
+        {
+            private readonly List<string> _list = null!;
+            public IEnumerable<string?> List => _list.Cast<string?>();
+        }
+        [Test]
+        public void NonNullableReferenceListField_NullableReferenceListValue_SetsField()
+        {
+            var fieldName = "_list";
+            var list = new List<string?>() { _text };
+
+            var fixture = Fixture.New<NonNullableReferenceListClass>().BypassConstructor().WithField(fieldName, c => c.List, list);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.First(), Is.EqualTo(_text));
+        }
+
+        [Test]
+        public void NonNullableReferenceListField_NullableReferenceListValue_WithNull_SetsField()
+        {
+            var fieldName = "_list";
+            var list = new List<string?>() { _text, null };
+
+            var fixture = Fixture.New<NonNullableReferenceListClass>().BypassConstructor().WithField(fieldName, c => c.List, list);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.First(), Is.EqualTo(_text));
         }
     }
 }

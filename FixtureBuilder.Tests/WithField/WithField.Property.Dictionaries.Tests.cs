@@ -9,7 +9,6 @@ namespace FixtureBuilder.Tests.WithField
     internal class WithFieldPropertyDictionariesTests
     {
         private readonly static string _text = "Test string";
-        private readonly static int _number = 123;
 
         class DictionaryClass
         {

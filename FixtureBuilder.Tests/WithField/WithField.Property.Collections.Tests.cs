@@ -4,6 +4,8 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
+#pragma warning disable CS0649
+
 namespace FixtureBuilder.Tests.WithField
 {
     internal sealed partial class WithFieldPropertyCollectionsTests

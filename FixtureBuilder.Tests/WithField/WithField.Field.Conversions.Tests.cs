@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.WithField
+﻿#pragma warning disable CS0649
+
+namespace FixtureBuilder.Tests.WithField
 {
     internal class WithFieldFieldConversionsTests
     {
