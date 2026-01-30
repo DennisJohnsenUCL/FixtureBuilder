@@ -29,5 +29,9 @@
 		<None Include="readme.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="FixtureBuilder.Tests" />
+	</ItemGroup>
+
 
 </Project>
