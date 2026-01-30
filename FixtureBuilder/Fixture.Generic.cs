@@ -234,6 +234,18 @@ namespace FixtureBuilder
             return WithInternal(expr, value);
         }
 
+        /// <summary>
+        /// Determines whether a field with the specified name exists on the <typeparamref name="TEntity"/> type.
+        /// </summary>
+        /// <param name="fieldName">The name of the field to search for.</param>
+        /// <returns><see langword="true"/> if the field exists on the fixture type, <see langword="false"/> if not.</returns>
+        bool IFixtureConfigurator<TEntity>.HasField(string fieldName)
+        {
+            _fixture ??= InstantiateFixture();
+
+            return FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var _);
+        }
+
         private Fixture<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
         {
             _fixture ??= InstantiateFixture();
