@@ -1,6 +1,7 @@
-﻿using FixtureBuilder.Helpers;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq.Expressions;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder
 {
@@ -28,11 +29,16 @@ namespace FixtureBuilder
 
             if (typeof(TEntity).IsAbstract)
                 throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
+
+            if (typeof(TEntity).GetGenericTypeDefitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
         }
 
         internal Fixture(TEntity entity)
         {
-            _fixture = entity ?? throw new InvalidOperationException($"Cannot use a null instance as fixture {typeof(TEntity).Name}. Please use generic parameter instead for generating new fixtures.");
+            if (entity == null) throw new ArgumentNullException(nameof(entity), $"Cannot use a null instance as fixture {typeof(TEntity).Name}. Please use generic parameter instead for generating new fixtures.");
+            if (entity.GetType().GetGenericTypeDefitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
+
+            _fixture = entity;
         }
 
         /// <summary>
