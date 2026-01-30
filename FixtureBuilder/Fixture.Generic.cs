@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 using FixtureBuilder.Extensions;
 using FixtureBuilder.Helpers;
 
@@ -244,6 +245,23 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             return FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var _);
+        }
+
+        /// <summary>
+        /// Determines whether a field with the specified name exists on the given member of the <typeparamref name="TEntity"/> type.
+        /// </summary>
+        /// <param name="fieldName">The name of the field to search for.</param>
+        /// <param name="expr">The member to search for the field on.</param>
+        /// <returns><see langword="true"/> if the field exists on the member of the fixture type, <see langword="false"/> if not.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        bool IFixtureConfigurator<TEntity>.HasField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr)
+        {
+            _fixture ??= InstantiateFixture();
+
+            if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
+                return FieldHelpers.TryGetField(pi.PropertyType, fieldName, out var _);
+
+            else throw new InvalidOperationException("The provided expression must directly access a property member (e.g., x => x.PropertyName).");
         }
 
         private Fixture<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)

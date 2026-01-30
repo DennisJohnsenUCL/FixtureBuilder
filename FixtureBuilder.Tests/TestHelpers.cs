@@ -66,13 +66,16 @@ namespace FixtureBuilder.Tests
     {
         public string Value { get; set; } = null!;
         public DeeperNestedClass DeeperNestedClass { get; set; } = null!;
+        public DerivedNestedClass DerivedNestedClass { get; set; } = null!;
     }
 
     internal class DeeperNestedClass
     {
         public int Value { get; set; }
 
-        private readonly string _privateField = null!;
+        protected readonly string _privateField = null!;
         public string Text => _privateField;
     }
+
+    internal class DerivedNestedClass : DeeperNestedClass { }
 }

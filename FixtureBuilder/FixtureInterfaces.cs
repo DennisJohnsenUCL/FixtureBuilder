@@ -17,6 +17,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value);
         IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
         bool HasField(string fieldName);
+        bool HasField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr);
         TEntity Build();
     }
 }

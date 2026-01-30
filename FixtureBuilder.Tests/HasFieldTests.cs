@@ -29,11 +29,41 @@
         }
 
         [Test]
-        public void DerivedTypeFieldExists_ReturnsTrue()
+        public void DerivedType_FieldExists_ReturnsTrue()
         {
             var fixture = Fixture.New<DerivedFieldClass>().BypassConstructor();
 
             var exists = fixture.HasField("_existingField");
+
+            Assert.That(exists, Is.True);
+        }
+
+        [Test]
+        public void WithExpression_FieldDoesNotExist_ReturnsFalse()
+        {
+            var fixture = Fixture.New<TestClass>().BypassConstructor();
+
+            var exists = fixture.HasField("_notExistingField", c => c.NestedClass.DeeperNestedClass);
+
+            Assert.That(exists, Is.False);
+        }
+
+        [Test]
+        public void WithExpression_FieldExists_ReturnsTrue()
+        {
+            var fixture = Fixture.New<TestClass>().BypassConstructor();
+
+            var exists = fixture.HasField("_privateField", c => c.NestedClass.DeeperNestedClass);
+
+            Assert.That(exists, Is.True);
+        }
+
+        [Test]
+        public void WithExpression_DerivedType_FieldExists_ReturnsTrue()
+        {
+            var fixture = Fixture.New<TestClass>().BypassConstructor();
+
+            var exists = fixture.HasField("_privateField", c => c.NestedClass.DerivedNestedClass);
 
             Assert.That(exists, Is.True);
         }
