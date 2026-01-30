@@ -211,7 +211,9 @@ namespace FixtureBuilder.Helpers
                     return CastToFrozenDictionary(fieldType, values);
                 }
 
-                else
+                else if (genericTypeDef == typeof(ReadOnlyDictionary<,>)
+                    || genericTypeDef == typeof(SortedDictionary<,>)
+                    || genericTypeDef == typeof(SortedList<,>))
                 {
                     if (values is not IDictionary)
                     {
@@ -224,7 +226,7 @@ namespace FixtureBuilder.Helpers
                 }
             }
 
-            else
+            else if (fieldType == typeof(SortedList) || fieldType == typeof(Hashtable))
             {
                 return CastToNonGenericDictionary(fieldType, values);
             }
