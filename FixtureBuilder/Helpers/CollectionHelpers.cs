@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -30,8 +31,15 @@ namespace FixtureBuilder.Helpers
                     ? values
                     : CastElements(values, elementType);
 
-                var enumerable = InstantiationHelpers.UseConstructor(fieldType, typedList)!;
-                if (enumerable != null) return (IEnumerable)enumerable;
+                if (genericTypeDef == typeof(List<>) || genericTypeDef == typeof(Stack<>)
+                    || genericTypeDef == typeof(Queue<>) || genericTypeDef == typeof(SortedSet<>)
+                    || genericTypeDef == typeof(ReadOnlyCollection<>) || genericTypeDef == typeof(Collection<>)
+                    || genericTypeDef == typeof(ConcurrentBag<>) || genericTypeDef == typeof(ConcurrentQueue<>)
+                    || genericTypeDef == typeof(ConcurrentStack<>) || genericTypeDef == typeof(HashSet<>))
+                {
+                    var enumerable = InstantiationHelpers.UseConstructor(fieldType, typedList)!;
+                    if (enumerable != null) return (IEnumerable)enumerable;
+                }
 
                 else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
@@ -198,8 +206,13 @@ namespace FixtureBuilder.Helpers
 
                 var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
-                var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
-                if (dictionary != null) return (IEnumerable)dictionary;
+                if (genericTypeDef == typeof(Dictionary<,>)
+                    || genericTypeDef == typeof(ConcurrentDictionary<,>)
+                    || genericTypeDef == typeof(OrderedDictionary<,>))
+                {
+                    var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
+                    if (dictionary != null) return (IEnumerable)dictionary;
+                }
 
                 else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
