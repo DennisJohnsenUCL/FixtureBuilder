@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.Extensions;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Helpers
 {
@@ -54,12 +54,12 @@ namespace FixtureBuilder.Helpers
                 if (dataMember.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
                 if (dataMember.IsPropertyInfo)
                 {
-                    if (!dataMember.CanReadProperty || !dataMember.CanWriteProperty) continue;
-                    if (dataMember.GetPropertyIndexParameters().Length > 0) continue;
+                    if (!dataMember.Property.CanRead || !dataMember.Property.CanWrite) continue;
+                    if (dataMember.Property.GetIndexParameters().Length > 0) continue;
                 }
                 if (dataMember.IsFieldInfo)
                 {
-                    if (dataMember.IsStaticField) continue;
+                    if (dataMember.IsStatic) continue;
                     if (dataMember.IsDefined(typeof(CompilerGeneratedAttribute), false)) continue;
                 }
 
