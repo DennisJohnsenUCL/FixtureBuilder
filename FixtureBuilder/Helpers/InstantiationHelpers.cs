@@ -59,13 +59,14 @@ namespace FixtureBuilder.Helpers
                 }
                 if (dataMember.IsFieldInfo)
                 {
-                    if (dataMember.IsStatic) continue;
                     if (dataMember.IsDefined(typeof(CompilerGeneratedAttribute), false)) continue;
                 }
+                if (dataMember.IsStatic) continue;
 
                 var dataMemberType = dataMember.DataMemberType;
 
                 if (IsNullableReferenceType(dataMember) || IsNullableValueType(dataMemberType)) continue;
+                if (dataMemberType.IsInterface) continue;
                 if (dataMemberType.IsAbstract) continue;
 
                 var value = dataMember.GetValue(obj);
