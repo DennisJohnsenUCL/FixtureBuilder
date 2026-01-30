@@ -66,7 +66,21 @@
         {
             TestClass prebuilt = null!;
 
+            Assert.Throws<ArgumentNullException>(() => Fixture.New(prebuilt));
+        }
+
+        [Test]
+        public void PrebuiltFixture_TypeIsFixture_ThrowsException()
+        {
+            var prebuilt = Fixture.New<TestClass>();
+
             Assert.Throws<InvalidOperationException>(() => Fixture.New(prebuilt));
+        }
+
+        [Test]
+        public void NewFixture_TypeIsFixture_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<Fixture<TestClass>>());
         }
     }
 }
