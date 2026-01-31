@@ -11,6 +11,17 @@ namespace FixtureBuilder.Extensions
                 .Concat(type.GetFields(bindingAttr).Select(f => new DataMemberInfo(f)));
         }
 
+        public static bool TryGetGenericTypeDefinition(this Type type, out Type genericTypeDefinition)
+        {
+            if (type.IsGenericType)
+            {
+                genericTypeDefinition = type.GetGenericTypeDefinition();
+                return true;
+            }
+            genericTypeDefinition = null!;
+            return false;
+        }
+
         public static Type? GetGenericTypeDefinitionOrDefault(this Type type)
         {
             return type.IsGenericType ? type.GetGenericTypeDefinition() : null;

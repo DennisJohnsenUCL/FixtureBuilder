@@ -24,9 +24,8 @@ namespace FixtureBuilder.Helpers
                 fieldType = GetConcreteType(fieldType);
             }
 
-            if (fieldType.IsGenericType)
+            if (fieldType.TryGetGenericTypeDefinition(out var genericTypeDef))
             {
-                var genericTypeDef = fieldType.GetGenericTypeDefinition();
                 var elementType = fieldType.GetGenericArguments()[0];
                 var typedList = sourceElementType != null && sourceElementType == elementType
                     ? values
@@ -87,9 +86,8 @@ namespace FixtureBuilder.Helpers
         {
             Type concreteType;
 
-            if (interfaceType.IsGenericType)
+            if (interfaceType.TryGetGenericTypeDefinition(out var genericTypeDef))
             {
-                var genericTypeDef = interfaceType.GetGenericTypeDefinition();
                 var elementType = interfaceType.GetGenericArguments()[0];
 
                 if (genericTypeDef == typeof(IList<>) ||
@@ -195,7 +193,7 @@ namespace FixtureBuilder.Helpers
                 fieldType = GetConcreteDictionaryType(fieldType);
             }
 
-            if (fieldType.IsGenericType)
+            if (fieldType.TryGetGenericTypeDefinition(out var genericTypeDef))
             {
                 var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(fieldType);
                 var (sourceKeyType, sourceValueType) = GetSourceKeyValueTypes(values);
@@ -204,8 +202,6 @@ namespace FixtureBuilder.Helpers
                 {
                     values = CastDictionaryElements(fieldKeyType, fieldValueType, values);
                 }
-
-                var genericTypeDef = fieldType.GetGenericTypeDefinition();
 
                 if (genericTypeDef == typeof(Dictionary<,>)
                     || genericTypeDef == typeof(ConcurrentDictionary<,>)
@@ -251,10 +247,8 @@ namespace FixtureBuilder.Helpers
         {
             if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
 
-            else if (fieldType.IsInterface && fieldType.IsGenericType)
+            else if (fieldType.IsInterface && fieldType.TryGetGenericTypeDefinition(out var genericTypeDef))
             {
-                var genericTypeDef = fieldType.GetGenericTypeDefinition();
-
                 if (genericTypeDef == typeof(IDictionary<,>) ||
                     genericTypeDef == typeof(IReadOnlyDictionary<,>) ||
                     genericTypeDef == typeof(IImmutableDictionary<,>))
@@ -285,9 +279,8 @@ namespace FixtureBuilder.Helpers
         {
             Type concreteType;
 
-            if (fieldType.IsGenericType)
+            if (fieldType.TryGetGenericTypeDefinition(out var genericTypeDef))
             {
-                var genericTypeDef = fieldType.GetGenericTypeDefinition();
                 var keyType = fieldType.GetGenericArguments()[0];
                 var valueType = fieldType.GetGenericArguments()[1];
 
@@ -328,9 +321,9 @@ namespace FixtureBuilder.Helpers
 
             var keyValueTypes = values.GetType()
                 .GetInterfaces()
-                .Where(i => i.GetGenericTypeDefitionOrDefault() == typeof(IEnumerable<>))
+                .Where(i => i.GetGenericTypeDefinitionOrDefault() == typeof(IEnumerable<>))
                 .Select(i => i.GetGenericArguments()[0])
-                .Where(t => t.GetGenericTypeDefitionOrDefault() == typeof(KeyValuePair<,>))
+                .Where(t => t.GetGenericTypeDefinitionOrDefault() == typeof(KeyValuePair<,>))
                 .Select(t => t.GetGenericArguments())
                 .FirstOrDefault(args => args.Length == 2);
 

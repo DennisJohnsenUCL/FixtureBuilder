@@ -31,13 +31,13 @@ namespace FixtureBuilder
             if (typeof(TEntity).IsAbstract)
                 throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
 
-            if (typeof(TEntity).GetGenericTypeDefitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
+            if (typeof(TEntity).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
         }
 
         internal Fixture(TEntity entity)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity), $"Cannot use a null instance as fixture {typeof(TEntity).Name}. Please use generic parameter instead for generating new fixtures.");
-            if (entity.GetType().GetGenericTypeDefitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
+            if (entity.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _fixture = entity;
         }
@@ -111,7 +111,7 @@ namespace FixtureBuilder
 
             var fieldType = fieldInfo.FieldType;
 
-            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefitionOrDefault() == typeof(Nullable<>)))
+            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
 
             var sourceType = value?.GetType();
@@ -174,7 +174,7 @@ namespace FixtureBuilder
 
             var fieldType = backingField.FieldType;
 
-            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefitionOrDefault() == typeof(Nullable<>)))
+            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type.");
 
             var sourceType = value?.GetType();
