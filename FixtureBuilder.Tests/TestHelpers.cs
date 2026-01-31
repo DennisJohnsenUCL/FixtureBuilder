@@ -71,11 +71,15 @@ namespace FixtureBuilder.Tests
 
     internal class DeeperNestedClass
     {
-        public int Value { get; set; }
+        public virtual int Value { get; set; }
+        public string String { get; set; } = null!;
 
         protected readonly string _privateField = null!;
         public string Text => _privateField;
     }
 
-    internal class DerivedNestedClass : DeeperNestedClass { }
+    internal class DerivedNestedClass : DeeperNestedClass
+    {
+        public override int Value { get; set; }
+    }
 }

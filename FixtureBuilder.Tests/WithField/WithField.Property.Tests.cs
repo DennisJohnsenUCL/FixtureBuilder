@@ -180,6 +180,24 @@ namespace FixtureBuilder.Tests.WithField
         }
 
         [Test]
+        public void DeeperDerivedNestedProperty_Overriden_SetsProperty()
+        {
+            var fixture = Fixture.New<NestedPropertyClass>().BypassConstructor().WithField(t => t.NestedClass.DerivedNestedClass.Value, _number);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.NestedClass.DerivedNestedClass.Value, Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void DeeperDerivedNestedProperty_NotOverriden_SetsProperty()
+        {
+            var fixture = Fixture.New<NestedPropertyClass>().BypassConstructor().WithField(t => t.NestedClass.DerivedNestedClass.String, _text);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.NestedClass.DerivedNestedClass.String, Is.EqualTo(_text));
+        }
+
+        [Test]
         public void FieldNameGiven_DeeperNestedProperty_SetsProperty()
         {
             var fieldName = "_privateField";

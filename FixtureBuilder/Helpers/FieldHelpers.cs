@@ -20,7 +20,7 @@ namespace FixtureBuilder.Helpers
             return false;
         }
 
-        public static bool TryGetPropertyBackingField<TEntity>(PropertyInfo property, string? fieldName, out FieldInfo backingField)
+        public static bool TryGetPropertyBackingField(Type propertyParentType, PropertyInfo property, string? fieldName, out FieldInfo backingField)
         {
             var declaringType = property.DeclaringType;
             string[] fieldNames;
@@ -37,7 +37,7 @@ namespace FixtureBuilder.Helpers
             }
             else fieldNames = [fieldName];
 
-            if (TryGetField(typeof(TEntity), fieldNames, out backingField)) { }
+            if (TryGetField(propertyParentType, fieldNames, out backingField)) { }
             else if (declaringType != null && TryGetField(declaringType, fieldNames, out backingField)) { }
             else return false;
 
