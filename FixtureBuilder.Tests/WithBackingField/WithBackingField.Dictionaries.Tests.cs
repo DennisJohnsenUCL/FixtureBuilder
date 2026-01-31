@@ -4,9 +4,9 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
-namespace FixtureBuilder.Tests.WithField
+namespace FixtureBuilder.Tests.WithBackingField
 {
-    internal class WithFieldPropertyDictionariesTests
+    internal class WithBackingFieldDictionariesTests
     {
         private readonly static string _text = "Test string";
 
@@ -21,7 +21,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_dictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<DictionaryClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.Dictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_dictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<DictionaryObjectClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionaryObjectClass>().BypassConstructor().WithBackingField(fieldName, c => c.Dictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
@@ -55,7 +55,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_dictionary";
             var dictionary = new List<KeyValuePair<object, object>>([new KeyValuePair<object, object>(1, _text)]);
 
-            var fixture = Fixture.New<DictionaryTypedClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionaryTypedClass>().BypassConstructor().WithBackingField(fieldName, c => c.Dictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_dictionary";
             var dictionary = new SortedList() { { 1, _text } };
 
-            var fixture = Fixture.New<DictionarySortedListClass>().BypassConstructor().WithField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionarySortedListClass>().BypassConstructor().WithBackingField(fieldName, c => c.Dictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Dictionary[1], Is.EqualTo(_text));
@@ -89,7 +89,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_iDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<IDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var fixture = Fixture.New<IDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.IDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
@@ -106,7 +106,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_iDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var fixture = Fixture.New<IDictionaryNonGenericClass>().BypassConstructor().WithBackingField(fieldName, c => c.IDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
@@ -123,7 +123,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_iDictionary";
             var dictionary = new SortedList { { 1, _text } };
 
-            var fixture = Fixture.New<IDictionaryNonGenericSortedListClass>().BypassConstructor().WithField(fieldName, c => c.IDictionary, dictionary);
+            var fixture = Fixture.New<IDictionaryNonGenericSortedListClass>().BypassConstructor().WithBackingField(fieldName, c => c.IDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IDictionary[1], Is.EqualTo(_text));
@@ -140,7 +140,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_immutableDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<ImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ImmutableDictionary, dictionary);
+            var fixture = Fixture.New<ImmutableDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.ImmutableDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ImmutableDictionary.Single().Value, Is.EqualTo(_text));
@@ -157,7 +157,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_iImmutableDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<IImmutableDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IImmutableDictionary, dictionary);
+            var fixture = Fixture.New<IImmutableDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.IImmutableDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IImmutableDictionary.Single().Value, Is.EqualTo(_text));
@@ -174,7 +174,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_sortedDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<SortedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.SortedDictionary, dictionary);
+            var fixture = Fixture.New<SortedDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.SortedDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.SortedDictionary.Single().Value, Is.EqualTo(_text));
@@ -191,7 +191,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_orderedDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<OrderedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.OrderedDictionary, dictionary);
+            var fixture = Fixture.New<OrderedDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.OrderedDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.OrderedDictionary.Single().Value, Is.EqualTo(_text));
@@ -208,7 +208,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_immutableSortedDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<ImmutableSortedDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ImmutableSortedDictionary, dictionary);
+            var fixture = Fixture.New<ImmutableSortedDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.ImmutableSortedDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ImmutableSortedDictionary.Single().Value, Is.EqualTo(_text));
@@ -225,7 +225,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_frozenDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<FrozenDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.FrozenDictionary, dictionary);
+            var fixture = Fixture.New<FrozenDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.FrozenDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.FrozenDictionary.Single().Value, Is.EqualTo(_text));
@@ -242,7 +242,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_readOnlyDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<ReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ReadOnlyDictionary, dictionary);
+            var fixture = Fixture.New<ReadOnlyDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.ReadOnlyDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ReadOnlyDictionary.Single().Value, Is.EqualTo(_text));
@@ -259,7 +259,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_iReadOnlyDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<IReadOnlyDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.IReadOnlyDictionary, dictionary);
+            var fixture = Fixture.New<IReadOnlyDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.IReadOnlyDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.IReadOnlyDictionary.Single().Value, Is.EqualTo(_text));
@@ -276,7 +276,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_sortedList";
             var sortedList = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<SortedListClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
+            var fixture = Fixture.New<SortedListClass>().BypassConstructor().WithBackingField(fieldName, c => c.SortedList, sortedList);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.SortedList.Single().Value, Is.EqualTo(_text));
@@ -293,7 +293,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_sortedList";
             var sortedList = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<SortedListNonGenericClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
+            var fixture = Fixture.New<SortedListNonGenericClass>().BypassConstructor().WithBackingField(fieldName, c => c.SortedList, sortedList);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.SortedList.Single().Value, Is.EqualTo(_text));
@@ -310,7 +310,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_sortedList";
             var sortedList = new Hashtable() { { 1, _text } };
 
-            var fixture = Fixture.New<SortedListNonGenericHashTableClass>().BypassConstructor().WithField(fieldName, c => c.SortedList, sortedList);
+            var fixture = Fixture.New<SortedListNonGenericHashTableClass>().BypassConstructor().WithBackingField(fieldName, c => c.SortedList, sortedList);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.SortedList[1], Is.EqualTo(_text));
@@ -327,7 +327,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_hashtable";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<HashtableClass>().BypassConstructor().WithField(fieldName, c => c.Hashtable, dictionary);
+            var fixture = Fixture.New<HashtableClass>().BypassConstructor().WithBackingField(fieldName, c => c.Hashtable, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Hashtable.Single().Value, Is.EqualTo(_text));
@@ -344,7 +344,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_hashtable";
             var dictionary = new SortedList() { { 1, _text } };
 
-            var fixture = Fixture.New<HashtableSortedListClass>().BypassConstructor().WithField(fieldName, c => c.Hashtable, dictionary);
+            var fixture = Fixture.New<HashtableSortedListClass>().BypassConstructor().WithBackingField(fieldName, c => c.Hashtable, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Hashtable[1], Is.EqualTo(_text));
@@ -361,7 +361,7 @@ namespace FixtureBuilder.Tests.WithField
             var fieldName = "_concurrentDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<ConcurrentDictionaryClass>().BypassConstructor().WithField(fieldName, c => c.ConcurrentDictionary, dictionary);
+            var fixture = Fixture.New<ConcurrentDictionaryClass>().BypassConstructor().WithBackingField(fieldName, c => c.ConcurrentDictionary, dictionary);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ConcurrentDictionary.Single().Value, Is.EqualTo(_text));

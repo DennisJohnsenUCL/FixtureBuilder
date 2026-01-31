@@ -11,7 +11,7 @@ namespace FixtureBuilder.Extensions
 
         public static TEntity WithField<TEntity, TProp>(this TEntity fixture, Expression<Func<TEntity, TProp>> expr, TProp value) where TEntity : class
         {
-            return Fixture.New(fixture).WithField(expr, value).Build();
+            return Fixture.New(fixture).WithBackingField(expr, value).Build();
         }
 
         public static TEntity WithField<TEntity>(this TEntity fixture, string fieldName, object value) where TEntity : class
@@ -26,7 +26,7 @@ namespace FixtureBuilder.Extensions
 
         public static TEntity WithField<TEntity, TProp>(this TEntity fixture, string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value) where TEntity : class
         {
-            return Fixture.New(fixture).WithField(fieldName, expr, value).Build();
+            return Fixture.New(fixture).WithBackingField(fieldName, expr, value).Build();
         }
 
         public static TEntity WithSetter<TEntity, TProp>(this TEntity fixture, Expression<Func<TEntity, TProp>> expr, TProp value) where TEntity : class

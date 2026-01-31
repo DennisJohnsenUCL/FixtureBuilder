@@ -135,10 +135,10 @@ namespace FixtureBuilder
         /// The backing field name is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(
             Expression<Func<TEntity, TProp>> expr,
             TProp value)
-            => WithFieldInternal(expr, value);
+            => WithBackingFieldInternal(expr, value);
 
         /// <summary>
         /// Configures the fixture by setting the value of a specifically named field backing the specified property.
@@ -151,10 +151,10 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when you need to specify a non-standard backing field name that cannot be automatically discovered.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
-            => WithFieldInternal(expr, value, fieldName);
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
+            => WithBackingFieldInternal(expr, value, fieldName);
 
-        private Fixture<TEntity> WithFieldInternal<TProp>(
+        private Fixture<TEntity> WithBackingFieldInternal<TProp>(
             Expression<Func<TEntity, TProp>> expr,
             TProp value,
             string? fieldName = null)
@@ -275,7 +275,7 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             if (ExpressionHelpers.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
-            else return WithFieldInternal(expr, value);
+            else return WithBackingFieldInternal(expr, value);
         }
 
         private static TEntity InstantiateFixture()
