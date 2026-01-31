@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using FixtureBuilder.Helpers;
+﻿using FixtureBuilder.Helpers;
+using System.Reflection;
 
 namespace FixtureBuilder.Extensions
 {
@@ -11,7 +11,7 @@ namespace FixtureBuilder.Extensions
                 .Concat(type.GetFields(bindingAttr).Select(f => new DataMemberInfo(f)));
         }
 
-        public static Type? GetGenericTypeDefitionOrDefault(this Type type)
+        public static Type? GetGenericTypeDefinitionOrDefault(this Type type)
         {
             return type.IsGenericType ? type.GetGenericTypeDefinition() : null;
         }

@@ -111,7 +111,7 @@ namespace FixtureBuilder
 
             var fieldType = fieldInfo.FieldType;
 
-            if (value == null && fieldType.IsValueType && !(fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefitionOrDefault() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
 
             var sourceType = value?.GetType();
@@ -174,7 +174,7 @@ namespace FixtureBuilder
 
             var fieldType = backingField.FieldType;
 
-            if (value == null && fieldType.IsValueType && !(fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefitionOrDefault() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type.");
 
             var sourceType = value?.GetType();

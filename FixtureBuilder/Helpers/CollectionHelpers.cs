@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using FixtureBuilder.Extensions;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
@@ -327,9 +328,9 @@ namespace FixtureBuilder.Helpers
 
             var keyValueTypes = values.GetType()
                 .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Where(i => i.GetGenericTypeDefitionOrDefault() == typeof(IEnumerable<>))
                 .Select(i => i.GetGenericArguments()[0])
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                .Where(t => t.GetGenericTypeDefitionOrDefault() == typeof(KeyValuePair<,>))
                 .Select(t => t.GetGenericArguments())
                 .FirstOrDefault(args => args.Length == 2);
 
