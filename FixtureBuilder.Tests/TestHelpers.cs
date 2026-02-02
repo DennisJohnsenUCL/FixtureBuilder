@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 
+#pragma warning disable CA1822 // Mark members as static
+
 namespace FixtureBuilder.Tests
 {
     internal class Helpers
@@ -23,6 +25,8 @@ namespace FixtureBuilder.Tests
         public string InheritedFieldGetter => _inheritedField;
         public NestedClass NestedClass { get; set; } = null!;
         public NestedClass NoSetterProperty { get; } = null!;
+
+        public NestedClass TestMethod() => new();
     }
 
     class ExplicitBackingFieldClass

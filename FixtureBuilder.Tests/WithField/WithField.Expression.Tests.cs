@@ -77,5 +77,11 @@
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField("", c => c.NoSetterProperty.Value, "_text"));
         }
+
+        [Test]
+        public void MethodMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField("", c => c.TestMethod().Value, "_text"));
+        }
     }
 }

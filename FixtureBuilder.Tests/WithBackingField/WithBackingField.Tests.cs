@@ -365,5 +365,11 @@ namespace FixtureBuilder.Tests.WithBackingField
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => c.NoSetterProperty.Value, "_text"));
         }
+
+        [Test]
+        public void MethodMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => c.TestMethod().Value, "_text"));
+        }
     }
 }

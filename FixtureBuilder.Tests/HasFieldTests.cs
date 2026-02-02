@@ -73,5 +73,11 @@
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().HasField("_inheritedField", c => c));
         }
+
+        [Test]
+        public void MethodMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().HasField("", c => c.TestMethod().Value));
+        }
     }
 }
