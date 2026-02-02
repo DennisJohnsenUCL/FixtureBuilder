@@ -274,8 +274,6 @@ namespace FixtureBuilder
         /// <returns><see langword="true"/> if the field exists on the fixture type, <see langword="false"/> if not.</returns>
         bool IFixtureConfigurator<TEntity>.HasField(string fieldName)
         {
-            _fixture ??= InstantiateFixture();
-
             return FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var _);
         }
 
@@ -288,8 +286,6 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"></exception>
         bool IFixtureConfigurator<TEntity>.HasField(string fieldName, Expression<Func<TEntity, object?>> expr)
         {
-            _fixture ??= InstantiateFixture();
-
             if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
                 return FieldHelpers.TryGetField(pi.PropertyType, fieldName, out var _);
 
