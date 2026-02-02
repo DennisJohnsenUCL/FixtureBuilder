@@ -105,22 +105,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            if (!FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var fieldInfo))
-                throw new InvalidOperationException($"Field '{fieldName}' not found on {typeof(TEntity).Name}.");
-
-            var fieldType = fieldInfo.FieldType;
-
-            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
-                throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
-
-            var sourceType = value?.GetType();
-            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
-            {
-                fieldInfo.SetValue(_fixture, value);
-            }
-            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
-
-            return this;
+            return WithFieldInternal(fieldName, typeof(TEntity), value, _fixture);
         }
 
         /// <summary>
@@ -139,6 +124,11 @@ namespace FixtureBuilder
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: true);
             var propertyType = property.PropertyType;
 
+            return WithFieldInternal(fieldName, propertyType, value, instance);
+        }
+
+        private Fixture<TEntity> WithFieldInternal(string fieldName, Type propertyType, object? value, object instance)
+        {
             if (!FieldHelpers.TryGetField(propertyType, fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {propertyType.Name}.");
 
@@ -271,7 +261,10 @@ namespace FixtureBuilder
         /// </remarks>
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
         {
-            return WithInternal(expr, value);
+            _fixture ??= InstantiateFixture();
+
+            if (ExpressionHelpers.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
+            else return WithBackingFieldInternal(expr, value);
         }
 
         /// <summary>
@@ -301,14 +294,6 @@ namespace FixtureBuilder
                 return FieldHelpers.TryGetField(pi.PropertyType, fieldName, out var _);
 
             else throw new InvalidOperationException("The provided expression must directly access a property member (e.g., x => x.PropertyName).");
-        }
-
-        private Fixture<TEntity> WithInternal<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
-        {
-            _fixture ??= InstantiateFixture();
-
-            if (ExpressionHelpers.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
-            else return WithBackingFieldInternal(expr, value);
         }
 
         private static TEntity InstantiateFixture()
