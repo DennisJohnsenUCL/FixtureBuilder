@@ -67,5 +67,11 @@
 
             Assert.That(exists, Is.True);
         }
+
+        [Test]
+        public void NoMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().HasField("_inheritedField", c => c));
+        }
     }
 }

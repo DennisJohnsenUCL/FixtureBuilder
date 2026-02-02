@@ -32,7 +32,7 @@ namespace FixtureBuilder.Tests.WithBackingField
         [Test]
         public void NotARecordProperty_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() => Fixture.New<TestRecord>().BypassConstructor().WithBackingField(t => t.GetHashCode(), _number));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestRecord>().BypassConstructor().WithBackingField(t => t.GetHashCode(), _number));
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace FixtureBuilder.Tests.WithBackingField
         [Test]
         public void NotAClassProperty_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() => Fixture.New<TestClass>().BypassConstructor().WithBackingField(t => t.GetHashCode(), _number));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().BypassConstructor().WithBackingField(t => t.GetHashCode(), _number));
         }
 
         [Test]
@@ -352,6 +352,12 @@ namespace FixtureBuilder.Tests.WithBackingField
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.List.First(), Is.EqualTo(_text));
+        }
+
+        [Test]
+        public void NoMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => c, new TestClass()));
         }
     }
 }

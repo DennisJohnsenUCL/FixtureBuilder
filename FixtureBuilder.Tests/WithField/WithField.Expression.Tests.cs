@@ -53,7 +53,7 @@
         {
             var fieldName = "_field";
 
-            Assert.Throws<ArgumentException>(
+            Assert.Throws<InvalidOperationException>(
                 () => Fixture.New<BaseClass>().BypassConstructor().WithField(fieldName, c => c.NestedClass.TwiceNestedClass.GetField.Length, _text));
         }
 
@@ -62,8 +62,14 @@
         {
             var fieldName = "_field";
 
-            Assert.Throws<ArgumentException>(
+            Assert.Throws<InvalidOperationException>(
                 () => Fixture.New<BaseClass>().BypassConstructor().WithField(fieldName, c => c.NestedClass.TwiceNestedClass.GetHashCode(), _text));
+        }
+
+        [Test]
+        public void NoMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField("_inheritedField", c => c, new TestClass()));
         }
     }
 }

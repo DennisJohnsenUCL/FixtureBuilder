@@ -72,5 +72,11 @@
                 Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
+
+        [Test]
+        public void NoMemberAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => c, new TestClass()));
+        }
     }
 }
