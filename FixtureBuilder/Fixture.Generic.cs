@@ -96,9 +96,8 @@ namespace FixtureBuilder
         /// <summary>
         /// Configures the fixture by setting the specified field to the given value.
         /// </summary>
-        /// <remarks>This method initializes the fixture instance if it has not already been created. The specified
-        /// field is set directly, bypassing property setters. Use this method to configure fields that are not accessible
-        /// through public properties.</remarks>
+        /// <remarks>This method initializes the fixture instance if it has not already been created.
+        /// Use this method to configure fields that are not accessible through public properties.</remarks>
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
         /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
@@ -124,7 +123,15 @@ namespace FixtureBuilder
             return this;
         }
 
-
+        /// <summary>
+        /// Configures the fixture by setting the specified field to the given value, on the specified nested property.
+        /// </summary>
+        /// <remarks>This method initializes the fixture instance if it has not already been created.
+        /// Use this method to configure fields that are not accessible through public properties.</remarks>
+        /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
+        /// <param name="expr">The nested property on which to set the field.</param>
+        /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
+        /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, Expression<Func<TEntity, object?>> expr, T value)
         {
             _fixture ??= InstantiateFixture();

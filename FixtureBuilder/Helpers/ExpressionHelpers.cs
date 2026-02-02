@@ -20,41 +20,33 @@ namespace FixtureBuilder.Helpers
             }
 
             object current = root;
-            PropertyInfo currentMember;
 
             while (members.Count > 1)
             {
-                currentMember = members.Pop();
-                var prop = currentMember;
+                var prop = members.Pop();
 
-                var parent = current;
-                current = prop.GetValue(parent)!;
-
-                if (current == null)
-                {
-                    var type = prop.PropertyType;
-                    current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
-                    prop.SetValue(parent, current);
-                }
+                current = InitializePropertyValue(current, prop);
             }
 
-            currentMember = members.Pop();
-            var finalProp = currentMember;
+            var finalProp = members.Pop();
 
-            if (instantiateTarget)
-            {
-                var parent = current;
-                current = finalProp.GetValue(parent)!;
-
-                if (current == null)
-                {
-                    var type = finalProp.PropertyType;
-                    current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
-                    finalProp.SetValue(parent, current);
-                }
-            }
+            if (instantiateTarget) current = InitializePropertyValue(current, finalProp);
 
             return (current, finalProp);
+        }
+
+        private static object InitializePropertyValue(object parent, PropertyInfo prop)
+        {
+            var current = prop.GetValue(parent)!;
+
+            if (current == null)
+            {
+                var type = prop.PropertyType;
+                current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
+                prop.SetValue(parent, current);
+            }
+
+            return current;
         }
 
         public static bool IsPropertyWritable<TTarget, TProp>(Expression<Func<TTarget, TProp>> expr)
