@@ -71,5 +71,11 @@
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField("_inheritedField", c => c, new TestClass()));
         }
+
+        [Test]
+        public void NoSetterOnProperty_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField("", c => c.NoSetterProperty.Value, "_text"));
+        }
     }
 }

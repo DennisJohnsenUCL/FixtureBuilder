@@ -78,5 +78,11 @@
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => c, new TestClass()));
         }
+
+        [Test]
+        public void NoSetterOnProperty_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => c.NoSetterProperty.Value, "_text"));
+        }
     }
 }

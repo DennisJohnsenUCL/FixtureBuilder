@@ -22,6 +22,7 @@ namespace FixtureBuilder.Tests
         protected string _inheritedField = null!;
         public string InheritedFieldGetter => _inheritedField;
         public NestedClass NestedClass { get; set; } = null!;
+        public NestedClass NoSetterProperty { get; } = null!;
     }
 
     class ExplicitBackingFieldClass

@@ -42,6 +42,9 @@ namespace FixtureBuilder.Helpers
 
             if (current == null)
             {
+                if (!prop.CanWrite)
+                    throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
+
                 var type = prop.PropertyType;
                 current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
                 prop.SetValue(parent, current);

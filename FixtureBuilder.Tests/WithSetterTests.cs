@@ -161,5 +161,11 @@ namespace FixtureBuilder.Tests
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithSetter(c => c, new TestClass()));
         }
+
+        [Test]
+        public void NoSetterOnProperty_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithSetter(c => c.NoSetterProperty.Value, "_text"));
+        }
     }
 }
