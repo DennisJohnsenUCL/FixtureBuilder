@@ -1,8 +1,8 @@
-﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.Helpers;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder
 {
@@ -124,6 +124,32 @@ namespace FixtureBuilder
             return this;
         }
 
+
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, Expression<Func<TEntity, object?>> expr, T value)
+        {
+            _fixture ??= InstantiateFixture();
+
+            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: true);
+            var propertyType = property.PropertyType;
+
+            if (!FieldHelpers.TryGetField(propertyType, fieldName, out var fieldInfo))
+                throw new InvalidOperationException($"Field '{fieldName}' not found on {propertyType.Name}.");
+
+            var fieldType = fieldInfo.FieldType;
+
+            if (value == null && fieldType.IsValueType && !(fieldType.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
+                throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
+
+            var sourceType = value?.GetType();
+            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
+            {
+                fieldInfo.SetValue(instance, value);
+            }
+            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
+
+            return this;
+        }
+
         /// <summary>
         /// Configures the fixture by setting the value of a field backing the specified property.
         /// </summary>
@@ -161,7 +187,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
+            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
             Type propertyParentType = typeof(TEntity);
 
@@ -219,7 +245,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr);
+            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
             property.SetValue(instance, value);
 
@@ -260,7 +286,7 @@ namespace FixtureBuilder
         /// <param name="expr">The member to search for the field on.</param>
         /// <returns><see langword="true"/> if the field exists on the member of the fixture type, <see langword="false"/> if not.</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        bool IFixtureConfigurator<TEntity>.HasField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr)
+        bool IFixtureConfigurator<TEntity>.HasField(string fieldName, Expression<Func<TEntity, object?>> expr)
         {
             _fixture ??= InstantiateFixture();
 

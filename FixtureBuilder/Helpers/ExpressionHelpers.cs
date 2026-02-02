@@ -5,7 +5,7 @@ namespace FixtureBuilder.Helpers
 {
     internal static class ExpressionHelpers
     {
-        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr)
+        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, bool instantiateTarget)
         {
             var memberExpr = expr.Body as MemberExpression
                 ?? throw new ArgumentException($"Argument '{expr}' is invalid. Please use a direct property access, e.g., x => x.Property1.Property2, not a method, field, or computed value.", nameof(expr));
@@ -40,6 +40,19 @@ namespace FixtureBuilder.Helpers
 
             currentMember = members.Pop();
             var finalProp = currentMember;
+
+            if (instantiateTarget)
+            {
+                var parent = current;
+                current = finalProp.GetValue(parent)!;
+
+                if (current == null)
+                {
+                    var type = finalProp.PropertyType;
+                    current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
+                    finalProp.SetValue(parent, current);
+                }
+            }
 
             return (current, finalProp);
         }
