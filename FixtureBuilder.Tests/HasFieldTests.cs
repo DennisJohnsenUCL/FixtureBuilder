@@ -79,5 +79,11 @@
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().HasField("", c => c.TestMethod().Value));
         }
+
+        [Test]
+        public void ConstantAccess_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().HasField("", c => new TestClass().NestedClass.Value));
+        }
     }
 }
