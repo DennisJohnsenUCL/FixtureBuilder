@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Tests.WithField
 {
-    internal class WithFieldFieldConversionsTests
+    internal class WithFieldConversionsTests
     {
         private readonly static string _text = "Test string";
         private readonly static int _number = 123;

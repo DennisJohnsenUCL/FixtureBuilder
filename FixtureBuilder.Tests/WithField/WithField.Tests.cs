@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.Tests.WithField
 {
-    internal sealed class WithFieldFieldTests
+    internal sealed class WithFieldTests
     {
         private readonly static string _text = "Test string";
         private readonly static int _number = 123;
