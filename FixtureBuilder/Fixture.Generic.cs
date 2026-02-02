@@ -186,11 +186,7 @@ namespace FixtureBuilder
 
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
-            Type propertyParentType = typeof(TEntity);
-
-            if (expr.Body is MemberExpression me &&
-                me.Expression is MemberExpression mex &&
-                mex.Member is PropertyInfo pi) propertyParentType = pi.PropertyType;
+            var propertyParentType = instance.GetType();
 
             if (!FieldHelpers.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
