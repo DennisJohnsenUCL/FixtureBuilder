@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.Helpers;
+using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
-using FixtureBuilder.Extensions;
-using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder
 {
@@ -121,6 +121,8 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
+            ExpressionHelpers.ValidateExpression(expr);
+
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: true);
             var propertyType = property.PropertyType;
 
@@ -183,6 +185,8 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
+            ExpressionHelpers.ValidateExpression(expr);
+
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
             var propertyParentType = instance.GetType();
@@ -225,16 +229,16 @@ namespace FixtureBuilder
         /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration.</returns>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
-        {
-            if (!ExpressionHelpers.IsPropertyWritable(expr)) throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
-            return WithSetterInternal(expr, value);
-        }
+            => WithSetterInternal(expr, value);
 
         private Fixture<TEntity> WithSetterInternal<TProp>(
             Expression<Func<TEntity, TProp>> expr,
             TProp value)
         {
             _fixture ??= InstantiateFixture();
+
+            ExpressionHelpers.ValidateExpression(expr);
+            ExpressionHelpers.ValidatePropertyWriteable(expr);
 
             var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
@@ -280,10 +284,12 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"></exception>
         bool IFixtureConfigurator<TEntity>.HasField(string fieldName, Expression<Func<TEntity, object?>> expr)
         {
+            ExpressionHelpers.ValidateExpression(expr);
+
             if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
                 return FieldHelpers.TryGetField(pi.PropertyType, fieldName, out var _);
 
-            else throw new InvalidOperationException("The provided expression must directly access a property member (e.g., x => x.PropertyName).");
+            return false;
         }
 
         private static TEntity InstantiateFixture()
