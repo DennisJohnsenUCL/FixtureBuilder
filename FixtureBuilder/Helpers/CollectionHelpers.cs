@@ -31,12 +31,7 @@ namespace FixtureBuilder.Helpers
                     ? values
                     : CastElements(values, elementType);
 
-                if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
-                {
-                    return CastToImmutable(fieldType, genericTypeDef, typedList);
-                }
-
-                else if (genericTypeDef == typeof(FrozenSet<>))
+                if (genericTypeDef == typeof(FrozenSet<>))
                 {
                     return CastToFrozenSet(fieldType, typedList);
                 }
@@ -74,52 +69,13 @@ namespace FixtureBuilder.Helpers
 
         private static Type GetConcreteType(Type interfaceType)
         {
-            Type concreteType;
-
-            if (interfaceType.TryGetGenericTypeDefinition(out var genericTypeDef))
+            if (interfaceType == typeof(IList) ||
+                interfaceType == typeof(ICollection) ||
+                interfaceType == typeof(IEnumerable))
             {
-                var elementType = interfaceType.GetGenericArguments()[0];
-
-                if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
-                else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
-                else if (genericTypeDef == typeof(IImmutableStack<>)) concreteType = typeof(ImmutableStack<>);
-                else if (genericTypeDef == typeof(IImmutableQueue<>)) concreteType = typeof(ImmutableQueue<>);
-                else throw new InvalidOperationException($"Unsupported generic collection interface type: {interfaceType.Name}");
-
-                return concreteType.MakeGenericType(elementType);
+                return typeof(ArrayList);
             }
-            else
-            {
-                if (interfaceType == typeof(IList) ||
-                    interfaceType == typeof(ICollection) ||
-                    interfaceType == typeof(IEnumerable))
-                {
-                    return typeof(ArrayList);
-                }
-                else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
-            }
-        }
-
-        private static IEnumerable CastToImmutable(Type fieldType, Type genericTypeDef, IEnumerable values)
-        {
-            var elementType = fieldType.GetGenericArguments()[0];
-
-            var factoryTypeName = genericTypeDef.FullName!.Replace("`1", "");
-            var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
-                ?? throw new InvalidOperationException($"Failed to resolve factory type for {fieldType.Name}.");
-
-            var createRangeMethod = factoryType
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(m =>
-                    m.Name == "CreateRange" &&
-                    m.IsGenericMethodDefinition &&
-                    m.GetParameters().Length == 1)
-                ?? throw new InvalidOperationException($"Failed to get CreateRange method for {fieldType.Name}.");
-
-            var genericCreateRange = createRangeMethod.MakeGenericMethod(elementType);
-
-            return genericCreateRange.Invoke(null, [values]) as IEnumerable
-                ?? throw new InvalidOperationException($"Failed to create immutable collection for {fieldType.Name}.");
+            else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
         }
 
         private static IEnumerable CastToFrozenSet(Type fieldType, IEnumerable values)

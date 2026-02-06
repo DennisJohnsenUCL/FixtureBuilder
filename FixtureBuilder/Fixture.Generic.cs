@@ -3,6 +3,7 @@ using FixtureBuilder.Helpers;
 using FixtureBuilder.TypeLinkers;
 using FixtureBuilder.ValueConverters;
 using System.Collections;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -321,7 +322,8 @@ namespace FixtureBuilder
                 new TypeLinkingConverter(
                     new EnumerableElementCastingConverter(
                         new CompositeConverter([
-                            new MutableGenericCollectionConverter()])),
+                            new MutableGenericCollectionConverter(),
+                            new ImmutableCollectionConverter()])),
                     new CompositeTypeLink([
                         new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                         new TypeLink(typeof(IList<>), typeof(List<>)),
@@ -329,7 +331,11 @@ namespace FixtureBuilder
                         new TypeLink(typeof(ICollection<>), typeof(List<>)),
                         new TypeLink(typeof(IReadOnlyCollection<>), typeof(List<>)),
                         new TypeLink(typeof(ISet<>), typeof(HashSet<>)),
-                        new TypeLink(typeof(IReadOnlySet<>), typeof(HashSet<>))]))) as IValueConverter;
+                        new TypeLink(typeof(IReadOnlySet<>), typeof(HashSet<>)),
+                        new TypeLink(typeof(IImmutableList<>), typeof(ImmutableList<>)),
+                        new TypeLink(typeof(IImmutableStack<>), typeof(ImmutableStack<>)),
+                        new TypeLink(typeof(IImmutableQueue<>), typeof(ImmutableQueue<>)),
+                        new TypeLink(typeof(IImmutableSet<>), typeof(ImmutableHashSet<>))]))) as IValueConverter;
 
             return converter;
         }
