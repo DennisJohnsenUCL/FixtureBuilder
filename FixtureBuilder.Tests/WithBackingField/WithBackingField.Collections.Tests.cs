@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.WithBackingField
         class IReadOnlyListClass
         {
             private readonly IReadOnlyList<string> _iReadOnlyList = null!;
-            public IEnumerable<string> IReadOnlyList => _iReadOnlyList;
+            public HashSet<string> IReadOnlyList => [.. _iReadOnlyList];
         }
         [Test]
         public void IReadOnlyListField_SetsField()
@@ -97,7 +97,7 @@ namespace FixtureBuilder.Tests.WithBackingField
         class IListClass
         {
             private readonly IList<string> _iList = null!;
-            public IEnumerable<string> IList => _iList;
+            public HashSet<string> IList => [.. _iList];
         }
         [Test]
         public void IListField_SetsField()
@@ -357,7 +357,7 @@ namespace FixtureBuilder.Tests.WithBackingField
         class IReadOnlyCollectionClass
         {
             private readonly IReadOnlyCollection<string> _iReadOnlyCollection = null!;
-            public IEnumerable<string> IReadOnlyCollection => _iReadOnlyCollection;
+            public ImmutableQueue<string> IReadOnlyCollection => [.. _iReadOnlyCollection];
         }
         [Test]
         public void IReadOnlyCollectionField_SetsField()
@@ -373,7 +373,7 @@ namespace FixtureBuilder.Tests.WithBackingField
         class ICollectionClass
         {
             private readonly ICollection<string> _iCollection = null!;
-            public IEnumerable<string> ICollection => _iCollection;
+            public ImmutableQueue<string> ICollection => [.. _iCollection];
         }
         [Test]
         public void ICollectionField_SetsField()
@@ -416,6 +416,23 @@ namespace FixtureBuilder.Tests.WithBackingField
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ICollection.ToArray().First(), Is.EqualTo(_text));
+        }
+
+        class BlockingCollectionClass
+        {
+            private readonly BlockingCollection<string> _collection = null!;
+            public IEnumerable<string> Collection => _collection;
+        }
+        [Test]
+        [Ignore("Not yet supported, will research if it should be.")]
+        public void BlockingCollectionField_SetsField()
+        {
+            var fieldName = "_collection";
+
+            var fixture = Fixture.New<BlockingCollectionClass>().BypassConstructor().WithBackingField(fieldName, c => c.Collection, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.Collection.Single(), Is.EqualTo(_text));
         }
         #endregion
 

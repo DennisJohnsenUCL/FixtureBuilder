@@ -320,8 +320,16 @@ namespace FixtureBuilder
             var converter = new ThrowingConverter(
                 new TypeLinkingConverter(
                     new EnumerableElementCastingConverter(
-                        new CompositeConverter([new MutableGenericCollectionConverter()])),
-                    new CompositeTypeLink([new TypeLink(typeof(IEnumerable<>), typeof(List<>))]))) as IValueConverter;
+                        new CompositeConverter([
+                            new MutableGenericCollectionConverter()])),
+                    new CompositeTypeLink([
+                        new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
+                        new TypeLink(typeof(IList<>), typeof(List<>)),
+                        new TypeLink(typeof(IReadOnlyList<>), typeof(List<>)),
+                        new TypeLink(typeof(ICollection<>), typeof(List<>)),
+                        new TypeLink(typeof(IReadOnlyCollection<>), typeof(List<>)),
+                        new TypeLink(typeof(ISet<>), typeof(HashSet<>)),
+                        new TypeLink(typeof(IReadOnlySet<>), typeof(HashSet<>))]))) as IValueConverter;
 
             return converter;
         }

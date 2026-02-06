@@ -1,11 +1,15 @@
 ﻿using FixtureBuilder.Extensions;
 using FixtureBuilder.Helpers;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 
 namespace FixtureBuilder.ValueConverters
 {
     internal class MutableGenericCollectionConverter : IValueConverter
     {
-        private readonly IEnumerable<Type> _types = [typeof(List<>)];
+        private readonly IEnumerable<Type> _types = [typeof(List<>), typeof(Stack<>), typeof(Queue<>),
+            typeof(SortedSet<>), typeof(ReadOnlyCollection<>), typeof(Collection<>), typeof(ConcurrentBag<>),
+            typeof(ConcurrentQueue<>), typeof(ConcurrentStack<>), typeof(HashSet<>)];
 
         public object? Convert(Type target, object value)
         {

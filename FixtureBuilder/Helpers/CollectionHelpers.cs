@@ -31,17 +31,7 @@ namespace FixtureBuilder.Helpers
                     ? values
                     : CastElements(values, elementType);
 
-                if (genericTypeDef == typeof(Stack<>)
-                    || genericTypeDef == typeof(Queue<>) || genericTypeDef == typeof(SortedSet<>)
-                    || genericTypeDef == typeof(ReadOnlyCollection<>) || genericTypeDef == typeof(Collection<>)
-                    || genericTypeDef == typeof(ConcurrentBag<>) || genericTypeDef == typeof(ConcurrentQueue<>)
-                    || genericTypeDef == typeof(ConcurrentStack<>) || genericTypeDef == typeof(HashSet<>))
-                {
-                    var enumerable = InstantiationHelpers.UseConstructor(fieldType, typedList)!;
-                    if (enumerable != null) return (IEnumerable)enumerable;
-                }
-
-                else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
+                if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
                     return CastToImmutable(fieldType, genericTypeDef, typedList);
                 }
@@ -90,20 +80,7 @@ namespace FixtureBuilder.Helpers
             {
                 var elementType = interfaceType.GetGenericArguments()[0];
 
-                if (genericTypeDef == typeof(IList<>) ||
-                    genericTypeDef == typeof(IReadOnlyList<>) ||
-                    genericTypeDef == typeof(IEnumerable<>) ||
-                    genericTypeDef == typeof(IReadOnlyCollection<>) ||
-                    genericTypeDef == typeof(ICollection<>))
-                {
-                    concreteType = typeof(List<>);
-                }
-                else if (genericTypeDef == typeof(ISet<>) ||
-                         genericTypeDef == typeof(IReadOnlySet<>))
-                {
-                    concreteType = typeof(HashSet<>);
-                }
-                else if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
+                if (genericTypeDef == typeof(IImmutableList<>)) concreteType = typeof(ImmutableList<>);
                 else if (genericTypeDef == typeof(IImmutableSet<>)) concreteType = typeof(ImmutableHashSet<>);
                 else if (genericTypeDef == typeof(IImmutableStack<>)) concreteType = typeof(ImmutableStack<>);
                 else if (genericTypeDef == typeof(IImmutableQueue<>)) concreteType = typeof(ImmutableQueue<>);
