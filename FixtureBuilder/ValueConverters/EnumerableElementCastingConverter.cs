@@ -14,7 +14,7 @@ namespace FixtureBuilder.ValueConverters
 
         public object? Convert(Type target, object value)
         {
-            if (value is IEnumerable enumerable && target.Implements(typeof(IEnumerable<>)))
+            if (value is IEnumerable enumerable && target.Implements(typeof(IEnumerable<>)) && !target.IsArray)
             {
                 var sourceType = enumerable.GetType();
                 var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : typeof(object);

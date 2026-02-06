@@ -16,6 +16,7 @@ namespace FixtureBuilder.ValueConverters
 
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && sourceType.Implements(typeof(IEnumerable<>))
+                && sourceType.IsGenericType
                 && sourceType.GenericTypeArguments[0] == target.GenericTypeArguments[0]
                 )
             {

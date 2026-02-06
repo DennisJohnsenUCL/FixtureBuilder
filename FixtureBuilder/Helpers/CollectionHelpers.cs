@@ -24,12 +24,7 @@ namespace FixtureBuilder.Helpers
                 fieldType = GetConcreteType(fieldType);
             }
 
-            if (fieldType.IsArray)
-            {
-                return CastToArray(fieldType, values);
-            }
-
-            else if (fieldType == typeof(ArrayList) || fieldType == typeof(Stack) || fieldType == typeof(Queue))
+            if (fieldType == typeof(ArrayList) || fieldType == typeof(Stack) || fieldType == typeof(Queue))
             {
                 if (values is not ICollection) values = CastToArray(fieldType, values);
 
