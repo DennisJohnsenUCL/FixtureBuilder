@@ -323,7 +323,8 @@ namespace FixtureBuilder
                     new EnumerableElementCastingConverter(
                         new CompositeConverter([
                             new MutableGenericCollectionConverter(),
-                            new ImmutableCollectionConverter()])),
+                            new ImmutableCollectionConverter(),
+                            new FrozenSetConverter()])),
                     new CompositeTypeLink([
                         new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                         new TypeLink(typeof(IList<>), typeof(List<>)),

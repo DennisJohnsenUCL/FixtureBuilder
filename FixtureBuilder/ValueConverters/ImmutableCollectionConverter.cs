@@ -39,6 +39,7 @@ namespace FixtureBuilder.ValueConverters
                 return genericCreateRange.Invoke(null, [value]) as IEnumerable
                     ?? throw new InvalidOperationException($"Failed to create immutable collection for {target.Name}.");
             }
+
             return null;
         }
     }

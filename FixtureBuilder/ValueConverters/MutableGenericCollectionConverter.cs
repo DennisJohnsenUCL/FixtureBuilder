@@ -21,6 +21,7 @@ namespace FixtureBuilder.ValueConverters
             {
                 return InstantiationHelpers.UseConstructor(target, value);
             }
+
             return null;
         }
     }

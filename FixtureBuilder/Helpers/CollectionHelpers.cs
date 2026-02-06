@@ -24,20 +24,7 @@ namespace FixtureBuilder.Helpers
                 fieldType = GetConcreteType(fieldType);
             }
 
-            if (fieldType.TryGetGenericTypeDefinition(out var genericTypeDef))
-            {
-                var elementType = fieldType.GetGenericArguments()[0];
-                var typedList = sourceElementType != null && sourceElementType == elementType
-                    ? values
-                    : CastElements(values, elementType);
-
-                if (genericTypeDef == typeof(FrozenSet<>))
-                {
-                    return CastToFrozenSet(fieldType, typedList);
-                }
-            }
-
-            else if (fieldType.IsArray)
+            if (fieldType.IsArray)
             {
                 return CastToArray(fieldType, values);
             }
@@ -76,34 +63,6 @@ namespace FixtureBuilder.Helpers
                 return typeof(ArrayList);
             }
             else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
-        }
-
-        private static IEnumerable CastToFrozenSet(Type fieldType, IEnumerable values)
-        {
-            var elementType = fieldType.GetGenericArguments()[0];
-
-            var ToFrozenSetMethod = typeof(FrozenSet)
-            .GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .FirstOrDefault(m =>
-                m.Name == "ToFrozenSet" &&
-                m.IsGenericMethodDefinition &&
-                m.GetParameters().Length == 2)
-            ?? throw new InvalidOperationException($"Failed to get ToFrozenSet method for {fieldType.Name}.");
-
-            var genericToFrozenSet = ToFrozenSetMethod.MakeGenericMethod(elementType);
-
-            return genericToFrozenSet.Invoke(null, [values, null]) as IEnumerable
-                ?? throw new InvalidOperationException($"Failed to create FrozenSet collection for {fieldType.Name}.");
-        }
-
-        private static IEnumerable CastElements(IEnumerable values, Type elementType)
-        {
-            var typedList = typeof(Enumerable)
-                .GetMethod("Cast")!
-                .MakeGenericMethod(elementType)
-                .Invoke(null, [values])!;
-
-            return (IEnumerable)typedList;
         }
 
         private static bool ElementTypeIsAssignable(Type fieldType, Type sourceElementType)
