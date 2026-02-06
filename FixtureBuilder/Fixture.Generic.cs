@@ -1,5 +1,7 @@
 ﻿using FixtureBuilder.Extensions;
 using FixtureBuilder.Helpers;
+using FixtureBuilder.TypeLinkers;
+using FixtureBuilder.ValueConverters;
 using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,6 +10,7 @@ namespace FixtureBuilder
 {
     internal class Fixture<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
     {
+        private IValueConverter? _converter;
         private TEntity _fixture = null!;
 
         /// <summary>
@@ -210,6 +213,15 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
                 IEnumerable collection;
+                _converter ??= InitializeConverter();
+                try
+                {
+                    collection = (IEnumerable)_converter.Convert(fieldType, value)!;
+                    backingField.SetValue(instance, collection);
+                    return this;
+                }
+                catch { }
+
                 if (CollectionHelpers.IsDictionary(fieldType)) collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
                 else collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
 
@@ -301,6 +313,17 @@ namespace FixtureBuilder
         {
             if (value == null && type.IsValueType && !(type.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
+        }
+
+        private static IValueConverter InitializeConverter()
+        {
+            var converter =
+                new ThrowingConverter(
+                    new TypeLinkingConverter(
+                        new CompositeConverter([]),
+                        new CompositeTypeLink([]))) as IValueConverter;
+
+            return converter;
         }
     }
 }
