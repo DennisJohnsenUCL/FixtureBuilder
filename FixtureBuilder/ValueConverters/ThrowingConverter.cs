@@ -14,7 +14,7 @@
             var result = _inner.Convert(target, value);
             if (result != null) return result;
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"Failed to convert {value.GetType().Name} to {target.Name}.");
         }
     }
 }

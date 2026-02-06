@@ -26,5 +26,18 @@ namespace FixtureBuilder.Extensions
         {
             return type.IsGenericType ? type.GetGenericTypeDefinition() : null;
         }
+
+        public static bool Implements(this Type type, Type target)
+        {
+            ArgumentNullException.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(target);
+
+            if (!target.IsInterface) throw new ArgumentException("Target type must be an interface", nameof(target));
+
+            return type.GetInterfaces().Any(i =>
+            i == target ||
+            (target.IsGenericTypeDefinition && i.IsGenericType &&
+            i.GetGenericTypeDefinition() == target));
+        }
     }
 }

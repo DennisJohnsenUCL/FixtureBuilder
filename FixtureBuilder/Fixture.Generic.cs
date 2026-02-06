@@ -317,11 +317,11 @@ namespace FixtureBuilder
 
         private static IValueConverter InitializeConverter()
         {
-            var converter =
-                new ThrowingConverter(
-                    new TypeLinkingConverter(
-                        new CompositeConverter([]),
-                        new CompositeTypeLink([]))) as IValueConverter;
+            var converter = new ThrowingConverter(
+                new TypeLinkingConverter(
+                    new EnumerableElementCastingConverter(
+                        new CompositeConverter([new MutableGenericCollectionConverter()])),
+                    new CompositeTypeLink([new TypeLink(typeof(IEnumerable<>), typeof(List<>))]))) as IValueConverter;
 
             return converter;
         }

@@ -31,7 +31,7 @@ namespace FixtureBuilder.Helpers
                     ? values
                     : CastElements(values, elementType);
 
-                if (genericTypeDef == typeof(List<>) || genericTypeDef == typeof(Stack<>)
+                if (genericTypeDef == typeof(Stack<>)
                     || genericTypeDef == typeof(Queue<>) || genericTypeDef == typeof(SortedSet<>)
                     || genericTypeDef == typeof(ReadOnlyCollection<>) || genericTypeDef == typeof(Collection<>)
                     || genericTypeDef == typeof(ConcurrentBag<>) || genericTypeDef == typeof(ConcurrentQueue<>)
