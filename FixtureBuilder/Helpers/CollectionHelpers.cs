@@ -11,55 +11,6 @@ namespace FixtureBuilder.Helpers
 {
     internal static class CollectionHelpers
     {
-        public static IEnumerable CastToCollection(Type fieldType, IEnumerable values)
-        {
-            var sourceType = values.GetType();
-            var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : null;
-
-            if (sourceElementType != null && !ElementTypeIsAssignable(fieldType, sourceElementType))
-                throw new InvalidOperationException($"Cannot assign type {sourceElementType.Name} as element in collection of type {fieldType.Name}.");
-
-            if (fieldType.IsInterface)
-            {
-                fieldType = GetConcreteType(fieldType);
-            }
-
-            if (fieldType == typeof(ArrayList) || fieldType == typeof(Stack) || fieldType == typeof(Queue))
-            {
-                if (values is not ICollection) values = CastToArray(fieldType, values);
-
-                var collection = InstantiationHelpers.UseConstructor(fieldType, values)
-                    ?? throw new InvalidOperationException($"Failed to instantiate nongeneric collection: {fieldType.Name}.");
-
-                return (IEnumerable)collection;
-            }
-
-            throw new InvalidOperationException($"Failed to cast to collection type: {fieldType.Name}");
-        }
-
-        private static Array CastToArray(Type fieldType, IEnumerable values)
-        {
-            var valuesList = values.Cast<object>().ToList();
-            var elementType = fieldType.GetElementType() ?? typeof(object);
-            var array = Array.CreateInstance(elementType, valuesList.Count);
-            for (int i = 0; i < valuesList.Count; i++)
-            {
-                array.SetValue(valuesList[i], i);
-            }
-            return array;
-        }
-
-        private static Type GetConcreteType(Type interfaceType)
-        {
-            if (interfaceType == typeof(IList) ||
-                interfaceType == typeof(ICollection) ||
-                interfaceType == typeof(IEnumerable))
-            {
-                return typeof(ArrayList);
-            }
-            else throw new InvalidOperationException($"Unsupported collection interface type: {interfaceType.Name}");
-        }
-
         private static bool ElementTypeIsAssignable(Type fieldType, Type sourceElementType)
         {
             if (!typeof(IEnumerable).IsAssignableFrom(fieldType)) return false;

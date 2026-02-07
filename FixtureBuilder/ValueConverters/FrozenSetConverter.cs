@@ -13,10 +13,10 @@ namespace FixtureBuilder.ValueConverters
 
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenSet<>)
                 && sourceType.Implements(typeof(IEnumerable<>))
-                && sourceType.GenericTypeArguments[0] == target.GenericTypeArguments[0]
-                )
+                && sourceType.IsGenericType
+                && sourceType.GenericTypeArguments[0] == target.GenericTypeArguments[0])
             {
-                var elementType = target.GetGenericArguments()[0];
+                var elementType = target.GenericTypeArguments[0];
 
                 var ToFrozenSetMethod = typeof(FrozenSet)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)

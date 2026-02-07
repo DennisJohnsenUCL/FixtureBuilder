@@ -40,7 +40,7 @@ namespace FixtureBuilder
 
         internal Fixture(TEntity entity)
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity), $"Cannot use a null instance as fixture {typeof(TEntity).Name}. Please use generic parameter instead for generating new fixtures.");
+            ArgumentNullException.ThrowIfNull(entity);
             if (entity.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _fixture = entity;
@@ -214,17 +214,12 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
                 IEnumerable collection;
-                _converter ??= InitializeConverter();
-                try
-                {
-                    collection = (IEnumerable)_converter.Convert(fieldType, value)!;
-                    backingField.SetValue(instance, collection);
-                    return this;
-                }
-                catch { }
-
                 if (CollectionHelpers.IsDictionary(fieldType)) collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
-                else collection = CollectionHelpers.CastToCollection(fieldType, (IEnumerable)value);
+                else
+                {
+                    _converter ??= InitializeConverter();
+                    collection = (IEnumerable)_converter.Convert(fieldType, value)!;
+                }
 
                 backingField.SetValue(instance, collection);
             }
@@ -325,7 +320,8 @@ namespace FixtureBuilder
                             new MutableGenericCollectionConverter(),
                             new ImmutableCollectionConverter(),
                             new FrozenSetConverter(),
-                            new ArrayConverter()])),
+                            new ArrayConverter(),
+                            new MutableNonGenericCollectionConverter()])),
                     new CompositeTypeLink([
                         new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                         new TypeLink(typeof(IList<>), typeof(List<>)),
@@ -337,7 +333,10 @@ namespace FixtureBuilder
                         new TypeLink(typeof(IImmutableList<>), typeof(ImmutableList<>)),
                         new TypeLink(typeof(IImmutableStack<>), typeof(ImmutableStack<>)),
                         new TypeLink(typeof(IImmutableQueue<>), typeof(ImmutableQueue<>)),
-                        new TypeLink(typeof(IImmutableSet<>), typeof(ImmutableHashSet<>))]))) as IValueConverter;
+                        new TypeLink(typeof(IImmutableSet<>), typeof(ImmutableHashSet<>)),
+                        new TypeLink(typeof(IList), typeof(ArrayList)),
+                        new TypeLink(typeof(ICollection), typeof(ArrayList)),
+                        new TypeLink(typeof(IEnumerable), typeof(ArrayList))]))) as IValueConverter;
 
             return converter;
         }
