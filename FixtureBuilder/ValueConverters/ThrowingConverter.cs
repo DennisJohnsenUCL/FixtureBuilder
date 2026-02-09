@@ -6,6 +6,8 @@
 
         public ThrowingConverter(IValueConverter inner)
         {
+            ArgumentNullException.ThrowIfNull(inner);
+
             _inner = inner;
         }
 
