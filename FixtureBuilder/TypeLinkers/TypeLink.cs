@@ -13,9 +13,6 @@
             if (inType.IsGenericTypeDefinition != outType.IsGenericTypeDefinition)
                 throw new ArgumentException("Both TypeLink types must be either generic type definitions or concrete types.");
 
-            if (inType.GetGenericArguments().Length != outType.GetGenericArguments().Length)
-                throw new ArgumentException("TypeLink types must have matching generic parameter counts.");
-
             _inType = inType;
             _outType = outType;
         }
