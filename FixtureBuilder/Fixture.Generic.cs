@@ -321,7 +321,8 @@ namespace FixtureBuilder
                             new ImmutableCollectionConverter(),
                             new FrozenSetConverter(),
                             new ArrayConverter(),
-                            new MutableNonGenericCollectionConverter()])),
+                            new MutableNonGenericCollectionConverter(),
+                            new BlockingCollectionConverter()])),
                     new CompositeTypeLink([
                         new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                         new TypeLink(typeof(IList<>), typeof(List<>)),

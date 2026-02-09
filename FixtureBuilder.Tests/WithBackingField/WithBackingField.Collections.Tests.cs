@@ -520,7 +520,6 @@ namespace FixtureBuilder.Tests.WithBackingField
             public IEnumerable<string> Collection => _collection;
         }
         [Test]
-        [Ignore("Not yet supported, will research if it should be.")]
         public void BlockingCollectionField_SetsField()
         {
             var fieldName = "_collection";
