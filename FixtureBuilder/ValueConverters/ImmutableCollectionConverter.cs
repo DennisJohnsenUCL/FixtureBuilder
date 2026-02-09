@@ -12,7 +12,11 @@ namespace FixtureBuilder.ValueConverters
 
         public object? Convert(Type target, object value)
         {
+            ArgumentNullException.ThrowIfNull(target);
+            if (value == null) return null;
+
             var sourceType = value.GetType();
+            if (sourceType == target) return value;
 
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && sourceType.Implements(typeof(IEnumerable<>))

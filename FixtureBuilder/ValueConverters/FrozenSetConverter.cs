@@ -9,7 +9,11 @@ namespace FixtureBuilder.ValueConverters
     {
         public object? Convert(Type target, object value)
         {
+            ArgumentNullException.ThrowIfNull(target);
+            if (value == null) return null;
+
             var sourceType = value.GetType();
+            if (sourceType == target) return value;
 
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenSet<>)
                 && sourceType.Implements(typeof(IEnumerable<>))

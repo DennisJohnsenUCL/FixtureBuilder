@@ -9,8 +9,12 @@
             _inner = inner;
         }
 
-        public object Convert(Type target, object value)
+        public object? Convert(Type target, object value)
         {
+            ArgumentNullException.ThrowIfNull(target);
+            if (value == null) return null;
+            if (value.GetType() == target) return value;
+
             var result = _inner.Convert(target, value);
             if (result != null) return result;
 

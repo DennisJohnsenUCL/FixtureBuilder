@@ -15,6 +15,10 @@ namespace FixtureBuilder.ValueConverters
 
         public object? Convert(Type target, object value)
         {
+            ArgumentNullException.ThrowIfNull(target);
+            if (value == null) return null;
+            if (value.GetType() == target) return value;
+
             var link = _typeLink.Link(target);
             if (link != null) target = link;
 

@@ -14,9 +14,14 @@ namespace FixtureBuilder.ValueConverters
 
         public object? Convert(Type target, object value)
         {
+            ArgumentNullException.ThrowIfNull(target);
+            if (value == null) return null;
+
+            var sourceType = value.GetType();
+            if (sourceType == target) return value;
+
             if (value is IEnumerable enumerable && target.Implements(typeof(IEnumerable<>)) && !target.IsArray)
             {
-                var sourceType = enumerable.GetType();
                 var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : typeof(object);
 
                 var targetElementType = target.GetGenericArguments()[0];
