@@ -24,7 +24,7 @@ namespace FixtureBuilder.ValueConverters
             {
                 var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : typeof(object);
 
-                var targetElementType = target.GetGenericArguments()[0];
+                var targetElementType = target.GetEnumerableElementType()!;
 
                 var typedList = sourceElementType == targetElementType
                     ? enumerable
