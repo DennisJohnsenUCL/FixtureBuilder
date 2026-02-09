@@ -187,6 +187,22 @@ namespace FixtureBuilder.Tests.WithBackingField
 
             Assert.That(field.ConcurrentBag.Single(), Is.EqualTo(_text));
         }
+
+        class LinkedListClass
+        {
+            private readonly List<string> _list = null!;
+            public IEnumerable<string> List => _list;
+        }
+        [Test]
+        public void LinkedListField_SetsField()
+        {
+            var fieldName = "_list";
+
+            var fixture = Fixture.New<LinkedListClass>().BypassConstructor().WithBackingField(fieldName, c => c.List, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.Single(), Is.EqualTo(_text));
+        }
         #endregion
 
         #region Arrays
