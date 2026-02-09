@@ -46,6 +46,22 @@ namespace FixtureBuilder.Tests.WithBackingField
             Assert.That(field.List.Single(), Is.EqualTo(_text));
         }
 
+        class ListArrayClass
+        {
+            private readonly List<string> _list = null!;
+            public string[] List => [.. _list];
+        }
+        [Test]
+        public void ListField_ArrayProperty_SetsField()
+        {
+            var fieldName = "_list";
+
+            var fixture = Fixture.New<ListArrayClass>().BypassConstructor().WithBackingField(fieldName, c => c.List, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.List.Single(), Is.EqualTo(_text));
+        }
+
         class IReadOnlyListClass
         {
             private readonly IReadOnlyList<string> _iReadOnlyList = null!;
@@ -73,6 +89,22 @@ namespace FixtureBuilder.Tests.WithBackingField
             var fieldName = "_immutableList";
 
             var fixture = Fixture.New<ImmutableListClass>().BypassConstructor().WithBackingField(fieldName, c => c.ImmutableList, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ImmutableList.Single(), Is.EqualTo(_text));
+        }
+
+        class ImmutableListArrayClass
+        {
+            private readonly ImmutableList<string> _immutableList = null!;
+            public string[] ImmutableList => [.. _immutableList];
+        }
+        [Test]
+        public void ImmutableListField_ArrayProperty_SetsField()
+        {
+            var fieldName = "_immutableList";
+
+            var fixture = Fixture.New<ImmutableListArrayClass>().BypassConstructor().WithBackingField(fieldName, c => c.ImmutableList, [_text]);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ImmutableList.Single(), Is.EqualTo(_text));
@@ -169,6 +201,22 @@ namespace FixtureBuilder.Tests.WithBackingField
             var fieldName = "_stringArray";
 
             var fixture = Fixture.New<ArrayClass>().BypassConstructor().WithBackingField(fieldName, c => c.StringArray, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.StringArray.Single(), Is.EqualTo(_text));
+        }
+
+        class ArrayArrayClass
+        {
+            private readonly string[] _stringArray = null!;
+            public object[] StringArray => _stringArray;
+        }
+        [Test]
+        public void ArrayField_ArrayProperty_SetsField()
+        {
+            var fieldName = "_stringArray";
+
+            var fixture = Fixture.New<ArrayArrayClass>().BypassConstructor().WithBackingField(fieldName, c => c.StringArray, [_text]);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.StringArray.Single(), Is.EqualTo(_text));
@@ -315,6 +363,22 @@ namespace FixtureBuilder.Tests.WithBackingField
             var fieldName = "_frozenSet";
 
             var fixture = Fixture.New<FrozenSetClass>().BypassConstructor().WithBackingField(fieldName, c => c.FrozenSet, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.FrozenSet.Single(), Is.EqualTo(_text));
+        }
+
+        class FrozenSetArrayClass
+        {
+            private readonly FrozenSet<string> _frozenSet = null!;
+            public string[] FrozenSet => [.. _frozenSet];
+        }
+        [Test]
+        public void FrozenSetField_ArrayProperty_SetsField()
+        {
+            var fieldName = "_frozenSet";
+
+            var fixture = Fixture.New<FrozenSetArrayClass>().BypassConstructor().WithBackingField(fieldName, c => c.FrozenSet, [_text]);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.FrozenSet.Single(), Is.EqualTo(_text));
@@ -694,6 +758,22 @@ namespace FixtureBuilder.Tests.WithBackingField
             var fieldName = "_arrayList";
 
             var fixture = Fixture.New<ArrayListClass>().BypassConstructor().WithBackingField(fieldName, c => c.ArrayList, [_number]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.ArrayList.Single(), Is.EqualTo(_number));
+        }
+
+        class ArrayListArrayClass
+        {
+            private readonly ArrayList _arrayList = null!;
+            public object[] ArrayList => [.. _arrayList.Cast<object>()];
+        }
+        [Test]
+        public void ArrayListField_ArrayProperty_SetsField()
+        {
+            var fieldName = "_arrayList";
+
+            var fixture = Fixture.New<ArrayListArrayClass>().BypassConstructor().WithBackingField(fieldName, c => c.ArrayList, [_number]);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.ArrayList.Single(), Is.EqualTo(_number));
