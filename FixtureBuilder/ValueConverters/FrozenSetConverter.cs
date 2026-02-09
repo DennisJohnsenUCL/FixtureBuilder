@@ -16,9 +16,7 @@ namespace FixtureBuilder.ValueConverters
             if (sourceType == target) return value;
 
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenSet<>)
-                && sourceType.Implements(typeof(IEnumerable<>))
-                && sourceType.IsGenericType
-                && sourceType.GenericTypeArguments[0] == target.GenericTypeArguments[0])
+                && sourceType.GetEnumerableElementType() == target.GenericTypeArguments[0])
             {
                 var elementType = target.GenericTypeArguments[0];
 

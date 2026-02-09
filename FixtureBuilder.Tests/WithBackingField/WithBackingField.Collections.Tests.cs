@@ -222,6 +222,22 @@ namespace FixtureBuilder.Tests.WithBackingField
             Assert.That(field.StringArray.Single(), Is.EqualTo(_text));
         }
 
+        class ArrayArrayListClass
+        {
+            private readonly string[] _stringArray = null!;
+            public ArrayList StringArray => [.. _stringArray];
+        }
+        [Test]
+        public void ArrayField_ArrayListProperty_SetsField()
+        {
+            var fieldName = "_stringArray";
+
+            var fixture = Fixture.New<ArrayArrayListClass>().BypassConstructor().WithBackingField(fieldName, c => c.StringArray, [_text]);
+            var field = Helpers.GetFixture(fixture);
+
+            Assert.That(field.StringArray[0], Is.EqualTo(_text));
+        }
+
         class ImmutableArrayClass
         {
             private readonly ImmutableArray<string> _immutableArray;

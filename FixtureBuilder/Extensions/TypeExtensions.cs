@@ -39,5 +39,12 @@ namespace FixtureBuilder.Extensions
             (target.IsGenericTypeDefinition && i.IsGenericType &&
             i.GetGenericTypeDefinition() == target));
         }
+
+        public static Type? GetEnumerableElementType(this Type type)
+        {
+            return type.GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                ?.GenericTypeArguments[0];
+        }
     }
 }

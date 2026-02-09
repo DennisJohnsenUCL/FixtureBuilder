@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.Extensions;
-using System.Collections;
+﻿using System.Collections;
 
 namespace FixtureBuilder.ValueConverters
 {
@@ -14,11 +13,9 @@ namespace FixtureBuilder.ValueConverters
             if (sourceType == target) return value;
 
             if (target.IsArray
-                && sourceType.Implements(typeof(IEnumerable<>))
-                && sourceType.IsGenericType
-                && sourceType.GenericTypeArguments[0] == target.GetElementType())
+                && value is IEnumerable enumerable)
             {
-                var valuesList = ((IEnumerable)value).Cast<object>().ToList();
+                var valuesList = enumerable.Cast<object>().ToList();
                 var elementType = target.GetElementType()!;
                 var array = Array.CreateInstance(elementType, valuesList.Count);
                 for (int i = 0; i < valuesList.Count; i++)
