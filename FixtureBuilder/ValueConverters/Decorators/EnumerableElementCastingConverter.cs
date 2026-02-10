@@ -20,19 +20,13 @@ namespace FixtureBuilder.ValueConverters.Decorators
         public object? Convert(Type target, object value)
         {
             if (value is IEnumerable enumerable
+                && target.GetEnumerableElementType() is Type targetElementType
+                && value.GetType().GetEnumerableElementType() != targetElementType
                 && target != typeof(string)
-                && target.Implements(typeof(IEnumerable<>))
                 && !target.IsArray
                 && !CollectionHelpers.IsDictionary(target))
             {
-                var sourceType = value.GetType();
-                var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : typeof(object);
-
-                var targetElementType = target.GetEnumerableElementType()!;
-
-                var typedList = sourceElementType == targetElementType
-                    ? enumerable
-                    : CastElements(enumerable, targetElementType);
+                var typedList = CastElements(enumerable, targetElementType);
 
                 return _inner.Convert(target, typedList);
             }

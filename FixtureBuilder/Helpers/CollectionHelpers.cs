@@ -41,8 +41,7 @@ namespace FixtureBuilder.Helpers
                     values = CastDictionaryElements(fieldKeyType, fieldValueType, values);
                 }
 
-                if (genericTypeDef == typeof(Dictionary<,>)
-                    || genericTypeDef == typeof(ConcurrentDictionary<,>)
+                if (genericTypeDef == typeof(ConcurrentDictionary<,>)
                     || genericTypeDef == typeof(OrderedDictionary<,>))
                 {
                     var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
@@ -122,8 +121,7 @@ namespace FixtureBuilder.Helpers
                 var keyType = fieldType.GetGenericArguments()[0];
                 var valueType = fieldType.GetGenericArguments()[1];
 
-                if (genericTypeDef == typeof(IDictionary<,>)) concreteType = typeof(Dictionary<,>);
-                else if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
+                if (genericTypeDef == typeof(IReadOnlyDictionary<,>)) concreteType = typeof(ReadOnlyDictionary<,>);
                 else if (genericTypeDef == typeof(IImmutableDictionary<,>)) concreteType = typeof(ImmutableDictionary<,>);
                 else throw new InvalidOperationException($"Unsupported generic dictionary interface type: {genericTypeDef.Name}");
 

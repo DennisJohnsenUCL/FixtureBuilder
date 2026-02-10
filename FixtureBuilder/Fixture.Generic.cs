@@ -2,8 +2,9 @@
 using FixtureBuilder.Helpers;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.ValueConverters;
-using FixtureBuilder.ValueConverters.Converters;
+using FixtureBuilder.ValueConverters.CollectionConverters;
 using FixtureBuilder.ValueConverters.Decorators;
+using FixtureBuilder.ValueConverters.DictionaryConverters;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
@@ -215,15 +216,22 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
-                IEnumerable collection;
-                if (CollectionHelpers.IsDictionary(fieldType)) collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
-                else
+
+                try
                 {
                     _converter ??= InitializeConverter();
-                    collection = (IEnumerable)_converter.Convert(fieldType, value)!;
+                    var collection = (IEnumerable)_converter.Convert(fieldType, value)!;
+                    backingField.SetValue(instance, collection);
                 }
+                catch
+                {
+                    if (CollectionHelpers.IsDictionary(fieldType))
+                    {
+                        var collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
+                        backingField.SetValue(instance, collection);
+                    }
 
-                backingField.SetValue(instance, collection);
+                }
             }
             else throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}");
 
@@ -318,13 +326,15 @@ namespace FixtureBuilder
             var converter = new ValidatingConverter(
                 new TypeLinkingConverter(
                     new EnumerableElementCastingConverter(
-                        new CompositeConverter([
-                            new MutableGenericCollectionConverter(),
-                            new ImmutableCollectionConverter(),
-                            new FrozenSetConverter(),
-                            new ArrayConverter(),
-                            new MutableNonGenericCollectionConverter(),
-                            new BlockingCollectionConverter()])),
+                        new DictionaryElementCastingConverter(
+                            new CompositeConverter([
+                                new MutableGenericCollectionConverter(),
+                                new ImmutableCollectionConverter(),
+                                new FrozenSetConverter(),
+                                new ArrayConverter(),
+                                new MutableNonGenericCollectionConverter(),
+                                new BlockingCollectionConverter(),
+                                new MutableGenericDictionaryConverter()]))),
                     new CompositeTypeLink([
                         new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                         new TypeLink(typeof(IList<>), typeof(List<>)),
@@ -339,7 +349,8 @@ namespace FixtureBuilder
                         new TypeLink(typeof(IImmutableSet<>), typeof(ImmutableHashSet<>)),
                         new TypeLink(typeof(IList), typeof(ArrayList)),
                         new TypeLink(typeof(ICollection), typeof(ArrayList)),
-                        new TypeLink(typeof(IEnumerable), typeof(ArrayList))]))) as IValueConverter;
+                        new TypeLink(typeof(IEnumerable), typeof(ArrayList)),
+                        new TypeLink(typeof(IDictionary<,>), typeof(Dictionary<,>))]))) as IValueConverter;
 
             return converter;
         }

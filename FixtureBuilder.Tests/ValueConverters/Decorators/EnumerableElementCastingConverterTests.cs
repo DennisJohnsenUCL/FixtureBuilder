@@ -94,6 +94,24 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         }
 
         [Test]
+        public void Convert_DictionaryTargetType_PassesThroughToInner()
+        {
+            var targetType = typeof(Dictionary<,>);
+            var value = new List<int> { 1, 2, 3 };
+            var expectedResult = new Dictionary<int, int> { { 1, 1 }, { 2, 2 }, { 3, 3 } };
+
+            var innerMock = new Mock<IValueConverter>();
+            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+
+            var converter = new EnumerableElementCastingConverter(innerMock.Object);
+
+            var result = converter.Convert(targetType, value);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+        }
+
+        [Test]
         public void Convert_SameElementTypes_PassesOriginalEnumerableToInner()
         {
             var targetType = typeof(Stack<int>);
