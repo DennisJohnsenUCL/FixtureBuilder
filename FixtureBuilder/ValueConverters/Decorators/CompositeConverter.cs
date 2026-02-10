@@ -1,17 +1,18 @@
-﻿namespace FixtureBuilder.ValueConverters
+﻿namespace FixtureBuilder.ValueConverters.Decorators
 {
     internal class CompositeConverter : IValueConverter
     {
         private readonly IEnumerable<IValueConverter> _converters;
 
-        public CompositeConverter(IEnumerable<IValueConverter> converters) => _converters = converters;
+        public CompositeConverter(IEnumerable<IValueConverter> converters)
+        {
+            ArgumentNullException.ThrowIfNull(converters);
+
+            _converters = converters;
+        }
 
         public object? Convert(Type target, object value)
         {
-            ArgumentNullException.ThrowIfNull(target);
-            if (value == null) return null;
-            if (value.GetType() == target) return value;
-
             foreach (var converter in _converters)
             {
                 var result = converter.Convert(target, value);

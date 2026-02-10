@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.TypeLinkers
+﻿namespace FixtureBuilder.TypeLinks
 {
     internal readonly struct TypeLink : ITypeLink
     {
@@ -19,6 +19,8 @@
 
         public Type? Link(Type target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target == _inType) return _outType;
 
             if (_inType.IsGenericTypeDefinition

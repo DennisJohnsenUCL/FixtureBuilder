@@ -1,7 +1,8 @@
 ﻿using FixtureBuilder.Extensions;
 using FixtureBuilder.Helpers;
-using FixtureBuilder.TypeLinkers;
+using FixtureBuilder.TypeLinks;
 using FixtureBuilder.ValueConverters;
+using FixtureBuilder.ValueConverters.Decorators;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
@@ -313,7 +314,7 @@ namespace FixtureBuilder
 
         private static IValueConverter InitializeConverter()
         {
-            var converter = new ThrowingConverter(
+            var converter = new ValidatingConverter(
                 new TypeLinkingConverter(
                     new EnumerableElementCastingConverter(
                         new CompositeConverter([

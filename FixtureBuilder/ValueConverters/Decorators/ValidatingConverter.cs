@@ -1,10 +1,10 @@
-﻿namespace FixtureBuilder.ValueConverters
+﻿namespace FixtureBuilder.ValueConverters.Decorators
 {
-    internal class ThrowingConverter : IValueConverter
+    internal class ValidatingConverter : IValueConverter
     {
         private readonly IValueConverter _inner;
 
-        public ThrowingConverter(IValueConverter inner)
+        public ValidatingConverter(IValueConverter inner)
         {
             ArgumentNullException.ThrowIfNull(inner);
 
@@ -15,10 +15,10 @@
         {
             ArgumentNullException.ThrowIfNull(target);
             if (value == null) return null;
-            if (value.GetType() == target) return value;
+            if (value.GetType().IsAssignableTo(target)) return value;
 
             var result = _inner.Convert(target, value);
-            if (result != null) return result;
+            if (result != null && result.GetType().IsAssignableTo(target)) return result;
 
             throw new InvalidOperationException($"Failed to convert {value.GetType().Name} to {target.Name}.");
         }

@@ -1,7 +1,9 @@
 ﻿using FixtureBuilder.Extensions;
 using System.Collections;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 
-namespace FixtureBuilder.ValueConverters
+namespace FixtureBuilder.ValueConverters.Decorators
 {
     internal class EnumerableElementCastingConverter : IValueConverter
     {
@@ -9,19 +11,19 @@ namespace FixtureBuilder.ValueConverters
 
         public EnumerableElementCastingConverter(IValueConverter inner)
         {
+            ArgumentNullException.ThrowIfNull(inner);
+
             _inner = inner;
         }
 
         public object? Convert(Type target, object value)
         {
-            ArgumentNullException.ThrowIfNull(target);
-            if (value == null) return null;
-
-            var sourceType = value.GetType();
-            if (sourceType == target) return value;
-
-            if (value is IEnumerable enumerable && target.Implements(typeof(IEnumerable<>)) && !target.IsArray)
+            if (value is IEnumerable enumerable
+                && target != typeof(string)
+                && target.Implements(typeof(IEnumerable<>))
+                && !target.IsArray)
             {
+                var sourceType = value.GetType();
                 var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : typeof(object);
 
                 var targetElementType = target.GetEnumerableElementType()!;
@@ -37,12 +39,25 @@ namespace FixtureBuilder.ValueConverters
 
         private static IEnumerable CastElements(IEnumerable values, Type elementType)
         {
-            var typedList = typeof(Enumerable)
+            var typedElements = typeof(Enumerable)
                 .GetMethod("Cast")!
                 .MakeGenericMethod(elementType)
                 .Invoke(null, [values])!;
 
-            return (IEnumerable)typedList;
+            try
+            {
+                var typedList = typeof(Enumerable)
+                    .GetMethod("ToList")!
+                    .MakeGenericMethod(elementType)
+                    .Invoke(null, [typedElements])!;
+
+                return (IEnumerable)typedList;
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException != null)
+            {
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                throw;
+            }
         }
     }
 }

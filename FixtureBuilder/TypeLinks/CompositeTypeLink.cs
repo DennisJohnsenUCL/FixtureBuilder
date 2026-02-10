@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.TypeLinkers
+﻿namespace FixtureBuilder.TypeLinks
 {
     internal class CompositeTypeLink : ITypeLink
     {

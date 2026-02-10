@@ -1,6 +1,6 @@
-﻿using FixtureBuilder.TypeLinkers;
+﻿using FixtureBuilder.TypeLinks;
 
-namespace FixtureBuilder.ValueConverters
+namespace FixtureBuilder.ValueConverters.Decorators
 {
     internal class TypeLinkingConverter : IValueConverter
     {
@@ -9,16 +9,15 @@ namespace FixtureBuilder.ValueConverters
 
         public TypeLinkingConverter(IValueConverter inner, ITypeLink typeLink)
         {
+            ArgumentNullException.ThrowIfNull(inner);
+            ArgumentNullException.ThrowIfNull(typeLink);
+
             _inner = inner;
             _typeLink = typeLink;
         }
 
         public object? Convert(Type target, object value)
         {
-            ArgumentNullException.ThrowIfNull(target);
-            if (value == null) return null;
-            if (value.GetType() == target) return value;
-
             var link = _typeLink.Link(target);
             if (link != null) target = link;
 
