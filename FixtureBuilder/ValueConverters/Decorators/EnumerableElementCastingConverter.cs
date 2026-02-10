@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.Helpers;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -24,7 +23,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
                 && value.GetType().GetEnumerableElementType() != targetElementType
                 && target != typeof(string)
                 && !target.IsArray
-                && !CollectionHelpers.IsDictionary(target))
+                && !target.IsDictionary())
             {
                 var typedList = CastElements(enumerable, targetElementType);
 

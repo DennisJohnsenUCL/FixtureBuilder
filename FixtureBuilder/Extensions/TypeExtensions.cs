@@ -1,4 +1,6 @@
 ﻿using FixtureBuilder.Helpers;
+using System.Collections;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace FixtureBuilder.Extensions
@@ -45,6 +47,21 @@ namespace FixtureBuilder.Extensions
             return type.GetInterfaces()
                 .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 ?.GenericTypeArguments[0];
+        }
+
+        public static bool IsDictionary(this Type type)
+        {
+            if (typeof(IDictionary).IsAssignableFrom(type)) return true;
+
+            else if (type.IsInterface && type.TryGetGenericTypeDefinition(out var genericTypeDef))
+            {
+                if (genericTypeDef == typeof(IDictionary<,>) ||
+                    genericTypeDef == typeof(IReadOnlyDictionary<,>) ||
+                    genericTypeDef == typeof(IImmutableDictionary<,>))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

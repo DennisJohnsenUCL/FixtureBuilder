@@ -225,7 +225,7 @@ namespace FixtureBuilder
                 }
                 catch
                 {
-                    if (CollectionHelpers.IsDictionary(fieldType))
+                    if (fieldType.IsDictionary())
                     {
                         var collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
                         backingField.SetValue(instance, collection);

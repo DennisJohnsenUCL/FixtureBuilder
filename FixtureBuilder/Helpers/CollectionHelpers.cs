@@ -80,21 +80,6 @@ namespace FixtureBuilder.Helpers
             throw new InvalidOperationException($"Failed to cast to dictionary type: {fieldType.Name}");
         }
 
-        public static bool IsDictionary(Type fieldType)
-        {
-            if (typeof(IDictionary).IsAssignableFrom(fieldType)) return true;
-
-            else if (fieldType.IsInterface && fieldType.TryGetGenericTypeDefinition(out var genericTypeDef))
-            {
-                if (genericTypeDef == typeof(IDictionary<,>) ||
-                    genericTypeDef == typeof(IReadOnlyDictionary<,>) ||
-                    genericTypeDef == typeof(IImmutableDictionary<,>))
-                    return true;
-            }
-
-            return false;
-        }
-
         private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values)
         {
             var enumerator = values.GetEnumerator();

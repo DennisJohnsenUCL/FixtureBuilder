@@ -23,7 +23,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
         //TODO: Move IsDictionary to extension method on Type
         public object? Convert(Type target, object value)
         {
-            if (CollectionHelpers.IsDictionary(target)
+            if (target.IsDictionary()
                 && target.IsGenericType
                 && target.GetEnumerableElementType() != value.GetType().GetEnumerableElementType())
             {
