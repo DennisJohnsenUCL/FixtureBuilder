@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.Helpers;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -21,7 +22,8 @@ namespace FixtureBuilder.ValueConverters.Decorators
             if (value is IEnumerable enumerable
                 && target != typeof(string)
                 && target.Implements(typeof(IEnumerable<>))
-                && !target.IsArray)
+                && !target.IsArray
+                && !CollectionHelpers.IsDictionary(target))
             {
                 var sourceType = value.GetType();
                 var sourceElementType = sourceType.IsGenericType ? sourceType.GenericTypeArguments[0] : typeof(object);

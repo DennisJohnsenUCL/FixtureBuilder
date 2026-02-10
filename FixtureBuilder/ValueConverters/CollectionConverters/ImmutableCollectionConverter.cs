@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Reflection;
 
-namespace FixtureBuilder.ValueConverters.Converters
+namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
     internal class ImmutableCollectionConverter : IValueConverter
     {

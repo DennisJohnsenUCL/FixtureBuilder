@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Frozen;
 using System.Reflection;
 
-namespace FixtureBuilder.ValueConverters.Converters
+namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
     internal class FrozenSetConverter : IValueConverter
     {

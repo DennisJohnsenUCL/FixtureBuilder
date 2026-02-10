@@ -2,7 +2,7 @@
 using FixtureBuilder.Helpers;
 using System.Collections.Concurrent;
 
-namespace FixtureBuilder.ValueConverters.Converters
+namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
     internal class BlockingCollectionConverter : IValueConverter
     {

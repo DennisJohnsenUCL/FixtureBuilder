@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace FixtureBuilder.ValueConverters.Converters
+namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
     internal class ArrayConverter : IValueConverter
     {

@@ -1,8 +1,8 @@
-﻿using FixtureBuilder.ValueConverters.Converters;
+﻿using FixtureBuilder.ValueConverters.CollectionConverters;
 using System.Collections;
 using System.Collections.Concurrent;
 
-namespace FixtureBuilder.Tests.ValueConverters.Converters
+namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 {
     internal sealed class BlockingCollectionConverterTests
     {
