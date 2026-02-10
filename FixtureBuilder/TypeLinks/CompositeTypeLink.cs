@@ -4,7 +4,12 @@
     {
         private readonly IEnumerable<ITypeLink> _typeLinks;
 
-        public CompositeTypeLink(IEnumerable<ITypeLink> typeLinks) => _typeLinks = typeLinks;
+        public CompositeTypeLink(IEnumerable<ITypeLink> typeLinks)
+        {
+            ArgumentNullException.ThrowIfNull(typeLinks);
+
+            _typeLinks = typeLinks;
+        }
 
         public Type? Link(Type target)
         {
