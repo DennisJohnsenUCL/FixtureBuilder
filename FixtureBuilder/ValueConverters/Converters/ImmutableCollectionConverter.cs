@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Reflection;
 
-namespace FixtureBuilder.ValueConverters
+namespace FixtureBuilder.ValueConverters.Converters
 {
     internal class ImmutableCollectionConverter : IValueConverter
     {
@@ -12,14 +12,8 @@ namespace FixtureBuilder.ValueConverters
 
         public object? Convert(Type target, object value)
         {
-            ArgumentNullException.ThrowIfNull(target);
-            if (value == null) return null;
-
-            var sourceType = value.GetType();
-            if (sourceType == target) return value;
-
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
-                && sourceType.GetEnumerableElementType() == target.GenericTypeArguments[0])
+                && value.GetType().GetEnumerableElementType() == target.GenericTypeArguments[0])
             {
                 var elementType = target.GenericTypeArguments[0];
                 var genericTypeDef = target.GetGenericTypeDefinition();

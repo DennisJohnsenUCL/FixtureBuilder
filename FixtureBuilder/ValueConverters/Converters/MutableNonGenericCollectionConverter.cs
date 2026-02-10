@@ -1,7 +1,7 @@
 ﻿using FixtureBuilder.Helpers;
 using System.Collections;
 
-namespace FixtureBuilder.ValueConverters
+namespace FixtureBuilder.ValueConverters.Converters
 {
     internal class MutableNonGenericCollectionConverter : IValueConverter
     {
@@ -9,10 +9,6 @@ namespace FixtureBuilder.ValueConverters
 
         public object? Convert(Type target, object value)
         {
-            ArgumentNullException.ThrowIfNull(target);
-            if (value == null) return null;
-            if (value.GetType() == target) return value;
-
             if (_types.Contains(target)
                 && value is IEnumerable enumerable)
             {

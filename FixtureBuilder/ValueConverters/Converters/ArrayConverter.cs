@@ -1,17 +1,11 @@
 ﻿using System.Collections;
 
-namespace FixtureBuilder.ValueConverters
+namespace FixtureBuilder.ValueConverters.Converters
 {
     internal class ArrayConverter : IValueConverter
     {
         public object? Convert(Type target, object value)
         {
-            ArgumentNullException.ThrowIfNull(target);
-            if (value == null) return null;
-
-            var sourceType = value.GetType();
-            if (sourceType == target) return value;
-
             if (target.IsArray
                 && value is IEnumerable enumerable)
             {

@@ -190,7 +190,7 @@ namespace FixtureBuilder.Tests.WithBackingField
 
         class LinkedListClass
         {
-            private readonly List<string> _list = null!;
+            private readonly LinkedList<string> _list = null!;
             public IEnumerable<string> List => _list;
         }
         [Test]

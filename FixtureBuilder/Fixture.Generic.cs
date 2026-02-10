@@ -2,6 +2,7 @@
 using FixtureBuilder.Helpers;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.ValueConverters;
+using FixtureBuilder.ValueConverters.Converters;
 using FixtureBuilder.ValueConverters.Decorators;
 using System.Collections;
 using System.Collections.Immutable;
