@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -41,14 +40,7 @@ namespace FixtureBuilder.Helpers
                     values = CastDictionaryElements(fieldKeyType, fieldValueType, values);
                 }
 
-                if (genericTypeDef == typeof(ConcurrentDictionary<,>)
-                    || genericTypeDef == typeof(OrderedDictionary<,>))
-                {
-                    var dictionary = InstantiationHelpers.UseConstructor(fieldType, values);
-                    if (dictionary != null) return (IEnumerable)dictionary;
-                }
-
-                else if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
+                if (genericTypeDef.FullName?.StartsWith("System.Collections.Immutable.Immutable") ?? false)
                 {
                     return CastToImmutableDictionary(fieldType, values);
                 }
