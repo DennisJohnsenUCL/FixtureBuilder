@@ -11,7 +11,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenDictionary<,>)
                 && value.GetType().GetEnumerableElementType() == target.GetEnumerableElementType())
             {
-                var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(target);
+                var (fieldKeyType, fieldValueType) = target.GetDictionaryEnumerableTypes();
 
                 var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -21,29 +21,12 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                         m.GetParameters().Length == 2)
                     ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
 
-                var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+                var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType!, fieldValueType!);
 
                 return genericToFrozenDictionary.Invoke(null, [value, null])!;
             }
 
             return null;
-        }
-
-        //TODO: This should only exist in one place
-        private static (Type fieldKeyType, Type fieldValueType) GetFieldKeyValueTypes(Type fieldType)
-        {
-            Type fieldKeyType = typeof(object);
-            Type fieldValueType = typeof(object);
-
-            var fieldGenArgs = fieldType.GetGenericArguments();
-
-            if (fieldGenArgs.Length == 2)
-            {
-                fieldKeyType = fieldGenArgs[0];
-                fieldValueType = fieldGenArgs[1];
-            }
-
-            return (fieldKeyType, fieldValueType);
         }
     }
 }

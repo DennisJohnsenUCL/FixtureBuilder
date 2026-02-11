@@ -17,19 +17,17 @@ namespace FixtureBuilder.ValueConverters.Decorators
             _inner = inner;
         }
 
-        //TODO: Add check for either value IsDictionary or value implements IEnumerable<KeyValuePair<,>>, needs own method
-        //Similar to value is IEnumerable for collections
-        //This check catches everything that can be iterated with a key and value, avoids trying to cast something that cannot
-        //TODO: Move IsDictionary to extension method on Type
         public object? Convert(Type target, object value)
         {
             if (target.IsDictionary()
                 && target.IsGenericType
-                && target.GetEnumerableElementType() != value.GetType().GetEnumerableElementType())
+                && target.GetEnumerableElementType() != value.GetType().GetEnumerableElementType()
+                && (value is IDictionary
+                || value.GetType().GetEnumerableElementType()?.GetGenericTypeDefinitionOrDefault() == (typeof(KeyValuePair<,>))))
             {
-                var (targetKeyType, targetValueType) = GetKeyValueTypes(target);
+                var (targetKeyType, targetValueType) = target.GetDictionaryEnumerableTypes();
 
-                var castDictionary = CastDictionaryElements(targetKeyType, targetValueType, (IEnumerable)value);
+                var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value);
 
                 return _inner.Convert(target, castDictionary);
             }
@@ -51,25 +49,6 @@ namespace FixtureBuilder.ValueConverters.Decorators
                 values = dict;
             }
             return values;
-        }
-
-        //TODO: This should only exist in one place. If not dictionary return nulls, if not generic return objects
-        //Or can be entirely substituted with GetEnumerableElement, but may be better with more checks
-        //Combination is top line + get arguments from enumerable kvp, those are the relevant ones anyways
-        private static (Type KeyType, Type ValueType) GetKeyValueTypes(Type fieldType)
-        {
-            Type fieldKeyType = typeof(object);
-            Type fieldValueType = typeof(object);
-
-            var fieldGenArgs = fieldType.GetGenericArguments();
-
-            if (fieldGenArgs.Length == 2)
-            {
-                fieldKeyType = fieldGenArgs[0];
-                fieldValueType = fieldGenArgs[1];
-            }
-
-            return (fieldKeyType, fieldValueType);
         }
 
         //Move to ExpressionHelper?

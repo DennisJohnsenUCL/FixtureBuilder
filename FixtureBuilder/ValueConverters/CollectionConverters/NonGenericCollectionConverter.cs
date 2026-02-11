@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
-    internal class MutableNonGenericCollectionConverter : IValueConverter
+    internal class NonGenericCollectionConverter : IValueConverter
     {
         private readonly IEnumerable<Type> _types = [typeof(ArrayList), typeof(Stack), typeof(Queue)];
 

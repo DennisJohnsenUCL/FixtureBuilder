@@ -15,7 +15,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
             {
                 var genericTypeDef = target.GetGenericTypeDefinition();
 
-                var (fieldKeyType, fieldValueType) = GetFieldKeyValueTypes(target);
+                var (fieldKeyType, fieldValueType) = target.GetDictionaryEnumerableTypes();
 
                 var factoryTypeName = genericTypeDef.FullName!.Replace("`2", "");
                 var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
@@ -29,28 +29,11 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                         m.GetParameters().Length == 1)
                     ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
 
-                var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType, fieldValueType);
+                var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType!, fieldValueType!);
 
                 return genericCreateRange.Invoke(null, [value])!;
             }
             return null;
-        }
-
-        //TODO: This should only exist in one place
-        private static (Type fieldKeyType, Type fieldValueType) GetFieldKeyValueTypes(Type fieldType)
-        {
-            Type fieldKeyType = typeof(object);
-            Type fieldValueType = typeof(object);
-
-            var fieldGenArgs = fieldType.GetGenericArguments();
-
-            if (fieldGenArgs.Length == 2)
-            {
-                fieldKeyType = fieldGenArgs[0];
-                fieldValueType = fieldGenArgs[1];
-            }
-
-            return (fieldKeyType, fieldValueType);
         }
     }
 }

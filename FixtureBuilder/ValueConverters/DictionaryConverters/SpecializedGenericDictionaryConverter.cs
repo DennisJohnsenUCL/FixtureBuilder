@@ -16,7 +16,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
             {
                 if (!value.GetType().Implements(typeof(IDictionary<,>)))
                 {
-                    var (keyType, valueType) = GetFieldKeyValueTypes(target);
+                    var (keyType, valueType) = target.GetDictionaryEnumerableTypes();
                     var intermediateType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
                     value = InstantiationHelpers.UseConstructor(intermediateType, value)!;
                 }
@@ -24,23 +24,6 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                 return InstantiationHelpers.UseConstructor(target, value);
             }
             return null;
-        }
-
-        //TODO: This should only exist in one place
-        private static (Type fieldKeyType, Type fieldValueType) GetFieldKeyValueTypes(Type fieldType)
-        {
-            Type fieldKeyType = typeof(object);
-            Type fieldValueType = typeof(object);
-
-            var fieldGenArgs = fieldType.GetGenericArguments();
-
-            if (fieldGenArgs.Length == 2)
-            {
-                fieldKeyType = fieldGenArgs[0];
-                fieldValueType = fieldGenArgs[1];
-            }
-
-            return (fieldKeyType, fieldValueType);
         }
     }
 }

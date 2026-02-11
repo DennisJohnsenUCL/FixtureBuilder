@@ -321,7 +321,7 @@ namespace FixtureBuilder
                                 new ImmutableCollectionConverter(),
                                 new FrozenSetConverter(),
                                 new ArrayConverter(),
-                                new MutableNonGenericCollectionConverter(),
+                                new NonGenericCollectionConverter(),
                                 new BlockingCollectionConverter(),
                                 new MutableGenericDictionaryConverter(),
                                 new ImmutableDictionaryConverter(),

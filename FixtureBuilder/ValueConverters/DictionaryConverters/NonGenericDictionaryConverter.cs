@@ -10,8 +10,9 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
 
         public object? Convert(Type target, object value)
         {
-            //TODO: Add check for isDictionary or ienumerable kvp, same as casting decorator
-            if (_types.Contains(target))
+            if (_types.Contains(target)
+                && (value is IDictionary
+                || value.GetType().GetEnumerableElementType()?.GetGenericTypeDefinitionOrDefault() == (typeof(KeyValuePair<,>))))
             {
                 if (value is not IDictionary)
                 {
@@ -25,7 +26,6 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
             return null;
         }
 
-        //Can be unified with Field method?
         private static (Type sourceKeyType, Type sourceValueType) GetSourceKeyValueTypes(object values)
         {
             Type sourceKeyType = typeof(object);
@@ -37,7 +37,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                 .Select(i => i.GetGenericArguments()[0])
                 .Where(t => t.GetGenericTypeDefinitionOrDefault() == typeof(KeyValuePair<,>))
                 .Select(t => t.GetGenericArguments())
-                .FirstOrDefault(args => args.Length == 2);
+                .FirstOrDefault();
 
             if (keyValueTypes != null)
             {

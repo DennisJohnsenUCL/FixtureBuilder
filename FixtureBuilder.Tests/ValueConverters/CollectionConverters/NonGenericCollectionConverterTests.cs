@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 {
-    internal sealed class MutableNonGenericCollectionConverterTests
+    internal sealed class NonGenericCollectionConverterTests
     {
         [Test]
         public void Constructor_Constructs()
@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var value = new Queue(new ArrayList { "test1", "test2", "test3" });
             var expected = new ArrayList { "test1", "test2", "test3" };
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
@@ -32,7 +32,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var value = new ArrayList { "test1", "test2", "test3" };
             var expected = new Stack(new ArrayList { "test1", "test2", "test3" });
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
@@ -46,7 +46,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var value = new ArrayList { "test1", "test2", "test3" };
             var expected = new Queue(new ArrayList { "test1", "test2", "test3" });
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
@@ -60,7 +60,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = new ArrayList { "test1", "test2", "test3" };
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
@@ -74,7 +74,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var value = new HashSet<string> { "test1", "test2", "test3" };
             var expected = new ArrayList { "test1", "test2", "test3" };
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
@@ -87,7 +87,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(List<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
@@ -100,7 +100,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ArrayList);
             var value = 42;
 
-            var converter = new MutableNonGenericCollectionConverter();
+            var converter = new NonGenericCollectionConverter();
 
             var result = converter.Convert(target, value);
 
