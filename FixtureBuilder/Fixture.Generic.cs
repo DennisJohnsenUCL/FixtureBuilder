@@ -7,6 +7,7 @@ using FixtureBuilder.ValueConverters.Decorators;
 using FixtureBuilder.ValueConverters.DictionaryConverters;
 using System.Collections;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -216,22 +217,9 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
-
-                try
-                {
-                    _converter ??= InitializeConverter();
-                    var collection = (IEnumerable)_converter.Convert(fieldType, value)!;
-                    backingField.SetValue(instance, collection);
-                }
-                catch
-                {
-                    if (fieldType.IsDictionary())
-                    {
-                        var collection = CollectionHelpers.CastToDictionary(fieldType, (IEnumerable)value);
-                        backingField.SetValue(instance, collection);
-                    }
-
-                }
+                _converter ??= InitializeConverter();
+                var collection = _converter.Convert(fieldType, value)!;
+                backingField.SetValue(instance, collection);
             }
             else throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}");
 
@@ -323,6 +311,7 @@ namespace FixtureBuilder
 
         private static IValueConverter InitializeConverter()
         {
+            //TODO: Builder, factory, or both
             var converter = new ValidatingConverter(
                 new TypeLinkingConverter(
                     new EnumerableElementCastingConverter(
@@ -334,7 +323,11 @@ namespace FixtureBuilder
                                 new ArrayConverter(),
                                 new MutableNonGenericCollectionConverter(),
                                 new BlockingCollectionConverter(),
-                                new MutableGenericDictionaryConverter()]))),
+                                new MutableGenericDictionaryConverter(),
+                                new ImmutableDictionaryConverter(),
+                                new FrozenDictionaryConverter(),
+                                new SpecializedGenericDictionaryConverter(),
+                                new NonGenericDictionaryConverter()]))),
                     new CompositeTypeLink([
                         new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                         new TypeLink(typeof(IList<>), typeof(List<>)),
@@ -350,7 +343,10 @@ namespace FixtureBuilder
                         new TypeLink(typeof(IList), typeof(ArrayList)),
                         new TypeLink(typeof(ICollection), typeof(ArrayList)),
                         new TypeLink(typeof(IEnumerable), typeof(ArrayList)),
-                        new TypeLink(typeof(IDictionary<,>), typeof(Dictionary<,>))]))) as IValueConverter;
+                        new TypeLink(typeof(IDictionary<,>), typeof(Dictionary<,>)),
+                        new TypeLink(typeof(IImmutableDictionary<,>), typeof(ImmutableDictionary<,>)),
+                        new TypeLink(typeof(IReadOnlyDictionary<,>), typeof(ReadOnlyDictionary<,>)),
+                        new TypeLink(typeof(IDictionary), typeof(Hashtable))]))) as IValueConverter;
 
             return converter;
         }

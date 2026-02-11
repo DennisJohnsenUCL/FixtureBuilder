@@ -27,7 +27,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
                 && target.IsGenericType
                 && target.GetEnumerableElementType() != value.GetType().GetEnumerableElementType())
             {
-                var (targetKeyType, targetValueType) = GetTargetKeyValueTypes(target);
+                var (targetKeyType, targetValueType) = GetKeyValueTypes(target);
 
                 var castDictionary = CastDictionaryElements(targetKeyType, targetValueType, (IEnumerable)value);
 
@@ -53,8 +53,10 @@ namespace FixtureBuilder.ValueConverters.Decorators
             return values;
         }
 
-        //TODO: This should only exist in one place
-        private static (Type fieldKeyType, Type fieldValueType) GetTargetKeyValueTypes(Type fieldType)
+        //TODO: This should only exist in one place. If not dictionary return nulls, if not generic return objects
+        //Or can be entirely substituted with GetEnumerableElement, but may be better with more checks
+        //Combination is top line + get arguments from enumerable kvp, those are the relevant ones anyways
+        private static (Type KeyType, Type ValueType) GetKeyValueTypes(Type fieldType)
         {
             Type fieldKeyType = typeof(object);
             Type fieldValueType = typeof(object);
@@ -70,6 +72,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
             return (fieldKeyType, fieldValueType);
         }
 
+        //Move to ExpressionHelper?
         private static Func<object, (object Key, object Value)> MakeKeyValueGetter(Type pairType)
         {
             // Parameter: object boxedItem

@@ -1,7 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using FixtureBuilder.Extensions;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Helpers
 {
@@ -49,6 +49,7 @@ namespace FixtureBuilder.Helpers
 
             foreach (var dataMember in dataMembers)
             {
+                //TODO: SkippingProvider (better name) decorator to do all these continues
                 if (dataMember.DeclaringType?.Namespace?.StartsWith("System") == true) continue;
                 if (dataMember.DeclaringType?.Namespace?.StartsWith("Microsoft") == true) continue;
                 if (dataMember.DeclaringType?.Namespace?.StartsWith("RunTime") == true) continue;
