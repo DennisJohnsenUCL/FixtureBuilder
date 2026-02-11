@@ -17,7 +17,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                 if (!value.GetType().Implements(typeof(IDictionary<,>)))
                 {
                     var (keyType, valueType) = target.GetDictionaryEnumerableTypes();
-                    var intermediateType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+                    var intermediateType = typeof(Dictionary<,>).MakeGenericType(keyType!, valueType!);
                     value = InstantiationHelpers.UseConstructor(intermediateType, value)!;
                 }
 

@@ -1,0 +1,96 @@
+﻿using FixtureBuilder.ValueConverters.DictionaryConverters;
+using System.Collections;
+
+namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
+{
+    internal sealed class NonGenericDictionaryConverterTests
+    {
+        [Test]
+        public void Constructor_Constructs()
+        {
+            Assert.DoesNotThrow(() => new NonGenericDictionaryConverter());
+        }
+
+        [Test]
+        public void Convert_TargetHashtable_ValueGenericDictionary_Converts()
+        {
+            var target = typeof(Hashtable);
+            var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var expected = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+
+            var converter = new NonGenericDictionaryConverter();
+
+            var result = converter.Convert(target, value);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Convert_TargetHashtable_ValueNonGenericDictionary_Converts()
+        {
+            var target = typeof(Hashtable);
+            var value = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var expected = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+
+            var converter = new NonGenericDictionaryConverter();
+
+            var result = converter.Convert(target, value);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Convert_TargetHashTable_ValueGenericEnumerableKeyValuePair_Converts()
+        {
+            var target = typeof(Hashtable);
+            var value = new List<KeyValuePair<string, int>> { new("one", 1), new("two", 2), new("three", 3) };
+            var expected = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+
+            var converter = new NonGenericDictionaryConverter();
+
+            var result = converter.Convert(target, value);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Convert_TargetSortedList_ValueGenericDictionary_Converts()
+        {
+            var target = typeof(SortedList);
+            var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var expected = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+
+            var converter = new NonGenericDictionaryConverter();
+
+            var result = converter.Convert(target, value);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Convert_TargetNotNonGenericDictionary_ReturnsNull()
+        {
+            var target = typeof(Dictionary<string, int>);
+            var value = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+
+            var converter = new NonGenericDictionaryConverter();
+
+            var result = converter.Convert(target, value);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNull()
+        {
+            var target = typeof(Hashtable);
+            var value = new List<int>() { 42 };
+
+            var converter = new NonGenericDictionaryConverter();
+
+            var result = converter.Convert(target, value);
+
+            Assert.That(result, Is.Null);
+        }
+    }
+}
