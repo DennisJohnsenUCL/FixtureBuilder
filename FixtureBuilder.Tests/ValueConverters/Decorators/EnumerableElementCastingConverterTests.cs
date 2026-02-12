@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         [Test]
         public void Convert_NonEnumerableValue_PassesThroughToInner()
         {
-            var targetType = typeof(string);
+            var targetType = typeof(List<string>);
             var value = 5;
             var expectedResult = "converted";
 
@@ -112,11 +112,11 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         }
 
         [Test]
-        public void Convert_SameElementTypes_PassesOriginalEnumerableToInner()
+        public void Convert_SameElementTypes_PassesThroughToInner()
         {
             var targetType = typeof(Stack<int>);
             var value = new List<int> { 1, 2, 3 };
-            var expectedResult = new List<int> { 1, 2, 3 };
+            var expectedResult = "converted";
 
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);

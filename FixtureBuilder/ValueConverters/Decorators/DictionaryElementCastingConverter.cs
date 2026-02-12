@@ -44,14 +44,19 @@ namespace FixtureBuilder.ValueConverters.Decorators
                 do
                 {
                     var (key, value) = getter(enumerator.Current);
-                    dict.Add(key, value);
+
+                    try
+                    {
+                        dict.Add(key, value);
+                    }
+                    catch (ArgumentException ex) { throw new InvalidCastException(ex.Message); }
                 } while (enumerator.MoveNext());
                 values = dict;
             }
             return values;
         }
 
-        //Move to ExpressionHelper?
+        //TODO: Move to ExpressionHelper?
         private static Func<object, (object Key, object Value)> MakeKeyValueGetter(Type pairType)
         {
             // Parameter: object boxedItem
