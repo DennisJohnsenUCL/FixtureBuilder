@@ -58,10 +58,9 @@ namespace FixtureBuilder
         /// instance. After instantiation, the members of the instance are initialized using default values.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.BypassConstructor()
+        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUnitialized()
         {
-            var instance = InstantiationHelper.BypassConstructor(typeof(TEntity))
-                ?? throw new InvalidOperationException($"Failed to instantiate {typeof(TEntity)} by bypassing constructor. Please try to instantiate with 'UseConstructor' instead.");
+            var instance = InstantiationHelper.CreateUnitialized(typeof(TEntity));
 
             _fixture = (TEntity)instance;
             InstantiationHelper.InstantiateMembers(_fixture);

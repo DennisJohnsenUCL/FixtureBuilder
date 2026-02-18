@@ -11,7 +11,7 @@
         [Test]
         public void FieldDoesNotExist_ReturnsFalse()
         {
-            var fixture = Fixture.New<FieldClass>().BypassConstructor();
+            var fixture = Fixture.New<FieldClass>().CreateUnitialized();
 
             var exists = fixture.HasField("_notExistingField");
 
@@ -21,7 +21,7 @@
         [Test]
         public void FieldExists_ReturnsTrue()
         {
-            var fixture = Fixture.New<FieldClass>().BypassConstructor();
+            var fixture = Fixture.New<FieldClass>().CreateUnitialized();
 
             var exists = fixture.HasField("_existingField");
 
@@ -31,7 +31,7 @@
         [Test]
         public void DerivedType_FieldExists_ReturnsTrue()
         {
-            var fixture = Fixture.New<DerivedFieldClass>().BypassConstructor();
+            var fixture = Fixture.New<DerivedFieldClass>().CreateUnitialized();
 
             var exists = fixture.HasField("_existingField");
 
@@ -41,7 +41,7 @@
         [Test]
         public void WithExpression_FieldDoesNotExist_ReturnsFalse()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor();
+            var fixture = Fixture.New<TestClass>().CreateUnitialized();
 
             var exists = fixture.HasField("_notExistingField", c => c.NestedClass.DeeperNestedClass);
 
@@ -51,7 +51,7 @@
         [Test]
         public void WithExpression_FieldExists_ReturnsTrue()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor();
+            var fixture = Fixture.New<TestClass>().CreateUnitialized();
 
             var exists = fixture.HasField("_privateField", c => c.NestedClass.DeeperNestedClass);
 
@@ -61,7 +61,7 @@
         [Test]
         public void WithExpression_DerivedType_FieldExists_ReturnsTrue()
         {
-            var fixture = Fixture.New<TestClass>().BypassConstructor();
+            var fixture = Fixture.New<TestClass>().CreateUnitialized();
 
             var exists = fixture.HasField("_privateField", c => c.NestedClass.DerivedNestedClass);
 

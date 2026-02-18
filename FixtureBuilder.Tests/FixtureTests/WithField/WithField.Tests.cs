@@ -10,7 +10,7 @@
         {
             var fieldName = "_text";
 
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().BypassConstructor().WithField(fieldName, _text);
+            var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUnitialized().WithField(fieldName, _text);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
@@ -21,7 +21,7 @@
         {
             var fieldName = "_text";
 
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().BypassConstructor().WithField<string>(fieldName, null!);
+            var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUnitialized().WithField<string>(fieldName, null!);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.Text, Is.Null);
@@ -32,7 +32,7 @@
         {
             var fieldName = "_notAField";
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<ExplicitBackingFieldClass>().BypassConstructor().WithField(fieldName, _text));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<ExplicitBackingFieldClass>().CreateUnitialized().WithField(fieldName, _text));
         }
 
         [Test]
@@ -40,7 +40,7 @@
         {
             var fieldName = "_text";
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<ExplicitBackingFieldClass>().BypassConstructor().WithField(fieldName, _number));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<ExplicitBackingFieldClass>().CreateUnitialized().WithField(fieldName, _number));
         }
 
         [Test]
@@ -48,7 +48,7 @@
         {
             var fieldName = "_inheritedField";
 
-            var fixture = Fixture.New<DerivedTestClass>().BypassConstructor().WithField(fieldName, _text);
+            var fixture = Fixture.New<DerivedTestClass>().CreateUnitialized().WithField(fieldName, _text);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.InheritedFieldGetter, Is.EqualTo(_text));
@@ -93,7 +93,7 @@
         {
             var fieldName = "_stringList";
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<StringListClass>().BypassConstructor().WithField(fieldName, _text));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<StringListClass>().CreateUnitialized().WithField(fieldName, _text));
         }
 
         [Test]
@@ -101,7 +101,7 @@
         {
             var fieldName = "_stringList";
 
-            var fixture = Fixture.New<StringListClass>().BypassConstructor().WithField<List<string>>(fieldName, [_text]);
+            var fixture = Fixture.New<StringListClass>().CreateUnitialized().WithField<List<string>>(fieldName, [_text]);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.StringList[0], Is.EqualTo(_text));
@@ -113,7 +113,7 @@
             var fieldName = "_stringList";
             var secondEntry = "More test";
 
-            var fixture = Fixture.New<StringListClass>().BypassConstructor().WithField<List<string>>(fieldName, [_text, secondEntry]);
+            var fixture = Fixture.New<StringListClass>().CreateUnitialized().WithField<List<string>>(fieldName, [_text, secondEntry]);
             var field = Helpers.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
