@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using System.Collections.Immutable;
 using System.Reflection;
 
@@ -8,7 +9,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(ImmutableDictionary<,>), typeof(ImmutableSortedDictionary<,>)];
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && value.GetType().GetEnumerableElementType() == target.GetEnumerableElementType())

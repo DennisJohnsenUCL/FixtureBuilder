@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.ValueConverters.Decorators
+﻿using FixtureBuilder.FixtureContexts;
+
+namespace FixtureBuilder.ValueConverters.Decorators
 {
     internal class ValidatingConverter : IValueConverter
     {
@@ -11,13 +13,14 @@
             _inner = inner;
         }
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             ArgumentNullException.ThrowIfNull(target);
+            ArgumentNullException.ThrowIfNull(context);
             if (value == null) return null;
             if (value.GetType().IsAssignableTo(target)) return value;
 
-            var result = _inner.Convert(target, value);
+            var result = _inner.Convert(target, value, context);
             if (result != null && result.GetType().IsAssignableTo(target)) return result;
 
             throw new InvalidOperationException($"Failed to convert {value.GetType().Name} to {target.Name}.");

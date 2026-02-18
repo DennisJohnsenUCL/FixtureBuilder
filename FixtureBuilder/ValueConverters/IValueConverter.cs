@@ -1,7 +1,9 @@
-﻿namespace FixtureBuilder.ValueConverters
+﻿using FixtureBuilder.FixtureContexts;
+
+namespace FixtureBuilder.ValueConverters
 {
-    public interface IValueConverter
+    internal interface IValueConverter
     {
-        object? Convert(Type target, object value);
+        object? Convert(Type target, object value, IFixtureContext context);
     }
 }

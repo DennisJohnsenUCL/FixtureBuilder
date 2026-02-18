@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
         private readonly IEnumerable<Type> _types = [typeof(ImmutableList<>), typeof(ImmutableHashSet<>),
             typeof(ImmutableStack<>), typeof(ImmutableQueue<>), typeof(ImmutableArray<>), typeof(ImmutableSortedSet<>)];
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && value.GetType().GetEnumerableElementType() == target.GenericTypeArguments[0])

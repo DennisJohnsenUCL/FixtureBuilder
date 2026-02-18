@@ -1,27 +1,24 @@
-﻿using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.Decorators
 {
     internal class TypeLinkingConverter : IValueConverter
     {
         private readonly IValueConverter _inner;
-        private readonly ITypeLink _typeLink;
 
-        public TypeLinkingConverter(IValueConverter inner, ITypeLink typeLink)
+        public TypeLinkingConverter(IValueConverter inner)
         {
             ArgumentNullException.ThrowIfNull(inner);
-            ArgumentNullException.ThrowIfNull(typeLink);
 
             _inner = inner;
-            _typeLink = typeLink;
         }
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
-            var link = _typeLink.Link(target);
+            var link = context.Link(target);
             if (link != null) target = link;
 
-            var result = _inner.Convert(target, value);
+            var result = _inner.Convert(target, value, context);
             if (result != null) return result;
 
             return null;

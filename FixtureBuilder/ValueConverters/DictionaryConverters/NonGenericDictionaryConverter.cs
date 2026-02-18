@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
 using System.Collections;
 
@@ -8,7 +9,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(Hashtable), typeof(SortedList)];
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (_types.Contains(target)
                 && (value is IDictionary

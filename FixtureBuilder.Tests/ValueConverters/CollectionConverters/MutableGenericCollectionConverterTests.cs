@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.ValueConverters.CollectionConverters;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters.CollectionConverters;
+using Moq;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -20,10 +22,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(List<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new List<string> { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -34,10 +37,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(Stack<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new Stack<string>(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -48,10 +52,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(Queue<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new Queue<string>(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -62,10 +67,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(SortedSet<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new SortedSet<string> { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -76,10 +82,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ReadOnlyCollection<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new ReadOnlyCollection<string>(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -90,10 +97,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(Collection<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new Collection<string> { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -104,10 +112,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ConcurrentBag<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new ConcurrentBag<string> { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -118,10 +127,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ConcurrentStack<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new ConcurrentStack<string>(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -132,10 +142,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(HashSet<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new HashSet<string> { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -146,10 +157,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(LinkedList<string>);
             var value = new string[] { "test1", "test2", "test3" };
             var expected = new LinkedList<string>(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -160,10 +172,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(List<string>);
             var value = ImmutableList.CreateRange(["test1", "test2", "test3"]);
             var expected = new List<string> { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -173,10 +186,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(List<string>);
             var value = new int[] { 1, 2, 3 };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -186,10 +200,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(ImmutableList<string>);
             var value = new string[] { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -199,10 +214,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(List<string>);
             var value = 42;
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -212,10 +228,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(List<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new MutableGenericCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }

@@ -1,5 +1,8 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
+using FixtureBuilder.TypeLinks;
+using FixtureBuilder.TypeLinks.TypeLinkBuilders;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.ConverterBuilders;
 using System.Collections;
@@ -10,7 +13,7 @@ namespace FixtureBuilder
 {
     internal class Fixture<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
     {
-        private IValueConverter? _converter;
+        private readonly IFixtureContext _context;
         private TEntity _fixture = null!;
 
         /// <summary>
@@ -35,6 +38,8 @@ namespace FixtureBuilder
                 throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
 
             if (typeof(TEntity).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
+
+            _context = InitializeContext();
         }
 
         internal Fixture(TEntity entity)
@@ -42,6 +47,7 @@ namespace FixtureBuilder
             ArgumentNullException.ThrowIfNull(entity);
             if (entity.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
+            _context = InitializeContext();
             _fixture = entity;
         }
 
@@ -212,8 +218,7 @@ namespace FixtureBuilder
                 && typeof(IEnumerable).IsAssignableFrom(fieldType)
                 && typeof(IEnumerable).IsAssignableFrom(sourceType))
             {
-                _converter ??= InitializeConverter();
-                var collection = _converter.Convert(fieldType, value)!;
+                var collection = _context.Convert(fieldType, value, _context)!;
                 backingField.SetValue(instance, collection);
             }
             else throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}");
@@ -304,11 +309,13 @@ namespace FixtureBuilder
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
         }
 
-        private static IValueConverter InitializeConverter()
+        private static IFixtureContext InitializeContext()
         {
-            var factory = new ConverterFactory();
-            var converter = factory.CreateDefaultConverter();
-            return converter;
+            var converter = new Func<IValueConverter>(() => new ConverterFactory().CreateDefaultConverter());
+            var typeLink = new Func<ITypeLink>(() => new TypeLinkFactory().CreateDefaultTypeLink());
+            var resolver = new LazyContextResolver(converter, typeLink);
+            var context = new FixtureContext(resolver) as IFixtureContext;
+            return context;
         }
     }
 }

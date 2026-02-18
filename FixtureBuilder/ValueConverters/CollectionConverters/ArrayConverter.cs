@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using FixtureBuilder.FixtureContexts;
+using System.Collections;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
     internal class ArrayConverter : IValueConverter
     {
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (target.IsArray
                 && value is IEnumerable enumerable)

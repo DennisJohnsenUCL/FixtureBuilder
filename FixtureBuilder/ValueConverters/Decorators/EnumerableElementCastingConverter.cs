@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -16,7 +17,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (value is IEnumerable enumerable
                 && target.GetEnumerableElementType() is Type targetElementType
@@ -27,9 +28,9 @@ namespace FixtureBuilder.ValueConverters.Decorators
             {
                 var typedList = CastElements(enumerable, targetElementType);
 
-                return _inner.Convert(target, typedList);
+                return _inner.Convert(target, typedList, context);
             }
-            return _inner.Convert(target, value);
+            return _inner.Convert(target, value, context);
         }
 
         private static IEnumerable CastElements(IEnumerable values, Type elementType)

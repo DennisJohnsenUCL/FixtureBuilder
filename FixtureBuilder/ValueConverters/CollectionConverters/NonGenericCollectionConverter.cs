@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Helpers;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.Helpers;
 using System.Collections;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
@@ -7,7 +8,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(ArrayList), typeof(Stack), typeof(Queue)];
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (_types.Contains(target)
                 && value is IEnumerable enumerable)

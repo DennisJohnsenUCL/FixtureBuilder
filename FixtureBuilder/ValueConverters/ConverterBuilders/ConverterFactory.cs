@@ -19,9 +19,6 @@
                 .WithDictionaryElementCasting()
                 .WithEnumerableElementCasting()
                 .WithTypeLinking()
-                    .AddEnumerableTypeLinks()
-                    .AddDictionaryTypeLinks()
-                    .And()
                 .WithValidation()
                 .Build();
 

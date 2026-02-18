@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.ValueConverters.CollectionConverters;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters.CollectionConverters;
+using Moq;
 using System.Collections;
 
 namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
@@ -17,10 +19,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(string[]);
             var value = new ArrayList { "test1", "test2", "test3" };
             var expected = new string[] { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -31,10 +34,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(string[]);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = new string[] { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -44,10 +48,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(List<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -57,10 +62,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(string[]);
             var value = 42;
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }

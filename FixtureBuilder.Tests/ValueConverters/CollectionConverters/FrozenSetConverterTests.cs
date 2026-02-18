@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.ValueConverters.CollectionConverters;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters.CollectionConverters;
+using Moq;
 using System.Collections;
 using System.Collections.Frozen;
 
@@ -18,10 +20,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(FrozenSet<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = FrozenSet.ToFrozenSet(["test1", "test2", "test3"], null);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -31,10 +34,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(FrozenSet<string>);
             var value = new List<int> { 1, 2, 3 };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -44,10 +48,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(List<string>);
             var value = new string[] { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -57,10 +62,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(FrozenSet<string>);
             var value = 42;
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -70,10 +76,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(FrozenSet<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }

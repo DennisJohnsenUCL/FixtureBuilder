@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.TypeLinks;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.Decorators;
 using Moq;
@@ -10,26 +11,15 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         [Test]
         public void Constructor_InnerNull_ThrowsException()
         {
-            var typeLink = Mock.Of<ITypeLink>();
-
-            Assert.Throws<ArgumentNullException>(() => new TypeLinkingConverter(null!, typeLink));
-        }
-
-        [Test]
-        public void Constructor_TypeLinkNull_ThrowsException()
-        {
-            var inner = Mock.Of<IValueConverter>();
-
-            Assert.Throws<ArgumentNullException>(() => new TypeLinkingConverter(inner, null!));
+            Assert.Throws<ArgumentNullException>(() => new TypeLinkingConverter(null!));
         }
 
         [Test]
         public void Constructor_Constructs()
         {
             var inner = Mock.Of<IValueConverter>();
-            var typeLink = Mock.Of<ITypeLink>();
 
-            Assert.DoesNotThrow(() => new TypeLinkingConverter(inner, typeLink));
+            Assert.DoesNotThrow(() => new TypeLinkingConverter(inner));
         }
 
         [Test]
@@ -37,19 +27,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         {
             var targetType = typeof(string);
             var value = "test";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns((object?)null);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns((object?)null);
 
-            var typeLinkMock = new Mock<ITypeLink>();
-            typeLinkMock.Setup(x => x.Link(targetType)).Returns((Type?)null);
+            var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var converter = new TypeLinkingConverter(innerMock.Object, typeLinkMock.Object);
-
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(result, Is.Null);
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -58,19 +46,20 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(string);
             var value = "test";
             var expectedResult = "converted";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
 
             var typeLinkMock = new Mock<ITypeLink>();
             typeLinkMock.Setup(x => x.Link(targetType)).Returns((Type?)null);
 
-            var converter = new TypeLinkingConverter(innerMock.Object, typeLinkMock.Object);
+            var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(expectedResult, Is.EqualTo(result));
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -79,20 +68,19 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var originalType = typeof(string);
             var linkedType = typeof(int);
             var value = "test";
+            var contextMock = new Mock<IFixtureContext>();
+            contextMock.Setup(x => x.Link(originalType)).Returns(linkedType);
+            var context = contextMock.Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(linkedType, value)).Returns(42);
+            innerMock.Setup(x => x.Convert(linkedType, value, context)).Returns(42);
 
-            var typeLinkMock = new Mock<ITypeLink>();
-            typeLinkMock.Setup(x => x.Link(originalType)).Returns(linkedType);
+            var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var converter = new TypeLinkingConverter(innerMock.Object, typeLinkMock.Object);
+            converter.Convert(originalType, value, context);
 
-            converter.Convert(originalType, value);
-
-            typeLinkMock.Verify(x => x.Link(originalType), Times.Once);
-            innerMock.Verify(x => x.Convert(linkedType, value), Times.Once);
-            innerMock.Verify(x => x.Convert(originalType, It.IsAny<object>()), Times.Never);
+            innerMock.Verify(x => x.Convert(linkedType, value, context), Times.Once);
+            innerMock.Verify(x => x.Convert(originalType, It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
@@ -102,16 +90,16 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var linkedType = typeof(int);
             var value = "test";
             var expectedResult = 42;
+            var contextMock = new Mock<IFixtureContext>();
+            contextMock.Setup(x => x.Link(originalType)).Returns(linkedType);
+            var context = contextMock.Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(linkedType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(linkedType, value, context)).Returns(expectedResult);
 
-            var typeLinkMock = new Mock<ITypeLink>();
-            typeLinkMock.Setup(x => x.Link(originalType)).Returns(linkedType);
+            var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var converter = new TypeLinkingConverter(innerMock.Object, typeLinkMock.Object);
-
-            var result = converter.Convert(originalType, value);
+            var result = converter.Convert(originalType, value, context);
 
             Assert.That(expectedResult, Is.EqualTo(result));
         }

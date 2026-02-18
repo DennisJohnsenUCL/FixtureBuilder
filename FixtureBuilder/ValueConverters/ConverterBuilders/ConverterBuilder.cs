@@ -21,6 +21,13 @@ namespace FixtureBuilder.ValueConverters.ConverterBuilders
             return this;
         }
 
+        public ConverterBuilder WithTypeLinking()
+        {
+            ValidateCanDecorate();
+            _converter = new TypeLinkingConverter(_converter!);
+            return this;
+        }
+
         public ConverterBuilder WithDictionaryElementCasting()
         {
             ValidateCanDecorate();
@@ -47,14 +54,11 @@ namespace FixtureBuilder.ValueConverters.ConverterBuilders
             return new CompositeConverterBuilder(this);
         }
 
-        public TypeLinkingConverterBuilder WithTypeLinking()
-        {
-            return new TypeLinkingConverterBuilder(this);
-        }
-
         private void ValidateCanDecorate()
         {
-            if (_converter == null) throw new InvalidOperationException();
+            if (_converter == null)
+                throw new InvalidOperationException("Converter builder must have an inner Converter before it can be decorated." +
+                    " Consider starting with a CompositeConverter.");
         }
     }
 }

@@ -1,33 +1,21 @@
-﻿using FixtureBuilder.TypeLinks;
-using FixtureBuilder.ValueConverters.Decorators;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
-namespace FixtureBuilder.ValueConverters.ConverterBuilders
+namespace FixtureBuilder.TypeLinks.TypeLinkBuilders
 {
-    internal class TypeLinkingConverterBuilder
+    internal class CompositeTypeLinkBuilder
     {
-        private readonly ConverterBuilder _builder;
+        private readonly TypeLinkBuilder _builder;
         private IEnumerable<ITypeLink> _typeLinks = [];
 
-        public TypeLinkingConverterBuilder(ConverterBuilder builder)
+        public CompositeTypeLinkBuilder(TypeLinkBuilder builder)
         {
             ArgumentNullException.ThrowIfNull(builder);
             _builder = builder;
         }
 
-        public TypeLinkingConverterBuilder AddDictionaryTypeLinks()
-        {
-            _typeLinks = _typeLinks.Concat([new TypeLink(typeof(IDictionary<,>), typeof(Dictionary<,>)),
-                new TypeLink(typeof(IImmutableDictionary<,>), typeof(ImmutableDictionary<,>)),
-                new TypeLink(typeof(IReadOnlyDictionary<,>), typeof(ReadOnlyDictionary<,>)),
-                new TypeLink(typeof(IDictionary), typeof(Hashtable))]);
-
-            return this;
-        }
-
-        public TypeLinkingConverterBuilder AddEnumerableTypeLinks()
+        public CompositeTypeLinkBuilder AddEnumerableTypeLinks()
         {
             _typeLinks = _typeLinks.Concat([new TypeLink(typeof(IEnumerable<>), typeof(List<>)),
                 new TypeLink(typeof(IList<>), typeof(List<>)),
@@ -47,11 +35,19 @@ namespace FixtureBuilder.ValueConverters.ConverterBuilders
             return this;
         }
 
-        public ConverterBuilder And()
+        public CompositeTypeLinkBuilder AddDictionaryTypeLinks()
         {
-            var inner = _builder.Build();
-            var typeLinks = new CompositeTypeLink(_typeLinks);
-            _builder.WithDecorator(new TypeLinkingConverter(inner, typeLinks));
+            _typeLinks = _typeLinks.Concat([new TypeLink(typeof(IDictionary<,>), typeof(Dictionary<,>)),
+                new TypeLink(typeof(IImmutableDictionary<,>), typeof(ImmutableDictionary<,>)),
+                new TypeLink(typeof(IReadOnlyDictionary<,>), typeof(ReadOnlyDictionary<,>)),
+                new TypeLink(typeof(IDictionary), typeof(Hashtable))]);
+
+            return this;
+        }
+
+        public TypeLinkBuilder And()
+        {
+            _builder.WithDecorator(new CompositeTypeLink(_typeLinks));
             return _builder;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using System.Collections.Frozen;
 using System.Reflection;
 
@@ -6,7 +7,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
 {
     internal class FrozenDictionaryConverter : IValueConverter
     {
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenDictionary<,>)
                 && value.GetType().GetEnumerableElementType() == target.GetEnumerableElementType())

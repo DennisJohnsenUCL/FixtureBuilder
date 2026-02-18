@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
 using System.Collections;
 using System.Linq.Expressions;
@@ -17,7 +18,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(Type target, object value)
+        public object? Convert(Type target, object value, IFixtureContext context)
         {
             if (target.IsDictionary()
                 && target.IsGenericType
@@ -29,9 +30,9 @@ namespace FixtureBuilder.ValueConverters.Decorators
 
                 var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value);
 
-                return _inner.Convert(target, castDictionary);
+                return _inner.Convert(target, castDictionary, context);
             }
-            return _inner.Convert(target, value);
+            return _inner.Convert(target, value, context);
         }
 
         private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values)

@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.ValueConverters;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.Decorators;
 using Moq;
 using System.Collections;
@@ -27,16 +28,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<string, int>);
             var value = 5;
             var expectedResult = "converted";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -45,16 +47,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<string, int>);
             var value = new List<string> { "one", "two", "three" };
             var expectedResult = "converted";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -63,16 +66,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(List<string>);
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = "converted";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -81,16 +85,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Hashtable);
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = "converted";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -99,16 +104,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<string, int>);
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = "converted";
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            innerMock.Verify(x => x.Convert(targetType, value), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
         }
 
         [Test]
@@ -117,16 +123,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<object, object>);
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = new Dictionary<object, object> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>()))
-                .Callback<Type, object>((_, v) => capturedEnumerable = v as IEnumerable)
+            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
+                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -144,16 +151,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<string, int>);
             var value = new SortedDictionary<object, object> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>()))
-                .Callback<Type, object>((_, v) => capturedEnumerable = v as IEnumerable)
+            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
+                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -171,16 +179,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<object, object>);
             var value = new List<KeyValuePair<string, int>> { new("one", 1), new("two", 2), new("three", 3) };
             var expectedResult = new Dictionary<object, object> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>()))
-                .Callback<Type, object>((_, v) => capturedEnumerable = v as IEnumerable)
+            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
+                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -198,16 +207,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(Dictionary<string, int>);
             var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>()))
-                .Callback<Type, object>((t, v) => capturedEnumerable = v as IEnumerable)
+            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
+                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value);
+            var result = converter.Convert(targetType, value, context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -224,12 +234,13 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         {
             var targetType = typeof(Dictionary<string, long>);
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             var innerMock = new Mock<IValueConverter>();
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            Assert.Throws<InvalidCastException>(() => converter.Convert(targetType, value));
+            Assert.Throws<InvalidCastException>(() => converter.Convert(targetType, value, context));
         }
     }
 }

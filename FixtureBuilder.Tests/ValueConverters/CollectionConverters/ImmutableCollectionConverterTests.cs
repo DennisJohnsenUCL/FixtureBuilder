@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.ValueConverters.CollectionConverters;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters.CollectionConverters;
+using Moq;
 using System.Collections;
 using System.Collections.Immutable;
 
@@ -18,10 +20,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ImmutableList<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableList.CreateRange(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -32,10 +35,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ImmutableHashSet<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableHashSet.CreateRange(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -46,10 +50,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ImmutableStack<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableStack.CreateRange(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -60,10 +65,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ImmutableQueue<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableQueue.CreateRange(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -74,10 +80,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ImmutableArray<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableArray.CreateRange(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -88,10 +95,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
             var target = typeof(ImmutableSortedSet<string>);
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableSortedSet.CreateRange(["test1", "test2", "test3"]);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -101,10 +109,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(ImmutableList<string>);
             var value = new List<int> { 1, 2, 3 };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -114,10 +123,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(List<string>);
             var value = new string[] { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -127,10 +137,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(ImmutableList<string>);
             var value = 42;
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -140,10 +151,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         {
             var target = typeof(ImmutableList<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new ImmutableCollectionConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }

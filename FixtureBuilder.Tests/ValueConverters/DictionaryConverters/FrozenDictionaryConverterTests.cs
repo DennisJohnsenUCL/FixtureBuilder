@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.ValueConverters.DictionaryConverters;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters.DictionaryConverters;
+using Moq;
 using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
@@ -19,10 +21,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
             var target = typeof(FrozenDictionary<string, int>);
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = FrozenDictionary.ToFrozenDictionary(value, null);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenDictionaryConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -33,10 +36,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
             var target = typeof(FrozenDictionary<string, int>);
             var value = new List<KeyValuePair<string, int>> { new("one", 1), new("two", 2), new("three", 3) };
             var expected = FrozenDictionary.ToFrozenDictionary(value, null);
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenDictionaryConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -46,10 +50,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
         {
             var target = typeof(FrozenDictionary<string, int>);
             var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenDictionaryConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -59,10 +64,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
         {
             var target = typeof(ReadOnlyDictionary<string, int>);
             var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenDictionaryConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -72,10 +78,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
         {
             var target = typeof(FrozenDictionary<string, int>);
             var value = new List<int>() { 42 };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenDictionaryConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
@@ -85,10 +92,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
         {
             var target = typeof(FrozenDictionary<string, int>);
             var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+            var context = new Mock<IFixtureContext>().Object;
 
             var converter = new FrozenDictionaryConverter();
 
-            var result = converter.Convert(target, value);
+            var result = converter.Convert(target, value, context);
 
             Assert.That(result, Is.Null);
         }
