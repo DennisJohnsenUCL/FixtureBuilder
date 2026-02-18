@@ -15,10 +15,10 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
                 if (!value.GetType().Implements(typeof(IProducerConsumerCollection<>)))
                 {
                     var intermediateType = typeof(ConcurrentQueue<>).MakeGenericType(target.GetGenericArguments()[0]);
-                    value = InstantiationHelpers.UseConstructor(intermediateType, value)!;
+                    value = InstantiationHelper.UseConstructor(intermediateType, value)!;
                 }
 
-                return InstantiationHelpers.UseConstructor(target, value);
+                return InstantiationHelper.UseConstructor(target, value);
             }
 
             return null;

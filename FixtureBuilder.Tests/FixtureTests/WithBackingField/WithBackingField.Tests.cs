@@ -1,6 +1,6 @@
 ﻿#pragma warning disable CA1822 // Mark members as static
 
-namespace FixtureBuilder.Tests.WithBackingField
+namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal sealed class WithBackingFieldTests
     {

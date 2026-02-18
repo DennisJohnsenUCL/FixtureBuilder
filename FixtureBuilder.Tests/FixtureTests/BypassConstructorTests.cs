@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.Tests.FixtureConstructionMethods
+﻿namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class BypassConstructorTests
     {

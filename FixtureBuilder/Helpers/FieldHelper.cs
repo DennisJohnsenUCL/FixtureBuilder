@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Helpers
 {
-    internal static class FieldHelpers
+    internal static class FieldHelper
     {
         public static bool TryGetField(Type type, string fieldName, out FieldInfo fieldInfo)
         {

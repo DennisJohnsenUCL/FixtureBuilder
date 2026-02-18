@@ -17,7 +17,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && value.GetType().GetEnumerableElementType() == target.GenericTypeArguments[0])
             {
-                return InstantiationHelpers.UseConstructor(target, value);
+                return InstantiationHelper.UseConstructor(target, value);
             }
 
             return null;

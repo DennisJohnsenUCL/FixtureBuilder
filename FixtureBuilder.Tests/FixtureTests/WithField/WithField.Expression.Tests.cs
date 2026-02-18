@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.Tests.WithField
+﻿namespace FixtureBuilder.Tests.FixtureTests.WithField
 {
     internal class WithFieldExpressionTests
     {

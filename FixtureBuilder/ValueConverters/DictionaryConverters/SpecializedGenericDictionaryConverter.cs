@@ -19,10 +19,10 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                 {
                     var (keyType, valueType) = target.GetDictionaryEnumerableTypes();
                     var intermediateType = typeof(Dictionary<,>).MakeGenericType(keyType!, valueType!);
-                    value = InstantiationHelpers.UseConstructor(intermediateType, value)!;
+                    value = InstantiationHelper.UseConstructor(intermediateType, value)!;
                 }
 
-                return InstantiationHelpers.UseConstructor(target, value);
+                return InstantiationHelper.UseConstructor(target, value);
             }
             return null;
         }

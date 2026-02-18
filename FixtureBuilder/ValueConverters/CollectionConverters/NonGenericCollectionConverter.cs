@@ -15,7 +15,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
             {
                 if (value is not ICollection) value = CastToArray(enumerable);
 
-                var collection = InstantiationHelpers.UseConstructor(target, value);
+                var collection = InstantiationHelper.UseConstructor(target, value);
                 return collection;
             }
 

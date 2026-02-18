@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace FixtureBuilder.Helpers
 {
-    internal static class ExpressionHelpers
+    internal static class ExpressionHelper
     {
         public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, bool instantiateTarget)
         {
@@ -46,7 +46,7 @@ namespace FixtureBuilder.Helpers
                     throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
                 var type = prop.PropertyType;
-                current = InstantiationHelpers.GetInstantiatedInstance(type, instantiateMembers: false);
+                current = InstantiationHelper.GetInstantiatedInstance(type, instantiateMembers: false);
                 prop.SetValue(parent, current);
             }
 

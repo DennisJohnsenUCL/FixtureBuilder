@@ -4,7 +4,7 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
-namespace FixtureBuilder.Tests.WithBackingField
+namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal class WithBackingFieldDictionariesTests
     {

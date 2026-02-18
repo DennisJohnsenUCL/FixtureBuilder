@@ -1,7 +1,7 @@
 ﻿#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1822 // Mark members as static
 
-namespace FixtureBuilder.Tests
+namespace FixtureBuilder.Tests.FixtureTests
 {
     internal class WithSetterTests
     {

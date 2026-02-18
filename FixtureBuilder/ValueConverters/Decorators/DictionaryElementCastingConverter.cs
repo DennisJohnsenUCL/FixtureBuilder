@@ -40,7 +40,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
             var enumerator = values.GetEnumerator();
             if (enumerator.MoveNext())
             {
-                var dict = (IDictionary)InstantiationHelpers.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
+                var dict = (IDictionary)InstantiationHelper.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
                 var getter = MakeKeyValueGetter(enumerator.Current.GetType());
                 do
                 {

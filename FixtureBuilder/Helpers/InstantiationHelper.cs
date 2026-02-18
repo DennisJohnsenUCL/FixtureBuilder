@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace FixtureBuilder.Helpers
 {
-    internal static class InstantiationHelpers
+    internal static class InstantiationHelper
     {
         public static object GetInstantiatedInstance(Type type, bool instantiateMembers)
         {

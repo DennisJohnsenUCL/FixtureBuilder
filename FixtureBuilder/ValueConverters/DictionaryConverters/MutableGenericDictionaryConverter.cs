@@ -15,7 +15,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && value.GetType().GetEnumerableElementType() == target.GetEnumerableElementType())
             {
-                return InstantiationHelpers.UseConstructor(target, value);
+                return InstantiationHelper.UseConstructor(target, value);
             }
             return null;
         }

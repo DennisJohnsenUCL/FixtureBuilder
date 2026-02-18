@@ -60,11 +60,11 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.BypassConstructor()
         {
-            var instance = InstantiationHelpers.BypassConstructor(typeof(TEntity))
+            var instance = InstantiationHelper.BypassConstructor(typeof(TEntity))
                 ?? throw new InvalidOperationException($"Failed to instantiate {typeof(TEntity)} by bypassing constructor. Please try to instantiate with 'UseConstructor' instead.");
 
             _fixture = (TEntity)instance;
-            InstantiationHelpers.InstantiateMembers(_fixture);
+            InstantiationHelper.InstantiateMembers(_fixture);
 
             return this;
         }
@@ -77,11 +77,11 @@ namespace FixtureBuilder
         /// <exception cref="MissingMethodException"/>
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
         {
-            var instance = InstantiationHelpers.UseConstructor(typeof(TEntity), args)
+            var instance = InstantiationHelper.UseConstructor(typeof(TEntity), args)
                 ?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)} with given constructor arguments. Please ensure a matching constructor exists.");
 
             _fixture = (TEntity)instance;
-            InstantiationHelpers.InstantiateMembers(_fixture);
+            InstantiationHelper.InstantiateMembers(_fixture);
 
             return this;
         }
@@ -130,9 +130,9 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelpers.ValidateExpression(expr);
+            ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: true);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: true);
             var propertyType = property.PropertyType;
 
             return WithFieldInternal(fieldName, propertyType, value, instance);
@@ -140,7 +140,7 @@ namespace FixtureBuilder
 
         private Fixture<TEntity> WithFieldInternal(string fieldName, Type propertyType, object? value, object instance)
         {
-            if (!FieldHelpers.TryGetField(propertyType, fieldName, out var fieldInfo))
+            if (!FieldHelper.TryGetField(propertyType, fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {propertyType.Name}.");
 
             var fieldType = fieldInfo.FieldType;
@@ -194,13 +194,13 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelpers.ValidateExpression(expr);
+            ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
             var propertyParentType = instance.GetType();
 
-            if (!FieldHelpers.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
+            if (!FieldHelper.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
             var fieldType = backingField.FieldType;
@@ -243,10 +243,10 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelpers.ValidateExpression(expr);
-            ExpressionHelpers.ValidatePropertyWriteable(expr);
+            ExpressionHelper.ValidateExpression(expr);
+            ExpressionHelper.ValidatePropertyWriteable(expr);
 
-            var (instance, property) = ExpressionHelpers.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
 
             property.SetValue(instance, value);
 
@@ -267,7 +267,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            if (ExpressionHelpers.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
+            if (ExpressionHelper.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
             else return WithBackingFieldInternal(expr, value);
         }
 
@@ -278,7 +278,7 @@ namespace FixtureBuilder
         /// <returns><see langword="true"/> if the field exists on the fixture type, <see langword="false"/> if not.</returns>
         bool IFixtureConfigurator<TEntity>.HasField(string fieldName)
         {
-            return FieldHelpers.TryGetField(typeof(TEntity), fieldName, out var _);
+            return FieldHelper.TryGetField(typeof(TEntity), fieldName, out var _);
         }
 
         /// <summary>
@@ -290,17 +290,17 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"></exception>
         bool IFixtureConfigurator<TEntity>.HasField(string fieldName, Expression<Func<TEntity, object?>> expr)
         {
-            ExpressionHelpers.ValidateExpression(expr);
+            ExpressionHelper.ValidateExpression(expr);
 
             if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
-                return FieldHelpers.TryGetField(pi.PropertyType, fieldName, out var _);
+                return FieldHelper.TryGetField(pi.PropertyType, fieldName, out var _);
 
             return false;
         }
 
         private static TEntity InstantiateFixture()
         {
-            return (TEntity)InstantiationHelpers.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            return (TEntity)InstantiationHelper.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)

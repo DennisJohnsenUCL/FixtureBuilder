@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.Tests
+﻿namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class HasFieldTests
     {

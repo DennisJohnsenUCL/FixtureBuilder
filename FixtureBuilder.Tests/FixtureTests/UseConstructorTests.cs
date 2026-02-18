@@ -1,6 +1,6 @@
 ﻿#pragma warning disable IDE0290 // Use primary constructor
 
-namespace FixtureBuilder.Tests.FixtureConstructionMethods
+namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class UseConstructorTests
     {

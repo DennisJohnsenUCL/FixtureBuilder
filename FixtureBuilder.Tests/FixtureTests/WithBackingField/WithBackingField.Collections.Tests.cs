@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 #pragma warning disable CS0649
 
-namespace FixtureBuilder.Tests.WithBackingField
+namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal sealed partial class WithBackingFieldCollectionsTests
     {
