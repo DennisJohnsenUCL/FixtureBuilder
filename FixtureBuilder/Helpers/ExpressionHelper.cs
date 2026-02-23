@@ -46,7 +46,7 @@ namespace FixtureBuilder.Helpers
                     throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
                 var type = prop.PropertyType;
-                current = InstantiationHelper.CreateUnitialized(type);
+                current = InstantiationHelper.CreateUninitialized(type);
                 prop.SetValue(parent, current);
             }
 

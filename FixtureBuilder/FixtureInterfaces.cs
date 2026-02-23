@@ -4,7 +4,7 @@ namespace FixtureBuilder
 {
     public interface IFixtureConstructor<TEntity> : IFixtureConfigurator<TEntity> where TEntity : class
     {
-        IFixtureConfigurator<TEntity> CreateUnitialized();
+        IFixtureConfigurator<TEntity> CreateUninitialized();
         IFixtureConfigurator<TEntity> UseConstructor(params object[] args);
     }
 

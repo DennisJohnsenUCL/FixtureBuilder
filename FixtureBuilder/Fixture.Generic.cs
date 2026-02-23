@@ -58,9 +58,9 @@ namespace FixtureBuilder
         /// instance. After instantiation, the members of the instance are initialized using default values.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUnitialized()
+        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized()
         {
-            var instance = InstantiationHelper.CreateUnitialized(typeof(TEntity));
+            var instance = InstantiationHelper.CreateUninitialized(typeof(TEntity));
 
             _fixture = (TEntity)instance;
             InstantiationHelper.InstantiateMembers(_fixture);

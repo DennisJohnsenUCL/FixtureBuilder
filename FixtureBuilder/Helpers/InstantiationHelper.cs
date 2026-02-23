@@ -9,7 +9,7 @@ namespace FixtureBuilder.Helpers
     {
         public static object GetInstantiatedInstance(Type type, bool instantiateMembers)
         {
-            var instance = UseConstructor(type) ?? CreateUnitialized(type)
+            var instance = UseConstructor(type) ?? CreateUninitialized(type)
                 ?? throw new InvalidOperationException($"Failed to instantiate {type.Name} with default constructor and by bypassing constructor. Please use 'UseConstructor' and supply known constructor parameters as arguments.");
 
             if (instantiateMembers) InstantiateMembers(instance);
@@ -17,7 +17,7 @@ namespace FixtureBuilder.Helpers
             return instance;
         }
 
-        public static object CreateUnitialized(Type type)
+        public static object CreateUninitialized(Type type)
         {
             return RuntimeHelpers.GetUninitializedObject(type);
         }
