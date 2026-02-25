@@ -31,7 +31,7 @@
         {
             var fieldName = "_field";
 
-            var fixture = Fixture.New<BaseClass>().CreateUnitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass, _text);
+            var fixture = Fixture.New<BaseClass>().CreateUninitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass, _text);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.NestedClass.TwiceNestedClass.GetField, Is.EqualTo(_text));
@@ -42,7 +42,7 @@
         {
             var fieldName = "_inheritedField";
 
-            var fixture = Fixture.New<BaseClass>().CreateUnitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass, _text);
+            var fixture = Fixture.New<BaseClass>().CreateUninitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass, _text);
             var field = Helpers.GetFixture(fixture);
 
             Assert.That(field.NestedClass.TwiceNestedClass.GetInheritedField, Is.EqualTo(_text));
@@ -54,7 +54,7 @@
             var fieldName = "_field";
 
             Assert.Throws<InvalidOperationException>(
-                () => Fixture.New<BaseClass>().CreateUnitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass.GetField.Length, _text));
+                () => Fixture.New<BaseClass>().CreateUninitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass.GetField.Length, _text));
         }
 
         [Test]
@@ -63,7 +63,7 @@
             var fieldName = "_field";
 
             Assert.Throws<InvalidOperationException>(
-                () => Fixture.New<BaseClass>().CreateUnitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass.GetHashCode(), _text));
+                () => Fixture.New<BaseClass>().CreateUninitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass.GetHashCode(), _text));
         }
 
         [Test]

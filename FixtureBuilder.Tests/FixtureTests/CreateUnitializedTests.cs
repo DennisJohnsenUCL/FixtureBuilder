@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.Tests.FixtureTests
 {
-    internal sealed class CreateUnitializedTests
+    internal sealed class CreateUninitializedTests
     {
         class NormalClass();
         [Test]
@@ -8,7 +8,7 @@
         {
             IFixtureConfigurator<NormalClass> fixture = null!;
 
-            Assert.DoesNotThrow(() => fixture = Fixture.New<NormalClass>().CreateUnitialized());
+            Assert.DoesNotThrow(() => fixture = Fixture.New<NormalClass>().CreateUninitialized());
 
             var field = Helpers.GetFixture(fixture);
 
@@ -20,7 +20,7 @@
         {
             IFixtureConfigurator<TestRecord> fixture = null!;
 
-            Assert.DoesNotThrow(() => fixture = Fixture.New<TestRecord>().CreateUnitialized());
+            Assert.DoesNotThrow(() => fixture = Fixture.New<TestRecord>().CreateUninitialized());
 
             var field = Helpers.GetFixture(fixture);
 
@@ -31,7 +31,7 @@
         public void GenericClass_CanConstruct()
         {
             IFixtureConfigurator<GenericClass<string>> fixture = null!;
-            Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().CreateUnitialized());
+            Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().CreateUninitialized());
 
             var field = Helpers.GetFixture(fixture);
 
@@ -45,7 +45,7 @@
         [Test]
         public void ReadOnlyFieldNotSet_HasDefaultValue()
         {
-            var fixture = Fixture.New<ReadOnlyFieldClass>().CreateUnitialized();
+            var fixture = Fixture.New<ReadOnlyFieldClass>().CreateUninitialized();
             var field = Helpers.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
@@ -58,7 +58,7 @@
         [Test]
         public void ClassWithMembers_InstantiatesNonNullables()
         {
-            var fixture = Fixture.New<ClassWithNullable>().CreateUnitialized();
+            var fixture = Fixture.New<ClassWithNullable>().CreateUninitialized();
             var field = Helpers.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
