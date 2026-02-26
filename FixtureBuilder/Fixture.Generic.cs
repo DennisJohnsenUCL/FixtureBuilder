@@ -86,7 +86,6 @@ namespace FixtureBuilder
                 ?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)} with given constructor arguments. Please ensure a matching constructor exists.");
 
             _fixture = (TEntity)instance;
-            InstantiationHelper.InstantiateMembers(_fixture);
 
             return this;
         }
@@ -305,7 +304,7 @@ namespace FixtureBuilder
 
         private static TEntity InstantiateFixture()
         {
-            return (TEntity)InstantiationHelper.GetInstantiatedInstance(typeof(TEntity), instantiateMembers: true);
+            return (TEntity)InstantiationHelper.GetInstantiatedInstance(typeof(TEntity));
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)
