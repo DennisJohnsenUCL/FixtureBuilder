@@ -48,6 +48,7 @@ namespace FixtureBuilder.Helpers
                     throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
                 var type = prop.PropertyType;
+                //TODO: Should this be autoconstructor since general default? Context is here, can easily swap
                 current = context.ResolveUninitialized(new FixtureRequest(type), InitializeMembers.None, context)!;
                 prop.SetValue(parent, current);
             }
