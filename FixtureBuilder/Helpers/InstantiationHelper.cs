@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace FixtureBuilder.Helpers
 {
+    //TODO: Delete static class when autoconstructor is default
     internal static class InstantiationHelper
     {
         public static object GetInstantiatedInstance(Type type)

@@ -18,8 +18,15 @@ namespace FixtureBuilder.UninitializedProviders
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
 
-            var instance = RuntimeHelpers.GetUninitializedObject(request.Type)
-                ?? throw new Exception(""); //TODO: Add
+            object instance;
+            try
+            {
+                instance = RuntimeHelpers.GetUninitializedObject(request.Type);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Cannot initialize type {request.Type.Name} uninitialized.", ex);
+            }
 
             if (initializeMembers != InitializeMembers.None)
                 _memberInitializer.InitializeMembers(instance, initializeMembers, context);

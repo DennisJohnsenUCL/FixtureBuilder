@@ -1,11 +1,13 @@
-﻿using System.Linq.Expressions;
+﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.UninitializedProviders;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FixtureBuilder.Helpers
 {
     internal static class ExpressionHelper
     {
-        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, bool instantiateTarget)
+        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, bool instantiateTarget, IFixtureContext context)
         {
             ValidateExpression(expr);
 
@@ -26,17 +28,17 @@ namespace FixtureBuilder.Helpers
             {
                 var prop = members.Pop();
 
-                current = InitializePropertyValue(current, prop);
+                current = InitializePropertyValue(current, prop, context);
             }
 
             var finalProp = members.Pop();
 
-            if (instantiateTarget) current = InitializePropertyValue(current, finalProp);
+            if (instantiateTarget) current = InitializePropertyValue(current, finalProp, context);
 
             return (current, finalProp);
         }
 
-        private static object InitializePropertyValue(object parent, PropertyInfo prop)
+        private static object InitializePropertyValue(object parent, PropertyInfo prop, IFixtureContext context)
         {
             var current = prop.GetValue(parent);
 
@@ -46,7 +48,7 @@ namespace FixtureBuilder.Helpers
                     throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
                 var type = prop.PropertyType;
-                current = InstantiationHelper.CreateUninitialized(type);
+                current = context.ResolveUninitialized(new FixtureRequest(type), InitializeMembers.None, context)!;
                 prop.SetValue(parent, current);
             }
 

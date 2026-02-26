@@ -136,7 +136,7 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: true);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: true, _context);
             var propertyType = property.PropertyType;
 
             return WithFieldInternal(fieldName, propertyType, value, instance);
@@ -200,7 +200,7 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false, _context);
 
             var propertyParentType = instance.GetType();
 
@@ -250,7 +250,7 @@ namespace FixtureBuilder
             ExpressionHelper.ValidateExpression(expr);
             ExpressionHelper.ValidatePropertyWriteable(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false, _context);
 
             property.SetValue(instance, value);
 
@@ -304,6 +304,7 @@ namespace FixtureBuilder
 
         private static TEntity InstantiateFixture()
         {
+            //TODO: Autoconstructor
             return (TEntity)InstantiationHelper.GetInstantiatedInstance(typeof(TEntity));
         }
 
