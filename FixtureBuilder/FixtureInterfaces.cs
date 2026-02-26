@@ -1,10 +1,12 @@
-﻿using System.Linq.Expressions;
+﻿using FixtureBuilder.UninitializedProviders;
+using System.Linq.Expressions;
 
 namespace FixtureBuilder
 {
     public interface IFixtureConstructor<TEntity> : IFixtureConfigurator<TEntity> where TEntity : class
     {
         IFixtureConfigurator<TEntity> CreateUninitialized();
+        IFixtureConfigurator<TEntity> CreateUninitialized(InitializeMembers initializeMembers);
         IFixtureConfigurator<TEntity> UseConstructor(params object[] args);
     }
 

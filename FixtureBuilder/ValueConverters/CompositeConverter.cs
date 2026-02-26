@@ -1,6 +1,6 @@
 ﻿using FixtureBuilder.FixtureContexts;
 
-namespace FixtureBuilder.ValueConverters.Decorators
+namespace FixtureBuilder.ValueConverters
 {
     internal class CompositeConverter : IValueConverter
     {

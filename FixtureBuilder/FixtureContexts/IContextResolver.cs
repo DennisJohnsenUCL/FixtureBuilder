@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.TypeLinks;
+using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
 
 namespace FixtureBuilder.FixtureContexts
@@ -7,5 +8,6 @@ namespace FixtureBuilder.FixtureContexts
     {
         IValueConverter GetConverter();
         ITypeLink GetTypeLink();
+        IFixtureUninitializedProvider GetUninitializedProvider();
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.FixtureContexts
+﻿using FixtureBuilder.UninitializedProviders;
+
+namespace FixtureBuilder.FixtureContexts
 {
     internal class FixtureContext : IFixtureContext
     {
@@ -19,6 +21,11 @@
         public Type? Link(Type target)
         {
             return _resolver.GetTypeLink().Link(target);
+        }
+
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
+        {
+            return _resolver.GetUninitializedProvider().ResolveUninitialized(request, initializeMembers, context);
         }
     }
 }

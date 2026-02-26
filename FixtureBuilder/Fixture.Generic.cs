@@ -3,6 +3,8 @@ using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.TypeLinks.TypeLinkBuilders;
+using FixtureBuilder.UninitializedProviders;
+using FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.ConverterBuilders;
 using System.Collections;
@@ -51,6 +53,9 @@ namespace FixtureBuilder
             _fixture = entity;
         }
 
+        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized()
+            => ((IFixtureConstructor<TEntity>)this).CreateUninitialized(InitializeMembers.None);
+
         /// <summary>
         /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
         /// </summary>
@@ -58,12 +63,13 @@ namespace FixtureBuilder
         /// instance. After instantiation, the members of the instance are initialized using default values.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized()
+        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized(InitializeMembers initializeMembers)
         {
-            var instance = InstantiationHelper.CreateUninitialized(typeof(TEntity));
+            var request = new FixtureRequest(typeof(TEntity));
+            var instance = _context.ResolveUninitialized(request, initializeMembers, _context)
+                ?? throw new InvalidOperationException($"Failed to intantiate {typeof(TEntity).Name} uninitialized.");
 
             _fixture = (TEntity)instance;
-            InstantiationHelper.InstantiateMembers(_fixture);
 
             return this;
         }
@@ -312,7 +318,8 @@ namespace FixtureBuilder
         {
             var converter = new Func<IValueConverter>(() => new ConverterFactory().CreateDefaultConverter());
             var typeLink = new Func<ITypeLink>(() => new TypeLinkFactory().CreateDefaultTypeLink());
-            var resolver = new LazyContextResolver(converter, typeLink);
+            var uninitializedProvider = new Func<IFixtureUninitializedProvider>(() => new UninitializedProviderFactory().CreateDefaultUninitializedProvider());
+            var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider);
             var context = new FixtureContext(resolver) as IFixtureContext;
             return context;
         }
