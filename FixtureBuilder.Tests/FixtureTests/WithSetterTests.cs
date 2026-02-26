@@ -144,6 +144,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         }
 
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().WithSetter(c => c.Text, "test");

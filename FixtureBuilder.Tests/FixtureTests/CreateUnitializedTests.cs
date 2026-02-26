@@ -38,25 +38,8 @@
             Assert.That(field, Is.Not.Null);
         }
 
-        class ReadOnlyFieldClass()
-        {
-            public readonly string ReadOnlyField = null!;
-        }
         [Test]
-        public void ReadOnlyFieldNotSet_HasDefaultValue()
-        {
-            var fixture = Fixture.New<ReadOnlyFieldClass>().CreateUninitialized();
-            var field = Helpers.GetFixture(fixture);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.ReadOnlyField, Is.Not.Null);
-                Assert.That(field.ReadOnlyField, Is.EqualTo(""));
-            }
-        }
-
-        [Test]
-        public void ClassWithMembers_InstantiatesNonNullables()
+        public void ClassWithMembers_DoesNotInstantiateAnything()
         {
             var fixture = Fixture.New<ClassWithNullable>().CreateUninitialized();
             var field = Helpers.GetFixture(fixture);
@@ -64,8 +47,10 @@
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(field.NullableClass, Is.Null);
-                Assert.That(field.NonNullableClass, Is.Not.Null);
+                Assert.That(field.NonNullableClass, Is.Null);
             }
         }
+
+        //TODO: Tests for InitializeMembers overload
     }
 }

@@ -235,6 +235,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         }
 
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void Property_ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().WithBackingField(c => c.Text, "test");

@@ -61,6 +61,7 @@
         }
 
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().With(c => c.Text, "test");

@@ -102,6 +102,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         }
 
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void ClassWithMembers_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().UseConstructor();

@@ -7,6 +7,7 @@
             public NestedClass NestedClass = null!;
         }
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void ClassWithMembers_InstantiatesClassMembers()
         {
             var fixture = Fixture.New<ClassWithMember>().Build();
@@ -39,6 +40,7 @@
             public readonly string ReadOnlyField = null!;
         }
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void ReadOnlyFieldNotSet_HasDefaultValue()
         {
             var fixture = Fixture.New<ReadOnlyFieldClass>().Build();

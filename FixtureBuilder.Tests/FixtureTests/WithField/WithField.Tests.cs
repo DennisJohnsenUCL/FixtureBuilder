@@ -71,6 +71,7 @@
         }
 
         [Test]
+        [Ignore("Outdated until autoconstructor is default construction method")]
         public void Field_ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().WithField("_text", "test");
