@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         {
             var fixture = Fixture.New<NoDefaultConstructor>();
 
-            Assert.Throws<MissingMethodException>(() => fixture.UseConstructor());
+            Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor());
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         {
             var fixture = Fixture.New<NoDefaultConstructor>();
 
-            Assert.Throws<MissingMethodException>(() => fixture.UseConstructor("Test value", 123));
+            Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor("Test value", 123));
         }
 
         [Test]

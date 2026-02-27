@@ -21,16 +21,34 @@ namespace FixtureBuilder.Helpers
 
         public static object? UseConstructor(Type type, params object[] args)
         {
+            return Activator.CreateInstance(
+                type: type,
+                bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+                binder: null,
+                args: args,
+                culture: null);
+        }
+    }
+
+    //TODO: Do I need this?
+    //Dependency of Root, to split responsibility?
+    internal class UninitializedProvider : IUninitializedProvider
+    {
+        public object Resolve(FixtureRequest request)
+        {
             try
             {
-                return Activator.CreateInstance(
-                    type: type,
-                    bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
-                    binder: null,
-                    args: args,
-                    culture: null);
+                return RuntimeHelpers.GetUninitializedObject(request.Type);
             }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to create {request.Type.Name} uninitialized.", ex);
+            }
         }
+    }
+
+    internal interface IUninitializedProvider
+    {
+        object Resolve(FixtureRequest request);
     }
 }

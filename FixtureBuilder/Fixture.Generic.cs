@@ -1,4 +1,8 @@
-﻿using FixtureBuilder.Extensions;
+﻿using System.Collections;
+using System.Linq.Expressions;
+using System.Reflection;
+using FixtureBuilder.Constructors;
+using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
 using FixtureBuilder.TypeLinks;
@@ -7,9 +11,6 @@ using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.ConverterBuilders;
-using System.Collections;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace FixtureBuilder
 {
@@ -82,8 +83,9 @@ namespace FixtureBuilder
         /// <exception cref="MissingMethodException"/>
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
         {
-            var instance = InstantiationHelper.UseConstructor(typeof(TEntity), args)
-                ?? throw new MissingMethodException($"Failed to instantiate {typeof(TEntity)} with given constructor arguments. Please ensure a matching constructor exists.");
+            var request = new FixtureRequest(typeof(TEntity));
+            var constructor = new ConstructingProvider();
+            var instance = constructor.Resolve(request, args);
 
             _fixture = (TEntity)instance;
 

@@ -1,20 +1,19 @@
-﻿using FixtureBuilder.Extensions;
+﻿using System.Reflection;
+using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.UninitializedProviders.Decorators;
-using System.Reflection;
 
 namespace FixtureBuilder.UninitializedProviders
 {
     internal class MemberInitializer : IMemberInitializer
     {
-        private readonly IDataMemberSkipFilter _test;
+        private readonly IDataMemberSkipFilter _skipFilter;
         private readonly IFixtureUninitializedProvider _uninitializedProvider;
 
-        public MemberInitializer(IDataMemberSkipFilter test, IFixtureUninitializedProvider uninitializedProvider)
+        public MemberInitializer(IDataMemberSkipFilter skipFilter, IFixtureUninitializedProvider uninitializedProvider)
         {
-            ArgumentNullException.ThrowIfNull(test);
+            ArgumentNullException.ThrowIfNull(skipFilter);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);
-            _test = test;
+            _skipFilter = skipFilter;
             _uninitializedProvider = uninitializedProvider;
         }
 
@@ -24,7 +23,7 @@ namespace FixtureBuilder.UninitializedProviders
 
             foreach (var dataMember in dataMembers)
             {
-                if (_test.ShouldSkip(dataMember, initializeMembers)) return;
+                if (_skipFilter.ShouldSkip(dataMember, initializeMembers)) return;
 
                 var value = dataMember.GetValue(instance);
 

@@ -1,7 +1,6 @@
 ﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.FixtureProviders;
 
-namespace FixtureBuilder.UninitializedProviders
+namespace FixtureBuilder.FixtureProviders.Providers
 {
     internal class DefaultBclTypeProvider : IFixtureProvider
     {
