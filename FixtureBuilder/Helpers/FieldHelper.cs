@@ -2,14 +2,43 @@
 
 namespace FixtureBuilder.Helpers
 {
+    /// <summary>
+    /// Provides utility methods for locating fields on types using reflection,
+    /// including support for common backing field naming conventions.
+    /// </summary>
     internal static class FieldHelper
     {
+        /// <summary>
+        /// Attempts to retrieve a field from the specified type by name.
+        /// </summary>
+        /// <param name="type">The type to search for the field.</param>
+        /// <param name="fieldName">The name of the field to find.</param>
+        /// <param name="fieldInfo">
+        /// When this method returns, contains the <see cref="FieldInfo"/> for the specified field
+        /// if found; otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the field was found on the type; otherwise, <see langword="false"/>.
+        /// </returns>
         public static bool TryGetField(Type type, string fieldName, out FieldInfo fieldInfo)
         {
             fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
             return fieldInfo != null;
         }
 
+        /// <summary>
+        /// Attempts to retrieve a field from the specified type by checking multiple candidate field names in order.
+        /// </summary>
+        /// <param name="type">The type to search for the field.</param>
+        /// <param name="fieldNames">An array of candidate field names to try, in order.</param>
+        /// <param name="fieldInfo">
+        /// When this method returns, contains the <see cref="FieldInfo"/> for the first matching field
+        /// if found; otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if any of the candidate field names matched a field on the type;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
         public static bool TryGetField(Type type, string[] fieldNames, out FieldInfo fieldInfo)
         {
             foreach (var name in fieldNames)
@@ -20,6 +49,24 @@ namespace FixtureBuilder.Helpers
             return false;
         }
 
+        /// <summary>
+        /// Attempts to locate the backing field for a property, searching both the specified parent type
+        /// and the property's declaring type.
+        /// </summary>
+        /// <param name="propertyParentType">The concrete type to search first for the backing field.</param>
+        /// <param name="property">The property whose backing field to locate.</param>
+        /// <param name="fieldName">
+        /// An explicit field name to search for. If <see langword="null"/>, common naming conventions
+        /// and compiler-generated backing field names are used as candidates.
+        /// </param>
+        /// <param name="backingField">
+        /// When this method returns, contains the <see cref="FieldInfo"/> for the backing field
+        /// if found; otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if a backing field was found on either the parent type or the
+        /// declaring type; otherwise, <see langword="false"/>.
+        /// </returns>
         public static bool TryGetPropertyBackingField(Type propertyParentType, PropertyInfo property, string? fieldName, out FieldInfo backingField)
         {
             var declaringType = property.DeclaringType;
@@ -44,6 +91,14 @@ namespace FixtureBuilder.Helpers
             return true;
         }
 
+        /// <summary>
+        /// Generates an array of common backing field name conventions for a given property name.
+        /// </summary>
+        /// <param name="propName">The property name to derive field names from.</param>
+        /// <returns>
+        /// An array of candidate field names in priority order: compiler-generated backing field,
+        /// underscore-prefixed camelCase, camelCase, and underscore-prefixed original name.
+        /// </returns>
         public static string[] GetCommonFieldNames(string propName) =>
             [$"<{propName}>k__BackingField",
             $"_{char.ToLower(propName[0]) + propName[1..]}",
