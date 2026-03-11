@@ -17,7 +17,7 @@
         {
             IFixtureConfigurator<IInterface> fixture = null!;
             Assert.DoesNotThrow(() => fixture = Fixture.New<ClassWithInterface>().CastTo<IInterface>());
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -38,7 +38,7 @@
                 .CastTo<IInterfaceWithMember>()
                 .WithSetter(t => t.Text, text);
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {
@@ -51,7 +51,7 @@
         public void ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().CastTo<ClassWithNullable>();
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {

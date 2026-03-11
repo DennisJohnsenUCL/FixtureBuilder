@@ -32,7 +32,7 @@
             var fieldName = "_field";
 
             var fixture = Fixture.New<BaseClass>().CreateUninitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.NestedClass.TwiceNestedClass.GetField, Is.EqualTo(_text));
         }
@@ -43,7 +43,7 @@
             var fieldName = "_inheritedField";
 
             var fixture = Fixture.New<BaseClass>().CreateUninitialized().WithField(fieldName, c => c.NestedClass.TwiceNestedClass, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.NestedClass.TwiceNestedClass.GetInheritedField, Is.EqualTo(_text));
         }

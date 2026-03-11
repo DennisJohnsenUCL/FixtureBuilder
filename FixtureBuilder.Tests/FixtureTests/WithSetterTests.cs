@@ -12,7 +12,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void SetterInFixture_SetsProperty()
         {
             var fixture = Fixture.New<TestClass>().CreateUninitialized().WithSetter(t => t.Text, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
         }
@@ -21,7 +21,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void SetterInRecord_SetsProperty()
         {
             var fixture = Fixture.New<TestRecord>().CreateUninitialized().WithSetter(t => t.Text, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
         }
@@ -30,7 +30,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void DerivedSetter_SetsProperty()
         {
             var fixture = Fixture.New<DerivedTestClass>().CreateUninitialized().WithSetter(t => t.Text, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
         }
@@ -39,7 +39,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void OverriddenSetter_SetsProperty()
         {
             var fixture = Fixture.New<DerivedTestClass>().CreateUninitialized().WithSetter(t => t.Number, _number);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Number, Is.EqualTo(_number));
         }
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void ImplicitInterfaceImplementation_SetsProperty()
         {
             var fixture = Fixture.New<InterfaceTestClass>().CreateUninitialized().WithSetter(t => t.ImplicitProperty, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.ImplicitProperty, Is.EqualTo(_text));
         }
@@ -61,7 +61,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void PropWithoutSetter_ThrowsException()
         {
             var fixture = Fixture.New<PropWithoutSetterClass>().CreateUninitialized();
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.Throws<InvalidOperationException>(() => fixture.WithSetter(f => f.Text, "Test"));
         }
@@ -71,7 +71,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void GenericClass_SetsProperty()
         {
             var fixture = Fixture.New<GenericClass<string>>().CreateUninitialized().WithSetter(g => g.Value, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Value, Is.EqualTo(_text));
         }
@@ -80,7 +80,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void NestedProperty_SetsProperty()
         {
             var fixture = Fixture.New<TestClass>().CreateUninitialized().WithSetter(t => t.NestedClass.Value, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.NestedClass.Value, Is.EqualTo(_text));
         }
@@ -89,7 +89,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void DeeperNestedProperty_SetsProperty()
         {
             var fixture = Fixture.New<TestClass>().CreateUninitialized().WithSetter(t => t.NestedClass.DeeperNestedClass.Value, _number);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
         }
@@ -98,7 +98,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void DerivedNestedProperty_SetsProperty()
         {
             var fixture = Fixture.New<DerivedTestClass>().CreateUninitialized().WithSetter(t => t.NestedClass.Value, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.NestedClass.Value, Is.EqualTo(_text));
         }
@@ -111,7 +111,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void PrivateSetter_CanSetValue()
         {
             var fixture = Fixture.New<PrivateSetterClass>().CreateUninitialized().WithSetter(t => t.Text, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
         }
@@ -124,7 +124,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void CollectionTypeProperty_OneParameter_SetsProperty()
         {
             var fixture = Fixture.New<ListPropertyClass>().CreateUninitialized().WithSetter(t => t.StringList, [_text]);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.StringList[0], Is.EqualTo(_text));
         }
@@ -134,7 +134,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         {
             var secondEntry = "More test";
             var fixture = Fixture.New<ListPropertyClass>().CreateUninitialized().WithSetter(t => t.StringList, [_text, secondEntry]);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {
@@ -148,7 +148,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().WithSetter(c => c.Text, "test");
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {

@@ -14,7 +14,7 @@
         public void NoPrebuiltFixture_FixtureIsNull()
         {
             var fixture = Fixture.New<TestClass>();
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Null);
         }
@@ -31,7 +31,7 @@
             var preBuiltFixture = new ClassWithString() { Text = text };
 
             var fixture = Fixture.New(preBuiltFixture);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(text));
         }

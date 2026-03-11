@@ -11,7 +11,7 @@
             var fieldName = "_text";
 
             var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField(fieldName, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
         }
@@ -22,7 +22,7 @@
             var fieldName = "_text";
 
             var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField<string>(fieldName, null!);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.Null);
         }
@@ -49,7 +49,7 @@
             var fieldName = "_inheritedField";
 
             var fixture = Fixture.New<DerivedTestClass>().CreateUninitialized().WithField(fieldName, _text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.InheritedFieldGetter, Is.EqualTo(_text));
         }
@@ -65,7 +65,7 @@
             var text = "Test string";
 
             var fixture = Fixture.New<FieldRecord>().WithField("_text", text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(text));
         }
@@ -75,7 +75,7 @@
         public void Field_ConstructionNotChosen_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().WithField("_text", "test");
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {
@@ -103,7 +103,7 @@
             var fieldName = "_stringList";
 
             var fixture = Fixture.New<StringListClass>().CreateUninitialized().WithField<List<string>>(fieldName, [_text]);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.StringList[0], Is.EqualTo(_text));
         }
@@ -115,7 +115,7 @@
             var secondEntry = "More test";
 
             var fixture = Fixture.New<StringListClass>().CreateUninitialized().WithField<List<string>>(fieldName, [_text, secondEntry]);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {

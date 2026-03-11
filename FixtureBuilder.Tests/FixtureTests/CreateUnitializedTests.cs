@@ -10,7 +10,7 @@
 
             Assert.DoesNotThrow(() => fixture = Fixture.New<NormalClass>().CreateUninitialized());
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -22,7 +22,7 @@
 
             Assert.DoesNotThrow(() => fixture = Fixture.New<TestRecord>().CreateUninitialized());
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -33,7 +33,7 @@
             IFixtureConfigurator<GenericClass<string>> fixture = null!;
             Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().CreateUninitialized());
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -42,7 +42,7 @@
         public void ClassWithMembers_DoesNotInstantiateAnything()
         {
             var fixture = Fixture.New<ClassWithNullable>().CreateUninitialized();
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {

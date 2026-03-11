@@ -4,7 +4,7 @@
 
 namespace FixtureBuilder.Tests
 {
-    internal class Helpers
+    internal class TestHelper
     {
         internal static T GetFixture<T>(IFixtureConfigurator<T> fixture) where T : class
         {

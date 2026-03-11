@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void NoParameters_UsesDefaultConstructor()
         {
             var fixture = Fixture.New<DefaultConstructorClass>().UseConstructor();
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Value, Is.EqualTo("Something"));
         }
@@ -42,7 +42,7 @@ namespace FixtureBuilder.Tests.FixtureTests
             var text = "Test value";
 
             var fixture = Fixture.New<NoDefaultConstructor>().UseConstructor(text);
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Value, Is.EqualTo(text));
         }
@@ -70,7 +70,7 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().UseConstructor());
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -83,7 +83,7 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.DoesNotThrow(() => fixture = Fixture.New<EmptyRecord>().UseConstructor());
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -96,7 +96,7 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.DoesNotThrow(() => fixture = Fixture.New<StringRecord>().UseConstructor("Test"));
 
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -106,7 +106,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         public void ClassWithMembers_InstantiatesNonNullables()
         {
             var fixture = Fixture.New<ClassWithNullable>().UseConstructor();
-            var field = Helpers.GetFixture(fixture);
+            var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())
             {
