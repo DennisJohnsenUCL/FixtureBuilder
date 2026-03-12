@@ -1,5 +1,6 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.FixtureProviders.Providers;
 using Moq;
@@ -37,6 +38,21 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
             {
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<ImmutableList<int>>());
+                Assert.That(result, Is.Empty);
+            }
+        }
+
+        [Test]
+        public void Resolve_ReadOnlyCollection_ReturnsEmptyInstance()
+        {
+            var request = new FixtureRequest(typeof(ReadOnlyCollection<int>));
+
+            var result = _sut.Resolve(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result, Is.TypeOf<ReadOnlyCollection<int>>());
                 Assert.That(result, Is.Empty);
             }
         }
@@ -144,6 +160,21 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
             {
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<ImmutableDictionary<string, int>>());
+                Assert.That(result, Is.Empty);
+            }
+        }
+
+        [Test]
+        public void Resolve_ReadOnlyDictionary_ReturnsEmptyInstance()
+        {
+            var request = new FixtureRequest(typeof(ReadOnlyDictionary<string, int>));
+
+            var result = _sut.Resolve(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result, Is.TypeOf<ReadOnlyDictionary<string, int>>());
                 Assert.That(result, Is.Empty);
             }
         }

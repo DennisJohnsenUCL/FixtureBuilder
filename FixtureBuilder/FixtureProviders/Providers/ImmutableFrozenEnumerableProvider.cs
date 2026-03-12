@@ -1,5 +1,6 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
@@ -30,7 +31,7 @@ namespace FixtureBuilder.FixtureProviders.Providers
         private readonly IEnumerable<Type> _types = [typeof(ImmutableList<>), typeof(ImmutableHashSet<>),
         typeof(ImmutableStack<>), typeof(ImmutableQueue<>), typeof(ImmutableArray<>), typeof(ImmutableSortedSet<>),
         typeof(FrozenSet<>), typeof(ImmutableDictionary<,>), typeof(ImmutableSortedDictionary<,>),
-        typeof(FrozenDictionary<,>)];
+        typeof(FrozenDictionary<,>), typeof(ReadOnlyCollection<>), typeof(ReadOnlyDictionary<,>)];
 
         public object? Resolve(FixtureRequest request, IFixtureContext context)
         {
