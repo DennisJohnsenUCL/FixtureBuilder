@@ -54,6 +54,13 @@ namespace FixtureBuilder
             _fixture = entity;
         }
 
+        /// <summary>
+        /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
+        /// </summary>
+        /// <remarks>This method bypasses the constructor of <typeparamref name="TEntity"/> to create an uninitialized
+        /// instance without initializing members.</remarks>
+        /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized()
             => ((IFixtureConstructor<TEntity>)this).CreateUninitialized(InitializeMembers.None);
 
@@ -61,7 +68,7 @@ namespace FixtureBuilder
         /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
         /// </summary>
         /// <remarks>This method bypasses the constructor of <typeparamref name="TEntity"/> to create an uninitialized
-        /// instance. After instantiation, the members of the instance are initialized using default values.</remarks>
+        /// instance. After instantiation, the members of the instance can be initialized using providers.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized(InitializeMembers initializeMembers)
