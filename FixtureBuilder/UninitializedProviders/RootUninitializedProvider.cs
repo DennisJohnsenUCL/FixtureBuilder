@@ -1,8 +1,15 @@
-﻿using FixtureBuilder.FixtureContexts;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.UninitializedProviders
 {
+    /// <summary>
+    /// Creates uninitialized instances of requested types using
+    /// <see cref="RuntimeHelpers.GetUninitializedObject"/> and optionally initializes their
+    /// members via an <see cref="IMemberInitializer"/>. Throws an
+    /// <see cref="InvalidOperationException"/> wrapping the original exception if the type
+    /// cannot be created uninitialized.
+    /// </summary>
     internal class RootUninitializedProvider : IFixtureUninitializedProvider
     {
         private readonly IMemberInitializer _memberInitializer;

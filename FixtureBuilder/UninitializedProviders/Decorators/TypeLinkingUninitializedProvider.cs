@@ -2,6 +2,12 @@
 
 namespace FixtureBuilder.UninitializedProviders.Decorators
 {
+    /// <summary>
+    /// A decorator over <see cref="IFixtureUninitializedProvider"/> that resolves type links
+    /// before delegating to the inner provider. If the requested type is a nullable value type, it first
+    /// unwraps it to its underlying type. It then consults the <see cref="IFixtureContext"/>
+    /// for a linked type, replacing the request type if a link is found.
+    /// </summary>
     internal class TypeLinkingUninitializedProvider : IFixtureUninitializedProvider
     {
         private readonly IFixtureUninitializedProvider _inner;

@@ -1,10 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder.UninitializedProviders
 {
+    /// <summary>
+    /// Determines whether a <see cref="DataMemberInfo"/> should be skipped during fixture
+    /// member initialization. Members are skipped if they belong to system namespaces, are static,
+    /// are inaccessible properties (read-only, write-only, or indexed), are compiler-generated
+    /// backing fields, or — when <see cref="InitializeMembers.NonNullables"/> is specified —
+    /// are nullable (either nullable value types or nullable reference types).
+    /// </summary>
     internal class DataMemberSkipFilter : IDataMemberSkipFilter
     {
         private static readonly string[] SkippedNamespacePrefixes = ["System", "Microsoft", "RunTime"];

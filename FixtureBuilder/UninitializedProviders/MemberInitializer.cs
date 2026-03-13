@@ -4,6 +4,14 @@ using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.UninitializedProviders
 {
+    /// <summary>
+    /// Iterates over an object's data members (properties and fields) and initializes any
+    /// that are <see langword="null"/> by resolving values through an
+    /// <see cref="IFixtureUninitializedProvider"/>. Members are discovered via reflection
+    /// using <see cref="DataMemberInfoExtensions.GetDataMembers"/> and filtered through an
+    /// <see cref="IDataMemberSkipFilter"/> before initialization. If the skip filter indicates
+    /// a member should be skipped, processing stops immediately for all remaining members.
+    /// </summary>
     internal class MemberInitializer : IMemberInitializer
     {
         private readonly IDataMemberSkipFilter _skipFilter;
@@ -23,11 +31,15 @@ namespace FixtureBuilder.UninitializedProviders
 
             foreach (var dataMember in dataMembers)
             {
-                if (_skipFilter.ShouldSkip(dataMember, initializeMembers)) return;
+                if (_skipFilter.ShouldSkip(dataMember, initializeMembers)) continue;
 
                 var value = dataMember.GetValue(instance);
 
-                if (value == null)
+                var defaultValue = dataMember.DataMemberType.IsValueType
+                    ? Activator.CreateInstance(dataMember.DataMemberType)
+                    : null;
+
+                if (Equals(value, defaultValue))
                 {
                     FixtureRequest? request = null;
                     if (dataMember.IsPropertyInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Name, dataMember.Property);
