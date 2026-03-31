@@ -51,7 +51,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         [Test]
         public void FieldNameGiven_Assignable_SetsProperty()
         {
-            var fixture = Fixture.New<DifferentTypeNotAssignableClass>().CreateUninitialized().WithBackingFieldUntyped("_someProperty", t => t.SomeProperty, _number);
+            var fixture = Fixture.New<DifferentTypeNotAssignableClass>().CreateUninitialized().WithBackingFieldUntyped(t => t.SomeProperty, _number, "_someProperty");
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.SomeProperty, Is.EqualTo(_number.ToString()));

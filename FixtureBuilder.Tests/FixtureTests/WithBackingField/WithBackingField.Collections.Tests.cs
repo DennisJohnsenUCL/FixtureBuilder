@@ -22,7 +22,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_list";
 
-            var fixture = Fixture.New<ListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, [_text]);
+            var fixture = Fixture.New<ListClass>().CreateUninitialized().WithBackingField(c => c.List, [_text], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.Single(), Is.EqualTo(_text));
@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_immutableList";
 
-            var fixture = Fixture.New<ImmutableListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.ImmutableList, [_text]);
+            var fixture = Fixture.New<ImmutableListClass>().CreateUninitialized().WithBackingField(c => c.ImmutableList, [_text], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.ImmutableList.Single(), Is.EqualTo(_text));
@@ -54,7 +54,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_frozenSet";
 
-            var fixture = Fixture.New<FrozenSetClass>().CreateUninitialized().WithBackingField(fieldName, c => c.FrozenSet, [_text]);
+            var fixture = Fixture.New<FrozenSetClass>().CreateUninitialized().WithBackingField(c => c.FrozenSet, [_text], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.FrozenSet.Single(), Is.EqualTo(_text));
@@ -70,7 +70,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_stringArray";
 
-            var fixture = Fixture.New<ArrayClass>().CreateUninitialized().WithBackingField(fieldName, c => c.StringArray, [_text]);
+            var fixture = Fixture.New<ArrayClass>().CreateUninitialized().WithBackingField(c => c.StringArray, [_text], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.StringArray.Single(), Is.EqualTo(_text));
@@ -86,7 +86,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_arrayList";
 
-            var fixture = Fixture.New<ArrayListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.ArrayList, [_number]);
+            var fixture = Fixture.New<ArrayListClass>().CreateUninitialized().WithBackingField(c => c.ArrayList, [_number], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.ArrayList.Single(), Is.EqualTo(_number));
@@ -102,7 +102,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_list";
 
-            var fixture = Fixture.New<ListArrayClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, [_text]);
+            var fixture = Fixture.New<ListArrayClass>().CreateUninitialized().WithBackingField(c => c.List, [_text], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.Single(), Is.EqualTo(_text));
@@ -118,7 +118,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_iList";
 
-            var fixture = Fixture.New<IListNonGenericStackClass>().CreateUninitialized().WithBackingField(fieldName, c => c.IList, new Stack(new List<string>([_text])));
+            var fixture = Fixture.New<IListNonGenericStackClass>().CreateUninitialized().WithBackingField(c => c.IList, new Stack(new List<string>([_text])), fieldName);
             var field = TestHelper.GetFixture(fixture);
             Assert.That(field.IList.Peek(), Is.EqualTo(_text));
         }
@@ -132,7 +132,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_collection";
 
-            var fixture = Fixture.New<BlockingCollectionClass>().CreateUninitialized().WithBackingField(fieldName, c => c.Collection, [_text]);
+            var fixture = Fixture.New<BlockingCollectionClass>().CreateUninitialized().WithBackingField(c => c.Collection, [_text], fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Collection.Single(), Is.EqualTo(_text));

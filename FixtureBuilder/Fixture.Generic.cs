@@ -141,7 +141,7 @@ namespace FixtureBuilder
         /// <param name="expr">The nested property on which to set the field.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
         /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, Expression<Func<TEntity, object?>> expr, T value)
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp, T>(Expression<Func<TEntity, TProp>> expr, string fieldName, T value)
         {
             _fixture ??= InstantiateFixture();
 
@@ -198,7 +198,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when you need to specify a non-standard backing field name that cannot be automatically discovered.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value, string fieldName)
             => WithBackingFieldInternal(expr, value, fieldName);
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace FixtureBuilder
         /// Use this method when the backing field for the property has a different, un-assignable type from the property.
         /// Use this overload when you need to specify a non-standard backing field name that cannot be automatically discovered.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingFieldUntyped<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, object? value)
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value, string fieldName)
             => WithBackingFieldInternal(expr, value, fieldName);
 
         private Fixture<TEntity> WithBackingFieldInternal<TProp>(

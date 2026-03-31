@@ -202,7 +202,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         {
             var fieldName = "_privateField";
 
-            var fixture = Fixture.New<NestedPropertyClass>().CreateUninitialized().WithBackingField(fieldName, t => t.NestedClass.DeeperNestedClass.Text, _text);
+            var fixture = Fixture.New<NestedPropertyClass>().CreateUninitialized().WithBackingField(t => t.NestedClass.DeeperNestedClass.Text, _text, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.NestedClass.DeeperNestedClass.Text, Is.EqualTo(_text));
@@ -272,7 +272,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_list";
             var list = new List<int>() { _number };
 
-            var fixture = Fixture.New<NullableValueListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, list);
+            var fixture = Fixture.New<NullableValueListClass>().CreateUninitialized().WithBackingField(c => c.List, list, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.Single(), Is.EqualTo(_number));
@@ -290,7 +290,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_list";
             var list = new List<int?>() { _number };
 
-            var fixture = Fixture.New<NonNullableValueListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, list);
+            var fixture = Fixture.New<NonNullableValueListClass>().CreateUninitialized().WithBackingField(c => c.List, list, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.First(), Is.EqualTo(_number));
@@ -303,7 +303,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_list";
             var list = new List<int?>() { _number, null };
 
-            var fixture = Fixture.New<NonNullableValueListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, list);
+            var fixture = Fixture.New<NonNullableValueListClass>().CreateUninitialized().WithBackingField(c => c.List, list, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.First(), Is.EqualTo(_number));
@@ -320,7 +320,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_list";
             var list = new List<string>() { _text };
 
-            var fixture = Fixture.New<NullableReferenceListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, list);
+            var fixture = Fixture.New<NullableReferenceListClass>().CreateUninitialized().WithBackingField(c => c.List, list, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.Single(), Is.EqualTo(_text));
@@ -337,7 +337,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_list";
             var list = new List<string?>() { _text };
 
-            var fixture = Fixture.New<NonNullableReferenceListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, list);
+            var fixture = Fixture.New<NonNullableReferenceListClass>().CreateUninitialized().WithBackingField(c => c.List, list, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.First(), Is.EqualTo(_text));
@@ -349,7 +349,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_list";
             var list = new List<string?>() { _text, null };
 
-            var fixture = Fixture.New<NonNullableReferenceListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.List, list);
+            var fixture = Fixture.New<NonNullableReferenceListClass>().CreateUninitialized().WithBackingField(c => c.List, list, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.List.First(), Is.EqualTo(_text));

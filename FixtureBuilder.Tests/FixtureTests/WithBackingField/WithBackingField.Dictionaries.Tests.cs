@@ -19,7 +19,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_dictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<DictionaryClass>().CreateUninitialized().WithBackingField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionaryClass>().CreateUninitialized().WithBackingField(c => c.Dictionary, dictionary, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_dictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<DictionaryObjectClass>().CreateUninitialized().WithBackingField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionaryObjectClass>().CreateUninitialized().WithBackingField(c => c.Dictionary, dictionary, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_immutableDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<ImmutableDictionaryClass>().CreateUninitialized().WithBackingField(fieldName, c => c.ImmutableDictionary, dictionary);
+            var fixture = Fixture.New<ImmutableDictionaryClass>().CreateUninitialized().WithBackingField(c => c.ImmutableDictionary, dictionary, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.ImmutableDictionary.Single().Value, Is.EqualTo(_text));
@@ -70,7 +70,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_frozenDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<FrozenDictionaryClass>().CreateUninitialized().WithBackingField(fieldName, c => c.FrozenDictionary, dictionary);
+            var fixture = Fixture.New<FrozenDictionaryClass>().CreateUninitialized().WithBackingField(c => c.FrozenDictionary, dictionary, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.FrozenDictionary.Single().Value, Is.EqualTo(_text));
@@ -87,7 +87,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_iDictionary";
             var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
 
-            var fixture = Fixture.New<IDictionaryNonGenericClass>().CreateUninitialized().WithBackingField(fieldName, c => c.IDictionary, dictionary);
+            var fixture = Fixture.New<IDictionaryNonGenericClass>().CreateUninitialized().WithBackingField(c => c.IDictionary, dictionary, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
@@ -104,7 +104,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fieldName = "_dictionary";
             var dictionary = new SortedList() { { 1, _text } };
 
-            var fixture = Fixture.New<DictionarySortedListClass>().CreateUninitialized().WithBackingField(fieldName, c => c.Dictionary, dictionary);
+            var fixture = Fixture.New<DictionarySortedListClass>().CreateUninitialized().WithBackingField(c => c.Dictionary, dictionary, fieldName);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Dictionary[1], Is.EqualTo(_text));
