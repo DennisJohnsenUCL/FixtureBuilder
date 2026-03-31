@@ -10,7 +10,7 @@
 		<AssemblyTitle>FixtureBuilder</AssemblyTitle>
 		<Authors>Dennis Johnsen</Authors>
 		<Description>Provides advanced fixture creation and configuration utilities for .NET unit testing, supporting construction and setup of entities—including setting fields, properties, and bypassing constructors.</Description>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<Version>1.0.4</Version>
 		<Title>FixtureBuilder</Title>
 		<PackageId>FixtureBuilder</PackageId>
@@ -27,6 +27,10 @@
 
 	<ItemGroup>
 		<None Include="..\readme.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
