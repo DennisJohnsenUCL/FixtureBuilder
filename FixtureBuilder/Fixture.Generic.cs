@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
-using System.Reflection;
 using FixtureBuilder.Constructors;
 using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
@@ -283,33 +282,6 @@ namespace FixtureBuilder
 
             if (ExpressionHelper.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
             else return WithBackingFieldInternal(expr, value);
-        }
-
-        /// <summary>
-        /// Determines whether a field with the specified name exists on the <typeparamref name="TEntity"/> type.
-        /// </summary>
-        /// <param name="fieldName">The name of the field to search for.</param>
-        /// <returns><see langword="true"/> if the field exists on the fixture type, <see langword="false"/> if not.</returns>
-        bool IFixtureConfigurator<TEntity>.HasField(string fieldName)
-        {
-            return FieldHelper.TryGetField(typeof(TEntity), fieldName, out var _);
-        }
-
-        /// <summary>
-        /// Determines whether a field with the specified name exists on the given member of the <typeparamref name="TEntity"/> type.
-        /// </summary>
-        /// <param name="fieldName">The name of the field to search for.</param>
-        /// <param name="expr">The member to search for the field on.</param>
-        /// <returns><see langword="true"/> if the field exists on the member of the fixture type, <see langword="false"/> if not.</returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        bool IFixtureConfigurator<TEntity>.HasField(string fieldName, Expression<Func<TEntity, object?>> expr)
-        {
-            ExpressionHelper.ValidateExpression(expr);
-
-            if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
-                return FieldHelper.TryGetField(pi.PropertyType, fieldName, out var _);
-
-            return false;
         }
 
         private static TEntity InstantiateFixture()

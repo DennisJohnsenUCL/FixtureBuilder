@@ -1,5 +1,5 @@
-﻿using FixtureBuilder.UninitializedProviders;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder
 {
@@ -19,8 +19,6 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
         IFixtureConfigurator<TEntity> WithBackingField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value);
         IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-        bool HasField(string fieldName);
-        bool HasField(string fieldName, Expression<Func<TEntity, object?>> expr);
         TEntity Build();
     }
 }
