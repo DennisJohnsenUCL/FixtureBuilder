@@ -145,7 +145,8 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: true, _context);
+            var (parentInstance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
+            var instance = ExpressionHelper.InitializePropertyValue(parentInstance, property, _context);
             var propertyType = property.PropertyType;
 
             return WithFieldInternal(fieldName, propertyType, value, instance);
@@ -209,7 +210,7 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false, _context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
 
             var propertyParentType = instance.GetType();
 
@@ -259,7 +260,7 @@ namespace FixtureBuilder
             ExpressionHelper.ValidateExpression(expr);
             ExpressionHelper.ValidatePropertyWriteable(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, instantiateTarget: false, _context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
 
             property.SetValue(instance, value);
 

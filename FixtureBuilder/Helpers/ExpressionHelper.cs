@@ -39,7 +39,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, bool instantiateTarget, IFixtureContext context)
+        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
         {
             ValidateExpression(expr);
 
@@ -64,8 +64,6 @@ namespace FixtureBuilder.Helpers
             }
 
             var finalProp = members.Pop();
-
-            if (instantiateTarget) current = InitializePropertyValue(current, finalProp, context);
 
             return (current, finalProp);
         }
