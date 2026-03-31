@@ -84,6 +84,9 @@ namespace FixtureBuilder.Helpers
         /// </exception>
         internal static object InitializePropertyValue(object parent, PropertyInfo prop, IFixtureContext context)
         {
+            if (!prop.CanRead)
+                throw new InvalidOperationException($"Property {prop.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
+
             var current = prop.GetValue(parent);
 
             if (current == null)
