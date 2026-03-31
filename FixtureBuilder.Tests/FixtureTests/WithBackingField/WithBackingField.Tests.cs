@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         [Test]
         public void ClassProperty_SetsProperty()
         {
-            var fixture = Fixture.New<TestClass>().CreateUninitialized().WithBackingField(t => t.Text, _text);
+            var fixture = Fixture.New<NormalClass>().CreateUninitialized().WithBackingField(t => t.Text, _text);
             var field = TestHelper.GetFixture(fixture);
 
             Assert.That(field.Text, Is.EqualTo(_text));
@@ -58,7 +58,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         [Test]
         public void ClassProperties_SetsProperties()
         {
-            var fixture = Fixture.New<TestClass>().CreateUninitialized().WithBackingField(t => t.Text, _text).WithBackingField(t => t.Number, _number);
+            var fixture = Fixture.New<NormalClass>().CreateUninitialized().WithBackingField(t => t.Text, _text).WithBackingField(t => t.Number, _number);
             var field = TestHelper.GetFixture(fixture);
 
             using (Assert.EnterMultipleScope())

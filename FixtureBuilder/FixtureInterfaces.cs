@@ -18,6 +18,8 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> WithField<T>(string fieldName, Expression<Func<TEntity, object?>> expr, T value);
         IFixtureConfigurator<TEntity> WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
         IFixtureConfigurator<TEntity> WithBackingField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value);
+        IFixtureConfigurator<TEntity> WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value);
+        IFixtureConfigurator<TEntity> WithBackingFieldUntyped<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, object? value);
         IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
         TEntity Build();
     }

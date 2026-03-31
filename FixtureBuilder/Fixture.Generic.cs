@@ -181,9 +181,7 @@ namespace FixtureBuilder
         /// The backing field name is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(
-            Expression<Func<TEntity, TProp>> expr,
-            TProp value)
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
             => WithBackingFieldInternal(expr, value);
 
         /// <summary>
@@ -200,9 +198,39 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, TProp value)
             => WithBackingFieldInternal(expr, value, fieldName);
 
+        /// <summary>
+        /// Configures the fixture by setting the value of a field backing the specified property without enforcing the type of the property.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
+        /// <param name="expr">An expression that identifies the property whose backing field should be set.</param>
+        /// <param name="value">The value to assign to the backing field.</param>
+        /// <returns>The fixture configurator for method chaining.</returns>
+        /// <remarks>
+        /// Use this method when the backing field for the property has a different, un-assignable type from the property.
+        /// The backing field name is automatically discovered using common naming conventions.
+        /// Supports both regular properties and interface-implemented properties with explicit backing fields.
+        /// </remarks>
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value)
+            => WithBackingFieldInternal(expr, value);
+
+        /// <summary>
+        /// Configures the fixture by setting the value of a specifically named field backing the specified property without enforcing the type of the property.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
+        /// <param name="fieldName">The explicit name of the backing field to set.</param>
+        /// <param name="expr">An expression that identifies the property whose backing field should be set.</param>
+        /// <param name="value">The value to assign to the backing field.</param>
+        /// <returns>The fixture configurator for method chaining.</returns>
+        /// <remarks>
+        /// Use this method when the backing field for the property has a different, un-assignable type from the property.
+        /// Use this overload when you need to specify a non-standard backing field name that cannot be automatically discovered.
+        /// </remarks>
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingFieldUntyped<TProp>(string fieldName, Expression<Func<TEntity, TProp>> expr, object? value)
+            => WithBackingFieldInternal(expr, value, fieldName);
+
         private Fixture<TEntity> WithBackingFieldInternal<TProp>(
             Expression<Func<TEntity, TProp>> expr,
-            TProp value,
+            object? value,
             string? fieldName = null)
         {
             _fixture ??= InstantiateFixture();
