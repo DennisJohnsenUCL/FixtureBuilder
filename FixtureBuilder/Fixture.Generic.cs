@@ -117,8 +117,11 @@ namespace FixtureBuilder
         /// <summary>
         /// Configures the fixture by setting the specified field to the given value.
         /// </summary>
-        /// <remarks>This method initializes the fixture instance if it has not already been created.
-        /// Use this method to configure fields that are not accessible through public properties.</remarks>
+        /// <remarks>
+        /// This method initializes the fixture instance if it has not already been created.
+        /// <br/>Use this method to configure fields that are not accessible through public properties.
+        /// <br/>This method supports the MemberLens VS extension which will provide field names automatically if installed.
+        /// </remarks>
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
         /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>

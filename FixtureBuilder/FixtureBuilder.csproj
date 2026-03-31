@@ -38,5 +38,9 @@
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="MemberLens.Attributes" Version="1.0.1" />
+	</ItemGroup>
+
 
 </Project>
