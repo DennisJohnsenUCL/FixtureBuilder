@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 using FixtureBuilder.Constructors;
 using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
@@ -87,11 +88,11 @@ namespace FixtureBuilder
         /// <param name="args">The arguments to pass to the constructor. The arguments must match the constructor's parameter types and order.</param>
         /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration.</returns>
         /// <exception cref="MissingMethodException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] args)
+        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] arguments)
         {
             var request = new FixtureRequest(typeof(TEntity));
             var constructor = new ConstructingProvider();
-            var instance = constructor.Resolve(request, args);
+            var instance = constructor.Resolve(request, arguments);
 
             _fixture = (TEntity)instance;
 
@@ -318,27 +319,77 @@ namespace FixtureBuilder
             else return WithBackingFieldInternal(expr, value);
         }
 
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.Invoke(Expression<Action<TEntity>> method)
+        /// <summary>
+        /// Invokes a method on the fixture or its nested properties via an expression.
+        /// Intermediate properties in the chain are automatically initialized.
+        /// </summary>
+        /// <param name="expr">A lambda expression representing a method call on the fixture, e.g. <c>x => x.Child.DoSomething()</c>.</param>
+        /// <returns>The configurator for further chaining.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the expression is not a valid method call on a property access chain.</exception>
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.Invoke(Expression<Action<TEntity>> expr)
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(method);
-            ExpressionHelper.ResolvePropertyPath(_fixture, method, _context);
+            ExpressionHelper.ValidateExpression(expr);
+            ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
 
-            var action = method.Compile();
+            var action = expr.Compile();
             action.Invoke(_fixture);
 
             return this;
         }
 
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate(string methodName)
+        /// <summary>
+        /// Invokes a method on the fixture by name using reflection, allowing access to private and protected methods.
+        /// </summary>
+        /// <remarks>
+        /// This method supports the MemberLens VS extension which will provide method names automatically if installed.
+        /// </remarks>
+        /// <param name="methodName">The name of the method to invoke on the fixture.</param>
+        /// <param name="arguments">Arguments to pass to the method.</param>
+        /// <returns>The configurator for further chaining.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="TEntity"/>.</exception>
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate(string methodName, params object[] arguments)
         {
-            throw new NotImplementedException();
+            _fixture ??= InstantiateFixture();
+
+            var method = typeof(TEntity).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException($"Method {methodName} not found on {typeof(TEntity)}");
+
+            method.Invoke(_fixture, arguments);
+
+            return this;
         }
 
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate<TProp>(Expression<Func<TEntity, TProp>> expr, string methodName)
+        /// <summary>
+        /// Invokes a method by name on a nested property of the fixture, allowing access to private and protected methods.
+        /// The property and any intermediate properties in the chain are automatically initialized.
+        /// </summary>
+        /// <remarks>
+        /// This method supports the MemberLens VS extension which will provide method names automatically if installed.
+        /// </remarks>
+        /// <typeparam name="TProp">The type of the target property.</typeparam>
+        /// <param name="expr">A lambda expression representing the property path, e.g. <c>x => x.Child.Nested</c>.</param>
+        /// <param name="methodName">The name of the method to invoke on the resolved property.</param>
+        /// <param name="arguments">Arguments to pass to the method.</param>
+        /// <returns>The configurator for further chaining.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid or the method is not found on <typeparamref name="TProp"/>.</exception>
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate<TProp>(Expression<Func<TEntity, TProp>> expr, string methodName, params object[] arguments)
         {
-            throw new NotImplementedException();
+            _fixture ??= InstantiateFixture();
+
+            ExpressionHelper.ValidateExpression(expr);
+
+            var (parentInstance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
+            var instance = ExpressionHelper.InitializePropertyValue(parentInstance, property, _context);
+            var propertyType = property.PropertyType;
+
+            var method = propertyType.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException($"Method {methodName} not found on {propertyType.Name}");
+
+            method.Invoke(instance, arguments);
+
+            return this;
         }
 
         private static TEntity InstantiateFixture()
