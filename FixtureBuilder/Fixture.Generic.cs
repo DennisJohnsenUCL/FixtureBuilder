@@ -135,8 +135,11 @@ namespace FixtureBuilder
         /// <summary>
         /// Configures the fixture by setting the specified field to the given value, on the specified nested property.
         /// </summary>
-        /// <remarks>This method initializes the fixture instance if it has not already been created.
-        /// Use this method to configure fields that are not accessible through public properties.</remarks>
+        /// <remarks>
+        /// This method initializes the fixture instance if it has not already been created.
+        /// <br/>Use this method to configure fields that are not accessible through public properties.
+        /// <br/>This method supports the MemberLens VS extension which will provide field names automatically if installed.
+        /// </remarks>
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
         /// <param name="expr">The nested property on which to set the field.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
@@ -313,6 +316,29 @@ namespace FixtureBuilder
 
             if (ExpressionHelper.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
             else return WithBackingFieldInternal(expr, value);
+        }
+
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.Invoke(Expression<Action<TEntity>> method)
+        {
+            _fixture ??= InstantiateFixture();
+
+            ExpressionHelper.ValidateExpression(method);
+            ExpressionHelper.ResolvePropertyPath(_fixture, method, _context);
+
+            var action = method.Compile();
+            action.Invoke(_fixture);
+
+            return this;
+        }
+
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate(string methodName)
+        {
+            throw new NotImplementedException();
+        }
+
+        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate<TProp>(Expression<Func<TEntity, TProp>> expr, string methodName)
+        {
+            throw new NotImplementedException();
         }
 
         private static TEntity InstantiateFixture()

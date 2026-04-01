@@ -22,6 +22,9 @@ namespace FixtureBuilder
         IFixtureConfigurator<TEntity> WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value);
         IFixtureConfigurator<TEntity> WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value, string fieldName);
         IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
+        IFixtureConfigurator<TEntity> Invoke(Expression<Action<TEntity>> method);
+        IFixtureConfigurator<TEntity> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName);
+        IFixtureConfigurator<TEntity> InvokePrivate<TProp>(Expression<Func<TEntity, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName);
         TEntity Build();
     }
 }

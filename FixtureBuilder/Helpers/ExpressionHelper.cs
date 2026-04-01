@@ -41,11 +41,9 @@ namespace FixtureBuilder.Helpers
         /// </exception>
         public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
         {
-            ValidateExpression(expr);
+            if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
-
-            if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var members = new Stack<PropertyInfo>();
             while (memberExpr != null)
@@ -66,6 +64,30 @@ namespace FixtureBuilder.Helpers
             var finalProp = members.Pop();
 
             return (current, finalProp);
+        }
+
+        public static void ResolvePropertyPath<TEntity>(TEntity root, Expression<Action<TEntity>> expr, IFixtureContext context)
+        {
+            if (root == null) throw new ArgumentException("Root must be initialized.");
+
+            var call = (MethodCallExpression)expr.Body;
+            var memberExpr = call.Object as MemberExpression;
+
+            var members = new Stack<PropertyInfo>();
+            while (memberExpr != null)
+            {
+                members.Push((PropertyInfo)memberExpr.Member);
+                memberExpr = memberExpr.Expression as MemberExpression;
+            }
+
+            object current = root;
+
+            while (members.Count > 0)
+            {
+                var prop = members.Pop();
+
+                current = InitializePropertyValue(current, prop, context);
+            }
         }
 
         /// <summary>
@@ -162,6 +184,29 @@ namespace FixtureBuilder.Helpers
             }
 
             if (expr.Body is not MemberExpression || current != param)
+                throw new InvalidOperationException(message);
+        }
+
+        public static void ValidateExpression<TEntity>(Expression<Action<TEntity>> expr)
+        {
+            var message = "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). " +
+                          "Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.";
+
+            if (expr.Body is not MethodCallExpression call)
+                throw new InvalidOperationException(message);
+
+            if (call.Object == null)
+                throw new InvalidOperationException(message);
+
+            var param = expr.Parameters[0];
+
+            Expression current = call.Object;
+            while (current is MemberExpression { Member: PropertyInfo } member)
+            {
+                current = member.Expression!;
+            }
+
+            if (current != param)
                 throw new InvalidOperationException(message);
         }
     }
