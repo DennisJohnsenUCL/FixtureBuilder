@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         [Test]
         public void NoRecordPropertyBackingField_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestRecord>().CreateUninitialized().WithBackingField(t => t.Text.Length, _number));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestRecord>().CreateUninitialized().With(t => t.Text, "test").WithBackingField(t => t.Text.Length, _number));
         }
 
         class NormalClass
@@ -77,7 +77,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         [Test]
         public void NoClassPropertyBackingField_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().CreateUninitialized().WithBackingField(t => t.Text.Length, _number));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().CreateUninitialized().With(t => t.Text, "test").WithBackingField(t => t.Text.Length, _number));
         }
 
         [Test]

@@ -91,9 +91,13 @@ namespace FixtureBuilder.Tests.UninitializedProviders
             var request = new FixtureRequest(typeof(ClassWithConstructorSideEffect), "test");
             var context = Mock.Of<IFixtureContext>();
 
-            var result = (ClassWithConstructorSideEffect)_sut.ResolveUninitialized(request, InitializeMembers.None, context);
+            var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
 
-            Assert.That(result.ConstructorWasCalled, Is.False);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(((ClassWithConstructorSideEffect)result!).ConstructorWasCalled, Is.False);
+            }
         }
 
         [Test]
@@ -139,21 +143,15 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         }
 
         [Test]
-        public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ThrowsInvalidOperationException()
+        public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ReturnsNull()
         {
             var request = new FixtureRequest(typeof(string), "test");
             var context = Mock.Of<IFixtureContext>();
 
-            var ex = Assert.Throws<InvalidOperationException>(() =>
-                _sut.ResolveUninitialized(request, InitializeMembers.None, context));
+            var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(ex!.Message, Does.Contain(nameof(String)));
-                Assert.That(ex.InnerException, Is.Not.Null);
-            }
+            Assert.That(result, Is.Null);
         }
-
         #endregion
     }
 }
