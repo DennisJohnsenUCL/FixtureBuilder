@@ -14,18 +14,18 @@ using FixtureBuilder.ValueConverters.ConverterBuilders;
 
 namespace FixtureBuilder
 {
-    internal class Fixture<TEntity> : IFixtureConstructor<TEntity>, IFixtureConfigurator<TEntity> where TEntity : class
+    internal class Fixture<T> : IFixtureConstructor<T>, IFixtureConfigurator<T> where T : class
     {
         private readonly IFixtureContext _context;
-        private TEntity _fixture = null!;
+        private T _fixture = null!;
 
         /// <summary>
         /// Builds and returns the configured fixture instance of the specified type.
         /// </summary>
         /// <remarks>If the fixture instance has not been previously created, a new instance is instantiated  with its
         /// members initialized. Subsequent calls will return the same instance.</remarks>
-        /// <returns>The configured fixture instance of type <typeparamref name="TEntity"/>.</returns>
-        TEntity IFixtureConfigurator<TEntity>.Build()
+        /// <returns>The configured fixture instance of type <typeparamref name="T"/>.</returns>
+        T IFixtureConfigurator<T>.Build()
         {
             _fixture ??= InstantiateFixture();
 
@@ -34,50 +34,50 @@ namespace FixtureBuilder
 
         internal Fixture()
         {
-            if (typeof(TEntity).IsInterface)
-                throw new InvalidOperationException($"Cannot create fixtures of interface types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
+            if (typeof(T).IsInterface)
+                throw new InvalidOperationException($"Cannot create fixtures of interface types: {typeof(T).Name}. Please use concrete types for fixtures.");
 
-            if (typeof(TEntity).IsAbstract)
-                throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(TEntity).Name}. Please use concrete types for fixtures.");
+            if (typeof(T).IsAbstract)
+                throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(T).Name}. Please use concrete types for fixtures.");
 
-            if (typeof(TEntity).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
+            if (typeof(T).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = InitializeContext();
         }
 
-        internal Fixture(TEntity entity)
+        internal Fixture(T instance)
         {
-            ArgumentNullException.ThrowIfNull(entity);
-            if (entity.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
+            ArgumentNullException.ThrowIfNull(instance);
+            if (instance.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = InitializeContext();
-            _fixture = entity;
+            _fixture = instance;
         }
 
         /// <summary>
-        /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
+        /// Creates an instance of the entity type <typeparamref name="T"/> without invoking its constructor.
         /// </summary>
-        /// <remarks>This method bypasses the constructor of <typeparamref name="TEntity"/> to create an uninitialized
+        /// <remarks>This method bypasses the constructor of <typeparamref name="T"/> to create an uninitialized
         /// instance without initializing members.</remarks>
-        /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized()
-            => ((IFixtureConstructor<TEntity>)this).CreateUninitialized(InitializeMembers.None);
+        IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized()
+            => ((IFixtureConstructor<T>)this).CreateUninitialized(InitializeMembers.None);
 
         /// <summary>
-        /// Creates an instance of the entity type <typeparamref name="TEntity"/> without invoking its constructor.
+        /// Creates an instance of the entity type <typeparamref name="T"/> without invoking its constructor.
         /// </summary>
-        /// <remarks>This method bypasses the constructor of <typeparamref name="TEntity"/> to create an uninitialized
+        /// <remarks>This method bypasses the constructor of <typeparamref name="T"/> to create an uninitialized
         /// instance. After instantiation, the members of the instance can be initialized using providers.</remarks>
-        /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration of the created entity.</returns>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.CreateUninitialized(InitializeMembers initializeMembers)
+        IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
         {
-            var request = new FixtureRequest(typeof(TEntity));
+            var request = new FixtureRequest(typeof(T));
             var instance = _context.ResolveUninitialized(request, initializeMembers, _context)
-                ?? throw new InvalidOperationException($"Failed to intantiate {typeof(TEntity).Name} uninitialized.");
+                ?? throw new InvalidOperationException($"Failed to intantiate {typeof(T).Name} uninitialized.");
 
-            _fixture = (TEntity)instance;
+            _fixture = (T)instance;
 
             return this;
         }
@@ -86,15 +86,15 @@ namespace FixtureBuilder
         /// Configures the fixture to use a specific constructor for creating an instance of the entity.
         /// </summary>
         /// <param name="args">The arguments to pass to the constructor. The arguments must match the constructor's parameter types and order.</param>
-        /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration.</returns>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
         /// <exception cref="MissingMethodException"/>
-        IFixtureConfigurator<TEntity> IFixtureConstructor<TEntity>.UseConstructor(params object[] arguments)
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] arguments)
         {
-            var request = new FixtureRequest(typeof(TEntity));
+            var request = new FixtureRequest(typeof(T));
             var constructor = new ConstructingProvider();
             var instance = constructor.Resolve(request, arguments);
 
-            _fixture = (TEntity)instance;
+            _fixture = (T)instance;
 
             return this;
         }
@@ -105,12 +105,12 @@ namespace FixtureBuilder
         /// <typeparam name="TTarget">The type to which the fixture should be cast.</typeparam>
         /// <returns>An <see cref="IFixtureConfigurator{TTarget}"/> instance for the casted fixture.</returns>
         /// <exception cref="InvalidCastException"/>
-        IFixtureConfigurator<TTarget> IFixtureConfigurator<TEntity>.CastTo<TTarget>()
+        IFixtureConfigurator<TTarget> IFixtureConfigurator<T>.CastTo<TTarget>()
         {
             _fixture ??= InstantiateFixture();
 
             if (_fixture is not TTarget target)
-                throw new InvalidCastException($"Cannot cast {typeof(TEntity).Name} to {typeof(TTarget).Name}.");
+                throw new InvalidCastException($"Cannot cast {typeof(T).Name} to {typeof(TTarget).Name}.");
 
             return new Fixture<TTarget>(target);
         }
@@ -125,12 +125,12 @@ namespace FixtureBuilder
         /// </remarks>
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
-        /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<T>(string fieldName, T value)
+        /// <returns>The current <see cref="IFixtureConfigurator{T}"/> instance, allowing for method chaining.</returns>
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithField<TValue>(string fieldName, TValue value)
         {
             _fixture ??= InstantiateFixture();
 
-            return WithFieldInternal(fieldName, typeof(TEntity), value, _fixture);
+            return WithFieldInternal(fieldName, typeof(T), value, _fixture);
         }
 
         /// <summary>
@@ -144,8 +144,8 @@ namespace FixtureBuilder
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field in the entity.</param>
         /// <param name="expr">The nested property on which to set the field.</param>
         /// <param name="value">The value to assign to the specified field. The value must be compatible with the field's type.</param>
-        /// <returns>The current <see cref="IFixtureConfigurator{TEntity}"/> instance, allowing for method chaining.</returns>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithField<TProp, T>(Expression<Func<TEntity, TProp>> expr, string fieldName, T value)
+        /// <returns>The current <see cref="IFixtureConfigurator{T}"/> instance, allowing for method chaining.</returns>
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, string fieldName, TValue value)
         {
             _fixture ??= InstantiateFixture();
 
@@ -157,7 +157,7 @@ namespace FixtureBuilder
             return WithFieldInternal(fieldName, propertyType, value, instance);
         }
 
-        private Fixture<TEntity> WithFieldInternal(string fieldName, Type propertyType, object? value, object instance)
+        private Fixture<T> WithFieldInternal(string fieldName, Type propertyType, object? value, object instance)
         {
             if (!FieldHelper.TryGetField(propertyType, fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {propertyType.Name}.");
@@ -187,7 +187,7 @@ namespace FixtureBuilder
         /// The backing field name is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value)
             => WithBackingFieldInternal(expr, value);
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when you need to specify a non-standard backing field name that cannot be automatically discovered.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value, string fieldName)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName)
             => WithBackingFieldInternal(expr, value, fieldName);
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace FixtureBuilder
         /// The backing field name is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value)
             => WithBackingFieldInternal(expr, value);
 
         /// <summary>
@@ -231,11 +231,11 @@ namespace FixtureBuilder
         /// Use this method when the backing field for the property has a different, un-assignable type from the property.
         /// Use this overload when you need to specify a non-standard backing field name that cannot be automatically discovered.
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value, string fieldName)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName)
             => WithBackingFieldInternal(expr, value, fieldName);
 
-        private Fixture<TEntity> WithBackingFieldInternal<TProp>(
-            Expression<Func<TEntity, TProp>> expr,
+        private Fixture<T> WithBackingFieldInternal<TProp>(
+            Expression<Func<T, TProp>> expr,
             object? value,
             string? fieldName = null)
         {
@@ -279,13 +279,13 @@ namespace FixtureBuilder
         /// <typeparam name="TProp">The type of the property to configure.</typeparam>
         /// <param name="expr">An expression identifying the property to configure. The property must have a setter.</param>
         /// <param name="value">The value to assign to the property during configuration.</param>
-        /// <returns>An <see cref="IFixtureConfigurator{TEntity}"/> instance for further configuration.</returns>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value)
             => WithSetterInternal(expr, value);
 
-        private Fixture<TEntity> WithSetterInternal<TProp>(
-            Expression<Func<TEntity, TProp>> expr,
+        private Fixture<T> WithSetterInternal<TProp>(
+            Expression<Func<T, TProp>> expr,
             TProp value)
         {
             _fixture ??= InstantiateFixture();
@@ -310,7 +310,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Automatically determines whether to use the property setter (if writable) or directly set the backing field (if read-only).
         /// </remarks>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.With<TProp>(Expression<Func<T, TProp>> expr, TProp value)
         {
             _fixture ??= InstantiateFixture();
 
@@ -325,7 +325,7 @@ namespace FixtureBuilder
         /// <param name="expr">A lambda expression representing a method call on the fixture, e.g. <c>x => x.Child.DoSomething()</c>.</param>
         /// <returns>The configurator for further chaining.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the expression is not a valid method call on a property access chain.</exception>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.Invoke(Expression<Action<TEntity>> expr)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.Invoke(Expression<Action<T>> expr)
         {
             _fixture ??= InstantiateFixture();
 
@@ -347,13 +347,13 @@ namespace FixtureBuilder
         /// <param name="methodName">The name of the method to invoke on the fixture.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The configurator for further chaining.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="TEntity"/>.</exception>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate(string methodName, params object[] arguments)
+        /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="T"/>.</exception>
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate(string methodName, params object[] arguments)
         {
             _fixture ??= InstantiateFixture();
 
-            var method = typeof(TEntity).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new InvalidOperationException($"Method {methodName} not found on {typeof(TEntity)}");
+            var method = typeof(T).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException($"Method {methodName} not found on {typeof(T)}");
 
             method.Invoke(_fixture, arguments);
 
@@ -373,7 +373,7 @@ namespace FixtureBuilder
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The configurator for further chaining.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the expression is invalid or the method is not found on <typeparamref name="TProp"/>.</exception>
-        IFixtureConfigurator<TEntity> IFixtureConfigurator<TEntity>.InvokePrivate<TProp>(Expression<Func<TEntity, TProp>> expr, string methodName, params object[] arguments)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, string methodName, params object[] arguments)
         {
             _fixture ??= InstantiateFixture();
 
@@ -390,10 +390,10 @@ namespace FixtureBuilder
             return this;
         }
 
-        private static TEntity InstantiateFixture()
+        private static T InstantiateFixture()
         {
             //TODO: Autoconstructor
-            return (TEntity)InstantiationHelper.GetInstantiatedInstance(typeof(TEntity));
+            return (T)InstantiationHelper.GetInstantiatedInstance(typeof(T));
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)

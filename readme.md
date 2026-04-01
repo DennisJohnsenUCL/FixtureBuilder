@@ -46,11 +46,11 @@ var fixture = new Fixture<User>()
 
 - `WithField(string fieldName, object value)`: Sets a field value directly.
 
-- `WithField(Expression<Func<TEntity, TProp>> expr, object value)`: Sets the value of the backing field for a given property.
+- `WithField(Expression<Func<T, TProp>> expr, object value)`: Sets the value of the backing field for a given property.
 
-- `WithSetter(Expression<Func<TEntity, TProp>> expr, TProp value)`: Sets a writable property via its setter.
+- `WithSetter(Expression<Func<T, TProp>> expr, TProp value)`: Sets a writable property via its setter.
 
-- `With(Expression<Func<TEntity, TProp>> expr, TProp value)`: Sets either a property (if writable) or its backing field.
+- `With(Expression<Func<T, TProp>> expr, TProp value)`: Sets either a property (if writable) or its backing field.
 
 - `CastTo<TTarget>()`: Casts fixture to another type for chaining configurations.
 
@@ -64,7 +64,7 @@ var fixture = new Fixture<User>()
 
 ## Limitations
 
-- Only intended for use with reference types (`where TEntity : class`)
+- Only intended for use with reference types (`where T : class`)
 
 - Not suitable for production scenarios; designed for testing utilities only
 

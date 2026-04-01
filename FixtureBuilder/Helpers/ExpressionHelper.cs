@@ -18,7 +18,7 @@ namespace FixtureBuilder.Helpers
         /// intermediate properties along the path, and returns the penultimate object together with
         /// the final <see cref="PropertyInfo"/>.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the root object.</typeparam>
+        /// <typeparam name="T">The type of the root object.</typeparam>
         /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
@@ -34,7 +34,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, PropertyInfo property) ResolvePropertyParent<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
+        public static (object instance, PropertyInfo property) ResolvePropertyParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Helpers
         /// intermediate properties along the path, and returns the last object together with
         /// the final <see cref="PropertyInfo"/>.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the root object.</typeparam>
+        /// <typeparam name="T">The type of the root object.</typeparam>
         /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
@@ -64,7 +64,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, PropertyInfo property) ResolvePropertyInstance<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
+        public static (object instance, PropertyInfo property) ResolvePropertyInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
@@ -77,7 +77,7 @@ namespace FixtureBuilder.Helpers
         /// Walks a property access chain from the root object, initializing any <see langword="null"/>
         /// intermediate properties along the path.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the root object.</typeparam>
+        /// <typeparam name="T">The type of the root object.</typeparam>
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
         /// A property access chain expression ending in a method invocation, e.g., <c>x => x.Child.Grandchild.Method()</c>.
@@ -88,7 +88,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static void ResolveMethodParent<TEntity>(TEntity root, Expression<Action<TEntity>> expr, IFixtureContext context)
+        public static void ResolveMethodParent<T>(T root, Expression<Action<T>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
@@ -168,14 +168,14 @@ namespace FixtureBuilder.Helpers
         /// <summary>
         /// Determines whether the final property in the specified expression is writable.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity the expression operates on.</typeparam>
+        /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
         /// <param name="expr">A lambda expression targeting a property, e.g., <c>x => x.Name</c>.</param>
         /// <returns>
         /// <see langword="true"/> if the expression body is a property access and the property has a setter;
         /// otherwise, <see langword="false"/>.
         /// </returns>
-        public static bool IsPropertyWritable<TEntity, TProp>(Expression<Func<TEntity, TProp>> expr)
+        public static bool IsPropertyWritable<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
                 return pi.CanWrite;
@@ -186,13 +186,13 @@ namespace FixtureBuilder.Helpers
         /// <summary>
         /// Validates that the final property in the specified expression has a setter.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity the expression operates on.</typeparam>
+        /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
         /// <param name="expr">A lambda expression targeting a property, e.g., <c>x => x.Name</c>.</param>
         /// <exception cref="InvalidOperationException">
         /// Thrown when the property targeted by <paramref name="expr"/> does not have a setter.
         /// </exception>
-        public static void ValidatePropertyWriteable<TEntity, TProp>(Expression<Func<TEntity, TProp>> expr)
+        public static void ValidatePropertyWriteable<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (!IsPropertyWritable(expr))
                 throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
@@ -202,7 +202,7 @@ namespace FixtureBuilder.Helpers
         /// Validates that the specified expression represents a direct property access chain
         /// rooted at the lambda parameter.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity the expression operates on.</typeparam>
+        /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
         /// <param name="expr">
         /// A lambda expression expected to be a property access chain, e.g., <c>x => x.Property1.Property2</c>.
@@ -211,7 +211,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a direct property access chain. This includes
         /// expressions that reference methods, constants, fields, computed values, or the bare parameter itself.
         /// </exception>
-        public static void ValidateExpression<TEntity, TProp>(Expression<Func<TEntity, TProp>> expr)
+        public static void ValidateExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             var message = $"Expression must be a direct property access chain, e.g., x => x.Property1.Property2. Methods, constants, fields, and computed values are not valid.";
 
@@ -233,7 +233,7 @@ namespace FixtureBuilder.Helpers
         /// Validates that the specified expression represents a direct property access chain
         /// rooted at the lambda parameter, and ending in a method invocation.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity the expression operates on.</typeparam>
+        /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <param name="expr">
         /// A lambda expression expected to be a property access chain ending in a method invocation, e.g., <c>x => x.Property1.Method()</c>.
         /// </param>
@@ -241,7 +241,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a direct property access chain. This includes
         /// expressions that reference constants, fields, computed values, or the bare parameter itself.
         /// </exception>
-        public static void ValidateExpression<TEntity>(Expression<Action<TEntity>> expr)
+        public static void ValidateExpression<T>(Expression<Action<T>> expr)
         {
             var message = "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). " +
                           "Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.";

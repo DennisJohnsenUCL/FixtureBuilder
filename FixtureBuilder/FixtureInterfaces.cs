@@ -4,27 +4,27 @@ using MemberLens.Attributes;
 
 namespace FixtureBuilder
 {
-    public interface IFixtureConstructor<TEntity> : IFixtureConfigurator<TEntity> where TEntity : class
+    public interface IFixtureConstructor<T> : IFixtureConfigurator<T> where T : class
     {
-        IFixtureConfigurator<TEntity> CreateUninitialized();
-        IFixtureConfigurator<TEntity> CreateUninitialized(InitializeMembers initializeMembers);
-        IFixtureConfigurator<TEntity> UseConstructor(params object[] args);
+        IFixtureConfigurator<T> CreateUninitialized();
+        IFixtureConfigurator<T> CreateUninitialized(InitializeMembers initializeMembers);
+        IFixtureConfigurator<T> UseConstructor(params object[] args);
     }
 
-    public interface IFixtureConfigurator<TEntity> where TEntity : class
+    public interface IFixtureConfigurator<T> where T : class
     {
         IFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;
-        IFixtureConfigurator<TEntity> With<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-        IFixtureConfigurator<TEntity> WithField<T>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, T value);
-        IFixtureConfigurator<TEntity> WithField<TProp, T>(Expression<Func<TEntity, TProp>> expr, [MemberAccessor(AccessorType.Field, GenericSource.Method, 0)] string fieldName, T value);
-        IFixtureConfigurator<TEntity> WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-        IFixtureConfigurator<TEntity> WithBackingField<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value, string fieldName);
-        IFixtureConfigurator<TEntity> WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value);
-        IFixtureConfigurator<TEntity> WithBackingFieldUntyped<TProp>(Expression<Func<TEntity, TProp>> expr, object? value, string fieldName);
-        IFixtureConfigurator<TEntity> WithSetter<TProp>(Expression<Func<TEntity, TProp>> expr, TProp value);
-        IFixtureConfigurator<TEntity> Invoke(Expression<Action<TEntity>> expr);
-        IFixtureConfigurator<TEntity> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, params object[] arguments);
-        IFixtureConfigurator<TEntity> InvokePrivate<TProp>(Expression<Func<TEntity, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);
-        TEntity Build();
+        IFixtureConfigurator<T> With<TProp>(Expression<Func<T, TProp>> expr, TProp value);
+        IFixtureConfigurator<T> WithField<TValue>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, TValue value);
+        IFixtureConfigurator<T> WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Field, GenericSource.Method, 0)] string fieldName, TValue value);
+        IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value);
+        IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName);
+        IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value);
+        IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName);
+        IFixtureConfigurator<T> WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value);
+        IFixtureConfigurator<T> Invoke(Expression<Action<T>> expr);
+        IFixtureConfigurator<T> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, params object[] arguments);
+        IFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);
+        T Build();
     }
 }
