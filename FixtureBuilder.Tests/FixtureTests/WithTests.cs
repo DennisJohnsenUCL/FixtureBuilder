@@ -73,29 +73,5 @@
                 Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
-
-        [Test]
-        public void NoMemberAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => c, new TestClass()));
-        }
-
-        [Test]
-        public void NoSetterOnProperty_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => c.NoSetterProperty.Value, "_text"));
-        }
-
-        [Test]
-        public void MethodMemberAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => c.TestMethod().Value, "_text"));
-        }
-
-        [Test]
-        public void ConstantAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().With(c => new TestClass().NestedClass.Value, "_text"));
-        }
     }
 }

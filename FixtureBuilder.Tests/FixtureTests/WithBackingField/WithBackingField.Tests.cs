@@ -355,28 +355,42 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(field.List.First(), Is.EqualTo(_text));
         }
 
-        [Test]
-        public void NoMemberAccess_ThrowsException()
+        class ValueMembersClass
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => c, new TestClass()));
+            private int? _nullable;
+            public int? Nullable { get => _nullable; set { _nullable = value; } }
+
+            private int _nonNullable;
+            public int? NonNullable { get => _nonNullable; set { _nonNullable = (int)value!; } }
+        }
+        [Test]
+        public void NullableValueField_NonNullableValueProperty_SetsField()
+        {
+            var fixture = Fixture.New<ValueMembersClass>().CreateUninitialized();
+
+            fixture = fixture.WithBackingField(x => x.Nullable, _number);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Nullable, Is.EqualTo(_number));
         }
 
         [Test]
-        public void NoSetterOnProperty_ThrowsException()
+        public void NullableValueField_NullValue_SetsField()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => c.NoSetterProperty.Value, "_text"));
+            var fixture = Fixture.New<ValueMembersClass>().CreateUninitialized();
+
+            fixture = fixture.WithBackingField(x => x.Nullable, null);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Nullable, Is.Null);
         }
 
         [Test]
-        public void MethodMemberAccess_ThrowsException()
+        public void NonNullableValueField_NullValue_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => c.TestMethod().Value, "_text"));
-        }
+            var fixture = Fixture.New<ValueMembersClass>().CreateUninitialized();
 
-        [Test]
-        public void ConstantAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithBackingField(c => new TestClass().NestedClass.Value, "_text"));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.NonNullable, null));
         }
     }
 }

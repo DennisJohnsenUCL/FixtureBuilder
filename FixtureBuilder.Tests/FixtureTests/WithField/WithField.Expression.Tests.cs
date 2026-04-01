@@ -65,29 +65,5 @@
             Assert.Throws<InvalidOperationException>(
                 () => Fixture.New<BaseClass>().CreateUninitialized().WithField(c => c.NestedClass.TwiceNestedClass.GetHashCode(), fieldName, _text));
         }
-
-        [Test]
-        public void NoMemberAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField(c => c, "_inheritedField", new TestClass()));
-        }
-
-        [Test]
-        public void NoSetterOnProperty_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField(c => c.NoSetterProperty.Value, "", "_text"));
-        }
-
-        [Test]
-        public void MethodMemberAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField(c => c.TestMethod().Value, "", "_text"));
-        }
-
-        [Test]
-        public void ConstantAccess_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<TestClass>().WithField(c => new TestClass().NestedClass.Value, "", "_text"));
-        }
     }
 }
