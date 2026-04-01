@@ -16,18 +16,13 @@ namespace FixtureBuilder.Helpers
         /// <summary>
         /// Walks a property access chain from the root object, initializing any <see langword="null"/>
         /// intermediate properties along the path, and returns the penultimate object together with
-        /// the final <see cref="PropertyInfo"/>. The <paramref name="instantiateTarget"/> parameter
-        /// controls whether the final property is also initialized.
+        /// the final <see cref="PropertyInfo"/>.
         /// </summary>
         /// <typeparam name="TEntity">The type of the root object.</typeparam>
         /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
         /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
-        /// </param>
-        /// <param name="instantiateTarget">
-        /// When <see langword="true"/>, the final property in the chain is also initialized if
-        /// <see langword="null"/>. When <see langword="false"/>, only intermediate properties are initialized.
         /// </param>
         /// <param name="context">The fixture context used to resolve new instances for <see langword="null"/> properties.</param>
         /// <returns>
@@ -39,40 +34,84 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, PropertyInfo property) ResolvePropertyPath<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
+        public static (object instance, PropertyInfo property) ResolvePropertyParent<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            var members = new Stack<PropertyInfo>();
-            while (memberExpr != null)
-            {
-                members.Push((PropertyInfo)memberExpr.Member);
-                memberExpr = memberExpr.Expression as MemberExpression;
-            }
-
-            object current = root;
-
-            while (members.Count > 1)
-            {
-                var prop = members.Pop();
-
-                current = InitializePropertyValue(current, prop, context);
-            }
-
-            var finalProp = members.Pop();
-
-            return (current, finalProp);
+            return ResolvePropertyPath(memberExpr, root, resolveInstance: false, context);
         }
 
-        public static void ResolvePropertyPath<TEntity>(TEntity root, Expression<Action<TEntity>> expr, IFixtureContext context)
+        /// <summary>
+        /// Walks a property access chain from the root object, initializing any <see langword="null"/>
+        /// intermediate properties along the path, and returns the last object together with
+        /// the final <see cref="PropertyInfo"/>.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the root object.</typeparam>
+        /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
+        /// <param name="root">The root object to begin traversal from.</param>
+        /// <param name="expr">
+        /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
+        /// </param>
+        /// <param name="context">The fixture context used to resolve new instances for <see langword="null"/> properties.</param>
+        /// <returns>
+        /// A tuple containing the object value of the final property, and the <see cref="PropertyInfo"/>
+        /// of that final property.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
+        /// <see langword="null"/> property along the path does not have a setter.
+        /// </exception>
+        public static (object instance, PropertyInfo property) ResolvePropertyInstance<TEntity, TProp>(TEntity root, Expression<Func<TEntity, TProp>> expr, IFixtureContext context)
+        {
+            if (root == null) throw new ArgumentException("Root must be initialized.");
+
+            var memberExpr = (MemberExpression)expr.Body;
+
+            return ResolvePropertyPath(memberExpr, root, resolveInstance: true, context);
+        }
+
+        /// <summary>
+        /// Walks a property access chain from the root object, initializing any <see langword="null"/>
+        /// intermediate properties along the path.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the root object.</typeparam>
+        /// <param name="root">The root object to begin traversal from.</param>
+        /// <param name="expr">
+        /// A property access chain expression ending in a method invocation, e.g., <c>x => x.Child.Grandchild.Method()</c>.
+        /// </param>
+        /// <param name="context">The fixture context used to resolve new instances for <see langword="null"/> properties.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
+        /// <see langword="null"/> property along the path does not have a setter.
+        /// </exception>
+        public static void ResolveMethodParent<TEntity>(TEntity root, Expression<Action<TEntity>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var call = (MethodCallExpression)expr.Body;
             var memberExpr = call.Object as MemberExpression;
 
+            if (memberExpr is not null) ResolvePropertyPath(memberExpr, root, resolveInstance: true, context);
+        }
+
+        /// <summary>
+        /// Walks a chain of property accesses from a <see cref="MemberExpression"/>, initializing
+        /// each intermediate property along the path. Returns the final property and its owning instance.
+        /// </summary>
+        /// <param name="memberExpr">The member expression representing the property access chain.</param>
+        /// <param name="root">The root object to begin resolution from.</param>
+        /// <param name="resolveInstance">
+        /// If <c>true</c>, the final property is also initialized and the returned instance is its value.
+        /// If <c>false</c>, the returned instance is the parent that owns the final property.
+        /// </param>
+        /// <param name="context">The fixture context used to initialize property values.</param>
+        /// <returns>A tuple of the resolved instance and the final property in the path.</returns>
+        internal static (object instance, PropertyInfo property) ResolvePropertyPath(MemberExpression? memberExpr, object root, bool resolveInstance, IFixtureContext context)
+        {
             var members = new Stack<PropertyInfo>();
             while (memberExpr != null)
             {
@@ -81,13 +120,16 @@ namespace FixtureBuilder.Helpers
             }
 
             object current = root;
-
-            while (members.Count > 0)
+            while (members.Count > 1)
             {
                 var prop = members.Pop();
-
                 current = InitializePropertyValue(current, prop, context);
             }
+
+            var finalProp = members.Pop();
+            if (resolveInstance) current = InitializePropertyValue(current, finalProp, context);
+
+            return (current, finalProp);
         }
 
         /// <summary>
@@ -187,6 +229,18 @@ namespace FixtureBuilder.Helpers
                 throw new InvalidOperationException(message);
         }
 
+        /// <summary>
+        /// Validates that the specified expression represents a direct property access chain
+        /// rooted at the lambda parameter, and ending in a method invocation.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity the expression operates on.</typeparam>
+        /// <param name="expr">
+        /// A lambda expression expected to be a property access chain ending in a method invocation, e.g., <c>x => x.Property1.Method()</c>.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when <paramref name="expr"/> is not a direct property access chain. This includes
+        /// expressions that reference constants, fields, computed values, or the bare parameter itself.
+        /// </exception>
         public static void ValidateExpression<TEntity>(Expression<Action<TEntity>> expr)
         {
             var message = "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). " +

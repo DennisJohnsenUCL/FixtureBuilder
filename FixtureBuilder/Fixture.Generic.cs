@@ -151,8 +151,7 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (parentInstance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
-            var instance = ExpressionHelper.InitializePropertyValue(parentInstance, property, _context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyInstance(_fixture, expr, _context);
             var propertyType = property.PropertyType;
 
             return WithFieldInternal(fieldName, propertyType, value, instance);
@@ -244,7 +243,7 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
 
             var propertyParentType = instance.GetType();
 
@@ -294,7 +293,7 @@ namespace FixtureBuilder
             ExpressionHelper.ValidateExpression(expr);
             ExpressionHelper.ValidatePropertyWriteable(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
 
             property.SetValue(instance, value);
 
@@ -331,7 +330,7 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             ExpressionHelper.ValidateExpression(expr);
-            ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
+            ExpressionHelper.ResolveMethodParent(_fixture, expr, _context);
 
             var action = expr.Compile();
             action.Invoke(_fixture);
@@ -380,8 +379,7 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (parentInstance, property) = ExpressionHelper.ResolvePropertyPath(_fixture, expr, _context);
-            var instance = ExpressionHelper.InitializePropertyValue(parentInstance, property, _context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyInstance(_fixture, expr, _context);
             var propertyType = property.PropertyType;
 
             var method = propertyType.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)

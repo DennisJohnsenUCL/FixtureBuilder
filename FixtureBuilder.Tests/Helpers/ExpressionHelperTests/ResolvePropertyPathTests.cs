@@ -44,7 +44,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = Mock.Of<IFixtureContext>();
 
             Assert.Throws<ArgumentException>(
-                () => ExpressionHelper.ResolvePropertyPath<Root, string>(null!, expr, context));
+                () => ExpressionHelper.ResolvePropertyParent<Root, string>(null!, expr, context));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             Expression<Func<Root, string>> expr = x => x.Name;
             var context = Mock.Of<IFixtureContext>();
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(root, expr, context);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -71,7 +71,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             Expression<Func<Root, int>> expr = x => x.Middle.Value;
             var context = CreateContextThatResolves(resolvedMiddle);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(root, expr, context.Object);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -102,7 +102,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
                     context.Object))
                 .Returns(resolvedLeaf);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(root, expr, context.Object);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -121,7 +121,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             Expression<Func<Root, int>> expr = x => x.Middle.Value;
             var context = new Mock<IFixtureContext>();
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(root, expr, context.Object);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -138,7 +138,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             Expression<Func<Root, Leaf>> expr = x => x.Middle.Leaf;
             var context = new Mock<IFixtureContext>();
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyPath(root, expr, context.Object);
+            var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
