@@ -20,22 +20,19 @@ namespace FixtureBuilder.UninitializedProviders
             _memberInitializer = memberInitializer;
         }
 
-        public object ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
 
-            object instance;
+            object? instance = null;
             try
             {
                 instance = RuntimeHelpers.GetUninitializedObject(request.Type);
             }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Cannot initialize type {request.Type.Name} uninitialized.", ex);
-            }
+            catch (Exception) { }
 
-            if (initializeMembers != InitializeMembers.None)
+            if (instance is not null && initializeMembers != InitializeMembers.None)
                 _memberInitializer.InitializeMembers(instance, initializeMembers, context);
 
             return instance;

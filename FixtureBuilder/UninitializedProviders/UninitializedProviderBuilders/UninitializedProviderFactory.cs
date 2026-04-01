@@ -12,15 +12,15 @@ namespace FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders
                     new DataMemberSkipFilter(),
                     new TypeLinkingUninitializedProvider(
                         new CompositeUninitializedProvider([
-                        new StringProvider(),
-                        new EnumProvider(),
-                        new DateTimeProvider(),
-                        new TimeSpanProvider(),
-                        new PrimitiveNumberProvider(),
-                        new ArrayProvider(),
-                        new ConstructibleEnumerableProvider(),
-                        new ImmutableFrozenEnumerableProvider(),
-                        new DefaultBclTypeProvider()]))));
+                            new StringProvider(),
+                            new EnumProvider(),
+                            new DateTimeProvider(),
+                            new TimeSpanProvider(),
+                            new PrimitiveNumberProvider(),
+                            new ArrayProvider(),
+                            new ConstructibleEnumerableProvider(),
+                            new ImmutableFrozenEnumerableProvider(),
+                            new DefaultBclTypeProvider()]))));
 
             return creator;
         }
