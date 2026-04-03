@@ -16,7 +16,14 @@ namespace FixtureBuilder.FixtureProviders.Providers
         {
             if (request.Type.Namespace?.StartsWith("System") == true)
             {
-                return Activator.CreateInstance(request.Type);
+                try
+                {
+                    return Activator.CreateInstance(request.Type);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             return null;
