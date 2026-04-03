@@ -2,6 +2,11 @@
 
 namespace FixtureBuilder.FixtureProviders
 {
+    /// <summary>
+    /// An <see cref="IFixtureProvider"/> that iterates through a sequence of
+    /// <see cref="IFixtureProvider"/> instances, returning the first non-null result.
+    /// Returns <see langword="null"/> if no provider resolves the request.
+    /// </summary>
     internal class CompositeFixtureProvider : IFixtureProvider
     {
         private readonly IEnumerable<IFixtureProvider> _providers;

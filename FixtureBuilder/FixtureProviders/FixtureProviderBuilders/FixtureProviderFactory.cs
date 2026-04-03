@@ -2,6 +2,10 @@
 
 namespace FixtureBuilder.FixtureProviders.FixtureProviderBuilders
 {
+    /// <summary>
+    /// Creates the default <see cref="IFixtureProvider"/> pipeline, composing the standard set of
+    /// type-specific providers into a <see cref="CompositeFixtureProvider"/>.
+    /// </summary>
     internal class FixtureProviderFactory : IFixtureProviderFactory
     {
         public IFixtureProvider CreateDefaultFixtureProvider()

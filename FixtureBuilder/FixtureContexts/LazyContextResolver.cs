@@ -62,6 +62,10 @@ namespace FixtureBuilder.FixtureContexts
         public IFixtureUninitializedProvider GetUninitializedProvider()
             => _uninitializedProvider.Value;
 
+        /// <summary>
+        /// Returns the <see cref="IFixtureProvider"/>, creating it on first access via the factory provided at construction.
+        /// </summary>
+        /// <returns>The lazily resolved <see cref="IFixtureProvider"/>
         public IFixtureProvider GetFixtureProvider()
             => _fixtureProvider.Value;
     }

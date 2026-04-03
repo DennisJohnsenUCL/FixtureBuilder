@@ -1,14 +1,14 @@
 ﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.FixtureProviders;
 using FixtureBuilder.FixtureProviders.Providers;
 
 namespace FixtureBuilder.UninitializedProviders
 {
     /// <summary>
-    /// An <see cref="IFixtureUninitializedProvider"/> that iterates through a sequence of
-    /// <see cref="IFixtureProvider"/> instances, returning the first non-null result. If no
-    /// provider resolves the request, it falls back to the <see cref="IFixtureContext"/> to
-    /// resolve the uninitialized value.
+    /// The default <see cref="IFixtureUninitializedProvider"/> implementation that defines the
+    /// resolution pipeline for uninitialized fixture values. Attempts resolution in order:
+    /// first via the <see cref="IFixtureContext"/>'s registered providers, then via
+    /// <see cref="DefaultBclTypeProvider"/> for <c>System</c>-namespace types, and finally
+    /// via <see cref="IFixtureContext.ResolveUninitialized"/> for direct construction.
     /// </summary>
     internal class CompositeUninitializedProvider : IFixtureUninitializedProvider
     {
