@@ -25,6 +25,8 @@ namespace FixtureBuilder.UninitializedProviders
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
 
+            if (request.Type.IsInterface || request.Type.IsAbstract) return null;
+
             object? instance = null;
             try
             {
