@@ -48,7 +48,7 @@ namespace FixtureBuilder.FixtureContexts
 
         public object? Resolve(FixtureRequest request, IFixtureContext context)
         {
-            return _resolver.GetFixtureProvider().Resolve(request, context);
+            return _resolver.GetValueProvider().Resolve(request, context);
         }
     }
 }

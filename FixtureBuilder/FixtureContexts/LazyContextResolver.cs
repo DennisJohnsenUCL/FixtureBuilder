@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.FixtureProviders;
-using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
+using FixtureBuilder.ValueProviders;
 
 namespace FixtureBuilder.FixtureContexts
 {
@@ -14,7 +14,7 @@ namespace FixtureBuilder.FixtureContexts
         private readonly Lazy<IValueConverter> _converter;
         private readonly Lazy<ITypeLink> _typeLink;
         private readonly Lazy<IFixtureUninitializedProvider> _uninitializedProvider;
-        private readonly Lazy<IFixtureProvider> _fixtureProvider;
+        private readonly Lazy<IValueProvider> _valueProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyContextResolver"/> class.
@@ -28,17 +28,17 @@ namespace FixtureBuilder.FixtureContexts
         public LazyContextResolver(Func<IValueConverter> converter,
             Func<ITypeLink> typeLink,
             Func<IFixtureUninitializedProvider> uninitializedProvider,
-            Func<IFixtureProvider> fixtureProvider)
+            Func<IValueProvider> valueProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);
             ArgumentNullException.ThrowIfNull(typeLink);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);
-            ArgumentNullException.ThrowIfNull(fixtureProvider);
+            ArgumentNullException.ThrowIfNull(valueProvider);
 
             _converter = new Lazy<IValueConverter>(converter);
             _typeLink = new Lazy<ITypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IFixtureUninitializedProvider>(uninitializedProvider);
-            _fixtureProvider = new Lazy<IFixtureProvider>(fixtureProvider);
+            _valueProvider = new Lazy<IValueProvider>(valueProvider);
         }
 
         /// <summary>
@@ -63,10 +63,10 @@ namespace FixtureBuilder.FixtureContexts
             => _uninitializedProvider.Value;
 
         /// <summary>
-        /// Returns the <see cref="IFixtureProvider"/>, creating it on first access via the factory provided at construction.
+        /// Returns the <see cref="IValueProvider"/>, creating it on first access via the factory provided at construction.
         /// </summary>
-        /// <returns>The lazily resolved <see cref="IFixtureProvider"/>
-        public IFixtureProvider GetFixtureProvider()
-            => _fixtureProvider.Value;
+        /// <returns>The lazily resolved <see cref="IValueProvider"/>
+        public IValueProvider GetValueProvider()
+            => _valueProvider.Value;
     }
 }

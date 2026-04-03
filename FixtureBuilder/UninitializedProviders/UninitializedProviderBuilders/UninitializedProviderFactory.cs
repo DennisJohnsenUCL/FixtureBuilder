@@ -1,5 +1,5 @@
-﻿using FixtureBuilder.FixtureProviders.Providers;
-using FixtureBuilder.UninitializedProviders.Decorators;
+﻿using FixtureBuilder.UninitializedProviders.Decorators;
+using FixtureBuilder.ValueProviders.Providers;
 
 namespace FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders
 {

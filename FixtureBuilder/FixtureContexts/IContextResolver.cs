@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.FixtureProviders;
-using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
+using FixtureBuilder.ValueProviders;
 
 namespace FixtureBuilder.FixtureContexts
 {
@@ -10,6 +10,6 @@ namespace FixtureBuilder.FixtureContexts
         IValueConverter GetConverter();
         ITypeLink GetTypeLink();
         IFixtureUninitializedProvider GetUninitializedProvider();
-        IFixtureProvider GetFixtureProvider();
+        IValueProvider GetValueProvider();
     }
 }

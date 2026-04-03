@@ -1,5 +1,5 @@
 ﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.FixtureProviders.Providers;
+using FixtureBuilder.ValueProviders.Providers;
 
 namespace FixtureBuilder.UninitializedProviders
 {
