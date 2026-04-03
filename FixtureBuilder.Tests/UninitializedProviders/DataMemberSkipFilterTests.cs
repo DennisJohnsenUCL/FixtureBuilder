@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿#pragma warning disable CS0649
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.UninitializedProviders;
 

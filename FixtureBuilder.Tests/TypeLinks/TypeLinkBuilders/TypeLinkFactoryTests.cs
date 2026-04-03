@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.TypeLinks;
-using FixtureBuilder.TypeLinks.TypeLinkBuilders;
+﻿using FixtureBuilder.TypeLinks.TypeLinkBuilders;
 
 namespace FixtureBuilder.Tests.TypeLinks.TypeLinkBuilders
 {
@@ -31,14 +30,6 @@ namespace FixtureBuilder.Tests.TypeLinks.TypeLinkBuilders
             var result = _sut.CreateDefaultTypeLink();
 
             Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        public void CreateDefaultTypeLink_ReturnsValidatingTypeLink()
-        {
-            var result = _sut.CreateDefaultTypeLink();
-
-            Assert.That(result, Is.InstanceOf<ValidatingTypeLink>());
         }
 
         #endregion

@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿#pragma warning disable CS0649
+#pragma warning disable CS0169
+
+using System.Reflection;
 using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Tests.Extensions.TypeExtensions

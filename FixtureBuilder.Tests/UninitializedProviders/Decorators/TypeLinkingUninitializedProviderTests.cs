@@ -32,27 +32,6 @@ namespace FixtureBuilder.Tests.UninitializedProviders.Decorators
         }
 
         [Test]
-        public void ResolveUninitialized_WhenTypeIsNullable_UnwrapsAndDelegatesToInner()
-        {
-            var request = new FixtureRequest(typeof(int?));
-            var initializeMembers = InitializeMembers.All;
-            var expected = new object();
-
-            _contextMock.Setup(c => c.Link(typeof(int))).Returns((Type?)null);
-            _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object))
-                .Returns(expected);
-
-            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(request.Type, Is.EqualTo(typeof(int)));
-                Assert.That(result, Is.SameAs(expected));
-            }
-            _innerMock.Verify(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object), Times.Once);
-        }
-
-        [Test]
         public void ResolveUninitialized_WhenContextReturnsLink_ReplacesTypeWithLink()
         {
             var request = new FixtureRequest(typeof(IEnumerable<int>));
@@ -69,26 +48,6 @@ namespace FixtureBuilder.Tests.UninitializedProviders.Decorators
             {
                 Assert.That(request.Type, Is.EqualTo(typeof(List<int>)));
                 Assert.That(result, Is.SameAs(expected));
-            }
-        }
-
-        [Test]
-        public void ResolveUninitialized_WhenNullableAndLinkExists_UnwrapsThenAppliesLink()
-        {
-            var request = new FixtureRequest(typeof(int?));
-            var initializeMembers = InitializeMembers.All;
-            var expected = 42L;
-
-            _contextMock.Setup(c => c.Link(typeof(int))).Returns(typeof(long));
-            _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object))
-                .Returns(expected);
-
-            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(request.Type, Is.EqualTo(typeof(long)));
-                Assert.That(result, Is.EqualTo(expected));
             }
         }
 

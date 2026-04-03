@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿#pragma warning disable CS0649
+
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.UninitializedProviders;
 using Moq;
 

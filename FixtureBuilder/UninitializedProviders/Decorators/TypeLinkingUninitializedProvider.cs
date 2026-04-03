@@ -20,9 +20,6 @@ namespace FixtureBuilder.UninitializedProviders.Decorators
 
         public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
         {
-            var nullableType = Nullable.GetUnderlyingType(request.Type);
-            if (nullableType != null) request.Type = nullableType;
-
             var link = context.Link(request.Type);
             if (link != null) request.Type = link;
 

@@ -13,6 +13,8 @@
 
         public Type? Link(Type target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             var nullableType = Nullable.GetUnderlyingType(target);
             if (nullableType != null) target = nullableType;
 

@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.Helpers;
+﻿#pragma warning disable CS0169
+
+using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder.Tests.Helpers.FieldHelperTests
 {
