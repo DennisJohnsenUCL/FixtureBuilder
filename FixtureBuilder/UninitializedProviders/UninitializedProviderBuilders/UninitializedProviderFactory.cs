@@ -11,16 +11,8 @@ namespace FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders
                 new MemberInitializer(
                     new DataMemberSkipFilter(),
                     new TypeLinkingUninitializedProvider(
-                        new CompositeUninitializedProvider([
-                            new StringProvider(),
-                            new EnumProvider(),
-                            new DateTimeProvider(),
-                            new TimeSpanProvider(),
-                            new PrimitiveNumberProvider(),
-                            new ArrayProvider(),
-                            new ConstructibleEnumerableProvider(),
-                            new ImmutableFrozenEnumerableProvider(),
-                            new DefaultBclTypeProvider()]))));
+                        new CompositeUninitializedProvider(
+                            new DefaultBclTypeProvider()))));
 
             return creator;
         }

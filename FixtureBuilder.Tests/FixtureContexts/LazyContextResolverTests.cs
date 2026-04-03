@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.FixtureProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
@@ -14,7 +15,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
                 null!,
                 () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>()));
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => Mock.Of<IFixtureProvider>()));
         }
 
         [Test]
@@ -23,7 +25,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
                 () => Mock.Of<IValueConverter>(),
                 null!,
-                () => Mock.Of<IFixtureUninitializedProvider>()));
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => Mock.Of<IFixtureProvider>()));
         }
 
         [Test]
@@ -32,6 +35,17 @@ namespace FixtureBuilder.Tests.FixtureContexts
             Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
                 () => Mock.Of<IValueConverter>(),
                 () => Mock.Of<ITypeLink>(),
+                null!,
+                () => Mock.Of<IFixtureProvider>()));
+        }
+
+        [Test]
+        public void Constructor_NullFixtureProvider_Throws()
+        {
+            Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
+                () => Mock.Of<IValueConverter>(),
+                () => Mock.Of<ITypeLink>(),
+                () => Mock.Of<IFixtureUninitializedProvider>(),
                 null!));
         }
 
@@ -42,7 +56,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var sut = new LazyContextResolver(
                 () => expected,
                 () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>());
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => Mock.Of<IFixtureProvider>());
 
             var result = sut.GetConverter();
 
@@ -57,7 +72,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var sut = new LazyContextResolver(
                 () => { callCount++; return instance; },
                 () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>());
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => Mock.Of<IFixtureProvider>());
 
             var first = sut.GetConverter();
             var second = sut.GetConverter();
@@ -76,7 +92,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var sut = new LazyContextResolver(
                 () => Mock.Of<IValueConverter>(),
                 () => expected,
-                () => Mock.Of<IFixtureUninitializedProvider>());
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => Mock.Of<IFixtureProvider>());
 
             var result = sut.GetTypeLink();
 
@@ -91,7 +108,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var sut = new LazyContextResolver(
                 () => Mock.Of<IValueConverter>(),
                 () => { callCount++; return instance; },
-                () => Mock.Of<IFixtureUninitializedProvider>());
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => Mock.Of<IFixtureProvider>());
 
             var first = sut.GetTypeLink();
             var second = sut.GetTypeLink();
@@ -110,7 +128,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var sut = new LazyContextResolver(
                 () => Mock.Of<IValueConverter>(),
                 () => Mock.Of<ITypeLink>(),
-                () => expected);
+                () => expected,
+                () => Mock.Of<IFixtureProvider>());
 
             var result = sut.GetUninitializedProvider();
 
@@ -125,10 +144,47 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var sut = new LazyContextResolver(
                 () => Mock.Of<IValueConverter>(),
                 () => Mock.Of<ITypeLink>(),
-                () => { callCount++; return instance; });
+                () => { callCount++; return instance; },
+                () => Mock.Of<IFixtureProvider>());
 
             var first = sut.GetUninitializedProvider();
             var second = sut.GetUninitializedProvider();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(second, Is.SameAs(first));
+                Assert.That(callCount, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public void GetFixtureProvider_ReturnsInstanceFromFactory()
+        {
+            var expected = Mock.Of<IFixtureProvider>();
+            var sut = new LazyContextResolver(
+                () => Mock.Of<IValueConverter>(),
+                () => Mock.Of<ITypeLink>(),
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => expected);
+
+            var result = sut.GetFixtureProvider();
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void GetFixtureProvider_CalledTwice_ReturnsSameInstance()
+        {
+            var callCount = 0;
+            var instance = Mock.Of<IFixtureProvider>();
+            var sut = new LazyContextResolver(
+                () => Mock.Of<IValueConverter>(),
+                () => Mock.Of<ITypeLink>(),
+                () => Mock.Of<IFixtureUninitializedProvider>(),
+                () => { callCount++; return instance; });
+
+            var first = sut.GetFixtureProvider();
+            var second = sut.GetFixtureProvider();
 
             using (Assert.EnterMultipleScope())
             {
@@ -143,19 +199,21 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var converterCalled = false;
             var typeLinkCalled = false;
             var providerCalled = false;
+            var fixtureProviderCalled = false;
 
             _ = new LazyContextResolver(
                 () => { converterCalled = true; return Mock.Of<IValueConverter>(); },
                 () => { typeLinkCalled = true; return Mock.Of<ITypeLink>(); },
-                () => { providerCalled = true; return Mock.Of<IFixtureUninitializedProvider>(); });
+                () => { providerCalled = true; return Mock.Of<IFixtureUninitializedProvider>(); },
+                () => { fixtureProviderCalled = true; return Mock.Of<IFixtureProvider>(); });
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(converterCalled, Is.False);
                 Assert.That(typeLinkCalled, Is.False);
                 Assert.That(providerCalled, Is.False);
+                Assert.That(fixtureProviderCalled, Is.False);
             }
         }
-
     }
 }

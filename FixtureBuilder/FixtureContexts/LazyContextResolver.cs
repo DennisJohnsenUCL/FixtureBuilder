@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.FixtureProviders;
+using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
 
@@ -13,6 +14,7 @@ namespace FixtureBuilder.FixtureContexts
         private readonly Lazy<IValueConverter> _converter;
         private readonly Lazy<ITypeLink> _typeLink;
         private readonly Lazy<IFixtureUninitializedProvider> _uninitializedProvider;
+        private readonly Lazy<IFixtureProvider> _fixtureProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyContextResolver"/> class.
@@ -25,15 +27,18 @@ namespace FixtureBuilder.FixtureContexts
         /// </exception>
         public LazyContextResolver(Func<IValueConverter> converter,
             Func<ITypeLink> typeLink,
-            Func<IFixtureUninitializedProvider> uninitializedProvider)
+            Func<IFixtureUninitializedProvider> uninitializedProvider,
+            Func<IFixtureProvider> fixtureProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);
             ArgumentNullException.ThrowIfNull(typeLink);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);
+            ArgumentNullException.ThrowIfNull(fixtureProvider);
 
             _converter = new Lazy<IValueConverter>(converter);
             _typeLink = new Lazy<ITypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IFixtureUninitializedProvider>(uninitializedProvider);
+            _fixtureProvider = new Lazy<IFixtureProvider>(fixtureProvider);
         }
 
         /// <summary>
@@ -56,5 +61,8 @@ namespace FixtureBuilder.FixtureContexts
         /// <returns>The lazily resolved <see cref="IFixtureUninitializedProvider"/>
         public IFixtureUninitializedProvider GetUninitializedProvider()
             => _uninitializedProvider.Value;
+
+        public IFixtureProvider GetFixtureProvider()
+            => _fixtureProvider.Value;
     }
 }

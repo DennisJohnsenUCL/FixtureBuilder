@@ -1,8 +1,9 @@
-﻿using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.FixtureProviders;
+using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
 
 namespace FixtureBuilder.FixtureContexts
 {
-    internal interface IFixtureContext : IValueConverter, ITypeLink, IFixtureUninitializedProvider;
+    internal interface IFixtureContext : IValueConverter, ITypeLink, IFixtureUninitializedProvider, IFixtureProvider;
 }

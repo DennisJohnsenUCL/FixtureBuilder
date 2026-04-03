@@ -1,5 +1,6 @@
 ﻿using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.FixtureProviders;
+using FixtureBuilder.FixtureProviders.Providers;
 
 namespace FixtureBuilder.UninitializedProviders
 {
@@ -11,24 +12,26 @@ namespace FixtureBuilder.UninitializedProviders
     /// </summary>
     internal class CompositeUninitializedProvider : IFixtureUninitializedProvider
     {
-        private readonly IEnumerable<IFixtureProvider> _providers;
+        private readonly DefaultBclTypeProvider _defaultBclTypeProvider;
 
-        public CompositeUninitializedProvider(IEnumerable<IFixtureProvider> providers)
+        public CompositeUninitializedProvider(DefaultBclTypeProvider defaultBclTypeProvider)
         {
-            ArgumentNullException.ThrowIfNull(providers);
-            _providers = providers;
+            ArgumentNullException.ThrowIfNull(defaultBclTypeProvider);
+
+            _defaultBclTypeProvider = defaultBclTypeProvider;
         }
 
-        public object? ResolveUninitialized(FixtureRequest target, InitializeMembers initializeMembers, IFixtureContext context)
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
         {
             object? result;
-            foreach (var provider in _providers)
-            {
-                result = provider.Resolve(target, context);
-                if (result != null) return result;
-            }
 
-            result = context.ResolveUninitialized(target, initializeMembers, context);
+            result = context.Resolve(request, context);
+            if (result != null) return result;
+
+            result = _defaultBclTypeProvider.Resolve(request, context);
+            if (result != null) return result;
+
+            result = context.ResolveUninitialized(request, initializeMembers, context);
             return result;
         }
     }
