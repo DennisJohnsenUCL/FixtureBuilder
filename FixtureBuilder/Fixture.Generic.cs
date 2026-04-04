@@ -95,6 +95,16 @@ namespace FixtureBuilder
             return this;
         }
 
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseAutoConstructor()
+        {
+            var request = new FixtureRequest(typeof(T));
+            var instance = _context.AutoResolve(request, _context);
+
+            _fixture = (T)instance;
+
+            return this;
+        }
+
         /// <summary>
         /// Casts the current fixture to the specified target type.
         /// </summary>

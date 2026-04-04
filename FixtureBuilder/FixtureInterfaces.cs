@@ -9,6 +9,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<T> CreateUninitialized();
         IFixtureConfigurator<T> CreateUninitialized(InitializeMembers initializeMembers);
         IFixtureConfigurator<T> UseConstructor(params object[] args);
+        IFixtureConfigurator<T> UseAutoConstructor();
     }
 
     public interface IFixtureConfigurator<T> where T : class
