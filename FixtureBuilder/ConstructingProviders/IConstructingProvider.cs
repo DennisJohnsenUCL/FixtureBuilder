@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.Constructors
+﻿namespace FixtureBuilder.ConstructingProviders
 {
     internal interface IConstructingProvider
     {

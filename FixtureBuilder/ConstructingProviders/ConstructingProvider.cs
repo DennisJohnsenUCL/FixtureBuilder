@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace FixtureBuilder.Constructors
+namespace FixtureBuilder.ConstructingProviders
 {
     /// <summary>
     /// Creates instances of requested types using reflection-based constructor invocation.

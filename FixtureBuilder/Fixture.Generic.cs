@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
-using FixtureBuilder.Constructors;
+using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.FixtureContexts.FixtureContextBuilders;

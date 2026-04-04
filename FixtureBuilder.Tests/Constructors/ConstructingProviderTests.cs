@@ -1,4 +1,4 @@
-﻿using FixtureBuilder.Constructors;
+﻿using FixtureBuilder.ConstructingProviders;
 
 namespace FixtureBuilder.Tests.Constructors
 {
