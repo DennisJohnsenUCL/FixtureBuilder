@@ -88,7 +88,7 @@ namespace FixtureBuilder
         {
             var request = new FixtureRequest(typeof(T));
             var constructor = new ConstructingProvider();
-            var instance = constructor.Resolve(request, arguments);
+            var instance = constructor.ResolveWithArguments(request, arguments);
 
             _fixture = (T)instance;
 

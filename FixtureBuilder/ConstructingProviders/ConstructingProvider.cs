@@ -19,7 +19,7 @@ namespace FixtureBuilder.ConstructingProviders
         /// Thrown when the type cannot be instantiated with the given parameters — for example,
         /// if no matching constructor exists, the type is abstract, or a constructor argument is invalid.
         /// </exception>
-        public object Resolve(FixtureRequest request, params object?[] args)
+        public object ResolveWithArguments(FixtureRequest request, params object?[] args)
         {
             try
             {

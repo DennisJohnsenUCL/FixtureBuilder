@@ -45,7 +45,7 @@ namespace FixtureBuilder.Tests.Constructors
         {
             var request = new FixtureRequest(typeof(DefaultCtorClass));
 
-            var result = _sut.Resolve(request);
+            var result = _sut.ResolveWithArguments(request);
 
             Assert.That(result, Is.InstanceOf<DefaultCtorClass>());
         }
@@ -55,7 +55,7 @@ namespace FixtureBuilder.Tests.Constructors
         {
             var request = new FixtureRequest(typeof(PublicCtorClass));
 
-            var result = (PublicCtorClass)_sut.Resolve(request, "hello", 42);
+            var result = (PublicCtorClass)_sut.ResolveWithArguments(request, "hello", 42);
 
             using (Assert.EnterMultipleScope())
             {
@@ -69,7 +69,7 @@ namespace FixtureBuilder.Tests.Constructors
         {
             var request = new FixtureRequest(typeof(PrivateCtorClass));
 
-            var result = (PrivateCtorClass)_sut.Resolve(request, "hidden");
+            var result = (PrivateCtorClass)_sut.ResolveWithArguments(request, "hidden");
 
             Assert.That(result.Secret, Is.EqualTo("hidden"));
         }
@@ -80,7 +80,7 @@ namespace FixtureBuilder.Tests.Constructors
             var request = new FixtureRequest(typeof(PublicCtorClass));
 
             var ex = Assert.Throws<InvalidOperationException>(
-                () => _sut.Resolve(request, "only one arg"));
+                () => _sut.ResolveWithArguments(request, "only one arg"));
 
             using (Assert.EnterMultipleScope())
             {
@@ -95,7 +95,7 @@ namespace FixtureBuilder.Tests.Constructors
             var request = new FixtureRequest(typeof(AbstractClass));
 
             var ex = Assert.Throws<InvalidOperationException>(
-                () => _sut.Resolve(request));
+                () => _sut.ResolveWithArguments(request));
 
             Assert.That(ex.Message, Does.Contain("AbstractClass"));
         }
@@ -105,7 +105,7 @@ namespace FixtureBuilder.Tests.Constructors
         {
             var request = new FixtureRequest(typeof(PublicCtorClass));
 
-            var result = (PublicCtorClass)_sut.Resolve(request, null!, 7);
+            var result = (PublicCtorClass)_sut.ResolveWithArguments(request, null!, 7);
 
             using (Assert.EnterMultipleScope())
             {

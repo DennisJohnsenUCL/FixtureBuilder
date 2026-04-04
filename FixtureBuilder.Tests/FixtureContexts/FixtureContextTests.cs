@@ -1,7 +1,11 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿using System.Reflection;
+using FixtureBuilder.AutoConstructingProviders;
+using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
+using FixtureBuilder.ValueProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureContexts
@@ -119,6 +123,92 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var result = _sut.ResolveUninitialized(new FixtureRequest(typeof(int)), InitializeMembers.None, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void ResolveValue_DelegatesToResolverValueProvider()
+        {
+            var request = new FixtureRequest(typeof(string));
+            var context = Mock.Of<IFixtureContext>();
+            var expected = "value-result";
+
+            var provider = new Mock<IValueProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.ResolveValue(request, context)).Returns(expected);
+            _resolver.Setup(r => r.GetValueProvider()).Returns(provider.Object);
+
+            var result = _sut.ResolveValue(request, context);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.EqualTo(expected));
+                provider.Verify(p => p.ResolveValue(request, context), Times.Once);
+            }
+        }
+
+        [Test]
+        public void ResolveValue_ProviderReturnsNull_ReturnsNull()
+        {
+            var provider = new Mock<IValueProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
+            _resolver.Setup(r => r.GetValueProvider()).Returns(provider.Object);
+
+            var result = _sut.ResolveValue(new FixtureRequest(typeof(int)), Mock.Of<IFixtureContext>());
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void ResolveParameterValue_DelegatesToResolverParameterProvider()
+        {
+            var paramInfo = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!.GetParameters()[0];
+            var context = Mock.Of<IFixtureContext>();
+            var expected = "param-result";
+
+            var provider = new Mock<IParameterProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.ResolveParameterValue(paramInfo, context)).Returns(expected);
+            _resolver.Setup(r => r.GetParameterProvider()).Returns(provider.Object);
+
+            var result = _sut.ResolveParameterValue(paramInfo, context);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.EqualTo(expected));
+                provider.Verify(p => p.ResolveParameterValue(paramInfo, context), Times.Once);
+            }
+        }
+
+        [Test]
+        public void ResolveParameterValue_ProviderReturnsNull_ReturnsNull()
+        {
+            var paramInfo = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!.GetParameters()[0];
+
+            var provider = new Mock<IParameterProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.ResolveParameterValue(It.IsAny<ParameterInfo>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
+            _resolver.Setup(r => r.GetParameterProvider()).Returns(provider.Object);
+
+            var result = _sut.ResolveParameterValue(paramInfo, Mock.Of<IFixtureContext>());
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void AutoResolve_DelegatesToResolverAutoConstructingProvider()
+        {
+            var request = new FixtureRequest(typeof(string));
+            var context = Mock.Of<IFixtureContext>();
+            var expected = "auto-result";
+
+            var provider = new Mock<IAutoConstructingProvider>(MockBehavior.Strict);
+            provider.Setup(p => p.AutoResolve(request, context)).Returns(expected);
+            _resolver.Setup(r => r.GetAutoConstructingProvider()).Returns(provider.Object);
+
+            var result = _sut.AutoResolve(request, context);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.EqualTo(expected));
+                provider.Verify(p => p.AutoResolve(request, context), Times.Once);
+            }
         }
     }
 }

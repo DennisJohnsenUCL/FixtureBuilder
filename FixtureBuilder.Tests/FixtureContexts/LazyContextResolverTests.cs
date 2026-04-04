@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿using FixtureBuilder.AutoConstructingProviders;
+using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
@@ -9,57 +11,77 @@ namespace FixtureBuilder.Tests.FixtureContexts
 {
     internal sealed class LazyContextResolverTests
     {
+        private Func<IValueConverter> _converter;
+        private Func<ITypeLink> _typeLink;
+        private Func<IFixtureUninitializedProvider> _uninitializedProvider;
+        private Func<IValueProvider> _valueProvider;
+        private Func<IParameterProvider> _parameterProvider;
+        private Func<IAutoConstructingProvider> _autoConstructingProvider;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _converter = () => Mock.Of<IValueConverter>();
+            _typeLink = () => Mock.Of<ITypeLink>();
+            _uninitializedProvider = () => Mock.Of<IFixtureUninitializedProvider>();
+            _valueProvider = () => Mock.Of<IValueProvider>();
+            _parameterProvider = () => Mock.Of<IParameterProvider>();
+            _autoConstructingProvider = () => Mock.Of<IAutoConstructingProvider>();
+        }
+
+        private LazyContextResolver CreateSut() => new(
+            _converter, _typeLink, _uninitializedProvider,
+            _valueProvider, _parameterProvider, _autoConstructingProvider);
+
         [Test]
         public void Constructor_NullConverter_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
-                null!,
-                () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => Mock.Of<IValueProvider>()));
+            _converter = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
         }
 
         [Test]
         public void Constructor_NullTypeLink_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                null!,
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => Mock.Of<IValueProvider>()));
+            _typeLink = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
         }
 
         [Test]
         public void Constructor_NullUninitializedProvider_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => Mock.Of<ITypeLink>(),
-                null!,
-                () => Mock.Of<IValueProvider>()));
+            _uninitializedProvider = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
         }
 
         [Test]
         public void Constructor_NullValueProvider_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                null!));
+            _valueProvider = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
+        }
+
+        [Test]
+        public void Constructor_NullParameterProvider_Throws()
+        {
+            _parameterProvider = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
+        }
+
+        [Test]
+        public void Constructor_NullAutoConstructingProvider_Throws()
+        {
+            _autoConstructingProvider = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
         }
 
         [Test]
         public void GetConverter_ReturnsInstanceFromFactory()
         {
             var expected = Mock.Of<IValueConverter>();
-            var sut = new LazyContextResolver(
-                () => expected,
-                () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => Mock.Of<IValueProvider>());
+            _converter = () => expected;
 
-            var result = sut.GetConverter();
+            var result = CreateSut().GetConverter();
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -69,11 +91,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
         {
             var callCount = 0;
             var instance = Mock.Of<IValueConverter>();
-            var sut = new LazyContextResolver(
-                () => { callCount++; return instance; },
-                () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => Mock.Of<IValueProvider>());
+            _converter = () => { callCount++; return instance; };
+            var sut = CreateSut();
 
             var first = sut.GetConverter();
             var second = sut.GetConverter();
@@ -89,13 +108,9 @@ namespace FixtureBuilder.Tests.FixtureContexts
         public void GetTypeLink_ReturnsInstanceFromFactory()
         {
             var expected = Mock.Of<ITypeLink>();
-            var sut = new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => expected,
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => Mock.Of<IValueProvider>());
+            _typeLink = () => expected;
 
-            var result = sut.GetTypeLink();
+            var result = CreateSut().GetTypeLink();
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -105,11 +120,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
         {
             var callCount = 0;
             var instance = Mock.Of<ITypeLink>();
-            var sut = new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => { callCount++; return instance; },
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => Mock.Of<IValueProvider>());
+            _typeLink = () => { callCount++; return instance; };
+            var sut = CreateSut();
 
             var first = sut.GetTypeLink();
             var second = sut.GetTypeLink();
@@ -125,13 +137,9 @@ namespace FixtureBuilder.Tests.FixtureContexts
         public void GetUninitializedProvider_ReturnsInstanceFromFactory()
         {
             var expected = Mock.Of<IFixtureUninitializedProvider>();
-            var sut = new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => Mock.Of<ITypeLink>(),
-                () => expected,
-                () => Mock.Of<IValueProvider>());
+            _uninitializedProvider = () => expected;
 
-            var result = sut.GetUninitializedProvider();
+            var result = CreateSut().GetUninitializedProvider();
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -141,11 +149,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
         {
             var callCount = 0;
             var instance = Mock.Of<IFixtureUninitializedProvider>();
-            var sut = new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => Mock.Of<ITypeLink>(),
-                () => { callCount++; return instance; },
-                () => Mock.Of<IValueProvider>());
+            _uninitializedProvider = () => { callCount++; return instance; };
+            var sut = CreateSut();
 
             var first = sut.GetUninitializedProvider();
             var second = sut.GetUninitializedProvider();
@@ -161,13 +166,9 @@ namespace FixtureBuilder.Tests.FixtureContexts
         public void GetValueProvider_ReturnsInstanceFromFactory()
         {
             var expected = Mock.Of<IValueProvider>();
-            var sut = new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => expected);
+            _valueProvider = () => expected;
 
-            var result = sut.GetValueProvider();
+            var result = CreateSut().GetValueProvider();
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -177,14 +178,69 @@ namespace FixtureBuilder.Tests.FixtureContexts
         {
             var callCount = 0;
             var instance = Mock.Of<IValueProvider>();
-            var sut = new LazyContextResolver(
-                () => Mock.Of<IValueConverter>(),
-                () => Mock.Of<ITypeLink>(),
-                () => Mock.Of<IFixtureUninitializedProvider>(),
-                () => { callCount++; return instance; });
+            _valueProvider = () => { callCount++; return instance; };
+            var sut = CreateSut();
 
             var first = sut.GetValueProvider();
             var second = sut.GetValueProvider();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(second, Is.SameAs(first));
+                Assert.That(callCount, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public void GetParameterProvider_ReturnsInstanceFromFactory()
+        {
+            var expected = Mock.Of<IParameterProvider>();
+            _parameterProvider = () => expected;
+
+            var result = CreateSut().GetParameterProvider();
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void GetParameterProvider_CalledTwice_ReturnsSameInstance()
+        {
+            var callCount = 0;
+            var instance = Mock.Of<IParameterProvider>();
+            _parameterProvider = () => { callCount++; return instance; };
+            var sut = CreateSut();
+
+            var first = sut.GetParameterProvider();
+            var second = sut.GetParameterProvider();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(second, Is.SameAs(first));
+                Assert.That(callCount, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public void GetAutoConstructingProvider_ReturnsInstanceFromFactory()
+        {
+            var expected = Mock.Of<IAutoConstructingProvider>();
+            _autoConstructingProvider = () => expected;
+
+            var result = CreateSut().GetAutoConstructingProvider();
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void GetAutoConstructingProvider_CalledTwice_ReturnsSameInstance()
+        {
+            var callCount = 0;
+            var instance = Mock.Of<IAutoConstructingProvider>();
+            _autoConstructingProvider = () => { callCount++; return instance; };
+            var sut = CreateSut();
+
+            var first = sut.GetAutoConstructingProvider();
+            var second = sut.GetAutoConstructingProvider();
 
             using (Assert.EnterMultipleScope())
             {
@@ -200,12 +256,16 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var typeLinkCalled = false;
             var providerCalled = false;
             var valueProviderCalled = false;
+            var parameterProviderCalled = false;
+            var autoConstructingProviderCalled = false;
 
             _ = new LazyContextResolver(
                 () => { converterCalled = true; return Mock.Of<IValueConverter>(); },
                 () => { typeLinkCalled = true; return Mock.Of<ITypeLink>(); },
                 () => { providerCalled = true; return Mock.Of<IFixtureUninitializedProvider>(); },
-                () => { valueProviderCalled = true; return Mock.Of<IValueProvider>(); });
+                () => { valueProviderCalled = true; return Mock.Of<IValueProvider>(); },
+                () => { parameterProviderCalled = true; return Mock.Of<IParameterProvider>(); },
+                () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); });
 
             using (Assert.EnterMultipleScope())
             {
@@ -213,6 +273,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
                 Assert.That(typeLinkCalled, Is.False);
                 Assert.That(providerCalled, Is.False);
                 Assert.That(valueProviderCalled, Is.False);
+                Assert.That(parameterProviderCalled, Is.False);
+                Assert.That(autoConstructingProviderCalled, Is.False);
             }
         }
     }

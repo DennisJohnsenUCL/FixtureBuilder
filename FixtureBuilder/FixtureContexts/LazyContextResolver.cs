@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.TypeLinks;
+﻿using FixtureBuilder.AutoConstructingProviders;
+using FixtureBuilder.ParameterProviders;
+using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueProviders;
@@ -15,6 +17,8 @@ namespace FixtureBuilder.FixtureContexts
         private readonly Lazy<ITypeLink> _typeLink;
         private readonly Lazy<IFixtureUninitializedProvider> _uninitializedProvider;
         private readonly Lazy<IValueProvider> _valueProvider;
+        private readonly Lazy<IParameterProvider> _parameterProvider;
+        private readonly Lazy<IAutoConstructingProvider> _autoConstructingProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyContextResolver"/> class.
@@ -28,17 +32,23 @@ namespace FixtureBuilder.FixtureContexts
         public LazyContextResolver(Func<IValueConverter> converter,
             Func<ITypeLink> typeLink,
             Func<IFixtureUninitializedProvider> uninitializedProvider,
-            Func<IValueProvider> valueProvider)
+            Func<IValueProvider> valueProvider,
+            Func<IParameterProvider> parameterProvider,
+            Func<IAutoConstructingProvider> autoConstructingProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);
             ArgumentNullException.ThrowIfNull(typeLink);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);
             ArgumentNullException.ThrowIfNull(valueProvider);
+            ArgumentNullException.ThrowIfNull(parameterProvider);
+            ArgumentNullException.ThrowIfNull(autoConstructingProvider);
 
             _converter = new Lazy<IValueConverter>(converter);
             _typeLink = new Lazy<ITypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IFixtureUninitializedProvider>(uninitializedProvider);
             _valueProvider = new Lazy<IValueProvider>(valueProvider);
+            _parameterProvider = new Lazy<IParameterProvider>(parameterProvider);
+            _autoConstructingProvider = new Lazy<IAutoConstructingProvider>(autoConstructingProvider);
         }
 
         /// <summary>
@@ -68,5 +78,11 @@ namespace FixtureBuilder.FixtureContexts
         /// <returns>The lazily resolved <see cref="IValueProvider"/>
         public IValueProvider GetValueProvider()
             => _valueProvider.Value;
+
+        public IParameterProvider GetParameterProvider()
+            => _parameterProvider.Value;
+
+        public IAutoConstructingProvider GetAutoConstructingProvider()
+            => _autoConstructingProvider.Value;
     }
 }
