@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace FixtureBuilder.UninitializedProviders
@@ -54,73 +53,13 @@ namespace FixtureBuilder.UninitializedProviders
 
         private static bool IsNullable(DataMemberInfo dataMember)
         {
-            return IsNullableValueType(dataMember.DataMemberType)
-                || IsNullableReferenceType(dataMember);
-        }
+            var nullContext = new NullabilityInfoContext();
 
-        private static bool IsNullableValueType(Type type)
-        {
-            return Nullable.GetUnderlyingType(type) != null;
-        }
+            var nullInfo = dataMember.IsPropertyInfo
+                ? nullContext.Create(dataMember.Property)
+                : nullContext.Create(dataMember.Field);
 
-        private static bool IsNullableReferenceType(DataMemberInfo dataMember)
-        {
-            var nullableAttr = FindCustomAttribute(dataMember.CustomAttributes,
-                "System.Runtime.CompilerServices.NullableAttribute");
-
-            if (nullableAttr != null)
-                return IsMarkedNullable(nullableAttr);
-
-            return InheritsNullableContext(dataMember);
-        }
-
-        private static bool IsMarkedNullable(CustomAttributeData nullableAttr)
-        {
-            if (nullableAttr.ConstructorArguments.Count != 1)
-                return false;
-
-            var arg = nullableAttr.ConstructorArguments[0];
-
-            if (arg.ArgumentType == typeof(byte[])
-                && arg.Value is ReadOnlyCollection<CustomAttributeTypedArgument> args
-                && args.Count > 0
-                && args[0].Value is byte b)
-            {
-                return b == 2;
-            }
-
-            if (arg.ArgumentType == typeof(byte) && arg.Value is byte byteValue)
-            {
-                return byteValue == 2;
-            }
-
-            return false;
-        }
-
-        private static bool InheritsNullableContext(DataMemberInfo dataMember)
-        {
-            var contextAttr =
-                FindNullableContextAttribute(dataMember.CustomAttributes)
-                ?? FindNullableContextAttribute(dataMember.DeclaringType?.CustomAttributes)
-                ?? FindNullableContextAttribute(dataMember.Module.CustomAttributes);
-
-            return contextAttr != null
-                && (contextAttr.ConstructorArguments[0].Value as byte?) == 2;
-        }
-
-        private static CustomAttributeData? FindNullableContextAttribute(
-            IEnumerable<CustomAttributeData>? attributes)
-        {
-            return attributes == null
-                ? null
-                : FindCustomAttribute(attributes,
-                    "System.Runtime.CompilerServices.NullableContextAttribute");
-        }
-
-        private static CustomAttributeData? FindCustomAttribute(
-            IEnumerable<CustomAttributeData> attributes, string fullName)
-        {
-            return attributes.FirstOrDefault(a => a.AttributeType.FullName == fullName);
+            return nullInfo.ReadState == NullabilityState.Nullable;
         }
     }
 }
