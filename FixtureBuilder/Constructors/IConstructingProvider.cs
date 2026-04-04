@@ -2,6 +2,6 @@
 {
     internal interface IConstructingProvider
     {
-        object Resolve(FixtureRequest request, params object[] args);
+        object Resolve(FixtureRequest request, params object?[] args);
     }
 }

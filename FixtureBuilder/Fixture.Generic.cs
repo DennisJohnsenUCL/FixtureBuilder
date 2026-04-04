@@ -344,7 +344,7 @@ namespace FixtureBuilder
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The configurator for further chaining.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="T"/>.</exception>
-        IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate(string methodName, params object[] arguments)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate(string methodName, params object?[] arguments)
         {
             _fixture ??= InstantiateFixture();
 
@@ -369,7 +369,7 @@ namespace FixtureBuilder
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The configurator for further chaining.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the expression is invalid or the method is not found on <typeparamref name="TProp"/>.</exception>
-        IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, string methodName, params object[] arguments)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, string methodName, params object?[] arguments)
         {
             _fixture ??= InstantiateFixture();
 
