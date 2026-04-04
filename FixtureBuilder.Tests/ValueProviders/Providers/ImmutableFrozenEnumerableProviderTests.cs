@@ -32,7 +32,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableList<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -47,7 +47,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ReadOnlyCollection<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableHashSet<string>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -77,7 +77,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableSortedSet<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -92,7 +92,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableStack<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -107,7 +107,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableQueue<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -122,7 +122,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableArray<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -137,7 +137,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(FrozenSet<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -154,7 +154,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableDictionary<string, int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -169,7 +169,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ReadOnlyDictionary<string, int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -184,7 +184,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(ImmutableSortedDictionary<string, int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -199,7 +199,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(FrozenDictionary<string, int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -216,7 +216,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(List<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -226,7 +226,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(string));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -236,7 +236,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(int));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }

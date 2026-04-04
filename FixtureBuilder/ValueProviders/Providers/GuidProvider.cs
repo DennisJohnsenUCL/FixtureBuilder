@@ -11,7 +11,7 @@ namespace FixtureBuilder.ValueProviders.Providers
     /// </remarks>
     internal class GuidProvider : IValueProvider
     {
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             if (request.Type == typeof(Guid))
             {

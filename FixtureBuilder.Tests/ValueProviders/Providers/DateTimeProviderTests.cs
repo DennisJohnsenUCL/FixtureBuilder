@@ -27,7 +27,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(DateTime));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.TypeOf<DateTime>());
         }
@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
             var request = new FixtureRequest(typeof(DateTime));
             var before = DateTime.UtcNow;
 
-            var result = (DateTime)_sut.Resolve(request, _contextMock.Object)!;
+            var result = (DateTime)_sut.ResolveValue(request, _contextMock.Object)!;
 
             var after = DateTime.UtcNow;
             using (Assert.EnterMultipleScope())
@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(string));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(DateTimeOffset));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -73,7 +73,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(DateTime?));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }

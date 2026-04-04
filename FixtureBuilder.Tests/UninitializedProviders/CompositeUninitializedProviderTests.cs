@@ -30,7 +30,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         public void ResolveUninitialized_WhenContextResolveReturnsNonNull_ReturnsItsResult()
         {
             var expected = "from-context-resolve";
-            _contextMock.Setup(c => c.Resolve(_request, _contextMock.Object)).Returns(expected);
+            _contextMock.Setup(c => c.ResolveValue(_request, _contextMock.Object)).Returns(expected);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
             var result = sut.ResolveUninitialized(_request, DefaultInitializeMembers, _contextMock.Object);
@@ -43,7 +43,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         public void ResolveUninitialized_WhenContextResolveReturnsNull_AndBclProviderResolves_ReturnsBclResult()
         {
             var bclRequest = new FixtureRequest(typeof(List<int>));
-            _contextMock.Setup(c => c.Resolve(bclRequest, _contextMock.Object)).Returns((object?)null);
+            _contextMock.Setup(c => c.ResolveValue(bclRequest, _contextMock.Object)).Returns((object?)null);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
             var result = sut.ResolveUninitialized(bclRequest, DefaultInitializeMembers, _contextMock.Object);
@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         {
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
             var expected = new CompositeUninitializedProvider(_defaultBclTypeProvider);
-            _contextMock.Setup(c => c.Resolve(nonSystemRequest, _contextMock.Object)).Returns((object?)null);
+            _contextMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns((object?)null);
             _contextMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object))
                 .Returns(expected);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         public void ResolveUninitialized_WhenAllReturnNull_ReturnsNull()
         {
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
-            _contextMock.Setup(c => c.Resolve(nonSystemRequest, _contextMock.Object)).Returns((object?)null);
+            _contextMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns((object?)null);
             _contextMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object))
                 .Returns((object?)null);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
@@ -85,12 +85,12 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         [Test]
         public void ResolveUninitialized_PassesCorrectArgumentsToContextResolve()
         {
-            _contextMock.Setup(c => c.Resolve(_request, _contextMock.Object)).Returns("result");
+            _contextMock.Setup(c => c.ResolveValue(_request, _contextMock.Object)).Returns("result");
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
             sut.ResolveUninitialized(_request, DefaultInitializeMembers, _contextMock.Object);
 
-            _contextMock.Verify(c => c.Resolve(_request, _contextMock.Object), Times.Once);
+            _contextMock.Verify(c => c.ResolveValue(_request, _contextMock.Object), Times.Once);
         }
     }
 }

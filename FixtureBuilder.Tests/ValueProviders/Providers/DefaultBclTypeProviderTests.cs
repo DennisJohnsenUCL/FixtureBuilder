@@ -27,7 +27,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(int));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -42,7 +42,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(Guid));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(bool));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(List<int>));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -87,7 +87,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(TimeSpan));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -102,7 +102,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(DefaultBclTypeProvider));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -112,7 +112,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(FixtureRequest));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }

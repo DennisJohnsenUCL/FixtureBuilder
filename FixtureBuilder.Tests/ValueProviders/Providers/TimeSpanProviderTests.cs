@@ -27,7 +27,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(TimeSpan));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -42,8 +42,8 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(TimeSpan));
 
-            var first = _sut.Resolve(request, _contextMock.Object);
-            var second = _sut.Resolve(request, _contextMock.Object);
+            var first = _sut.ResolveValue(request, _contextMock.Object);
+            var second = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(first, Is.EqualTo(second));
         }
@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(DateTime));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(TimeSpan?));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -73,7 +73,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         {
             var request = new FixtureRequest(typeof(int));
 
-            var result = _sut.Resolve(request, _contextMock.Object);
+            var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }

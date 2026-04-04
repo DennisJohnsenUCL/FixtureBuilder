@@ -4,6 +4,6 @@ namespace FixtureBuilder.ValueProviders
 {
     internal interface IValueProvider
     {
-        object? Resolve(FixtureRequest request, IFixtureContext context);
+        object? ResolveValue(FixtureRequest request, IFixtureContext context);
     }
 }

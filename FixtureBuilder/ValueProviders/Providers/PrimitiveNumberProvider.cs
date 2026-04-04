@@ -32,7 +32,7 @@ namespace FixtureBuilder.ValueProviders.Providers
             typeof(float), typeof(double), typeof(decimal)
             ];
 
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             if (_types.Contains(request.Type))
             {

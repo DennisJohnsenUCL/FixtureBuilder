@@ -15,7 +15,7 @@ namespace FixtureBuilder.ValueProviders.Providers
         /// <summary>
         /// <inheritdoc />
         /// </summary>
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             if (request.Type.IsArray && request.Type.GetArrayRank() == 1)
             {

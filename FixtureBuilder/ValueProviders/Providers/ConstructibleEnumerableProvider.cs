@@ -37,7 +37,7 @@ namespace FixtureBuilder.ValueProviders.Providers
             typeof(OrderedDictionary<,>), typeof(Hashtable), typeof(SortedList),
             typeof(SortedDictionary<,>), typeof(SortedList<,>)];
 
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             var genericTypeDef = request.Type.GetGenericTypeDefinitionOrDefault();
             var typeToCompare = genericTypeDef ?? request.Type;

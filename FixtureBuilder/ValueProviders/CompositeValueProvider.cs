@@ -18,11 +18,11 @@ namespace FixtureBuilder.ValueProviders
             _providers = providers;
         }
 
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             foreach (var provider in _providers)
             {
-                var result = provider.Resolve(request, context);
+                var result = provider.ResolveValue(request, context);
                 if (result != null) return result;
             }
 

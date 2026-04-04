@@ -25,10 +25,10 @@ namespace FixtureBuilder.UninitializedProviders
         {
             object? result;
 
-            result = context.Resolve(request, context);
+            result = context.ResolveValue(request, context);
             if (result != null) return result;
 
-            result = _defaultBclTypeProvider.Resolve(request, context);
+            result = _defaultBclTypeProvider.ResolveValue(request, context);
             if (result != null) return result;
 
             result = context.ResolveUninitialized(request, initializeMembers, context);

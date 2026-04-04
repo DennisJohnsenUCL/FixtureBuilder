@@ -33,7 +33,7 @@ namespace FixtureBuilder.ValueProviders.Providers
         typeof(FrozenSet<>), typeof(ImmutableDictionary<,>), typeof(ImmutableSortedDictionary<,>),
         typeof(FrozenDictionary<,>), typeof(ReadOnlyCollection<>), typeof(ReadOnlyDictionary<,>)];
 
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             if (_types.Contains(request.Type.GetGenericTypeDefinitionOrDefault()))
             {

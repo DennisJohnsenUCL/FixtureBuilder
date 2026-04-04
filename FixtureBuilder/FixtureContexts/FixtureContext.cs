@@ -46,9 +46,9 @@ namespace FixtureBuilder.FixtureContexts
             return _resolver.GetUninitializedProvider().ResolveUninitialized(request, initializeMembers, context);
         }
 
-        public object? Resolve(FixtureRequest request, IFixtureContext context)
+        public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            return _resolver.GetValueProvider().Resolve(request, context);
+            return _resolver.GetValueProvider().ResolveValue(request, context);
         }
     }
 }

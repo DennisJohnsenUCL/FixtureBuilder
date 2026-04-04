@@ -30,10 +30,10 @@ namespace FixtureBuilder.Tests.ValueProviders
             var second = CreateProvider("from-second");
             var sut = new CompositeValueProvider([first.Object, second.Object]);
 
-            var result = sut.Resolve(_request, _contextMock.Object);
+            var result = sut.ResolveValue(_request, _contextMock.Object);
 
             Assert.That(result, Is.SameAs(expected));
-            second.Verify(p => p.Resolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
+            second.Verify(p => p.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace FixtureBuilder.Tests.ValueProviders
             var second = CreateProvider(expected);
             var sut = new CompositeValueProvider([first.Object, second.Object]);
 
-            var result = sut.Resolve(_request, _contextMock.Object);
+            var result = sut.ResolveValue(_request, _contextMock.Object);
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -56,7 +56,7 @@ namespace FixtureBuilder.Tests.ValueProviders
             var second = CreateProvider(null);
             var sut = new CompositeValueProvider([first.Object, second.Object]);
 
-            var result = sut.Resolve(_request, _contextMock.Object);
+            var result = sut.ResolveValue(_request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -66,7 +66,7 @@ namespace FixtureBuilder.Tests.ValueProviders
         {
             var sut = new CompositeValueProvider([]);
 
-            var result = sut.Resolve(_request, _contextMock.Object);
+            var result = sut.ResolveValue(_request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
         }
@@ -75,18 +75,18 @@ namespace FixtureBuilder.Tests.ValueProviders
         public void Resolve_PassesCorrectArgumentsToProviders()
         {
             var provider = new Mock<IValueProvider>();
-            provider.Setup(p => p.Resolve(_request, _contextMock.Object)).Returns("result");
+            provider.Setup(p => p.ResolveValue(_request, _contextMock.Object)).Returns("result");
             var sut = new CompositeValueProvider([provider.Object]);
 
-            sut.Resolve(_request, _contextMock.Object);
+            sut.ResolveValue(_request, _contextMock.Object);
 
-            provider.Verify(p => p.Resolve(_request, _contextMock.Object), Times.Once);
+            provider.Verify(p => p.ResolveValue(_request, _contextMock.Object), Times.Once);
         }
 
         private Mock<IValueProvider> CreateProvider(object? returnValue)
         {
             var mock = new Mock<IValueProvider>();
-            mock.Setup(p => p.Resolve(_request, _contextMock.Object)).Returns(returnValue);
+            mock.Setup(p => p.ResolveValue(_request, _contextMock.Object)).Returns(returnValue);
             return mock;
         }
     }
