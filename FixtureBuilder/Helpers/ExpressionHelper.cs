@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder.Helpers
 {
@@ -157,8 +156,7 @@ namespace FixtureBuilder.Helpers
                     throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
                 var type = prop.PropertyType;
-                //TODO: Should this be autoconstructor since general default? Context is here, can easily swap
-                current = context.ResolveUninitialized(new FixtureRequest(type), InitializeMembers.None, context)!;
+                current = context.AutoResolve(new FixtureRequest(type), context);
                 prop.SetValue(parent, current);
             }
 

@@ -396,10 +396,9 @@ namespace FixtureBuilder
             return this;
         }
 
-        private static T InstantiateFixture()
+        private T InstantiateFixture()
         {
-            //TODO: Autoconstructor
-            return (T)InstantiationHelper.GetInstantiatedInstance(typeof(T));
+            return (T)_context.AutoResolve(new FixtureRequest(typeof(T)), _context);
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)

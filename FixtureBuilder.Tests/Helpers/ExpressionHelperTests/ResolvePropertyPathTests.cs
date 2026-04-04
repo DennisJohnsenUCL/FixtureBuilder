@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
-using FixtureBuilder.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
@@ -29,9 +28,8 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
         {
             var context = new Mock<IFixtureContext>();
             context
-                .Setup(c => c.ResolveUninitialized(
+                .Setup(c => c.AutoResolve(
                     It.Is<FixtureRequest>(r => r.Type == typeof(T)),
-                    InitializeMembers.None,
                     context.Object))
                 .Returns(instance);
             return context;
@@ -90,15 +88,13 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             Expression<Func<Root, string>> expr = x => x.Middle.Leaf.Tag;
             var context = new Mock<IFixtureContext>();
             context
-                .Setup(c => c.ResolveUninitialized(
+                .Setup(c => c.AutoResolve(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),
-                    InitializeMembers.None,
                     context.Object))
                 .Returns(resolvedMiddle);
             context
-                .Setup(c => c.ResolveUninitialized(
+                .Setup(c => c.AutoResolve(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Leaf)),
-                    InitializeMembers.None,
                     context.Object))
                 .Returns(resolvedLeaf);
 

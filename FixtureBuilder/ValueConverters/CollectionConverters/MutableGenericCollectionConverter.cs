@@ -1,8 +1,7 @@
-﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
@@ -17,7 +16,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && value.GetType().GetEnumerableElementType() == target.GenericTypeArguments[0])
             {
-                return InstantiationHelper.UseConstructor(target, value);
+                return Activator.CreateInstance(target, value);
             }
 
             return null;

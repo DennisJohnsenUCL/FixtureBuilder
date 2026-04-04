@@ -1,9 +1,8 @@
-﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.Decorators
 {
@@ -40,7 +39,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
             var enumerator = values.GetEnumerator();
             if (enumerator.MoveNext())
             {
-                var dict = (IDictionary)InstantiationHelper.UseConstructor(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
+                var dict = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
                 var getter = MakeKeyValueGetter(enumerator.Current.GetType());
                 do
                 {
@@ -57,7 +56,6 @@ namespace FixtureBuilder.ValueConverters.Decorators
             return values;
         }
 
-        //TODO: Move to ExpressionHelper?
         private static Func<object, (object Key, object Value)> MakeKeyValueGetter(Type pairType)
         {
             // Parameter: object boxedItem

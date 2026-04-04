@@ -1,7 +1,6 @@
-﻿using FixtureBuilder.Extensions;
+﻿using System.Collections.Concurrent;
+using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using System.Collections.Concurrent;
 
 namespace FixtureBuilder.ValueConverters.DictionaryConverters
 {
@@ -15,7 +14,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
                 && value.GetType().GetEnumerableElementType() == target.GetEnumerableElementType())
             {
-                return InstantiationHelper.UseConstructor(target, value);
+                return Activator.CreateInstance(target, value);
             }
             return null;
         }

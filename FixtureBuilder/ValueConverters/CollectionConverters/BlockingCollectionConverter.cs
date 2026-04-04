@@ -1,7 +1,6 @@
-﻿using FixtureBuilder.Extensions;
+﻿using System.Collections.Concurrent;
+using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using System.Collections.Concurrent;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
@@ -15,10 +14,10 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
                 if (!value.GetType().Implements(typeof(IProducerConsumerCollection<>)))
                 {
                     var intermediateType = typeof(ConcurrentQueue<>).MakeGenericType(target.GetGenericArguments()[0]);
-                    value = InstantiationHelper.UseConstructor(intermediateType, value)!;
+                    value = Activator.CreateInstance(intermediateType, value)!;
                 }
 
-                return InstantiationHelper.UseConstructor(target, value);
+                return Activator.CreateInstance(target, value);
             }
 
             return null;

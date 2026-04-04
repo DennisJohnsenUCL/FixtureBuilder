@@ -1,7 +1,6 @@
-﻿using FixtureBuilder.Extensions;
+﻿using System.Collections;
+using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using System.Collections;
 
 namespace FixtureBuilder.ValueConverters.DictionaryConverters
 {
@@ -19,10 +18,10 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                 {
                     var (sourceKeyType, sourceValueType) = GetSourceKeyValueTypes(value);
                     var intermediateType = typeof(Dictionary<,>).MakeGenericType(sourceKeyType, sourceValueType);
-                    value = (IEnumerable)InstantiationHelper.UseConstructor(intermediateType, value)!;
+                    value = (IEnumerable)Activator.CreateInstance(intermediateType, value)!;
                 }
 
-                return InstantiationHelper.UseConstructor(target, value);
+                return Activator.CreateInstance(target, value);
             }
             return null;
         }

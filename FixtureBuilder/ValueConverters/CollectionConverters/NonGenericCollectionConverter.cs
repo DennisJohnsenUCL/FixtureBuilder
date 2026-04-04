@@ -1,6 +1,5 @@
-﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using System.Collections;
+﻿using System.Collections;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
@@ -15,7 +14,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
             {
                 if (value is not ICollection) value = CastToArray(enumerable);
 
-                var collection = InstantiationHelper.UseConstructor(target, value);
+                var collection = Activator.CreateInstance(target, value);
                 return collection;
             }
 
