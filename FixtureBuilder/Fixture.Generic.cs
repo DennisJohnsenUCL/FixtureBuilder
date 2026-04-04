@@ -95,6 +95,14 @@ namespace FixtureBuilder
             return this;
         }
 
+        /// <summary>
+        /// Creates an instance of the entity type <typeparamref name="T"/> by automatically selecting
+        /// and invoking a constructor and resolving all dependencies recursively.
+        /// </summary>
+        /// <remarks>This method selects the simplest available constructor and resolves each parameter
+        /// through the fixtures resolution pipelinel.</remarks>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseAutoConstructor()
         {
             var request = new FixtureRequest(typeof(T));
