@@ -20,7 +20,15 @@ jobs:
         run: dotnet build FixtureBuilder/FixtureBuilder.csproj --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test FixtureBuilder.Tests/FixtureBuilder.Tests.csproj --configuration Release --no-restore
+        run: dotnet test FixtureBuilder.Tests/FixtureBuilder.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: test-results
+          path: TestResults/*.trx
 
       - name: Pack
         run: dotnet pack FixtureBuilder/FixtureBuilder.csproj --configuration Release --no-restore
