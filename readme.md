@@ -4,12 +4,13 @@
 
 If you want to write clean tests that focus only on the method you want to test, then this is the tool for you. With FixtureBuilder you can construct a test object to be in the exact state you want it to be in for your test, and write tests that are dependent only on the specific method being tested.
 
+
 ## Features
 
-- Instantiate entities with or without calling their constructors
-- Configure entity fields—including private fields or collections
+- Instantiate objects with or without calling their constructors, or let FixtureBuilder build the object for you
+- Configure object fields—including private fields or collections
 - Set property values, supporting both setters and backing fields
-- Cast fixture objects to different types
+- Invoke methods on the test object
 - Chain configuration methods for fluent test setup
 
 
@@ -31,7 +32,7 @@ public class User
 
 // Build a test fixture for User, bypassing the constructor
 var fixture = new Fixture<User>()
-	.BypassConstructor()
+	.CreateUninitialized()
 	.WithField("_age", 30)
 	.WithSetter(u => u.Name, "Alice")
 	.Build();
@@ -40,41 +41,34 @@ var fixture = new Fixture<User>()
 
 ## Core APIs
 
-- `BypassConstructor()`: Instantiates the entity without invoking its constructor.
+- `CreateUninitialized()`: Instantiates the object without invoking its constructor.
 
-- `UseConstructor(params object[] args)`: Instantiates with specific constructor arguments.
+- `UseConstructor(params object[] arguments)`: Instantiates with specific constructor arguments.
+
+- `UseAutoConstructor()`: Instantiates the object by automatically invoking its simplest constructor, recursively building dependencies
 
 - `WithField(string fieldName, object value)`: Sets a field value directly.
 
-- `WithField(Expression<Func<T, TProp>> expr, object value)`: Sets the value of the backing field for a given property.
+- `WithField(Expression<Func<T, TProp>> expr, string fieldName, object value)`: Sets a field value on a member of the object.
+
+- `WithBackingField(Expression<Func<T, TProp>> expr, object value)`: Sets the value of the backing field for a given property.
 
 - `WithSetter(Expression<Func<T, TProp>> expr, TProp value)`: Sets a writable property via its setter.
 
 - `With(Expression<Func<T, TProp>> expr, TProp value)`: Sets either a property (if writable) or its backing field.
 
+- `Invoke(Expression<Action<T>> expr)`: Invokes a method on the test object or its member.
+
+- `InvokePrivate(string methodName, params object?[] arguments)`: Invokes a private method on the test object.
+
+- `InvokePrivate(Expression<Func<T, TProp>> expr, string methodName, params object?[] arguments)`: Invokes a private method on a member of the test object.
+
 - `CastTo<TTarget>()`: Casts fixture to another type for chaining configurations.
 
- 
-## When to Use
 
-- Complex test object setup where constructors enforce constraints
+## MemberLens
 
-- Setting private fields or initializing read-only properties for tests
-
-
-## Limitations
-
-- Only intended for use with reference types (`where T : class`)
-
-- Not suitable for production scenarios; designed for testing utilities only
-
-
-## License
-
-This package is released under the MIT license.
-
-
----
+Configuration methods WithField and InvokePrivate that take stringly-typed field and method names support the Visual Studio extension [MemberLens](https://marketplace.visualstudio.com/items?itemName=DennisJohnsen.MemberLens). With MemberLens installed, these methods will receive autocomplete suggestions for field names and method names on the test object or its member.
 
 
 ## Feedback & Issues
