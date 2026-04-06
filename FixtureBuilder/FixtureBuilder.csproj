@@ -15,10 +15,7 @@
 		<Title>FixtureBuilder</Title>
 		<PackageId>FixtureBuilder</PackageId>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>- Added .NET 10 as a target framework for compatibility.
-- Optimized instantiation of members when constructing fixture.
-- Added support for more types of collections when setting backing fields for properties of differing types with WithField.
-- Fixed errors related to setting nullable value type fields with WithField.</PackageReleaseNotes>
+		<PackageReleaseNotes>https://github.com/DennisJohnsenUCL/FixtureBuilder/blob/main/FixtureBuilder/CHANGELOG.md</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/DennisJohnsenUCL/FixtureBuilder</PackageProjectUrl>
 		<Copyright>Copyright © 2026 Dennis Johnsen</Copyright>
 		<RepositoryUrl>https://github.com/DennisJohnsenUCL/FixtureBuilder</RepositoryUrl>
