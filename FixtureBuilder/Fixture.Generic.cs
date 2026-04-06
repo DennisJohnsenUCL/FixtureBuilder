@@ -366,11 +366,12 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            var method = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
-                .FirstOrDefault(m => m.Name == methodName && m.GetParameters().Length == arguments.Length)
-                ?? throw new InvalidOperationException($"Method {methodName} not found on {typeof(T)}");
-
-            method.Invoke(_fixture, arguments);
+            typeof(T).InvokeMember(
+                methodName,
+                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                _fixture,
+                arguments);
 
             return this;
         }
@@ -397,11 +398,12 @@ namespace FixtureBuilder
             var (instance, property) = ExpressionHelper.ResolvePropertyInstance(_fixture, expr, _context);
             var propertyType = property.PropertyType;
 
-            var method = propertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
-                .FirstOrDefault(m => m.Name == methodName && m.GetParameters().Length == arguments.Length)
-                ?? throw new InvalidOperationException($"Method {methodName} not found on {typeof(T)}");
-
-            method.Invoke(instance, arguments);
+            propertyType.InvokeMember(
+                methodName,
+                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                instance,
+                arguments);
 
             return this;
         }

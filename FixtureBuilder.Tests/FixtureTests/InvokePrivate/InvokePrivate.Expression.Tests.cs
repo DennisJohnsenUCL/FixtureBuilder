@@ -99,7 +99,7 @@
         {
             var fixture = Fixture.New<TestEntity>().CreateUninitialized();
 
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<MissingMethodException>(() =>
                 fixture.InvokePrivate(x => x.Child, "NonExistent"));
         }
 
@@ -108,7 +108,7 @@
         {
             var fixture = Fixture.New<TestEntity>().CreateUninitialized();
 
-            Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<MissingMethodException>(() =>
                 fixture.InvokePrivate(x => x.Child, "MethodWithArgs", 42));
         }
 
