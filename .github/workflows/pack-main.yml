@@ -1,0 +1,35 @@
+name: Pack FixtureBuilder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build FixtureBuilder/FixtureBuilder.csproj --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test FixtureBuilder.Tests/FixtureBuilder.Tests.csproj --configuration Release --no-restore
+
+      - name: Pack
+        run: dotnet pack FixtureBuilder/FixtureBuilder.csproj --configuration Release --no-restore
+
+      - name: Push to NuGet
+        run: dotnet nuget push **/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+
+      - name: Upload nupkg as artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: nuget-package
+          path: '**/*.nupkg'
