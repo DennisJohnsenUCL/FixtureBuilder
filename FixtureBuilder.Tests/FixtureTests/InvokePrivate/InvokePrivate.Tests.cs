@@ -9,6 +9,7 @@
             public string ReceivedValue { get; private set; } = null!;
 
             public void PublicMethod() => PublicWasCalled = true;
+            public void PublicMethod(string value) => ReceivedValue = value;
             private void PrivateMethod() => PrivateWasCalled = true;
             private void MethodWithArgs(string value) => ReceivedValue = value;
         }
@@ -33,6 +34,17 @@
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.PublicWasCalled, Is.True);
+        }
+
+        [Test]
+        public void InvokePrivate_CallsPublicMethodOverload()
+        {
+            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+
+            fixture.InvokePrivate("PublicMethod", "hello");
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.ReceivedValue, Is.EqualTo("hello"));
         }
 
         [Test]

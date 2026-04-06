@@ -15,6 +15,7 @@
             public GrandchildEntity Grandchild { get; set; } = null!;
 
             public void PublicMethod() => PublicWasCalled = true;
+            public void PublicMethod(string value) => ReceivedValue = value;
             private void PrivateMethod() => PrivateWasCalled = true;
             private void MethodWithArgs(string value) => ReceivedValue = value;
         }
@@ -45,6 +46,17 @@
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Child.PublicWasCalled, Is.True);
+        }
+
+        [Test]
+        public void InvokePrivate_CallsPublicMethodOverloadOnProperty()
+        {
+            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+
+            fixture.InvokePrivate(x => x.Child, "PublicMethod", "hello");
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Child.ReceivedValue, Is.EqualTo("hello"));
         }
 
         [Test]
