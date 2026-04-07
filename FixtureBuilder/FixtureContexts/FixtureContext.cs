@@ -11,16 +11,20 @@ namespace FixtureBuilder.FixtureContexts
     {
         private readonly IContextResolver _resolver;
 
+        public FixtureOptions Options { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FixtureContext"/> class.
         /// </summary>
         /// <param name="resolver">The resolver used to obtain converter, type link, and uninitialized provider components.</param>
         /// <exception cref="ArgumentNullException"><paramref name="resolver"/> is <see langword="null"/>.</exception>
-        public FixtureContext(IContextResolver resolver)
+        public FixtureContext(IContextResolver resolver, FixtureOptions options)
         {
             ArgumentNullException.ThrowIfNull(resolver);
+            ArgumentNullException.ThrowIfNull(options);
 
             _resolver = resolver;
+            Options = options;
         }
 
         public object? Convert(Type target, object value, IFixtureContext context)
@@ -51,6 +55,18 @@ namespace FixtureBuilder.FixtureContexts
         public object AutoResolve(FixtureRequest request, IFixtureContext context)
         {
             return _resolver.GetAutoConstructingProvider().AutoResolve(request, context);
+        }
+
+        public void SetOptions(FixtureOptions options)
+        {
+            ArgumentNullException.ThrowIfNull(options);
+            Options = options;
+        }
+
+        public void SetOptions(Action<FixtureOptions> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+            action.Invoke(Options);
         }
     }
 }

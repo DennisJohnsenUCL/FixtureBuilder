@@ -23,7 +23,8 @@ namespace FixtureBuilder.FixtureContexts.FixtureContextBuilders
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());
 
             var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider, valueProvider, parameterProvider, autoConstructingProvider);
-            var context = new FixtureContext(resolver) as IFixtureContext;
+            var options = FixtureOptions.Default;
+            var context = new FixtureContext(resolver, options) as IFixtureContext;
             return context;
         }
     }

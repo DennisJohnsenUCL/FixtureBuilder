@@ -1,17 +1,8 @@
 ﻿using System.Linq.Expressions;
-using FixtureBuilder.UninitializedProviders;
 using MemberLens.Attributes;
 
 namespace FixtureBuilder
 {
-    public interface IFixtureConstructor<T> : IFixtureConfigurator<T> where T : class
-    {
-        IFixtureConfigurator<T> CreateUninitialized();
-        IFixtureConfigurator<T> CreateUninitialized(InitializeMembers initializeMembers);
-        IFixtureConfigurator<T> UseConstructor(params object[] args);
-        IFixtureConfigurator<T> UseAutoConstructor();
-    }
-
     public interface IFixtureConfigurator<T> where T : class
     {
         IFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;

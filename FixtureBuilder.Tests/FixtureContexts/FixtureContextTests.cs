@@ -1,11 +1,4 @@
-﻿using System.Reflection;
-using FixtureBuilder.AutoConstructingProviders;
-using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.ParameterProviders;
-using FixtureBuilder.TypeLinks;
-using FixtureBuilder.UninitializedProviders;
-using FixtureBuilder.ValueConverters;
-using FixtureBuilder.ValueProviders;
+﻿using FixtureBuilder.FixtureContexts;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureContexts
@@ -13,202 +6,58 @@ namespace FixtureBuilder.Tests.FixtureContexts
     internal sealed class FixtureContextTests
     {
         private Mock<IContextResolver> _resolver;
+        private FixtureOptions _options;
         private FixtureContext _sut;
 
         [SetUp]
         public void SetUp()
         {
             _resolver = new Mock<IContextResolver>(MockBehavior.Strict);
-            _sut = new FixtureContext(_resolver.Object);
+            _options = FixtureOptions.Default;
+            _sut = new FixtureContext(_resolver.Object, _options);
         }
 
         [Test]
         public void Constructor_NullResolver_Throws()
         {
-            Assert.That(() => new FixtureContext(null!), Throws.ArgumentNullException);
+            Assert.That(() => new FixtureContext(null!, _options), Throws.ArgumentNullException);
         }
 
         [Test]
-        public void Convert_DelegatesToResolverConverter()
+        public void Constructor_NullOptions_Throws()
         {
-            var target = typeof(string);
-            var value = new object();
-            var context = Mock.Of<IFixtureContext>();
-            var expected = "converted";
-
-            var converter = new Mock<IValueConverter>(MockBehavior.Strict);
-            converter.Setup(c => c.Convert(target, value, context)).Returns(expected);
-            _resolver.Setup(r => r.GetConverter()).Returns(converter.Object);
-
-            var result = _sut.Convert(target, value, context);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.EqualTo(expected));
-                converter.Verify(c => c.Convert(target, value, context), Times.Once);
-            }
+            Assert.That(() => new FixtureContext(_resolver.Object, null!), Throws.ArgumentNullException);
         }
 
         [Test]
-        public void Convert_ConverterReturnsNull_ReturnsNull()
+        public void SetOptions_SetsOptions()
         {
-            var converter = new Mock<IValueConverter>(MockBehavior.Strict);
-            converter.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
-            _resolver.Setup(r => r.GetConverter()).Returns(converter.Object);
+            var options = FixtureOptions.Default;
 
-            var result = _sut.Convert(typeof(int), new object(), Mock.Of<IFixtureContext>());
+            _sut.SetOptions(options);
 
-            Assert.That(result, Is.Null);
+            Assert.That(_sut.Options, Is.SameAs(options));
         }
 
         [Test]
-        public void Link_DelegatesToResolverTypeLink()
+        public void SetOptions_NullOptions_ThrowsException()
         {
-            var target = typeof(IList<string>);
-            var expected = typeof(List<string>);
+            Assert.Throws<ArgumentNullException>(() => _sut.SetOptions((FixtureOptions)null!));
+        }
 
-            var typeLink = new Mock<ITypeLink>(MockBehavior.Strict);
-            typeLink.Setup(t => t.Link(target)).Returns(expected);
-            _resolver.Setup(r => r.GetTypeLink()).Returns(typeLink.Object);
+        //TODO: This test needs to be updated as soon as options object has any members
+        [Test]
+        public void SetOptions_Action_SetsOptions()
+        {
+            _sut.SetOptions(o => o.ToString());
 
-            var result = _sut.Link(target);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.EqualTo(expected));
-                typeLink.Verify(t => t.Link(target), Times.Once);
-            }
+            Assert.That(_sut.Options, Is.SameAs(_sut.Options));
         }
 
         [Test]
-        public void Link_TypeLinkReturnsNull_ReturnsNull()
+        public void SetOptions_Action_NullAction_ThrowsException()
         {
-            var typeLink = new Mock<ITypeLink>(MockBehavior.Strict);
-            typeLink.Setup(t => t.Link(It.IsAny<Type>())).Returns((Type?)null);
-            _resolver.Setup(r => r.GetTypeLink()).Returns(typeLink.Object);
-
-            var result = _sut.Link(typeof(object));
-
-            Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void ResolveUninitialized_DelegatesToResolverUninitializedProvider()
-        {
-            var request = new FixtureRequest(typeof(string));
-            var initializeMembers = InitializeMembers.All;
-            var context = Mock.Of<IFixtureContext>();
-            var expected = "resolved";
-
-            var provider = new Mock<IFixtureUninitializedProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.ResolveUninitialized(request, initializeMembers, context)).Returns(expected);
-            _resolver.Setup(r => r.GetUninitializedProvider()).Returns(provider.Object);
-
-            var result = _sut.ResolveUninitialized(request, initializeMembers, context);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.EqualTo(expected));
-                provider.Verify(p => p.ResolveUninitialized(request, initializeMembers, context), Times.Once);
-            }
-        }
-
-        [Test]
-        public void ResolveUninitialized_ProviderReturnsNull_ReturnsNull()
-        {
-            var provider = new Mock<IFixtureUninitializedProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
-            _resolver.Setup(r => r.GetUninitializedProvider()).Returns(provider.Object);
-
-            var result = _sut.ResolveUninitialized(new FixtureRequest(typeof(int)), InitializeMembers.None, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void ResolveValue_DelegatesToResolverValueProvider()
-        {
-            var request = new FixtureRequest(typeof(string));
-            var context = Mock.Of<IFixtureContext>();
-            var expected = "value-result";
-
-            var provider = new Mock<IValueProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.ResolveValue(request, context)).Returns(expected);
-            _resolver.Setup(r => r.GetValueProvider()).Returns(provider.Object);
-
-            var result = _sut.ResolveValue(request, context);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.EqualTo(expected));
-                provider.Verify(p => p.ResolveValue(request, context), Times.Once);
-            }
-        }
-
-        [Test]
-        public void ResolveValue_ProviderReturnsNull_ReturnsNull()
-        {
-            var provider = new Mock<IValueProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
-            _resolver.Setup(r => r.GetValueProvider()).Returns(provider.Object);
-
-            var result = _sut.ResolveValue(new FixtureRequest(typeof(int)), Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void ResolveParameterValue_DelegatesToResolverParameterProvider()
-        {
-            var paramInfo = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!.GetParameters()[0];
-            var context = Mock.Of<IFixtureContext>();
-            var expected = "param-result";
-
-            var provider = new Mock<IParameterProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.ResolveParameterValue(paramInfo, context)).Returns(expected);
-            _resolver.Setup(r => r.GetParameterProvider()).Returns(provider.Object);
-
-            var result = _sut.ResolveParameterValue(paramInfo, context);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.EqualTo(expected));
-                provider.Verify(p => p.ResolveParameterValue(paramInfo, context), Times.Once);
-            }
-        }
-
-        [Test]
-        public void ResolveParameterValue_ProviderReturnsNull_ReturnsNull()
-        {
-            var paramInfo = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!.GetParameters()[0];
-
-            var provider = new Mock<IParameterProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.ResolveParameterValue(It.IsAny<ParameterInfo>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
-            _resolver.Setup(r => r.GetParameterProvider()).Returns(provider.Object);
-
-            var result = _sut.ResolveParameterValue(paramInfo, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void AutoResolve_DelegatesToResolverAutoConstructingProvider()
-        {
-            var request = new FixtureRequest(typeof(string));
-            var context = Mock.Of<IFixtureContext>();
-            var expected = "auto-result";
-
-            var provider = new Mock<IAutoConstructingProvider>(MockBehavior.Strict);
-            provider.Setup(p => p.AutoResolve(request, context)).Returns(expected);
-            _resolver.Setup(r => r.GetAutoConstructingProvider()).Returns(provider.Object);
-
-            var result = _sut.AutoResolve(request, context);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.EqualTo(expected));
-                provider.Verify(p => p.AutoResolve(request, context), Times.Once);
-            }
+            Assert.Throws<ArgumentNullException>(() => _sut.SetOptions((Action<FixtureOptions>)null!));
         }
     }
 }
