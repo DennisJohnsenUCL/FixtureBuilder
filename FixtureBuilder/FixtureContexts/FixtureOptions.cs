@@ -54,5 +54,7 @@ namespace FixtureBuilder.FixtureContexts
         /// Default is <see langword="true" />
         /// </remarks>
         public bool PreferNullParameterValues { get; set; } = true;
+
+        public bool AllowSkipUninitializableMembers { get; set; } = true;
     }
 }

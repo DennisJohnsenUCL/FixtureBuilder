@@ -32,6 +32,10 @@ namespace FixtureBuilder.UninitializedProviders
             if (result != null) return result;
 
             result = context.ResolveUninitialized(request, initializeMembers, context);
+
+            if (!context.Options.AllowSkipUninitializableMembers && result == null)
+                throw new InvalidOperationException($"Could not get a value for or instantiate {request.Type.Name} uninitialized.");
+
             return result;
         }
     }
