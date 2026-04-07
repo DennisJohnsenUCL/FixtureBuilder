@@ -132,4 +132,20 @@ internal class FixtureCreateUninitializedTests
             Assert.That(field.Optional, Is.Null);
         }
     }
+
+    [Test]
+    public void CreateUninitialized_NoParameter_OptionNone_InitializesNone()
+    {
+        var fixture = Fixture.New<ClassWithNullableAndNonNullable>();
+        TestHelper.SetOption(fixture, o => o.InitializeMembersDefault = InitializeMembers.None);
+
+        fixture.CreateUninitialized();
+
+        var field = TestHelper.GetFixture(fixture);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(field.Required, Is.Null);
+            Assert.That(field.Optional, Is.Null);
+        }
+    }
 }

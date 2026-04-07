@@ -33,7 +33,7 @@ namespace FixtureBuilder.AutoConstructingProviders
             if (request.Type.IsInterface || request.Type.IsAbstract)
                 throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
 
-            var constructor = GetConstructorInfo(request);
+            var constructor = GetConstructorInfo(request, context);
             var parameters = constructor.GetParameters();
             var parameterValues = parameters.Select(p => context.ResolveParameterValue(p, context));
 
@@ -48,10 +48,14 @@ namespace FixtureBuilder.AutoConstructingProviders
             }
         }
 
-        private static ConstructorInfo GetConstructorInfo(FixtureRequest request)
+        private static ConstructorInfo GetConstructorInfo(FixtureRequest request, IFixtureContext context)
         {
             var constructor = GetSimplestConstructor(request.Type, BindingFlags.Public | BindingFlags.Instance);
-            constructor ??= GetSimplestConstructor(request.Type, BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (constructor == null && context.Options.AllowPrivateConstructors)
+            {
+                constructor ??= GetSimplestConstructor(request.Type, BindingFlags.NonPublic | BindingFlags.Instance);
+            }
 
             if (constructor == null)
                 throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");

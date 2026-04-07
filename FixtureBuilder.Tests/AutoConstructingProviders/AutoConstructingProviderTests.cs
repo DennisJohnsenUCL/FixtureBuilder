@@ -149,13 +149,25 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             private OnlyPrivateCtor() => Constructed = true;
         }
         [Test]
-        public void AutoResolve_OnlyPrivateConstructor_UsesPrivateCtor()
+        public void AutoResolve_OnlyPrivateConstructor_PrivateAllowed_UsesPrivateCtor()
         {
             var request = new FixtureRequest(typeof(OnlyPrivateCtor));
+            var options = new FixtureOptions { AllowPrivateConstructors = true };
+            _contextMock.Setup(c => c.Options).Returns(options);
 
             var result = (OnlyPrivateCtor)_sut.AutoResolve(request, _contextMock.Object);
 
             Assert.That(result.Constructed, Is.True);
+        }
+
+        [Test]
+        public void AutoResolve_OnlyPrivateConstructor_PrivateNotAllowed_ThrowsException()
+        {
+            var request = new FixtureRequest(typeof(OnlyPrivateCtor));
+            var options = new FixtureOptions { AllowPrivateConstructors = false };
+            _contextMock.Setup(c => c.Options).Returns(options);
+
+            Assert.Throws<InvalidOperationException>(() => _sut.AutoResolve(request, _contextMock.Object));
         }
 
         public class PublicAndPrivateCtors
