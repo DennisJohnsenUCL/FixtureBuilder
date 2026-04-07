@@ -87,9 +87,25 @@ namespace FixtureBuilder.Tests.ParameterProviders
         #region Nullable parameter tests
 
         [Test]
+        public void ResolveParameterValue_NullNotPreferred_NullableType_ReturnsNotNull()
+        {
+            var expected = "test value string";
+            var paramInfo = GetParam(nameof(ParameterSource.WithNullableRefType));
+            var options = new FixtureOptions() { PreferNullParameterValues = false };
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>())).Returns(expected);
+
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
         public void ResolveParameterValue_NullableReferenceType_ReturnsNull()
         {
             var paramInfo = GetParam(nameof(ParameterSource.WithNullableRefType));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
 
             var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
 
@@ -100,6 +116,8 @@ namespace FixtureBuilder.Tests.ParameterProviders
         public void ResolveParameterValue_NullableValueType_ReturnsNull()
         {
             var paramInfo = GetParam(nameof(ParameterSource.WithNullableValueType));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
 
             var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
 

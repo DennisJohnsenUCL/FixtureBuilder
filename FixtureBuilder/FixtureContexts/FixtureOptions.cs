@@ -46,5 +46,13 @@ namespace FixtureBuilder.FixtureContexts
         /// Default is <see langword="true" />
         /// </remarks>
         public bool PreferDefaultParameterValues { get; set; } = true;
+
+        /// <summary>
+        /// Whether null will be used for nullable parameters by UseAutoConstructor.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="true" />
+        /// </remarks>
+        public bool PreferNullParameterValues { get; set; } = true;
     }
 }

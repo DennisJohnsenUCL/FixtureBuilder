@@ -26,7 +26,8 @@ namespace FixtureBuilder.ParameterProviders
             if (paramInfo.HasDefaultValue && context.Options.PreferDefaultParameterValues)
                 return paramInfo.DefaultValue;
 
-            if (new NullabilityInfoContext().Create(paramInfo).ReadState == NullabilityState.Nullable)
+            if (new NullabilityInfoContext().Create(paramInfo).ReadState == NullabilityState.Nullable
+                && context.Options.PreferNullParameterValues)
                 return null;
 
             var paramType = context.Link(paramInfo.ParameterType) ?? paramInfo.ParameterType;
