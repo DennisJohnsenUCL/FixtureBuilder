@@ -58,7 +58,7 @@ namespace FixtureBuilder
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized()
-            => ((IFixtureConstructor<T>)this).CreateUninitialized(InitializeMembers.None);
+            => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.Options.InitializeMembersDefault);
 
         /// <summary>
         /// Creates an instance of the entity type <typeparamref name="T"/> without invoking its constructor.

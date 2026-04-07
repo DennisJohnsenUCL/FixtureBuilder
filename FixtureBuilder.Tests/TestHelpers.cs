@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.FixtureContexts;
 
 #pragma warning disable CA1822 // Mark members as static
 
@@ -11,6 +12,15 @@ namespace FixtureBuilder.Tests
         {
             var instance = (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
             return Fixture.New(instance);
+        }
+
+        internal static void SetOption<T>(IFixtureConstructor<T> fixture, Action<FixtureOptions> action) where T : class
+        {
+            ((IFixtureContext)fixture
+                .GetType()
+                .GetField("_context", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(fixture)!)
+            .SetOptions(action);
         }
 
         internal static T GetFixture<T>(IFixtureConfigurator<T> fixture) where T : class
