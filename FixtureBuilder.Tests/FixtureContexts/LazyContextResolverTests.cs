@@ -81,7 +81,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var expected = Mock.Of<IValueConverter>();
             _converter = () => expected;
 
-            var result = CreateSut().GetConverter();
+            var result = CreateSut().Converter;
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -94,8 +94,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _converter = () => { callCount++; return instance; };
             var sut = CreateSut();
 
-            var first = sut.GetConverter();
-            var second = sut.GetConverter();
+            var first = sut.Converter;
+            var second = sut.Converter;
 
             using (Assert.EnterMultipleScope())
             {
@@ -110,7 +110,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var expected = Mock.Of<ITypeLink>();
             _typeLink = () => expected;
 
-            var result = CreateSut().GetTypeLink();
+            var result = CreateSut().TypeLink;
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -123,8 +123,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _typeLink = () => { callCount++; return instance; };
             var sut = CreateSut();
 
-            var first = sut.GetTypeLink();
-            var second = sut.GetTypeLink();
+            var first = sut.TypeLink;
+            var second = sut.TypeLink;
 
             using (Assert.EnterMultipleScope())
             {
@@ -139,7 +139,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var expected = Mock.Of<IFixtureUninitializedProvider>();
             _uninitializedProvider = () => expected;
 
-            var result = CreateSut().GetUninitializedProvider();
+            var result = CreateSut().UninitializedProvider;
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -152,8 +152,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _uninitializedProvider = () => { callCount++; return instance; };
             var sut = CreateSut();
 
-            var first = sut.GetUninitializedProvider();
-            var second = sut.GetUninitializedProvider();
+            var first = sut.UninitializedProvider;
+            var second = sut.UninitializedProvider;
 
             using (Assert.EnterMultipleScope())
             {
@@ -168,7 +168,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var expected = Mock.Of<IValueProvider>();
             _valueProvider = () => expected;
 
-            var result = CreateSut().GetValueProvider();
+            var result = CreateSut().ValueProvider;
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -181,8 +181,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _valueProvider = () => { callCount++; return instance; };
             var sut = CreateSut();
 
-            var first = sut.GetValueProvider();
-            var second = sut.GetValueProvider();
+            var first = sut.ValueProvider;
+            var second = sut.ValueProvider;
 
             using (Assert.EnterMultipleScope())
             {
@@ -197,7 +197,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var expected = Mock.Of<IParameterProvider>();
             _parameterProvider = () => expected;
 
-            var result = CreateSut().GetParameterProvider();
+            var result = CreateSut().ParameterProvider;
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -210,8 +210,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _parameterProvider = () => { callCount++; return instance; };
             var sut = CreateSut();
 
-            var first = sut.GetParameterProvider();
-            var second = sut.GetParameterProvider();
+            var first = sut.ParameterProvider;
+            var second = sut.ParameterProvider;
 
             using (Assert.EnterMultipleScope())
             {
@@ -226,7 +226,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var expected = Mock.Of<IAutoConstructingProvider>();
             _autoConstructingProvider = () => expected;
 
-            var result = CreateSut().GetAutoConstructingProvider();
+            var result = CreateSut().AutoConstructingProvider;
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -239,8 +239,8 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _autoConstructingProvider = () => { callCount++; return instance; };
             var sut = CreateSut();
 
-            var first = sut.GetAutoConstructingProvider();
-            var second = sut.GetAutoConstructingProvider();
+            var first = sut.AutoConstructingProvider;
+            var second = sut.AutoConstructingProvider;
 
             using (Assert.EnterMultipleScope())
             {

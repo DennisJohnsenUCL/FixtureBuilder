@@ -29,32 +29,32 @@ namespace FixtureBuilder.FixtureContexts
 
         public object? Convert(Type target, object value, IFixtureContext context)
         {
-            return _resolver.GetConverter().Convert(target, value, context);
+            return _resolver.Converter.Convert(target, value, context);
         }
 
         public Type? Link(Type target)
         {
-            return _resolver.GetTypeLink().Link(target);
+            return _resolver.TypeLink.Link(target);
         }
 
         public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
         {
-            return _resolver.GetUninitializedProvider().ResolveUninitialized(request, initializeMembers, context);
+            return _resolver.UninitializedProvider.ResolveUninitialized(request, initializeMembers, context);
         }
 
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            return _resolver.GetValueProvider().ResolveValue(request, context);
+            return _resolver.ValueProvider.ResolveValue(request, context);
         }
 
         public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context)
         {
-            return _resolver.GetParameterProvider().ResolveParameterValue(paramInfo, context);
+            return _resolver.ParameterProvider.ResolveParameterValue(paramInfo, context);
         }
 
         public object AutoResolve(FixtureRequest request, IFixtureContext context)
         {
-            return _resolver.GetAutoConstructingProvider().AutoResolve(request, context);
+            return _resolver.AutoConstructingProvider.AutoResolve(request, context);
         }
 
         public void SetOptions(FixtureOptions options)

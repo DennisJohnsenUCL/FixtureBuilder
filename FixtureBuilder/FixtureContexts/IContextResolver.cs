@@ -9,11 +9,11 @@ namespace FixtureBuilder.FixtureContexts
 {
     internal interface IContextResolver
     {
-        IValueConverter GetConverter();
-        ITypeLink GetTypeLink();
-        IFixtureUninitializedProvider GetUninitializedProvider();
-        IValueProvider GetValueProvider();
-        IParameterProvider GetParameterProvider();
-        IAutoConstructingProvider GetAutoConstructingProvider();
+        IValueConverter Converter { get; }
+        ITypeLink TypeLink { get; }
+        IFixtureUninitializedProvider UninitializedProvider { get; }
+        IValueProvider ValueProvider { get; }
+        IParameterProvider ParameterProvider { get; }
+        IAutoConstructingProvider AutoConstructingProvider { get; }
     }
 }

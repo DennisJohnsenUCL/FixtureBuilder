@@ -55,34 +55,28 @@ namespace FixtureBuilder.FixtureContexts
         /// Returns the <see cref="IValueConverter"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="IValueConverter"/>.</returns>
-        public IValueConverter GetConverter()
-            => _converter.Value;
+        public IValueConverter Converter => _converter.Value;
 
         /// <summary>
         /// Returns the <see cref="ITypeLink"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="ITypeLink"/>.</returns>
-        public ITypeLink GetTypeLink()
-            => _typeLink.Value;
+        public ITypeLink TypeLink => _typeLink.Value;
 
         /// <summary>
         /// Returns the <see cref="IFixtureUninitializedProvider"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="IFixtureUninitializedProvider"/>
-        public IFixtureUninitializedProvider GetUninitializedProvider()
-            => _uninitializedProvider.Value;
+        public IFixtureUninitializedProvider UninitializedProvider => _uninitializedProvider.Value;
 
         /// <summary>
         /// Returns the <see cref="IValueProvider"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="IValueProvider"/>
-        public IValueProvider GetValueProvider()
-            => _valueProvider.Value;
+        public IValueProvider ValueProvider => _valueProvider.Value;
 
-        public IParameterProvider GetParameterProvider()
-            => _parameterProvider.Value;
+        public IParameterProvider ParameterProvider => _parameterProvider.Value;
 
-        public IAutoConstructingProvider GetAutoConstructingProvider()
-            => _autoConstructingProvider.Value;
+        public IAutoConstructingProvider AutoConstructingProvider => _autoConstructingProvider.Value;
     }
 }
