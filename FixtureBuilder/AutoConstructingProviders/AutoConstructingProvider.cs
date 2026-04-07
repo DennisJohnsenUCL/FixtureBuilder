@@ -50,17 +50,22 @@ namespace FixtureBuilder.AutoConstructingProviders
 
         private static ConstructorInfo GetConstructorInfo(FixtureRequest request, IFixtureContext context)
         {
-            var constructor = GetSimplestConstructor(request.Type, BindingFlags.Public | BindingFlags.Instance);
+            var options = context.Options;
+            ConstructorInfo? ctor;
 
-            if (constructor == null && context.Options.AllowPrivateConstructors)
+            if (options.PreferSimplestConstructor && options.AllowPrivateConstructors)
             {
-                constructor ??= GetSimplestConstructor(request.Type, BindingFlags.NonPublic | BindingFlags.Instance);
+                ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             }
+            else if (options.AllowPrivateConstructors)
+            {
+                ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public)
+                       ?? GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.NonPublic);
+            }
+            else
+                ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public);
 
-            if (constructor == null)
-                throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");
-
-            return constructor;
+            return ctor ?? throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");
         }
 
         private static ConstructorInfo? GetSimplestConstructor(Type type, BindingFlags bindingAttr)

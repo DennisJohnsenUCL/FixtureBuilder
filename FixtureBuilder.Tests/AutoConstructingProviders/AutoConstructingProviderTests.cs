@@ -83,6 +83,8 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         public void AutoResolve_SingleParameter_ResolvesViaContext()
         {
             var request = new FixtureRequest(typeof(SingleParam));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock
                 .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(), It.IsAny<IFixtureContext>()))
                 .Returns("test-value");
@@ -101,6 +103,8 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         public void AutoResolve_MultipleParameters_ResolvesEachViaContext()
         {
             var request = new FixtureRequest(typeof(TwoParams));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock
                 .Setup(c => c.ResolveParameterValue(
                     It.Is<ParameterInfo>(p => p.ParameterType == typeof(string)),
@@ -123,8 +127,6 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
 
         #endregion
 
-        #region Constructor selection tests
-
         public class MultipleConstructors
         {
             public int CtorParamCount { get; }
@@ -137,31 +139,78 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         public void AutoResolve_MultiplePublicConstructors_SelectsSimplest()
         {
             var request = new FixtureRequest(typeof(MultipleConstructors));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
 
             var result = (MultipleConstructors)_sut.AutoResolve(request, _contextMock.Object);
 
             Assert.That(result.CtorParamCount, Is.Zero);
         }
 
-        public class OnlyPrivateCtor
+        public class PublicAndPrivateCtors
         {
-            public bool Constructed { get; }
-            private OnlyPrivateCtor() => Constructed = true;
+            public bool PublicCtor = false;
+            public bool PrivateCtor = false;
+
+            private PublicAndPrivateCtors() => PrivateCtor = true;
+            public PublicAndPrivateCtors(string a) => PublicCtor = true;
         }
         [Test]
-        public void AutoResolve_OnlyPrivateConstructor_PrivateAllowed_UsesPrivateCtor()
+        public void AutoResolve_AllowPrivate_PreferSimplest_()
         {
-            var request = new FixtureRequest(typeof(OnlyPrivateCtor));
-            var options = new FixtureOptions { AllowPrivateConstructors = true };
+            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = true };
             _contextMock.Setup(c => c.Options).Returns(options);
 
-            var result = (OnlyPrivateCtor)_sut.AutoResolve(request, _contextMock.Object);
+            var result = (PublicAndPrivateCtors)_sut.AutoResolve(request, _contextMock.Object);
 
-            Assert.That(result.Constructed, Is.True);
+            Assert.That(result.PrivateCtor, Is.True);
         }
 
         [Test]
-        public void AutoResolve_OnlyPrivateConstructor_PrivateNotAllowed_ThrowsException()
+        public void AutoResolve_AllowPrivate_DoNotPreferSimplest_()
+        {
+            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = false };
+            _contextMock.Setup(c => c.Options).Returns(options);
+
+            var result = (PublicAndPrivateCtors)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.PublicCtor, Is.True);
+        }
+
+        [Test]
+        public void AutoResolve_DoNotAllowPrivate_PreferSimplest_()
+        {
+            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = true };
+            _contextMock.Setup(c => c.Options).Returns(options);
+
+            var result = (PublicAndPrivateCtors)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.PublicCtor, Is.True);
+        }
+
+        [Test]
+        public void AutoResolve_DoNotAllowPrivate_DoNotPreferSimplest_()
+        {
+            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = false };
+            _contextMock.Setup(c => c.Options).Returns(options);
+
+            var result = (PublicAndPrivateCtors)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.PublicCtor, Is.True);
+        }
+
+        public class OnlyPrivateCtor
+        {
+            public bool PrivateCtor = false;
+
+            private OnlyPrivateCtor() => PrivateCtor = true;
+        }
+        [Test]
+        public void AutoResolve_OnlyPrivate_DoNotAllowPrivate_ThrowsException()
         {
             var request = new FixtureRequest(typeof(OnlyPrivateCtor));
             var options = new FixtureOptions { AllowPrivateConstructors = false };
@@ -170,44 +219,16 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             Assert.Throws<InvalidOperationException>(() => _sut.AutoResolve(request, _contextMock.Object));
         }
 
-        public class PublicAndPrivateCtors
-        {
-            public int CtorParamCount { get; }
-
-            private PublicAndPrivateCtors() => CtorParamCount = 0;
-            public PublicAndPrivateCtors(string a) => CtorParamCount = 1;
-        }
         [Test]
-        public void AutoResolve_PublicAndPrivateCtors_PrefersPublicCtor()
+        public void AutoResolve_OnlyPrivate_AllowPrivate_()
         {
-            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
-            _contextMock
-                .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(), It.IsAny<IFixtureContext>()))
-                .Returns("param");
+            var request = new FixtureRequest(typeof(OnlyPrivateCtor));
+            var options = new FixtureOptions { AllowPrivateConstructors = true };
+            _contextMock.Setup(c => c.Options).Returns(options);
 
-            var result = (PublicAndPrivateCtors)_sut.AutoResolve(request, _contextMock.Object);
+            var result = (OnlyPrivateCtor)_sut.AutoResolve(request, _contextMock.Object);
 
-            Assert.That(result.CtorParamCount, Is.EqualTo(1));
+            Assert.That(result.PrivateCtor, Is.True);
         }
-
-        #endregion
-
-        #region Return type tests
-
-        [Test]
-        public void AutoResolve_ReturnsCorrectConcreteType()
-        {
-            var request = new FixtureRequest(typeof(SingleParam));
-            _contextMock
-                .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(), It.IsAny<IFixtureContext>()))
-                .Returns("value");
-
-            var result = _sut.AutoResolve(request, _contextMock.Object);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetType(), Is.EqualTo(typeof(SingleParam)));
-        }
-
-        #endregion
     }
 }

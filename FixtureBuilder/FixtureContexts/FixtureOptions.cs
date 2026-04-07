@@ -25,5 +25,13 @@ namespace FixtureBuilder.FixtureContexts
         /// Public constructors will still be preferred. Set PreferSimplestConstructor to always choose simplest constructor regardless of visibility.
         /// </remarks>
         public bool AllowPrivateConstructors { get; set; } = true;
+
+        /// <summary>
+        /// Whether UseAutoConstructor will always prefer the simplest constructor regardless of visibility.
+        /// </summary>
+        /// <remarks>
+        /// AllowPrivateConstructors must be true for private constructors to be considered, even if simpler.
+        /// </remarks>
+        public bool PreferSimplestConstructor { get; set; } = false;
     }
 }

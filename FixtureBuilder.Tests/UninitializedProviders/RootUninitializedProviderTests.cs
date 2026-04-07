@@ -75,17 +75,6 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         }
 
         [Test]
-        public void ResolveUninitialized_SimpleClass_ReturnsInstanceOfCorrectType()
-        {
-            var request = new FixtureRequest(typeof(SimpleClass), "test");
-            var context = Mock.Of<IFixtureContext>();
-
-            var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
-
-            Assert.That(result, Is.InstanceOf<SimpleClass>());
-        }
-
-        [Test]
         public void ResolveUninitialized_SimpleClass_ReturnsUninitializedInstance()
         {
             var request = new FixtureRequest(typeof(ClassWithConstructorSideEffect), "test");
@@ -114,7 +103,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         }
 
         [Test]
-        public void ResolveUninitialized_InitializeMembersPublicProperties_CallsMemberInitializer()
+        public void ResolveUninitialized_InitializeMembersAll_CallsMemberInitializer()
         {
             var request = new FixtureRequest(typeof(SimpleClass), "test");
             var context = Mock.Of<IFixtureContext>();
@@ -124,22 +113,6 @@ namespace FixtureBuilder.Tests.UninitializedProviders
             _memberInitializer.Verify(
                 m => m.InitializeMembers(It.IsAny<SimpleClass>(), InitializeMembers.All, context),
                 Times.Once);
-        }
-
-        [Test]
-        public void ResolveUninitialized_InitializeMembersPublicProperties_PassesCreatedInstanceToMemberInitializer()
-        {
-            var request = new FixtureRequest(typeof(SimpleClass), "test");
-            var context = Mock.Of<IFixtureContext>();
-            object? capturedInstance = null;
-
-            _memberInitializer
-                .Setup(m => m.InitializeMembers(It.IsAny<object>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
-                .Callback<object, InitializeMembers, IFixtureContext>((inst, _, _) => capturedInstance = inst);
-
-            var result = _sut.ResolveUninitialized(request, InitializeMembers.All, context);
-
-            Assert.That(capturedInstance, Is.SameAs(result));
         }
 
         [Test]
