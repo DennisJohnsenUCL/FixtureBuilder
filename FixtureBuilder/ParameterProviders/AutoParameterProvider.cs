@@ -23,7 +23,7 @@ namespace FixtureBuilder.ParameterProviders
     {
         public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context)
         {
-            if (paramInfo.HasDefaultValue)
+            if (paramInfo.HasDefaultValue && context.Options.PreferDefaultParameterValues)
                 return paramInfo.DefaultValue;
 
             if (new NullabilityInfoContext().Create(paramInfo).ReadState == NullabilityState.Nullable)
