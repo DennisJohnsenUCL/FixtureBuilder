@@ -15,9 +15,11 @@ namespace FixtureBuilder.Tests.FixtureTests
         [Test]
         public void SameTypeField_SetsProperty()
         {
-            var fixture = Fixture.New<SameTypeClass>().CreateUninitialized().WithBackingFieldUntyped(t => t.Text, _text);
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<SameTypeClass>();
 
+            fixture.WithBackingFieldUntyped(t => t.Text, _text);
+
+            var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Text, Is.EqualTo(_text));
         }
 
@@ -29,9 +31,11 @@ namespace FixtureBuilder.Tests.FixtureTests
         [Test]
         public void DifferentTypeField_Assignable_SetsProperty()
         {
-            var fixture = Fixture.New<DifferentTypeAssignableClass>().CreateUninitialized().WithBackingFieldUntyped(t => t.Number, _number);
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<DifferentTypeAssignableClass>();
 
+            fixture.WithBackingFieldUntyped(t => t.Number, _number);
+
+            var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Number, Is.EqualTo(_number));
         }
 
@@ -43,18 +47,20 @@ namespace FixtureBuilder.Tests.FixtureTests
         [Test]
         public void DifferentTypeField_NotAssignable_SetsProperty()
         {
-            Assert.Warn(typeof(int).IsAssignableFrom(typeof(string)).ToString());
+            var fixture = TestHelper.MakeFixture<DifferentTypeNotAssignableClass>();
 
             Assert.Throws<InvalidOperationException>(
-                () => Fixture.New<DifferentTypeNotAssignableClass>().CreateUninitialized().WithBackingFieldUntyped(t => t.SomeProperty, _text));
+                () => fixture.WithBackingFieldUntyped(t => t.SomeProperty, _text));
         }
 
         [Test]
         public void FieldNameGiven_Assignable_SetsProperty()
         {
-            var fixture = Fixture.New<DifferentTypeNotAssignableClass>().CreateUninitialized().WithBackingFieldUntyped(t => t.SomeProperty, _number, "_someProperty");
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<DifferentTypeNotAssignableClass>();
 
+            fixture.WithBackingFieldUntyped(t => t.SomeProperty, _number, "_someProperty");
+
+            var field = TestHelper.GetFixture(fixture);
             Assert.That(field.SomeProperty, Is.EqualTo(_number.ToString()));
         }
     }

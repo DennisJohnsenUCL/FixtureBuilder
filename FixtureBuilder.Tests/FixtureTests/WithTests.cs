@@ -11,9 +11,11 @@
         {
             var text = "Test string";
 
-            var fixture = Fixture.New<PropWithSetterClass>().With(t => t.Text, text);
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<PropWithSetterClass>();
 
+            fixture.With(t => t.Text, text);
+
+            var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Text, Is.EqualTo(text));
         }
 
@@ -27,9 +29,11 @@
         {
             var text = "Test string";
 
-            var fixture = Fixture.New<PropWithSetterAndUnrecognizedFieldClass>().With(t => t.Text, text);
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<PropWithSetterAndUnrecognizedFieldClass>();
 
+            fixture.With(t => t.Text, text);
+
+            var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Text, Is.EqualTo(text));
         }
 
@@ -43,9 +47,11 @@
         {
             var text = "Test string";
 
-            var fixture = Fixture.New<PropWithoutSetterClass>().With(t => t.Text, text);
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<PropWithoutSetterClass>();
 
+            fixture.With(t => t.Text, text);
+
+            var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Text, Is.EqualTo(text));
         }
 
@@ -57,21 +63,9 @@
         [Test]
         public void PropWithoutSetterAndUnrecognizedField_ThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<PropWithoutSetterAndUnrecognizedFieldClass>().With(t => t.Text, "Test"));
-        }
+            var fixture = TestHelper.MakeFixture<PropWithoutSetterAndUnrecognizedFieldClass>();
 
-        [Test]
-        [Ignore("Outdated until autoconstructor is default construction method")]
-        public void ConstructionNotChosen_InstantiatesNonNullables()
-        {
-            var fixture = Fixture.New<ClassWithNullable>().With(c => c.Text, "test");
-            var field = TestHelper.GetFixture(fixture);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.NullableClass, Is.Null);
-                Assert.That(field.NonNullableClass, Is.Not.Null);
-            }
+            Assert.Throws<InvalidOperationException>(() => fixture.With(t => t.Text, "Test"));
         }
     }
 }

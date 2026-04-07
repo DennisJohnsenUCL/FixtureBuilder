@@ -12,10 +12,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         {
             var fieldName = "_text";
             string? text = "Test string";
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
 
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField(fieldName, text);
+            fixture.WithField(fieldName, text);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.Text, Is.EqualTo(text));
         }
 
@@ -23,10 +24,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NotNullableField_NullableReferenceTypeValue_SetsNull()
         {
             var fieldName = "_text";
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
 
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField<string?>(fieldName, null);
+            fixture.WithField<string?>(fieldName, null);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.Text, Is.Null);
         }
 
@@ -39,10 +41,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         {
             var fieldName = "NullableString";
             string? text = "Test string";
+            var fixture = TestHelper.MakeFixture<NullableReferenceTypeClass>();
 
-            var fixture = Fixture.New<NullableReferenceTypeClass>().CreateUninitialized().WithField(fieldName, text);
+            fixture.WithField(fieldName, text);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NullableString, Is.EqualTo(text));
         }
 
@@ -50,10 +53,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NullableReferenceTypeField_NullableReferenceTypeValue_SetsNull()
         {
             var fieldName = "NullableString";
+            var fixture = TestHelper.MakeFixture<NullableReferenceTypeClass>();
 
-            var fixture = Fixture.New<NullableReferenceTypeClass>().CreateUninitialized().WithField<string?>(fieldName, null);
+            fixture.WithField<string?>(fieldName, null);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NullableString, Is.Null);
         }
 
@@ -61,10 +65,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NullableReferenceTypeField_NonNullableReferenceTypeValue_SetsField()
         {
             var fieldName = "NullableString";
+            var fixture = TestHelper.MakeFixture<NullableReferenceTypeClass>();
 
-            var fixture = Fixture.New<NullableReferenceTypeClass>().CreateUninitialized().WithField(fieldName, _text);
+            fixture.WithField(fieldName, _text);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NullableString, Is.EqualTo(_text));
         }
 
@@ -77,10 +82,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NonNullableValueTypeField_NonNullableValueTypeValue_SetsField()
         {
             var fieldName = "NonNullableInt";
+            var fixture = TestHelper.MakeFixture<ValueTypesClass>();
 
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, _number);
+            fixture.WithField(fieldName, _number);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NonNullableInt, Is.EqualTo(_number));
         }
 
@@ -89,10 +95,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         {
             var fieldName = "NonNullableInt";
             int? number = 123;
+            var fixture = TestHelper.MakeFixture<ValueTypesClass>();
 
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, number);
+            fixture.WithField(fieldName, number);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NonNullableInt, Is.EqualTo(number));
         }
 
@@ -101,10 +108,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         {
             var fieldName = "NullableInt";
             int? number = 123;
+            var fixture = TestHelper.MakeFixture<ValueTypesClass>();
 
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, number);
+            fixture.WithField(fieldName, number);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NullableInt, Is.EqualTo(number));
         }
 
@@ -112,10 +120,11 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NullableValueTypeField_NullableValueTypeValue_SetsNull()
         {
             var fieldName = "NullableInt";
+            var fixture = TestHelper.MakeFixture<ValueTypesClass>();
 
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField<int?>(fieldName, null);
+            fixture.WithField<int?>(fieldName, null);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NullableInt, Is.Null);
         }
 
@@ -123,8 +132,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NonNullableValueTypeField_NullableValueTypeValue_()
         {
             var fieldName = "NonNullableInt";
-
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<ValueTypesClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.WithField<int?>(fieldName, null));
         }
@@ -133,63 +141,12 @@ namespace FixtureBuilder.Tests.FixtureTests.WithField
         public void NullableValueTypeField_NonNullableValueTypeValue_SetsField()
         {
             var fieldName = "NullableInt";
+            var fixture = TestHelper.MakeFixture<ValueTypesClass>();
 
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, _number);
+            fixture.WithField(fieldName, _number);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.NullableInt, Is.EqualTo(_number));
-        }
-
-        [Test]
-        [Ignore("Conversion of built-in implicitly convertible types not yet implemented")]
-        public void IntField_DoubleValue_SetsField()
-        {
-            var fieldName = "NonNullableInt";
-            double number = 123.4;
-
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, number);
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.NonNullableInt, Is.EqualTo((int)number));
-        }
-
-        [Test]
-        [Ignore("Conversion of built-in implicitly convertible types not yet implemented")]
-        public void IntField_NullableDoubleValue_SetsField()
-        {
-            var fieldName = "NonNullableInt";
-            double? number = 123.4;
-
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, number);
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.NonNullableInt, Is.EqualTo((int)number));
-        }
-
-        [Test]
-        [Ignore("Conversion of built-in implicitly convertible types not yet implemented")]
-        public void NullableIntField_DoubleValue_SetsField()
-        {
-            var fieldName = "NullableInt";
-            double number = 123.4;
-
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, number);
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.NullableInt, Is.EqualTo((int)number));
-        }
-
-        [Test]
-        [Ignore("Conversion of built-in implicitly convertible types not yet implemented")]
-        public void NullableIntField_NullableDoubleValue_SetsField()
-        {
-            var fieldName = "NullableInt";
-            double? number = 123.4;
-
-            var fixture = Fixture.New<ValueTypesClass>().CreateUninitialized().WithField(fieldName, number);
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.NullableInt, Is.EqualTo((int)number));
         }
     }
 }

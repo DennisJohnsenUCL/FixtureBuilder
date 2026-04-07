@@ -20,52 +20,10 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             _contextMock = new Mock<IFixtureContext>();
         }
 
-        #region Test types
-
-        public class Parameterless
-        {
-            public bool Constructed { get; } = true;
-        }
-
         public class SingleParam(string value)
         {
             public string Value { get; } = value;
         }
-
-        public class TwoParams(string first, int second)
-        {
-            public string First { get; } = first;
-            public int Second { get; } = second;
-        }
-
-        public class MultipleConstructors
-        {
-            public int CtorParamCount { get; }
-
-            public MultipleConstructors() => CtorParamCount = 0;
-            public MultipleConstructors(string a) => CtorParamCount = 1;
-            public MultipleConstructors(string a, int b) => CtorParamCount = 2;
-        }
-
-        public class OnlyPrivateCtor
-        {
-            public bool Constructed { get; }
-            private OnlyPrivateCtor() => Constructed = true;
-        }
-
-        public class PublicAndPrivateCtors
-        {
-            public int CtorParamCount { get; }
-
-            private PublicAndPrivateCtors() => CtorParamCount = 0;
-            public PublicAndPrivateCtors(string a) => CtorParamCount = 1;
-        }
-
-        public abstract class AbstractType { }
-
-        public interface IInterfaceType { }
-
-        #endregion
 
         #region Null guard tests
 
@@ -76,6 +34,10 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
                 _sut.AutoResolve(null!, _contextMock.Object));
         }
 
+        public class Parameterless
+        {
+            public bool Constructed { get; } = true;
+        }
         [Test]
         public void AutoResolve_NullContext_ThrowsArgumentNullException()
         {
@@ -89,6 +51,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
 
         #region Interface and abstract type tests
 
+        public interface IInterfaceType { }
         [Test]
         public void AutoResolve_InterfaceType_ThrowsInvalidOperationException()
         {
@@ -100,6 +63,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             Assert.That(ex!.Message, Does.Contain(nameof(IInterfaceType)));
         }
 
+        public abstract class AbstractType { }
         [Test]
         public void AutoResolve_AbstractType_ThrowsInvalidOperationException()
         {
@@ -128,6 +92,11 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             Assert.That(result.Value, Is.EqualTo("test-value"));
         }
 
+        public class TwoParams(string first, int second)
+        {
+            public string First { get; } = first;
+            public int Second { get; } = second;
+        }
         [Test]
         public void AutoResolve_MultipleParameters_ResolvesEachViaContext()
         {
@@ -156,6 +125,14 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
 
         #region Constructor selection tests
 
+        public class MultipleConstructors
+        {
+            public int CtorParamCount { get; }
+
+            public MultipleConstructors() => CtorParamCount = 0;
+            public MultipleConstructors(string a) => CtorParamCount = 1;
+            public MultipleConstructors(string a, int b) => CtorParamCount = 2;
+        }
         [Test]
         public void AutoResolve_MultiplePublicConstructors_SelectsSimplest()
         {
@@ -166,6 +143,11 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             Assert.That(result.CtorParamCount, Is.Zero);
         }
 
+        public class OnlyPrivateCtor
+        {
+            public bool Constructed { get; }
+            private OnlyPrivateCtor() => Constructed = true;
+        }
         [Test]
         public void AutoResolve_OnlyPrivateConstructor_UsesPrivateCtor()
         {
@@ -176,6 +158,13 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             Assert.That(result.Constructed, Is.True);
         }
 
+        public class PublicAndPrivateCtors
+        {
+            public int CtorParamCount { get; }
+
+            private PublicAndPrivateCtors() => CtorParamCount = 0;
+            public PublicAndPrivateCtors(string a) => CtorParamCount = 1;
+        }
         [Test]
         public void AutoResolve_PublicAndPrivateCtors_PrefersPublicCtor()
         {

@@ -7,7 +7,9 @@
         [Test]
         public void NotImplementedInterface_ThrowsException()
         {
-            Assert.Throws<InvalidCastException>(() => Fixture.New<ClassOne>().CastTo<ClassTwo>());
+            var fixture = TestHelper.MakeFixture<ClassOne>();
+
+            Assert.Throws<InvalidCastException>(() => fixture.CastTo<ClassTwo>());
         }
 
         interface IInterface;
@@ -15,9 +17,11 @@
         [Test]
         public void ImplementedInterface_CastsToInterface()
         {
-            IFixtureConfigurator<IInterface> fixture = null!;
-            Assert.DoesNotThrow(() => fixture = Fixture.New<ClassWithInterface>().CastTo<IInterface>());
-            var field = TestHelper.GetFixture(fixture);
+            var fixture = TestHelper.MakeFixture<ClassWithInterface>();
+
+            IFixtureConfigurator<IInterface> castFixture = null!;
+            Assert.DoesNotThrow(() => castFixture = fixture.CastTo<IInterface>());
+            var field = TestHelper.GetFixture(castFixture);
 
             Assert.That(field, Is.Not.Null);
         }
@@ -34,29 +38,15 @@
         public void ImplementedInterface_ExplicitMembersCanBeSet()
         {
             var text = "Explicit interface member string";
-            var fixture = Fixture.New<ExplicitInterfaceClass>()
-                .CastTo<IInterfaceWithMember>()
-                .WithSetter(t => t.Text, text);
+            var fixture = TestHelper.MakeFixture<ExplicitInterfaceClass>();
 
-            var field = TestHelper.GetFixture(fixture);
+            var castFixture = fixture.CastTo<IInterfaceWithMember>();
+            castFixture.WithSetter(t => t.Text, text);
 
+            var field = TestHelper.GetFixture(castFixture);
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(field.Text, Is.EqualTo(text));
-            }
-        }
-
-        [Test]
-        [Ignore("Outdated until autoconstructor is default construction method")]
-        public void ConstructionNotChosen_InstantiatesNonNullables()
-        {
-            var fixture = Fixture.New<ClassWithNullable>().CastTo<ClassWithNullable>();
-            var field = TestHelper.GetFixture(fixture);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.NullableClass, Is.Null);
-                Assert.That(field.NonNullableClass, Is.Not.Null);
             }
         }
     }

@@ -9,10 +9,11 @@
         public void ClassPrivateField_SetsField()
         {
             var fieldName = "_text";
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
 
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField(fieldName, _text);
+            fixture.WithField(fieldName, _text);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.Text, Is.EqualTo(_text));
         }
 
@@ -20,10 +21,11 @@
         public void NullValue_SetsField()
         {
             var fieldName = "_text";
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
 
-            var fixture = Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField<string>(fieldName, null!);
+            fixture.WithField<string>(fieldName, null!);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.Text, Is.Null);
         }
 
@@ -31,26 +33,29 @@
         public void IncorrectFieldName_ThrowsException()
         {
             var fieldName = "_notAField";
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField(fieldName, _text));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField(fieldName, _text));
         }
 
         [Test]
         public void IncorrectFieldType_ThrowsException()
         {
             var fieldName = "_text";
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<ExplicitBackingFieldClass>().CreateUninitialized().WithField(fieldName, _number));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField(fieldName, _number));
         }
 
         [Test]
         public void InheritedProtectedField_SetsField()
         {
             var fieldName = "_inheritedField";
+            var fixture = TestHelper.MakeFixture<DerivedTestClass>();
 
-            var fixture = Fixture.New<DerivedTestClass>().CreateUninitialized().WithField(fieldName, _text);
+            fixture.WithField(fieldName, _text);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.InheritedFieldGetter, Is.EqualTo(_text));
         }
 
@@ -63,25 +68,12 @@
         public void RecordField_SetsField()
         {
             var text = "Test string";
+            var fixture = TestHelper.MakeFixture<FieldRecord>();
 
-            var fixture = Fixture.New<FieldRecord>().WithField("_text", text);
+            fixture.WithField("_text", text);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.Text, Is.EqualTo(text));
-        }
-
-        [Test]
-        [Ignore("Outdated until autoconstructor is default construction method")]
-        public void Field_ConstructionNotChosen_InstantiatesNonNullables()
-        {
-            var fixture = Fixture.New<ClassWithNullable>().WithField("_text", "test");
-            var field = TestHelper.GetFixture(fixture);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.NullableClass, Is.Null);
-                Assert.That(field.NonNullableClass, Is.Not.Null);
-            }
         }
 
         class StringListClass
@@ -93,18 +85,20 @@
         public void CollectionTypeField_StringParameter_ThrowsException()
         {
             var fieldName = "_stringList";
+            var fixture = TestHelper.MakeFixture<StringListClass>();
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<StringListClass>().CreateUninitialized().WithField(fieldName, _text));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField(fieldName, _text));
         }
 
         [Test]
         public void CollectionTypeField_CollectionParameter_SetsField()
         {
             var fieldName = "_stringList";
+            var fixture = TestHelper.MakeFixture<StringListClass>();
 
-            var fixture = Fixture.New<StringListClass>().CreateUninitialized().WithField<List<string>>(fieldName, [_text]);
+            fixture.WithField<List<string>>(fieldName, [_text]);
+
             var field = TestHelper.GetFixture(fixture);
-
             Assert.That(field.StringList[0], Is.EqualTo(_text));
         }
 
@@ -113,10 +107,11 @@
         {
             var fieldName = "_stringList";
             var secondEntry = "More test";
+            var fixture = TestHelper.MakeFixture<StringListClass>();
 
-            var fixture = Fixture.New<StringListClass>().CreateUninitialized().WithField<List<string>>(fieldName, [_text, secondEntry]);
+            fixture.WithField<List<string>>(fieldName, [_text, secondEntry]);
+
             var field = TestHelper.GetFixture(fixture);
-
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(field.StringList[0], Is.EqualTo(_text));

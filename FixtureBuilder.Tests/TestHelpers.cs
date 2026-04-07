@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 #pragma warning disable CA1822 // Mark members as static
 
@@ -6,6 +7,12 @@ namespace FixtureBuilder.Tests
 {
     internal class TestHelper
     {
+        internal static IFixtureConfigurator<T> MakeFixture<T>() where T : class
+        {
+            var instance = (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+            return Fixture.New(instance);
+        }
+
         internal static T GetFixture<T>(IFixtureConfigurator<T> fixture) where T : class
         {
             return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;

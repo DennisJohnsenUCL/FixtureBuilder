@@ -100,19 +100,5 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.That(field, Is.Not.Null);
         }
-
-        [Test]
-        [Ignore("Outdated until autoconstructor is default construction method")]
-        public void ClassWithMembers_InstantiatesNonNullables()
-        {
-            var fixture = Fixture.New<ClassWithNullable>().UseConstructor();
-            var field = TestHelper.GetFixture(fixture);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.NullableClass, Is.Null);
-                Assert.That(field.NonNullableClass, Is.Not.Null);
-            }
-        }
     }
 }

@@ -20,7 +20,7 @@
         [Test]
         public void Invoke_ExecutesAction()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture = fixture.Invoke(x => x.DoSomething());
 
@@ -31,7 +31,7 @@
         [Test]
         public void Invoke_WithNestedPath_InitializesIntermediates()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture = fixture.Invoke(x => x.Child.DoSomething());
 
@@ -43,7 +43,7 @@
         [Test]
         public void Invoke_InitializesFixtureOnFirstCall()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture = fixture.Invoke(x => x.DoSomething());
 
@@ -54,7 +54,7 @@
         [Test]
         public void Invoke_CalledMultipleTimes_DoesNotReinstantiate()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.Invoke(x => x.DoSomething());
             var first = TestHelper.GetFixture(fixture);
@@ -68,7 +68,7 @@
         [Test]
         public void Invoke_ConstantExpression_ThrowsException()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.Invoke(x => Console.WriteLine()));
         }

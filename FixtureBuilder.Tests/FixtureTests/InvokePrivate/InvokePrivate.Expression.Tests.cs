@@ -29,7 +29,7 @@
         [Test]
         public void InvokePrivate_CallsPrivateMethodOnProperty()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "PrivateMethod");
 
@@ -40,7 +40,7 @@
         [Test]
         public void InvokePrivate_CallsPublicMethodOnProperty()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "PublicMethod");
 
@@ -51,7 +51,7 @@
         [Test]
         public void InvokePrivate_CallsPublicMethodOverloadOnProperty()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "PublicMethod", "hello");
 
@@ -62,7 +62,7 @@
         [Test]
         public void InvokePrivate_PassesArgumentsToMethod()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "MethodWithArgs", "hello");
 
@@ -73,7 +73,7 @@
         [Test]
         public void InvokePrivate_InitializesIntermediateProperty()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "PrivateMethod");
 
@@ -84,7 +84,7 @@
         [Test]
         public void InvokePrivate_WorksWithNestedPath()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child.Grandchild, "PrivateMethod");
 
@@ -97,7 +97,7 @@
         [Test]
         public void InvokePrivate_NonExistentMethod_ThrowsException()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             Assert.Throws<MissingMethodException>(() =>
                 fixture.InvokePrivate(x => x.Child, "NonExistent"));
@@ -106,7 +106,7 @@
         [Test]
         public void InvokePrivate_IncorrectArguments_ThrowsException()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             Assert.Throws<MissingMethodException>(() =>
                 fixture.InvokePrivate(x => x.Child, "MethodWithArgs", 42));
@@ -115,7 +115,7 @@
         [Test]
         public void InvokePrivate_InitializesFixtureOnFirstCall()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "PrivateMethod");
 
@@ -126,7 +126,7 @@
         [Test]
         public void InvokePrivate_CalledMultipleTimes_DoesNotReinstantiate()
         {
-            var fixture = Fixture.New<TestEntity>().CreateUninitialized();
+            var fixture = TestHelper.MakeFixture<TestEntity>();
 
             fixture.InvokePrivate(x => x.Child, "PrivateMethod");
             var first = TestHelper.GetFixture(fixture);
