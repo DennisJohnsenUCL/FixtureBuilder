@@ -410,6 +410,11 @@ namespace FixtureBuilder
 
         internal T InstantiateFixture()
         {
+            if (!_context.Options.AllowImplicitConstruction)
+                throw new InvalidOperationException($"Skipping instantiation step is not allowed. " +
+                    $"Please use UseAutoConstructor, UseConstructor, or CreateUninitialized before calling any configuration methods. " +
+                    $"Explicit instantiation can be allowed via AllowImplicitConstruction option.");
+
             return (T)_context.InstantiateWithStrategy(new FixtureRequest(typeof(T)), _context.Options.DefaultInstantiationMethod, _context.Options.DefaultInitializeMembers);
         }
 

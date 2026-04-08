@@ -44,5 +44,17 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.That(result, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void InstantiateFixture_ImplicitInstantiationNotAllowed_ThrowsException()
+        {
+            var options = new FixtureOptions { AllowImplicitConstruction = true };
+            var contextMock = new Mock<IFixtureContext>();
+            contextMock.Setup(c => c.Options).Returns(options);
+            var fixture = Fixture.New<string>();
+            TestHelper.SetContext(fixture, contextMock.Object);
+
+            Assert.Throws<InvalidOperationException>(() => ((Fixture<string>)fixture).InstantiateFixture());
+        }
     }
 }

@@ -16,11 +16,6 @@ namespace FixtureBuilder.FixtureContexts
         /// </remarks>
         public InitializeMembers DefaultInitializeMembers { get; set; } = InitializeMembers.None;
 
-        ///// <summary>
-        ///// Whether CreateUnitialized will initialize members recursively, or only the first level.
-        ///// </summary>
-        //public bool InitializeMembersRecursive { get; set; } = true;
-
         /// <summary>
         /// Whether UseAutoConstructor will use private constructors.
         /// </summary>
@@ -91,5 +86,14 @@ namespace FixtureBuilder.FixtureContexts
         /// <br />This option only applies when <see cref="AllowInstantiateNestedMembers"/> is set to true, otherwise an exception will be thrown.
         /// </remarks>
         public InstantiationMethod NestedMemberInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
+
+        /// <summary>
+        /// Whether the construction stage can be skipped, instead using the <see cref="DefaultInstantiationMethod"/>
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="true" />
+        /// <br /><br />When <see cref="true"/>, the fixture can be configured without first explicitly calling one of the construction methods.
+        /// </remarks>
+        public bool AllowImplicitConstruction { get; set; } = true;
     }
 }
