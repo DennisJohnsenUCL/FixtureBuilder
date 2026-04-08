@@ -81,5 +81,15 @@ namespace FixtureBuilder.FixtureContexts
         /// <br /><br />This is triggered when the construction stage is skipped (<c>Fixture.New&lt;T&gt;().WithSetter(..)</c>).
         /// </remarks>
         public InstantiationMethod DefaultInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
+
+        /// <summary>
+        /// Which instantiation method will be used to instantiate nested members when traversing a member chain.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see cref="InstantiationMethod.UseAutoConstructor" />
+        /// <br /><br />This is triggered when a null member is encountered when traversing a member chain (<c>x => x.Child.GrandChild</c>).
+        /// <br />This option only applies when <see cref="AllowInstantiateNestedMembers"/> is set to true, otherwise an exception will be thrown.
+        /// </remarks>
+        public InstantiationMethod NestedMemberInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
     }
 }

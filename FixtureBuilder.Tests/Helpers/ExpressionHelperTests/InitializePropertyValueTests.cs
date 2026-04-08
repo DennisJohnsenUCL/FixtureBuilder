@@ -1,5 +1,6 @@
 ﻿using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
+using FixtureBuilder.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
@@ -51,10 +52,9 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
             context.Setup(c => c.Options).Returns(options);
-            context
-                .Setup(c => c.AutoResolve(
+            context.Setup(c => c.InstantiateWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
-                    context.Object))
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolved);
 
             var result = ExpressionHelper.InitializePropertyValue(parent, prop, context.Object);

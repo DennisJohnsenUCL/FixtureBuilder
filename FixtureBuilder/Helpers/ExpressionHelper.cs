@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder.Helpers
 {
@@ -159,7 +160,9 @@ namespace FixtureBuilder.Helpers
                 throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
             var type = prop.PropertyType;
-            current = context.AutoResolve(new FixtureRequest(type), context);
+
+            current = context.InstantiateWithStrategy(new FixtureRequest(type), context.Options.NestedMemberInstantiationMethod, InitializeMembers.None);
+
             prop.SetValue(parent, current);
 
             return current;

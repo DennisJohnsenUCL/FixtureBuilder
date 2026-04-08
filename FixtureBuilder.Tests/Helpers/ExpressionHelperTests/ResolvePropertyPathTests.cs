@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.Helpers;
+using FixtureBuilder.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
@@ -27,10 +28,9 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
         private static Mock<IFixtureContext> CreateContextThatResolves<T>(T instance) where T : class
         {
             var context = new Mock<IFixtureContext>();
-            context
-                .Setup(c => c.AutoResolve(
+            context.Setup(c => c.InstantiateWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(T)),
-                    context.Object))
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(instance);
             return context;
         }
@@ -91,15 +91,13 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
             context.Setup(c => c.Options).Returns(options);
-            context
-                .Setup(c => c.AutoResolve(
+            context.Setup(c => c.InstantiateWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),
-                    context.Object))
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
-            context
-                .Setup(c => c.AutoResolve(
+            context.Setup(c => c.InstantiateWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Leaf)),
-                    context.Object))
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedLeaf);
 
             var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context.Object);
