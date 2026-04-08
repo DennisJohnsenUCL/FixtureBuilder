@@ -68,6 +68,8 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedMiddle = new Middle();
             Expression<Func<Root, int>> expr = x => x.Middle.Value;
             var context = CreateContextThatResolves(resolvedMiddle);
+            var options = new FixtureOptions();
+            context.Setup(c => c.Options).Returns(options);
 
             var (instance, property) = ExpressionHelper.ResolvePropertyParent(root, expr, context.Object);
 
@@ -87,6 +89,8 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedLeaf = new Leaf();
             Expression<Func<Root, string>> expr = x => x.Middle.Leaf.Tag;
             var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions();
+            context.Setup(c => c.Options).Returns(options);
             context
                 .Setup(c => c.AutoResolve(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),

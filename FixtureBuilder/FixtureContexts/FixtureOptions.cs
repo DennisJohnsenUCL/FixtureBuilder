@@ -55,6 +55,22 @@ namespace FixtureBuilder.FixtureContexts
         /// </remarks>
         public bool PreferNullParameterValues { get; set; } = true;
 
+        /// <summary>
+        /// Whether CreateUninitialized with InitializeMembers on is allowed to assign null for fields it cannot initialize.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="true" />
+        /// </remarks>
         public bool AllowSkipUninitializableMembers { get; set; } = true;
+
+        /// <summary>
+        /// Whether nested members can be instantiated if null when trying to access them or a deeper nested member.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="true" />
+        /// <br /><br />If <see langword="false"/>, an Expression such as c => c.Child.GrandChild will throw if Child is null.
+        /// <br />Used by all methods that take an Expression Func or Expression Action
+        /// </remarks>
+        public bool AllowInstantiateNestedMembers { get; set; } = true;
     }
 }

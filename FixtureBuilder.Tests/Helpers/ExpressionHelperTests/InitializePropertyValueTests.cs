@@ -49,6 +49,8 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var prop = typeof(Parent).GetProperty(nameof(Parent.Child))!;
             var resolved = new Child { Age = 10 };
             var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions();
+            context.Setup(c => c.Options).Returns(options);
             context
                 .Setup(c => c.AutoResolve(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
@@ -65,14 +67,30 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
         }
 
         [Test]
+        public void NullWritableProperty_MemberInstantiationNotAllowed_ThrowsException()
+        {
+            var parent = new Parent();
+            var prop = typeof(Parent).GetProperty(nameof(Parent.Child))!;
+            var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions { AllowInstantiateNestedMembers = false };
+            context.Setup(c => c.Options).Returns(options);
+
+            Assert.Throws<InvalidOperationException>(
+                () => ExpressionHelper.InitializePropertyValue(parent, prop, context.Object));
+
+        }
+
+        [Test]
         public void NullReadOnlyProperty_ThrowsInvalidOperationException()
         {
             var parent = new Parent();
             var prop = typeof(Parent).GetProperty(nameof(Parent.ReadOnly))!;
-            var context = Mock.Of<IFixtureContext>();
+            var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions();
+            context.Setup(c => c.Options).Returns(options);
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializePropertyValue(parent, prop, context));
+                () => ExpressionHelper.InitializePropertyValue(parent, prop, context.Object));
         }
     }
 }

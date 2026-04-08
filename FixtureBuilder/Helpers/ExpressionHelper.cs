@@ -150,15 +150,17 @@ namespace FixtureBuilder.Helpers
 
             var current = prop.GetValue(parent);
 
-            if (current == null)
-            {
-                if (!prop.CanWrite)
-                    throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
+            if (current != null) return current;
 
-                var type = prop.PropertyType;
-                current = context.AutoResolve(new FixtureRequest(type), context);
-                prop.SetValue(parent, current);
-            }
+            if (!context.Options.AllowInstantiateNestedMembers)
+                throw new InvalidOperationException($"Property {prop.Name} in member chain is null, and instantiation of null chain members is disabled.");
+
+            if (!prop.CanWrite)
+                throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
+
+            var type = prop.PropertyType;
+            current = context.AutoResolve(new FixtureRequest(type), context);
+            prop.SetValue(parent, current);
 
             return current;
         }
