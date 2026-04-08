@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder.FixtureContexts
@@ -67,6 +68,21 @@ namespace FixtureBuilder.FixtureContexts
         {
             ArgumentNullException.ThrowIfNull(action);
             action.Invoke(Options);
+        }
+
+        public object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
+        {
+            return instantiationMethod switch
+            {
+                InstantiationMethod.UseAutoConstructor => AutoResolve(request, this),
+
+                InstantiationMethod.UseDefaultConstructor => new ConstructingProvider().ResolveWithArguments(request),
+
+                InstantiationMethod.CreateUninitialized => ResolveUninitialized(request, initializeMembers, this)
+                    ?? throw new InvalidOperationException($"Failed to intantiate {request.Type.Name} uninitialized."),
+
+                _ => throw new InvalidOperationException($"Failed to intantiate {request.Type.Name} uninitialized.")
+            };
         }
     }
 }

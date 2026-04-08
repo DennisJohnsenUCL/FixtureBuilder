@@ -49,5 +49,17 @@
                 Assert.That(field.Text, Is.EqualTo(text));
             }
         }
+
+        [Test]
+        public void CastTo_InstantiatesFixture()
+        {
+            var fixture = TestHelper.MakeFixture<ClassWithInterface>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.CastTo<IInterface>());
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

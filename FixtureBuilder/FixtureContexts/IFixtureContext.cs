@@ -18,5 +18,7 @@ namespace FixtureBuilder.FixtureContexts
         FixtureOptions Options { get; }
         void SetOptions(FixtureOptions options);
         void SetOptions(Action<FixtureOptions> action);
+
+        object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
     }
 }

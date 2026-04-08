@@ -156,7 +156,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             public PublicAndPrivateCtors(string a) => PublicCtor = true;
         }
         [Test]
-        public void AutoResolve_AllowPrivate_PreferSimplest_()
+        public void AutoResolve_AllowPrivate_PreferSimplest_SelectsPrivateCtor()
         {
             var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = true };
@@ -168,7 +168,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         }
 
         [Test]
-        public void AutoResolve_AllowPrivate_DoNotPreferSimplest_()
+        public void AutoResolve_AllowPrivate_DoNotPreferSimplest_SelectsPublicCtor()
         {
             var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = false };
@@ -180,7 +180,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         }
 
         [Test]
-        public void AutoResolve_DoNotAllowPrivate_PreferSimplest_()
+        public void AutoResolve_DoNotAllowPrivate_PreferSimplest_SelectsPublicCtor()
         {
             var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = true };
@@ -192,7 +192,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         }
 
         [Test]
-        public void AutoResolve_DoNotAllowPrivate_DoNotPreferSimplest_()
+        public void AutoResolve_DoNotAllowPrivate_DoNotPreferSimplest_SelectsPublicCtor()
         {
             var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = false };
@@ -220,7 +220,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
         }
 
         [Test]
-        public void AutoResolve_OnlyPrivate_AllowPrivate_()
+        public void AutoResolve_OnlyPrivate_AllowPrivate_SelectsPrivateCtor()
         {
             var request = new FixtureRequest(typeof(OnlyPrivateCtor));
             var options = new FixtureOptions { AllowPrivateConstructors = true };

@@ -118,5 +118,19 @@
                 Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
             }
         }
+
+        [Test]
+        public void WithField_InstantiatesFixture()
+        {
+            var fieldName = "_text";
+
+            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.WithField(fieldName, _text));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

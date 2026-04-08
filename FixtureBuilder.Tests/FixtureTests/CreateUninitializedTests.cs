@@ -105,7 +105,7 @@ internal class FixtureCreateUninitializedTests
     public void CreateUninitialized_NoParameter_OptionAll_InitializesAll()
     {
         var fixture = Fixture.New<ClassWithNullableAndNonNullable>();
-        TestHelper.SetOption(fixture, o => o.InitializeMembersDefault = InitializeMembers.All);
+        TestHelper.SetOption(fixture, o => o.DefaultInitializeMembers = InitializeMembers.All);
 
         fixture.CreateUninitialized();
 
@@ -121,7 +121,7 @@ internal class FixtureCreateUninitializedTests
     public void CreateUninitialized_NoParameter_OptionNonNullables_InitializesNonNullables()
     {
         var fixture = Fixture.New<ClassWithNullableAndNonNullable>();
-        TestHelper.SetOption(fixture, o => o.InitializeMembersDefault = InitializeMembers.NonNullables);
+        TestHelper.SetOption(fixture, o => o.DefaultInitializeMembers = InitializeMembers.NonNullables);
 
         fixture.CreateUninitialized();
 
@@ -137,7 +137,7 @@ internal class FixtureCreateUninitializedTests
     public void CreateUninitialized_NoParameter_OptionNone_InitializesNone()
     {
         var fixture = Fixture.New<ClassWithNullableAndNonNullable>();
-        TestHelper.SetOption(fixture, o => o.InitializeMembersDefault = InitializeMembers.None);
+        TestHelper.SetOption(fixture, o => o.DefaultInitializeMembers = InitializeMembers.None);
 
         fixture.CreateUninitialized();
 

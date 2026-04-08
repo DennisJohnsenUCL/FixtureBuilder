@@ -14,7 +14,7 @@ namespace FixtureBuilder.FixtureContexts
         /// <remarks>
         /// Default is <see cref="InitializeMembers.None" />
         /// </remarks>
-        public InitializeMembers InitializeMembersDefault { get; set; } = InitializeMembers.None;
+        public InitializeMembers DefaultInitializeMembers { get; set; } = InitializeMembers.None;
 
         ///// <summary>
         ///// Whether CreateUnitialized will initialize members recursively, or only the first level.
@@ -72,5 +72,14 @@ namespace FixtureBuilder.FixtureContexts
         /// <br />Used by all methods that take an Expression Func or Expression Action
         /// </remarks>
         public bool AllowInstantiateNestedMembers { get; set; } = true;
+
+        /// <summary>
+        /// Which instantiation method will be used to instantiate the fixture if none is explicitly chosen.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see cref="InstantiationMethod.UseAutoConstructor" />
+        /// <br /><br />This is triggered when the construction stage is skipped (<c>Fixture.New&lt;T&gt;().WithSetter(..)</c>).
+        /// </remarks>
+        public InstantiationMethod DefaultInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
     }
 }

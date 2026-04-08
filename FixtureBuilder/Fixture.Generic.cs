@@ -58,7 +58,7 @@ namespace FixtureBuilder
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized()
-            => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.Options.InitializeMembersDefault);
+            => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.Options.DefaultInitializeMembers);
 
         /// <summary>
         /// Creates an instance of the entity type <typeparamref name="T"/> without invoking its constructor.
@@ -408,9 +408,9 @@ namespace FixtureBuilder
             return this;
         }
 
-        private T InstantiateFixture()
+        internal T InstantiateFixture()
         {
-            return (T)_context.AutoResolve(new FixtureRequest(typeof(T)), _context);
+            return (T)_context.InstantiateWithStrategy(new FixtureRequest(typeof(T)), _context.Options.DefaultInstantiationMethod, _context.Options.DefaultInitializeMembers);
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)

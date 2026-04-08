@@ -167,5 +167,17 @@ namespace FixtureBuilder.Tests.FixtureTests
                 Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
             }
         }
+
+        [Test]
+        public void WithSetter_InstantiatesFixture()
+        {
+            var fixture = TestHelper.MakeFixture<TestClass>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.WithSetter(t => t.Text, _text));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

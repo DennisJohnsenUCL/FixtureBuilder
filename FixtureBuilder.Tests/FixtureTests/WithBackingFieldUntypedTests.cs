@@ -63,5 +63,17 @@ namespace FixtureBuilder.Tests.FixtureTests
             var field = TestHelper.GetFixture(fixture);
             Assert.That(field.SomeProperty, Is.EqualTo(_number.ToString()));
         }
+
+        [Test]
+        public void WithBackingFieldUntyped_InstantiatesFixture()
+        {
+            var fixture = TestHelper.MakeFixture<SameTypeClass>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.WithBackingFieldUntyped(t => t.Text, _text));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

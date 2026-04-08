@@ -136,5 +136,17 @@
 
             Assert.That(second, Is.SameAs(first));
         }
+
+        [Test]
+        public void InvokePrivate_InstantiatesFixture()
+        {
+            var fixture = TestHelper.MakeFixture<TestEntity>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.InvokePrivate(x => x.Child, "PublicMethod"));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

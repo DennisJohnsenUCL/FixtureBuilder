@@ -7,6 +7,12 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         private readonly static string _text = "Test string";
         private readonly static int _number = 123;
 
+        class NormalClass
+        {
+            public string Text { get; set; } = null!;
+            public int Number { get; set; }
+        }
+
         [Test]
         public void RecordProperty_SetsProperty()
         {
@@ -52,11 +58,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Text.Length, _number));
         }
 
-        class NormalClass
-        {
-            public string Text { get; set; } = null!;
-            public int Number { get; set; }
-        }
         [Test]
         public void ClassProperty_SetsProperty()
         {
@@ -402,6 +403,18 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fixture = TestHelper.MakeFixture<ValueMembersClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.NonNullable, null));
+        }
+
+        [Test]
+        public void WithBackingField_InstantiatesFixture()
+        {
+            var fixture = TestHelper.MakeFixture<NormalClass>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.WithBackingField(x => x.Text, "Hello"));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
         }
     }
 }

@@ -67,5 +67,19 @@
 
             Assert.Throws<InvalidOperationException>(() => fixture.With(t => t.Text, "Test"));
         }
+
+        [Test]
+        public void With_InstantiatesFixture()
+        {
+            var text = "Test string";
+
+            var fixture = TestHelper.MakeFixture<PropWithSetterClass>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.With(t => t.Text, text));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

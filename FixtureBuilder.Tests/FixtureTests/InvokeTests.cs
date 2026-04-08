@@ -72,5 +72,17 @@
 
             Assert.Throws<InvalidOperationException>(() => fixture.Invoke(x => Console.WriteLine()));
         }
+
+        [Test]
+        public void Invoke_InstantiatesFixture()
+        {
+            var fixture = TestHelper.MakeFixture<TestEntity>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.Invoke(x => x.DoSomething()));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }

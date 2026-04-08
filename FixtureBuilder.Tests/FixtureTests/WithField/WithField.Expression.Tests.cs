@@ -69,5 +69,19 @@
             Assert.Throws<InvalidOperationException>(
                 () => fixture.WithField(c => c.NestedClass.TwiceNestedClass.GetHashCode(), fieldName, _text));
         }
+
+        [Test]
+        public void WithField_InstantiatesFixture()
+        {
+            var fieldName = "_field";
+
+            var fixture = TestHelper.MakeFixture<BaseClass>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.DoesNotThrow(() => fixture.WithField(c => c.NestedClass.TwiceNestedClass, fieldName, "Hello"));
+                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            }
+        }
     }
 }
