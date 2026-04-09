@@ -6,6 +6,7 @@ using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.FixtureContexts.FixtureContextBuilders;
 using FixtureBuilder.Helpers;
+using FixtureBuilder.MemberInstantiation;
 using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder
@@ -127,6 +128,53 @@ namespace FixtureBuilder
                 throw new InvalidCastException($"Cannot cast {typeof(T).Name} to {typeof(TTarget).Name}.");
 
             return new Fixture<TTarget>(target);
+        }
+
+        /// <summary>
+        /// Instantiates the specified property using a default instantiation method and assigns it to the fixture.
+        /// </summary>
+        /// <param name="expr">An expression identifying the property to instantiate. Intermediate properties in the chain are automatically initialized if allowed.</param>
+        /// <remarks>
+        /// The default instantiation method can be set through via the DefaultInstantiateInstantiationMethod option.
+        /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
+        /// </remarks>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
+        /// <exception cref="InvalidOperationException"/>
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
+        {
+            var instance = (TProp)_context.InstantiateWithStrategy(new FixtureRequest(typeof(TProp)), _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None);
+
+            return InstantiateInternal(expr, instance);
+        }
+
+        /// <summary>
+        /// Instantiates the specified property using a caller-defined instantiation strategy and assigns it to the fixture.
+        /// </summary>
+        /// <param name="expr">An expression identifying the property to instantiate. Intermediate properties in the chain are automatically initialized.</param>
+        /// <param name="func">A function that receives a <see cref="MemberInstantiator{TProp}"/> and returns an instance of <typeparamref name="TProp"/>.
+        /// The instantiator provides access to construction strategies such as <c>UseAutoConstructor</c>, <c>UseConstructor</c>, and <c>CreateUninitialized</c>.</param>
+        /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
+        /// <remarks>
+        /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<MemberInstantiator<TProp>, TProp> func)
+        {
+            var instance = func.Invoke(new MemberInstantiator<TProp>(_context));
+
+            return InstantiateInternal(expr, instance);
+        }
+
+        private Fixture<T> InstantiateInternal<TProp>(Expression<Func<T, TProp>> expr, TProp instance)
+        {
+            _fixture ??= InstantiateFixture();
+
+            ExpressionHelper.ValidateExpression(expr);
+            ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
+
+            ((IFixtureConfigurator<T>)this).With(expr, instance);
+
+            return this;
         }
 
         /// <summary>
@@ -256,9 +304,7 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             ExpressionHelper.ValidateExpression(expr);
-
             var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
-
             var propertyParentType = instance.GetType();
 
             if (!FieldHelper.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
@@ -269,7 +315,6 @@ namespace FixtureBuilder
             ValidateNullableValueTypeAssignment(fieldType, value);
 
             var sourceType = value?.GetType();
-
             if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
             {
                 backingField.SetValue(instance, value);
@@ -366,12 +411,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            typeof(T).InvokeMember(
-                methodName,
-                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                _fixture,
-                arguments);
+            InvokePrivateInternal(typeof(T), _fixture, methodName, arguments);
 
             return this;
         }
@@ -398,14 +438,19 @@ namespace FixtureBuilder
             var (instance, property) = ExpressionHelper.ResolvePropertyInstance(_fixture, expr, _context);
             var propertyType = property.PropertyType;
 
-            propertyType.InvokeMember(
+            InvokePrivateInternal(propertyType, instance, methodName, arguments);
+
+            return this;
+        }
+
+        private static void InvokePrivateInternal(Type parentType, object instance, string methodName, params object?[] args)
+        {
+            parentType.InvokeMember(
                 methodName,
                 BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
                 instance,
-                arguments);
-
-            return this;
+                args);
         }
 
         internal T InstantiateFixture()

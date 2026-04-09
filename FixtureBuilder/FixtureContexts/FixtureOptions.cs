@@ -95,5 +95,14 @@ namespace FixtureBuilder.FixtureContexts
         /// <br /><br />When <see cref="true"/>, the fixture can be configured without first explicitly calling one of the construction methods.
         /// </remarks>
         public bool AllowImplicitConstruction { get; set; } = true;
+
+        /// <summary>
+        /// Which instantiation method will be used to instantiate the member if one is not explicitly chosen when calling .Instantiate.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see cref="InstantiationMethod.UseAutoConstructor" />
+        /// <br /><br />This is triggered when Instantiate is called without specifying an explicit instantiation method. (<c>fixture.Instantiate(x => x.Name)</c>).
+        /// </remarks>
+        public InstantiationMethod DefaultInstantiateInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
     }
 }

@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         [Test]
         public void InstantiateFixture_ImplicitInstantiationNotAllowed_ThrowsException()
         {
-            var options = new FixtureOptions { AllowImplicitConstruction = true };
+            var options = new FixtureOptions { AllowImplicitConstruction = false };
             var contextMock = new Mock<IFixtureContext>();
             contextMock.Setup(c => c.Options).Returns(options);
             var fixture = Fixture.New<string>();

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using FixtureBuilder.MemberInstantiation;
 using MemberLens.Attributes;
 
 namespace FixtureBuilder
@@ -6,6 +7,8 @@ namespace FixtureBuilder
     public interface IFixtureConfigurator<T> where T : class
     {
         IFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;
+        IFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<MemberInstantiator<TProp>, TProp> func);
+        IFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr);
         IFixtureConfigurator<T> With<TProp>(Expression<Func<T, TProp>> expr, TProp value);
         IFixtureConfigurator<T> WithField<TValue>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, TValue value);
         IFixtureConfigurator<T> WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Field, GenericSource.Method, 0)] string fieldName, TValue value);
