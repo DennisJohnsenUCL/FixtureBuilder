@@ -160,7 +160,7 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
-            var instance = func.Invoke(new MemberInstantiator<TProp>(_context));
+            var instance = func(new MemberInstantiator<TProp>(_context));
 
             return InstantiateInternal(expr, instance);
         }

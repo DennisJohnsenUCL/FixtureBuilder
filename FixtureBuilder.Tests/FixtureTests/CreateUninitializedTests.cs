@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Tests.FixtureTests;
 
-internal class FixtureCreateUninitializedTests
+internal class CreateUninitializedTests
 {
     public class SimpleTestClass
     {
@@ -147,5 +147,20 @@ internal class FixtureCreateUninitializedTests
             Assert.That(field.Required, Is.Null);
             Assert.That(field.Optional, Is.Null);
         }
+    }
+
+    class OuterAndInner(Middle middle)
+    {
+        public Middle Middle = middle;
+    }
+    class Middle(OuterAndInner outerAndInner)
+    {
+        public OuterAndInner OuterAndInner = outerAndInner;
+    }
+    [Test]
+    [Ignore("Will cause the test environment to crash")]
+    public void CircularDependency_InitializeNonNullables_ThrowsException()
+    {
+        Assert.Throws<InvalidOperationException>(() => Fixture.New<OuterAndInner>().CreateUninitialized(InitializeMembers.NonNullables));
     }
 }

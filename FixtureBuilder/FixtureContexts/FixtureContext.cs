@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.UninitializedProviders;
 
@@ -48,14 +49,14 @@ namespace FixtureBuilder.FixtureContexts
             return _resolver.ValueProvider.ResolveValue(request, context);
         }
 
-        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context)
+        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context, AutoResolveContext autoResolveContext)
         {
-            return _resolver.ParameterProvider.ResolveParameterValue(paramInfo, context);
+            return _resolver.ParameterProvider.ResolveParameterValue(paramInfo, context, autoResolveContext);
         }
 
-        public object AutoResolve(FixtureRequest request, IFixtureContext context)
+        public object AutoResolve(FixtureRequest request, IFixtureContext context, AutoResolveContext? autoResolveContext = null)
         {
-            return _resolver.AutoConstructingProvider.AutoResolve(request, context);
+            return _resolver.AutoConstructingProvider.AutoResolve(request, context, autoResolveContext);
         }
 
         public void SetOptions(FixtureOptions options)

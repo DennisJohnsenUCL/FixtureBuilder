@@ -3,6 +3,26 @@ using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.AutoConstructingProviders
 {
+    internal class AutoResolveContext
+    {
+        public HashSet<Type> Types { get; }
+
+        public AutoResolveContext()
+        {
+            Types = [];
+        }
+
+        public AutoResolveContext(HashSet<Type> types)
+        {
+            Types = [.. types];
+        }
+
+        public bool Add(Type type)
+        {
+            return Types.Add(type);
+        }
+    }
+
     /// <summary>
     /// Provides automatic construction of object instances by resolving constructor parameters
     /// through a fixture context. Implements <see cref="IAutoConstructingProvider"/> to serve as
@@ -25,17 +45,20 @@ namespace FixtureBuilder.AutoConstructingProviders
     /// </remarks>
     internal class AutoConstructingProvider : IAutoConstructingProvider
     {
-        public object AutoResolve(FixtureRequest request, IFixtureContext context)
+        public object AutoResolve(FixtureRequest request, IFixtureContext context, AutoResolveContext? autoResolveContext = null)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
+            autoResolveContext ??= new();
+            if (!autoResolveContext.Add(request.Type))
+                throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name}");
 
             if (request.Type.IsInterface || request.Type.IsAbstract)
                 throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
 
             var constructor = GetConstructorInfo(request, context);
             var parameters = constructor.GetParameters();
-            var parameterValues = parameters.Select(p => context.ResolveParameterValue(p, context));
+            var parameterValues = parameters.Select(p => context.ResolveParameterValue(p, context, new(autoResolveContext.Types)));
 
             try
             {

@@ -177,5 +177,19 @@
             Assert.Throws<InvalidOperationException>(
                 () => Fixture.New<CannotConstructAbstract>().UseAutoConstructor());
         }
+
+        class OuterAndInner(Middle middle)
+        {
+            public Middle Middle = middle;
+        }
+        class Middle(OuterAndInner outerAndInner)
+        {
+            public OuterAndInner OuterAndInner = outerAndInner;
+        }
+        [Test]
+        public void CircularDependency_ThrowsException()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<OuterAndInner>().UseAutoConstructor());
+        }
     }
 }

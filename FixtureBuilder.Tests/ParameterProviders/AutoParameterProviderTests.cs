@@ -1,6 +1,7 @@
 ﻿#pragma warning disable IDE0060
 
 using System.Reflection;
+using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.ParameterProviders;
 using Moq;
@@ -12,12 +13,14 @@ namespace FixtureBuilder.Tests.ParameterProviders
     {
         private AutoParameterProvider _sut;
         private Mock<IFixtureContext> _contextMock;
+        private AutoResolveContext _autoResolveContext;
 
         [SetUp]
         public void SetUp()
         {
             _sut = new AutoParameterProvider();
             _contextMock = new Mock<IFixtureContext>();
+            _autoResolveContext = new();
         }
 
         #region Helper classes for parameter extraction
@@ -50,7 +53,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.EqualTo(42));
         }
@@ -65,7 +68,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -77,7 +80,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.Null);
         }
@@ -95,7 +98,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>())).Returns(expected);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -107,7 +110,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.Null);
         }
@@ -119,7 +122,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.Null);
         }
@@ -137,7 +140,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("resolved");
 
-            _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             _contextMock.Verify(c => c.ResolveValue(
                 It.Is<FixtureRequest>(r => r.Type == linkedType),
@@ -152,7 +155,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("resolved");
 
-            _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             _contextMock.Verify(c => c.ResolveValue(
                 It.Is<FixtureRequest>(r => r.Type == typeof(string)),
@@ -168,7 +171,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -181,9 +184,9 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("resolved");
 
-            _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
-            _contextMock.Verify(c => c.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
+            _contextMock.Verify(c => c.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>(), It.IsAny<AutoResolveContext>()), Times.Never);
         }
 
         #endregion
@@ -196,10 +199,10 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.Link(It.IsAny<Type>())).Returns((Type?)null);
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns((object?)null);
-            _contextMock.Setup(c => c.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+            _contextMock.Setup(c => c.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>(), It.IsAny<AutoResolveContext>()))
                 .Returns(expected);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -212,7 +215,7 @@ namespace FixtureBuilder.Tests.ParameterProviders
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(99);
 
-            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object);
+            var result = _sut.ResolveParameterValue(paramInfo, _contextMock.Object, _autoResolveContext);
 
             Assert.That(result, Is.EqualTo(99));
         }

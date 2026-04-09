@@ -86,7 +86,9 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock
-                .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(), It.IsAny<IFixtureContext>()))
+                .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(),
+                    It.IsAny<IFixtureContext>(),
+                    It.IsAny<AutoResolveContext>()))
                 .Returns("test-value");
 
             var result = (SingleParam)_sut.AutoResolve(request, _contextMock.Object);
@@ -106,14 +108,14 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock
-                .Setup(c => c.ResolveParameterValue(
-                    It.Is<ParameterInfo>(p => p.ParameterType == typeof(string)),
-                    It.IsAny<IFixtureContext>()))
+                .Setup(c => c.ResolveParameterValue(It.Is<ParameterInfo>(p => p.ParameterType == typeof(string)),
+                    It.IsAny<IFixtureContext>(),
+                    It.IsAny<AutoResolveContext>()))
                 .Returns("hello");
             _contextMock
-                .Setup(c => c.ResolveParameterValue(
-                    It.Is<ParameterInfo>(p => p.ParameterType == typeof(int)),
-                    It.IsAny<IFixtureContext>()))
+                .Setup(c => c.ResolveParameterValue(It.Is<ParameterInfo>(p => p.ParameterType == typeof(int)),
+                    It.IsAny<IFixtureContext>(),
+                    It.IsAny<AutoResolveContext>()))
                 .Returns(42);
 
             var result = (TwoParams)_sut.AutoResolve(request, _contextMock.Object);

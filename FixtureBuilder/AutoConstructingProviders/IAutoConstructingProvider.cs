@@ -4,6 +4,6 @@ namespace FixtureBuilder.AutoConstructingProviders
 {
     internal interface IAutoConstructingProvider
     {
-        object AutoResolve(FixtureRequest request, IFixtureContext context);
+        object AutoResolve(FixtureRequest request, IFixtureContext context, AutoResolveContext? autoResolveContext = null);
     }
 }
