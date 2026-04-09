@@ -1,5 +1,5 @@
 ﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.MemberInstantiation;
+using FixtureBuilder.MemberInstantiators;
 using FixtureBuilder.UninitializedProviders;
 using Moq;
 

@@ -6,7 +6,7 @@ using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.FixtureContexts.FixtureContextBuilders;
 using FixtureBuilder.Helpers;
-using FixtureBuilder.MemberInstantiation;
+using FixtureBuilder.MemberInstantiators;
 using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder
@@ -58,7 +58,7 @@ namespace FixtureBuilder
         /// instance without initializing members.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized()
+        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.CreateUninitialized()
             => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.Options.DefaultInitializeMembers);
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace FixtureBuilder
         /// instance. After instantiation, the members of the instance can be initialized using providers.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
+        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.CreateUninitialized(InitializeMembers initializeMembers)
         {
             var request = new FixtureRequest(typeof(T));
             var instance = _context.ResolveUninitialized(request, initializeMembers, _context)
@@ -85,7 +85,7 @@ namespace FixtureBuilder
         /// <param name="args">The arguments to pass to the constructor. The arguments must match the constructor's parameter types and order.</param>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
         /// <exception cref="MissingMethodException"/>
-        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] arguments)
+        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseConstructor(params object[] arguments)
         {
             var request = new FixtureRequest(typeof(T));
             var constructor = new ConstructingProvider();
@@ -104,7 +104,7 @@ namespace FixtureBuilder
         /// through the fixtures resolution pipelinel.</remarks>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<T> IFixtureConstructor<T>.UseAutoConstructor()
+        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseAutoConstructor()
         {
             var request = new FixtureRequest(typeof(T));
             var instance = _context.AutoResolve(request, _context);
@@ -158,7 +158,7 @@ namespace FixtureBuilder
         /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
         /// </remarks>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<MemberInstantiator<TProp>, TProp> func)
+        IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
             var instance = func.Invoke(new MemberInstantiator<TProp>(_context));
 

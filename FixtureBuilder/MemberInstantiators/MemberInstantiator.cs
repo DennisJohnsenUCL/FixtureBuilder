@@ -2,9 +2,9 @@
 using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.UninitializedProviders;
 
-namespace FixtureBuilder.MemberInstantiation
+namespace FixtureBuilder.MemberInstantiators
 {
-    public class MemberInstantiator<T>
+    internal class MemberInstantiator<T> : IConstructor<T>
     {
         private readonly IFixtureContext _context;
 
