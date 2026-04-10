@@ -25,6 +25,9 @@ namespace FixtureBuilder.UninitializedProviders
         {
             object? result;
 
+            var link = context.Link(request.Type);
+            if (link != null) request.Type = link;
+
             result = context.ResolveValue(request, context);
             if (result is not NoResult) return result;
 

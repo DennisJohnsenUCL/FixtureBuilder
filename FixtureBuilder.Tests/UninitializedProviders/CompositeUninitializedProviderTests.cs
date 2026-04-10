@@ -112,5 +112,58 @@ namespace FixtureBuilder.Tests.UninitializedProviders
 
             _contextMock.Verify(c => c.ResolveValue(_request, _contextMock.Object), Times.Once);
         }
+
+        [Test]
+        public void ResolveUninitialized_WhenLinkReturnsType_UsesLinkedTypeForResolution()
+        {
+            var originalRequest = new FixtureRequest(typeof(IList<int>));
+            _contextMock.Setup(c => c.Link(typeof(IList<int>))).Returns(typeof(List<int>));
+            _contextMock.Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(List<int>)), _contextMock.Object))
+                .Returns(new List<int>());
+            var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
+
+            var result = sut.ResolveUninitialized(originalRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf<List<int>>());
+                Assert.That(originalRequest.Type, Is.EqualTo(typeof(List<int>)));
+            }
+        }
+
+        [Test]
+        public void ResolveUninitialized_WhenLinkReturnsNull_UsesOriginalType()
+        {
+            var originalRequest = new FixtureRequest(typeof(string));
+            _contextMock.Setup(c => c.Link(typeof(string))).Returns((Type?)null);
+            _contextMock.Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(string)), _contextMock.Object))
+                .Returns("resolved");
+            var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
+
+            var result = sut.ResolveUninitialized(originalRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.EqualTo("resolved"));
+                Assert.That(originalRequest.Type, Is.EqualTo(typeof(string)));
+            }
+        }
+
+        [Test]
+        public void ResolveUninitialized_LinkIsCalledBeforeResolveValue()
+        {
+            var callOrder = new List<string>();
+            _contextMock.Setup(c => c.Link(It.IsAny<Type>()))
+                .Callback(() => callOrder.Add("Link"))
+                .Returns((Type?)null);
+            _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), _contextMock.Object))
+                .Callback(() => callOrder.Add("ResolveValue"))
+                .Returns("result");
+            var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
+
+            sut.ResolveUninitialized(_request, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+
+            Assert.That(callOrder, Is.EqualTo(["Link", "ResolveValue"]));
+        }
     }
 }

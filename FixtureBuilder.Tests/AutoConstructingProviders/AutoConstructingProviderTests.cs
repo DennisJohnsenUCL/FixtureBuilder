@@ -1,4 +1,5 @@
 ﻿#pragma warning disable IDE0060
+#pragma warning disable CS9113
 
 using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.FixtureContexts;
@@ -228,5 +229,126 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
 
             Assert.That(result.PrivateCtor, Is.True);
         }
+
+        #region NoResult fallback and recursive resolution tests
+
+        public class Inner
+        {
+            public bool Constructed { get; } = true;
+        }
+        public class Outer(Inner inner)
+        {
+            public Inner Inner { get; } = inner;
+        }
+        [Test]
+        public void AutoResolve_ParameterReturnsNoResult_FallsBackToAutoResolve()
+        {
+            var request = new FixtureRequest(typeof(Outer));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var result = (Outer)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.Inner.Constructed, Is.True);
+        }
+
+        [Test]
+        public void AutoResolve_ParameterReturnsValue_DoesNotAutoResolveParameter()
+        {
+            var expected = new Inner();
+            var request = new FixtureRequest(typeof(Outer));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(expected);
+
+            var result = (Outer)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.Inner, Is.SameAs(expected));
+        }
+
+        #endregion
+
+        #region Link resolution tests
+
+        public class LinkedParam(Inner inner)
+        {
+            public Inner Inner { get; } = inner;
+        }
+        [Test]
+        public void AutoResolve_LinkReturnsType_UsesLinkedTypeForRequest()
+        {
+            var request = new FixtureRequest(typeof(LinkedParam));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.Link(typeof(Inner))).Returns(typeof(Inner));
+            _contextMock
+                .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(Inner)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new Inner());
+
+            _sut.AutoResolve(request, _contextMock.Object);
+
+            _contextMock.Verify(c => c.Link(typeof(Inner)), Times.Once);
+        }
+
+        [Test]
+        public void AutoResolve_LinkReturnsNull_UsesOriginalParameterType()
+        {
+            var request = new FixtureRequest(typeof(LinkedParam));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.Link(typeof(Inner))).Returns((Type?)null);
+            _contextMock
+                .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(Inner)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new Inner());
+
+            var result = (LinkedParam)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.Inner, Is.Not.Null);
+        }
+
+        #endregion
+
+        #region Circular dependency tests
+
+        public class CircularA(CircularB b) { }
+        public class CircularB(CircularA a) { }
+
+        [Test]
+        public void AutoResolve_CircularDependency_ThrowsInvalidOperationException()
+        {
+            var request = new FixtureRequest(typeof(CircularA));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            Assert.Throws<InvalidOperationException>(() =>
+                _sut.AutoResolve(request, _contextMock.Object));
+        }
+
+        public class SelfReferencing(SelfReferencing self) { }
+        [Test]
+        public void AutoResolve_SelfReferencingType_ThrowsInvalidOperationException()
+        {
+            var request = new FixtureRequest(typeof(SelfReferencing));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            Assert.Throws<InvalidOperationException>(() =>
+                _sut.AutoResolve(request, _contextMock.Object));
+        }
+
+        #endregion
     }
 }
