@@ -29,6 +29,7 @@ namespace FixtureBuilder.AutoConstructingProviders
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
+
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
                 throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in UseAutoConstructor.");
@@ -60,13 +61,13 @@ namespace FixtureBuilder.AutoConstructingProviders
             {
                 ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             }
-            else if (options.AllowPrivateConstructors)
-            {
-                ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public)
-                       ?? GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.NonPublic);
-            }
             else
+            {
                 ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public);
+
+                if (ctor == null && context.Options.AllowPrivateConstructors)
+                    ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.NonPublic);
+            }
 
             return ctor ?? throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");
         }

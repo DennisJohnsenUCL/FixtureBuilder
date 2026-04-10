@@ -38,7 +38,7 @@ namespace FixtureBuilder.UninitializedProviders
             }
             catch (Exception) { }
 
-            if (instance is not null && initializeMembers != InitializeMembers.None)
+            if (instance != null && initializeMembers != InitializeMembers.None)
                 _memberInitializer.InitializeMembers(instance, initializeMembers, context, new(recursiveResolveContext.Types));
 
             return instance;

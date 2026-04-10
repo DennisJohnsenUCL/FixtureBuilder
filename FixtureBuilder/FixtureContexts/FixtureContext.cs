@@ -12,7 +12,7 @@ namespace FixtureBuilder.FixtureContexts
     {
         private readonly IContextResolver _resolver;
 
-        public FixtureOptions Options { get; private set; }
+        public FixtureOptions Options { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FixtureContext"/> class.
@@ -56,12 +56,6 @@ namespace FixtureBuilder.FixtureContexts
         public object AutoResolve(FixtureRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
             return _resolver.AutoConstructingProvider.AutoResolve(request, context, recursiveResolveContext);
-        }
-
-        public void SetOptions(FixtureOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            Options = options;
         }
 
         public void SetOptions(Action<FixtureOptions> action)
