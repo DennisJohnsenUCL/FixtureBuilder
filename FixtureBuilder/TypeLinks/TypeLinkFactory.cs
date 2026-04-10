@@ -2,13 +2,11 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
-namespace FixtureBuilder.TypeLinks.TypeLinkBuilders
+namespace FixtureBuilder.TypeLinks
 {
-    internal class TypeLinkFactory : ITypeLinkFactory
+    internal class TypeLinkFactory
     {
-        public TypeLinkFactory() { }
-
-        public ITypeLink CreateDefaultTypeLink()
+        public static ITypeLink CreateDefaultTypeLink()
         {
             var typeLink = new CompositeTypeLink([
                 //Non-dictionary enumerables

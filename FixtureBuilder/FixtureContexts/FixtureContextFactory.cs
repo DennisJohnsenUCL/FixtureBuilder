@@ -1,24 +1,21 @@
 ﻿using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
-using FixtureBuilder.TypeLinks.TypeLinkBuilders;
 using FixtureBuilder.UninitializedProviders;
-using FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.ConverterBuilders;
 using FixtureBuilder.ValueProviders;
-using FixtureBuilder.ValueProviders.ValueProviderBuilders;
 
-namespace FixtureBuilder.FixtureContexts.FixtureContextBuilders
+namespace FixtureBuilder.FixtureContexts
 {
-    internal class FixtureContextFactory : IFixtureContextFactory
+    internal class FixtureContextFactory
     {
-        public IFixtureContext CreateLazyContext()
+        public static IFixtureContext CreateLazyContext()
         {
-            var converter = new Func<IValueConverter>(() => new ConverterFactory().CreateDefaultConverter());
-            var typeLink = new Func<ITypeLink>(() => new TypeLinkFactory().CreateDefaultTypeLink());
-            var uninitializedProvider = new Func<IUninitializedProvider>(() => new UninitializedProviderFactory().CreateDefaultUninitializedProvider());
-            var valueProvider = new Func<IValueProvider>(() => new ValueProviderFactory().CreateDefaultValueProvider());
+            var converter = new Func<IValueConverter>(() => ConverterFactory.CreateDefaultConverter());
+            var typeLink = new Func<ITypeLink>(() => TypeLinkFactory.CreateDefaultTypeLink());
+            var uninitializedProvider = new Func<IUninitializedProvider>(() => UninitializedProviderFactory.CreateDefaultUninitializedProvider());
+            var valueProvider = new Func<IValueProvider>(() => ValueProviderFactory.CreateDefaultValueProvider());
             var parameterProvider = new Func<IParameterProvider>(() => new AutoParameterProvider());
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());
 

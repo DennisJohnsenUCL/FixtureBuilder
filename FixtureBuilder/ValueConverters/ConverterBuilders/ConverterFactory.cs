@@ -1,15 +1,8 @@
 ﻿namespace FixtureBuilder.ValueConverters.ConverterBuilders
 {
-    internal interface IConverterFactory
+    internal class ConverterFactory
     {
-        IValueConverter CreateDefaultConverter();
-    }
-
-    internal class ConverterFactory : IConverterFactory
-    {
-        public ConverterFactory() { }
-
-        public IValueConverter CreateDefaultConverter()
+        public static IValueConverter CreateDefaultConverter()
         {
             var converter = new ConverterBuilder()
                 .WithStrategies()

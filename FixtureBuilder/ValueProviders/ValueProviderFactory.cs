@@ -1,15 +1,10 @@
-﻿
-using FixtureBuilder.ValueProviders.Providers;
+﻿using FixtureBuilder.ValueProviders.Providers;
 
-namespace FixtureBuilder.ValueProviders.ValueProviderBuilders
+namespace FixtureBuilder.ValueProviders
 {
-    /// <summary>
-    /// Creates the default <see cref="IValueProvider"/> pipeline, composing the standard set of
-    /// type-specific providers into a <see cref="CompositeValueProvider"/>.
-    /// </summary>
-    internal class ValueProviderFactory : IValueProviderFactory
+    internal class ValueProviderFactory
     {
-        public IValueProvider CreateDefaultValueProvider()
+        public static IValueProvider CreateDefaultValueProvider()
         {
             var provider = new CompositeValueProvider([
                 new StringProvider(),

@@ -1,11 +1,11 @@
 ﻿using FixtureBuilder.UninitializedProviders.Decorators;
 using FixtureBuilder.ValueProviders.Providers;
 
-namespace FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders
+namespace FixtureBuilder.UninitializedProviders
 {
-    internal class UninitializedProviderFactory : IUninitializedProviderFactory
+    internal class UninitializedProviderFactory
     {
-        public IUninitializedProvider CreateDefaultUninitializedProvider()
+        public static IUninitializedProvider CreateDefaultUninitializedProvider()
         {
             var creator = new RootUninitializedProvider(
                 new MemberInitializer(

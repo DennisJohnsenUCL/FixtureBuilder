@@ -3,7 +3,6 @@ using System.Reflection;
 using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.Extensions;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.FixtureContexts.FixtureContextBuilders;
 using FixtureBuilder.Helpers;
 using FixtureBuilder.MemberInstantiators;
 using FixtureBuilder.UninitializedProviders;
@@ -462,7 +461,7 @@ namespace FixtureBuilder
 
         private static IFixtureContext InitializeContext()
         {
-            return new FixtureContextFactory().CreateLazyContext();
+            return FixtureContextFactory.CreateLazyContext();
         }
     }
 }
