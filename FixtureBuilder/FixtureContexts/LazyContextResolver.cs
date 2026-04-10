@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.AutoConstructingProviders;
-using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
@@ -17,7 +16,6 @@ namespace FixtureBuilder.FixtureContexts
         private readonly Lazy<ITypeLink> _typeLink;
         private readonly Lazy<IUninitializedProvider> _uninitializedProvider;
         private readonly Lazy<IValueProvider> _valueProvider;
-        private readonly Lazy<IParameterProvider> _parameterProvider;
         private readonly Lazy<IAutoConstructingProvider> _autoConstructingProvider;
 
         /// <summary>
@@ -33,21 +31,18 @@ namespace FixtureBuilder.FixtureContexts
             Func<ITypeLink> typeLink,
             Func<IUninitializedProvider> uninitializedProvider,
             Func<IValueProvider> valueProvider,
-            Func<IParameterProvider> parameterProvider,
             Func<IAutoConstructingProvider> autoConstructingProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);
             ArgumentNullException.ThrowIfNull(typeLink);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);
             ArgumentNullException.ThrowIfNull(valueProvider);
-            ArgumentNullException.ThrowIfNull(parameterProvider);
             ArgumentNullException.ThrowIfNull(autoConstructingProvider);
 
             _converter = new Lazy<IValueConverter>(converter);
             _typeLink = new Lazy<ITypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IUninitializedProvider>(uninitializedProvider);
             _valueProvider = new Lazy<IValueProvider>(valueProvider);
-            _parameterProvider = new Lazy<IParameterProvider>(parameterProvider);
             _autoConstructingProvider = new Lazy<IAutoConstructingProvider>(autoConstructingProvider);
         }
 
@@ -74,8 +69,6 @@ namespace FixtureBuilder.FixtureContexts
         /// </summary>
         /// <returns>The lazily resolved <see cref="IValueProvider"/>
         public IValueProvider ValueProvider => _valueProvider.Value;
-
-        public IParameterProvider ParameterProvider => _parameterProvider.Value;
 
         public IAutoConstructingProvider AutoConstructingProvider => _autoConstructingProvider.Value;
     }

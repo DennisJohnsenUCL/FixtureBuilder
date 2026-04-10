@@ -29,7 +29,7 @@ namespace FixtureBuilder.MemberInstantiators
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
             var instance = _context.ResolveUninitialized(new FixtureRequest(typeof(T)), initializeMembers, _context)
-                ?? throw new InvalidOperationException("");
+                ?? throw new InvalidOperationException("Failed to intantiate {typeof(T).Name} uninitialized.");
             return (T)instance;
         }
     }

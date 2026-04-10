@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using FixtureBuilder.ConstructingProviders;
+﻿using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder.FixtureContexts
@@ -46,11 +45,6 @@ namespace FixtureBuilder.FixtureContexts
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             return _resolver.ValueProvider.ResolveValue(request, context);
-        }
-
-        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context, RecursiveResolveContext recursaiveResolveContext)
-        {
-            return _resolver.ParameterProvider.ResolveParameterValue(paramInfo, context, recursaiveResolveContext);
         }
 
         public object AutoResolve(FixtureRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)

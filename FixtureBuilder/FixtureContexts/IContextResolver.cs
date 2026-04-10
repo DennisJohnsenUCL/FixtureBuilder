@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.AutoConstructingProviders;
-using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
@@ -13,7 +12,6 @@ namespace FixtureBuilder.FixtureContexts
         ITypeLink TypeLink { get; }
         IUninitializedProvider UninitializedProvider { get; }
         IValueProvider ValueProvider { get; }
-        IParameterProvider ParameterProvider { get; }
         IAutoConstructingProvider AutoConstructingProvider { get; }
     }
 }

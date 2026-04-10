@@ -7,6 +7,8 @@ namespace FixtureBuilder.ValueProviders
         public static IValueProvider CreateDefaultValueProvider()
         {
             var provider = new CompositeValueProvider([
+                new DefaultParameterProvider(),
+                new NullableParameterProvider(),
                 new StringProvider(),
                 new EnumProvider(),
                 new DateTimeProvider(),

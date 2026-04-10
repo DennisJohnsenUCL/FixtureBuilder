@@ -1,6 +1,5 @@
 ﻿#pragma warning disable IDE0060
 
-using System.Reflection;
 using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.FixtureContexts;
 using Moq;
@@ -86,9 +85,8 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock
-                .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(),
-                    It.IsAny<IFixtureContext>(),
-                    It.IsAny<RecursiveResolveContext>()))
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(),
+                    It.IsAny<IFixtureContext>()))
                 .Returns("test-value");
 
             var result = (SingleParam)_sut.AutoResolve(request, _contextMock.Object);
@@ -108,14 +106,12 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock
-                .Setup(c => c.ResolveParameterValue(It.Is<ParameterInfo>(p => p.ParameterType == typeof(string)),
-                    It.IsAny<IFixtureContext>(),
-                    It.IsAny<RecursiveResolveContext>()))
+                .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(p => p.Type == typeof(string)),
+                    It.IsAny<IFixtureContext>()))
                 .Returns("hello");
             _contextMock
-                .Setup(c => c.ResolveParameterValue(It.Is<ParameterInfo>(p => p.ParameterType == typeof(int)),
-                    It.IsAny<IFixtureContext>(),
-                    It.IsAny<RecursiveResolveContext>()))
+                .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(p => p.Type == typeof(int)),
+                    It.IsAny<IFixtureContext>()))
                 .Returns(42);
 
             var result = (TwoParams)_sut.AutoResolve(request, _contextMock.Object);

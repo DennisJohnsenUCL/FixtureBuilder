@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
@@ -15,7 +14,6 @@ namespace FixtureBuilder.Tests.FixtureContexts
         private Func<ITypeLink> _typeLink;
         private Func<IUninitializedProvider> _uninitializedProvider;
         private Func<IValueProvider> _valueProvider;
-        private Func<IParameterProvider> _parameterProvider;
         private Func<IAutoConstructingProvider> _autoConstructingProvider;
 
         [SetUp]
@@ -25,13 +23,12 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _typeLink = () => Mock.Of<ITypeLink>();
             _uninitializedProvider = () => Mock.Of<IUninitializedProvider>();
             _valueProvider = () => Mock.Of<IValueProvider>();
-            _parameterProvider = () => Mock.Of<IParameterProvider>();
             _autoConstructingProvider = () => Mock.Of<IAutoConstructingProvider>();
         }
 
         private LazyContextResolver CreateSut() => new(
             _converter, _typeLink, _uninitializedProvider,
-            _valueProvider, _parameterProvider, _autoConstructingProvider);
+            _valueProvider, _autoConstructingProvider);
 
         [Test]
         public void Constructor_NullConverter_Throws()
@@ -58,13 +55,6 @@ namespace FixtureBuilder.Tests.FixtureContexts
         public void Constructor_NullValueProvider_Throws()
         {
             _valueProvider = null!;
-            Assert.Throws<ArgumentNullException>(() => CreateSut());
-        }
-
-        [Test]
-        public void Constructor_NullParameterProvider_Throws()
-        {
-            _parameterProvider = null!;
             Assert.Throws<ArgumentNullException>(() => CreateSut());
         }
 
@@ -192,35 +182,6 @@ namespace FixtureBuilder.Tests.FixtureContexts
         }
 
         [Test]
-        public void GetParameterProvider_ReturnsInstanceFromFactory()
-        {
-            var expected = Mock.Of<IParameterProvider>();
-            _parameterProvider = () => expected;
-
-            var result = CreateSut().ParameterProvider;
-
-            Assert.That(result, Is.SameAs(expected));
-        }
-
-        [Test]
-        public void GetParameterProvider_CalledTwice_ReturnsSameInstance()
-        {
-            var callCount = 0;
-            var instance = Mock.Of<IParameterProvider>();
-            _parameterProvider = () => { callCount++; return instance; };
-            var sut = CreateSut();
-
-            var first = sut.ParameterProvider;
-            var second = sut.ParameterProvider;
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(second, Is.SameAs(first));
-                Assert.That(callCount, Is.EqualTo(1));
-            }
-        }
-
-        [Test]
         public void GetAutoConstructingProvider_ReturnsInstanceFromFactory()
         {
             var expected = Mock.Of<IAutoConstructingProvider>();
@@ -264,7 +225,6 @@ namespace FixtureBuilder.Tests.FixtureContexts
                 () => { typeLinkCalled = true; return Mock.Of<ITypeLink>(); },
                 () => { providerCalled = true; return Mock.Of<IUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<IValueProvider>(); },
-                () => { parameterProviderCalled = true; return Mock.Of<IParameterProvider>(); },
                 () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); });
 
             using (Assert.EnterMultipleScope())

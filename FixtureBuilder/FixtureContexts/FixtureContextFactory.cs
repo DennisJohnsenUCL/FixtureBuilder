@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.AutoConstructingProviders;
-using FixtureBuilder.ParameterProviders;
 using FixtureBuilder.TypeLinks;
 using FixtureBuilder.UninitializedProviders;
 using FixtureBuilder.ValueConverters;
@@ -16,10 +15,9 @@ namespace FixtureBuilder.FixtureContexts
             var typeLink = new Func<ITypeLink>(() => TypeLinkFactory.CreateDefaultTypeLink());
             var uninitializedProvider = new Func<IUninitializedProvider>(() => UninitializedProviderFactory.CreateDefaultUninitializedProvider());
             var valueProvider = new Func<IValueProvider>(() => ValueProviderFactory.CreateDefaultValueProvider());
-            var parameterProvider = new Func<IParameterProvider>(() => new AutoParameterProvider());
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());
 
-            var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider, valueProvider, parameterProvider, autoConstructingProvider);
+            var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider);
             var options = FixtureOptions.Default;
             var context = new FixtureContext(resolver, options) as IFixtureContext;
             return context;

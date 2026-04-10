@@ -39,7 +39,7 @@ namespace FixtureBuilder.AutoConstructingProviders
 
             var constructor = GetConstructorInfo(request, context);
             var parameters = constructor.GetParameters();
-            var parameterValues = parameters.Select(p => context.ResolveParameterValue(p, context, new(recursiveResolveContext.Types)));
+            var parameterValues = GetParameterValues(parameters, context, recursiveResolveContext);
 
             try
             {
@@ -50,6 +50,20 @@ namespace FixtureBuilder.AutoConstructingProviders
             {
                 throw new InvalidOperationException($"Failed to AutoResolve {request.Type.Name}, see inner exception for details", ex);
             }
+        }
+
+        private IEnumerable<object?> GetParameterValues(ParameterInfo[] parameters, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
+        {
+            return parameters.Select(p =>
+            {
+                var paramType = context.Link(p.ParameterType) ?? p.ParameterType;
+                var request = new FixtureRequest(paramType, p, p.Name);
+
+                var result = context.ResolveValue(request, context);
+                if (result is not NoResult) return result;
+
+                return AutoResolve(request, context, recursiveResolveContext);
+            });
         }
 
         private static ConstructorInfo GetConstructorInfo(FixtureRequest request, IFixtureContext context)
