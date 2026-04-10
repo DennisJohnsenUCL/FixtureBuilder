@@ -116,14 +116,14 @@ namespace FixtureBuilder.Tests.UninitializedProviders
         }
 
         [Test]
-        public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ReturnsNull()
+        public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(string), "test");
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
         #endregion
     }

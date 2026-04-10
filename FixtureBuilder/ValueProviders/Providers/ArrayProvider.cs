@@ -24,7 +24,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 return instance;
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

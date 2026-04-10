@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿using System.Collections;
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.ValueConverters.DictionaryConverters;
 using Moq;
-using System.Collections;
 
 namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 {
@@ -74,7 +74,7 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
         }
 
         [Test]
-        public void Convert_TargetNotNonGenericDictionary_ReturnsNull()
+        public void Convert_TargetNotNonGenericDictionary_ReturnsNoResult()
         {
             var target = typeof(Dictionary<string, int>);
             var value = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
@@ -84,11 +84,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNull()
+        public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNoResult()
         {
             var target = typeof(Hashtable);
             var value = new List<int>() { 42 };
@@ -98,7 +98,7 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

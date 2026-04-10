@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.FixtureContexts;
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Reflection;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.DictionaryConverters
 {
@@ -27,7 +27,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
                 return genericToFrozenDictionary.Invoke(null, [value, null])!;
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

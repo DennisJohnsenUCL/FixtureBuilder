@@ -18,7 +18,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 return Enum.GetValues(request.Type).GetValue(0);
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

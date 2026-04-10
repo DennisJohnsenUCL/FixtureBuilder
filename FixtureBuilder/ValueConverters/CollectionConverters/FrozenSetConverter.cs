@@ -1,8 +1,8 @@
-﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.FixtureContexts;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Frozen;
 using System.Reflection;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
@@ -29,7 +29,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
                     ?? throw new InvalidOperationException($"Failed to create FrozenSet collection for {target.Name}.");
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

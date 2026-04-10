@@ -37,10 +37,10 @@ namespace FixtureBuilder.Tests.ValueProviders
         }
 
         [Test]
-        public void Resolve_WhenFirstReturnsNull_TriesSecondProvider()
+        public void Resolve_WhenFirstReturnsNoResult_TriesSecondProvider()
         {
             var expected = "from-second";
-            var first = CreateProvider(null);
+            var first = CreateProvider(new NoResult());
             var second = CreateProvider(expected);
             var sut = new CompositeValueProvider([first.Object, second.Object]);
 
@@ -62,13 +62,13 @@ namespace FixtureBuilder.Tests.ValueProviders
         }
 
         [Test]
-        public void Resolve_WhenNoProviders_ReturnsNull()
+        public void Resolve_WhenNoProviders_ReturnsNoResult()
         {
             var sut = new CompositeValueProvider([]);
 
             var result = sut.ResolveValue(_request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]

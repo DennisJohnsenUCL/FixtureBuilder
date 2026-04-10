@@ -31,14 +31,14 @@ namespace FixtureBuilder.UninitializedProviders
 
             if (request.Type.IsInterface || request.Type.IsAbstract) return null;
 
-            object? instance = null;
+            object? instance = new NoResult();
             try
             {
                 instance = RuntimeHelpers.GetUninitializedObject(request.Type);
             }
             catch (Exception) { }
 
-            if (instance != null && initializeMembers != InitializeMembers.None)
+            if (instance is not NoResult && instance != null && initializeMembers != InitializeMembers.None)
                 _memberInitializer.InitializeMembers(instance, initializeMembers, context, new(recursiveResolveContext.Types));
 
             return instance;

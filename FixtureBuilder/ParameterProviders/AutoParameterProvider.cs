@@ -38,7 +38,7 @@ namespace FixtureBuilder.ParameterProviders
 
             object? result;
             result = context.ResolveValue(paramRequest, context);
-            if (result != null) return result;
+            if (result is not NoResult) return result;
 
             return context.AutoResolve(paramRequest, context, recursiveResolveContext);
         }

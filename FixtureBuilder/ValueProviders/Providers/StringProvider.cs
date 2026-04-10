@@ -19,7 +19,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 return "";
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

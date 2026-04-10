@@ -205,33 +205,33 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         // --- Unsupported types ---
 
         [Test]
-        public void Resolve_String_ReturnsNull()
+        public void Resolve_String_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_Bool_ReturnsNull()
+        public void Resolve_Bool_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(bool));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_Char_ReturnsNull()
+        public void Resolve_Char_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(char));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

@@ -49,33 +49,33 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         }
 
         [Test]
-        public void Resolve_DateTime_ReturnsNull()
+        public void Resolve_DateTime_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(DateTime));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_NullableTimeSpan_ReturnsNull()
+        public void Resolve_NullableTimeSpan_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(TimeSpan?));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_Int_ReturnsNull()
+        public void Resolve_Int_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

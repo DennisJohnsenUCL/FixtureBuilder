@@ -18,9 +18,9 @@ namespace FixtureBuilder.ValueConverters
             foreach (var converter in _converters)
             {
                 var result = converter.Convert(target, value, context);
-                if (result != null) return result;
+                if (result is not NoResult) return result;
             }
-            return null;
+            return new NoResult();
         }
     }
 }

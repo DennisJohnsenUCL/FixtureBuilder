@@ -46,7 +46,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 if (instance != null) return instance;
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

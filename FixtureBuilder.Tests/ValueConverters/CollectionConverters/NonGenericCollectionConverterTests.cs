@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿using System.Collections;
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.ValueConverters.CollectionConverters;
 using Moq;
-using System.Collections;
 
 namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 {
@@ -89,7 +89,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         }
 
         [Test]
-        public void Convert_TargetNotNonGeneric_ReturnsNull()
+        public void Convert_TargetNotNonGeneric_ReturnsNoResult()
         {
             var target = typeof(List<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
@@ -99,11 +99,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_ValueNotEnumerable_ReturnsNull()
+        public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
             var target = typeof(ArrayList);
             var value = 42;
@@ -113,7 +113,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

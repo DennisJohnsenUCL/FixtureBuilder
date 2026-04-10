@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.ValueConverters;
-using FixtureBuilder.ValueConverters.Decorators;
 using Moq;
 
 namespace FixtureBuilder.Tests.ValueConverters.Decorators
@@ -22,7 +21,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         }
 
         [Test]
-        public void Convert_NoConverters_ReturnsNull()
+        public void Convert_NoConverters_ReturnsNoResult()
         {
             var converters = Enumerable.Empty<IValueConverter>();
             var composite = new CompositeConverter(converters);
@@ -32,17 +31,17 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
 
             var result = composite.Convert(targetType, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
         public void Convert_NoConverterReturnsResult_ReturnsNull()
         {
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
+            converter1.Setup(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
 
             var converter2 = new Mock<IValueConverter>();
-            converter2.Setup(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
+            converter2.Setup(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object]);
             var targetType = typeof(string);
@@ -51,7 +50,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
 
             var result = composite.Convert(targetType, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
@@ -85,7 +84,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var context = new Mock<IFixtureContext>().Object;
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, context)).Returns((object?)null);
+            converter1.Setup(x => x.Convert(targetType, value, context)).Returns(new NoResult());
 
             var converter2 = new Mock<IValueConverter>();
             converter2.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
@@ -100,7 +99,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         }
 
         [Test]
-        public void Convert_StopsAtFirstNonNullResult()
+        public void Convert_StopsAtFirstNonNoResultResult()
         {
             var firstResult = "first";
             var targetType = typeof(string);
@@ -108,7 +107,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var context = new Mock<IFixtureContext>().Object;
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, context)).Returns((object?)null);
+            converter1.Setup(x => x.Convert(targetType, value, context)).Returns(new NoResult());
 
             var converter2 = new Mock<IValueConverter>();
             converter2.Setup(x => x.Convert(targetType, value, context)).Returns(firstResult);

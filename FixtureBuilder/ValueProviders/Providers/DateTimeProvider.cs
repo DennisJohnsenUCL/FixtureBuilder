@@ -18,7 +18,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 return DateTime.UtcNow;
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

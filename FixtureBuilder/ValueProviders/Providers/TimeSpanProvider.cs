@@ -18,7 +18,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 return TimeSpan.FromMinutes(30);
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

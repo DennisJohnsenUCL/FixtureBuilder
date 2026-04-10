@@ -68,33 +68,33 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         }
 
         [Test]
-        public void Resolve_Int_ReturnsNull()
+        public void Resolve_Int_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_Char_ReturnsNull()
+        public void Resolve_Char_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(char));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_Object_ReturnsNull()
+        public void Resolve_Object_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(object));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

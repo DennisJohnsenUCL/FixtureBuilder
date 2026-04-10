@@ -23,10 +23,10 @@ namespace FixtureBuilder.ValueProviders
             foreach (var provider in _providers)
             {
                 var result = provider.ResolveValue(request, context);
-                if (result != null) return result;
+                if (result is not NoResult) return result;
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

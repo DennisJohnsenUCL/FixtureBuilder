@@ -26,14 +26,14 @@ namespace FixtureBuilder.UninitializedProviders
             object? result;
 
             result = context.ResolveValue(request, context);
-            if (result != null) return result;
+            if (result is not NoResult) return result;
 
             result = _defaultBclTypeProvider.ResolveValue(request, context);
-            if (result != null) return result;
+            if (result is not NoResult) return result;
 
             result = context.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
 
-            if (!context.Options.AllowSkipUninitializableMembers && result == null)
+            if (!context.Options.AllowSkipUninitializableMembers && result is NoResult)
                 throw new InvalidOperationException($"Could not get a value for or instantiate {request.Type.Name} uninitialized.");
 
             return result;

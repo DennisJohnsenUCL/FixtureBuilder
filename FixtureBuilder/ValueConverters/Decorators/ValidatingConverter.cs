@@ -21,7 +21,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
             if (value.GetType().IsAssignableTo(target)) return value;
 
             var result = _inner.Convert(target, value, context);
-            if (result != null && !result.GetType().IsAssignableTo(target)) return null;
+            if (result is not NoResult && result != null && !result.GetType().IsAssignableTo(target)) return new NoResult();
             return result;
         }
     }

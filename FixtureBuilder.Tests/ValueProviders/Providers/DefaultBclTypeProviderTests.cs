@@ -98,23 +98,23 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         }
 
         [Test]
-        public void Resolve_NonSystemNamespace_ReturnsNull()
+        public void Resolve_NonSystemNamespace_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(DefaultBclTypeProvider));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_UserDefinedClass_ReturnsNull()
+        public void Resolve_UserDefinedClass_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(FixtureRequest));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

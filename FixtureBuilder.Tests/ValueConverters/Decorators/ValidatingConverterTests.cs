@@ -88,7 +88,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         }
 
         [Test]
-        public void Convert_InnerReturnsWrongType_ReturnsNull()
+        public void Convert_InnerReturnsWrongType_ReturnsNoResult()
         {
             var expected = "Test string";
             var context = new Mock<IFixtureContext>().Object;
@@ -101,7 +101,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var cut = new ValidatingConverter(inner);
 
             var result = cut.Convert(typeof(int), "Any string", context);
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]

@@ -1,7 +1,7 @@
-﻿using FixtureBuilder.Extensions;
-using FixtureBuilder.FixtureContexts;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Reflection;
+using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.DictionaryConverters
 {
@@ -34,7 +34,7 @@ namespace FixtureBuilder.ValueConverters.DictionaryConverters
 
                 return genericCreateRange.Invoke(null, [value])!;
             }
-            return null;
+            return new NoResult();
         }
     }
 }

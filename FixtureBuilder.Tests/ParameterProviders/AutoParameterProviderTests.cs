@@ -191,13 +191,13 @@ namespace FixtureBuilder.Tests.ParameterProviders
         #endregion
 
         [Test]
-        public void ResolveParameterValue_ResolveValueReturnsNull_FallsBackToAutoResolve()
+        public void ResolveParameterValue_ResolveValueReturnsNoResult_FallsBackToAutoResolve()
         {
             var paramInfo = GetParam(nameof(ParameterSource.WithNonNullableRefType));
             var expected = "auto-resolved";
             _contextMock.Setup(c => c.Link(It.IsAny<Type>())).Returns((Type?)null);
             _contextMock.Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns((object?)null);
+                .Returns(new NoResult());
             _contextMock.Setup(c => c.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>(), It.IsAny<RecursiveResolveContext>()))
                 .Returns(expected);
 

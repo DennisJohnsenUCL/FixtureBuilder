@@ -18,7 +18,7 @@ namespace FixtureBuilder.ValueProviders.Providers
                 return Guid.NewGuid();
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

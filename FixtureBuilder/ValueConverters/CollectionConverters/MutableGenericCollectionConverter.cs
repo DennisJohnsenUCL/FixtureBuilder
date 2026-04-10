@@ -19,7 +19,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
                 return Activator.CreateInstance(target, value);
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

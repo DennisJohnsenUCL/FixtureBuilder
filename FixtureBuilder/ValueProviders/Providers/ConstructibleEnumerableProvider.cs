@@ -44,11 +44,10 @@ namespace FixtureBuilder.ValueProviders.Providers
 
             if (_types.Contains(typeToCompare))
             {
-                var instance = Activator.CreateInstance(request.Type);
-                if (instance != null) return instance;
+                return Activator.CreateInstance(request.Type);
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

@@ -73,33 +73,33 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         }
 
         [Test]
-        public void Resolve_NonArrayType_ReturnsNull()
+        public void Resolve_NonArrayType_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_ClassType_ReturnsNull()
+        public void Resolve_ClassType_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_MultidimensionalArray_ReturnsNull()
+        public void Resolve_MultidimensionalArray_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(int[,]));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]

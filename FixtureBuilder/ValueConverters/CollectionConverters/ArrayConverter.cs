@@ -1,5 +1,5 @@
-﻿using FixtureBuilder.FixtureContexts;
-using System.Collections;
+﻿using System.Collections;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueConverters.CollectionConverters
 {
@@ -20,7 +20,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
                 return array;
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

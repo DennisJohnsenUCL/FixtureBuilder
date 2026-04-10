@@ -1,8 +1,8 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿using System.Collections;
+using System.Collections.Frozen;
+using FixtureBuilder.FixtureContexts;
 using FixtureBuilder.ValueConverters.CollectionConverters;
 using Moq;
-using System.Collections;
-using System.Collections.Frozen;
 
 namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 {
@@ -30,7 +30,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
         }
 
         [Test]
-        public void Convert_TargetFrozenSet_ValueGenericEnumerable_DifferentElementType_ReturnsNull()
+        public void Convert_TargetFrozenSet_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
             var target = typeof(FrozenSet<string>);
             var value = new List<int> { 1, 2, 3 };
@@ -40,11 +40,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_TargetNotFrozenSet_ReturnsNull()
+        public void Convert_TargetNotFrozenSet_ReturnsNoResult()
         {
             var target = typeof(List<string>);
             var value = new string[] { "test1", "test2", "test3" };
@@ -54,11 +54,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_ValueNotEnumerable_ReturnsNull()
+        public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
             var target = typeof(FrozenSet<string>);
             var value = 42;
@@ -68,11 +68,11 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_ValueNotGenericEnumerable_ReturnsNull()
+        public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
             var target = typeof(FrozenSet<string>);
             var value = new ArrayList { "test1", "test2", "test3" };
@@ -82,7 +82,7 @@ namespace FixtureBuilder.Tests.ValueConverters.CollectionConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

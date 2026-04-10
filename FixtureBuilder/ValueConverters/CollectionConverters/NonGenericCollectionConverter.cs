@@ -18,7 +18,7 @@ namespace FixtureBuilder.ValueConverters.CollectionConverters
                 return collection;
             }
 
-            return null;
+            return new NoResult();
         }
 
         private static Array CastToArray(IEnumerable value)

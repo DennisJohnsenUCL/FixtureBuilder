@@ -48,7 +48,13 @@ namespace FixtureBuilder.UninitializedProviders
 
                     value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
 
-                    if (value != null) dataMember.SetValue(instance, value);
+                    if (value is NoResult)
+                    {
+                        value = dataMember.DataMemberType.IsValueType
+                            ? Activator.CreateInstance(dataMember.DataMemberType)
+                            : null;
+                    }
+                    dataMember.SetValue(instance, value);
                 }
             }
         }

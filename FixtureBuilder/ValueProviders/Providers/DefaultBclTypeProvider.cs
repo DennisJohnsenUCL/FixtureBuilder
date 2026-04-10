@@ -22,11 +22,11 @@ namespace FixtureBuilder.ValueProviders.Providers
                 }
                 catch
                 {
-                    return null;
+                    return new NoResult();
                 }
             }
 
-            return null;
+            return new NoResult();
         }
     }
 }

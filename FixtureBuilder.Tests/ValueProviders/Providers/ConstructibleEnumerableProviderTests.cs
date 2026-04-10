@@ -337,33 +337,33 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         // --- Unsupported types ---
 
         [Test]
-        public void Resolve_UnsupportedGenericType_ReturnsNull()
+        public void Resolve_UnsupportedGenericType_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(ImmutableList<int>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_PlainClass_ReturnsNull()
+        public void Resolve_PlainClass_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_Interface_ReturnsNull()
+        public void Resolve_Interface_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(IList<int>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

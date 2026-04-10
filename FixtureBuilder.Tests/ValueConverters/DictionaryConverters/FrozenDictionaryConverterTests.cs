@@ -1,9 +1,9 @@
-﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.ValueConverters.DictionaryConverters;
-using Moq;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using FixtureBuilder.FixtureContexts;
+using FixtureBuilder.ValueConverters.DictionaryConverters;
+using Moq;
 
 namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 {
@@ -46,7 +46,7 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
         }
 
         [Test]
-        public void Convert_TargetFrozenDictionary_ValueGenericDictionary_DifferentElementType_ReturnsNull()
+        public void Convert_TargetFrozenDictionary_ValueGenericDictionary_DifferentElementType_ReturnsNoResult()
         {
             var target = typeof(FrozenDictionary<string, int>);
             var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
@@ -56,11 +56,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_TargetNotFrozenDictionary_ReturnsNull()
+        public void Convert_TargetNotFrozenDictionary_ReturnsNoResult()
         {
             var target = typeof(ReadOnlyDictionary<string, int>);
             var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
@@ -70,11 +70,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNull()
+        public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNoResult()
         {
             var target = typeof(FrozenDictionary<string, int>);
             var value = new List<int>() { 42 };
@@ -84,11 +84,11 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Convert_ValueNotGenericDictionary_ReturnsNull()
+        public void Convert_ValueNotGenericDictionary_ReturnsNoResult()
         {
             var target = typeof(FrozenDictionary<string, int>);
             var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
@@ -98,7 +98,7 @@ namespace FixtureBuilder.Tests.ValueConverters.DictionaryConverters
 
             var result = converter.Convert(target, value, context);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }
