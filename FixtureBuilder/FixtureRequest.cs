@@ -12,22 +12,13 @@
             Type = type;
         }
 
-        public FixtureRequest(Type type, object requestSource)
+        public FixtureRequest(Type type, object requestSource, string? name = null)
         {
             ArgumentNullException.ThrowIfNull(type);
             ArgumentNullException.ThrowIfNull(requestSource);
             Type = type;
             RequestSource = requestSource;
-        }
-
-        public FixtureRequest(Type type, string name, object requestSource)
-        {
-            ArgumentNullException.ThrowIfNull(type);
-            ArgumentNullException.ThrowIfNull(name);
-            ArgumentNullException.ThrowIfNull(requestSource);
-            Type = type;
             Name = name;
-            RequestSource = requestSource;
         }
     }
 }

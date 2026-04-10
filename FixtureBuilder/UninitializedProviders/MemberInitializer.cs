@@ -42,8 +42,8 @@ namespace FixtureBuilder.UninitializedProviders
                 if (Equals(value, defaultValue))
                 {
                     FixtureRequest? request = null;
-                    if (dataMember.IsPropertyInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Name, dataMember.Property);
-                    if (dataMember.IsFieldInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Name, dataMember.Field);
+                    if (dataMember.IsPropertyInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Property, dataMember.Name);
+                    if (dataMember.IsFieldInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Field, dataMember.Name);
                     if (request == null) return;
 
                     value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);

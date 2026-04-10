@@ -32,9 +32,7 @@ namespace FixtureBuilder.ParameterProviders
 
             var paramType = context.Link(paramInfo.ParameterType) ?? paramInfo.ParameterType;
 
-            var paramRequest = paramInfo.Name != null
-            ? new FixtureRequest(paramType, paramInfo.Name, paramInfo)
-            : new FixtureRequest(paramType, paramInfo);
+            var paramRequest = new FixtureRequest(paramType, paramInfo, paramInfo.Name);
 
             object? result;
             result = context.ResolveValue(paramRequest, context);

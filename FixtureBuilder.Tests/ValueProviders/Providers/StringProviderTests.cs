@@ -25,7 +25,7 @@ namespace FixtureBuilder.Tests.FixtureProviders.Providers
         [Test]
         public void Resolve_StringWithName_ReturnsName()
         {
-            var request = new FixtureRequest(typeof(string), "FirstName", this);
+            var request = new FixtureRequest(typeof(string), this, "FirstName");
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
