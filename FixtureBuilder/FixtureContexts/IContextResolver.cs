@@ -11,7 +11,7 @@ namespace FixtureBuilder.FixtureContexts
     {
         IValueConverter Converter { get; }
         ITypeLink TypeLink { get; }
-        IFixtureUninitializedProvider UninitializedProvider { get; }
+        IUninitializedProvider UninitializedProvider { get; }
         IValueProvider ValueProvider { get; }
         IParameterProvider ParameterProvider { get; }
         IAutoConstructingProvider AutoConstructingProvider { get; }

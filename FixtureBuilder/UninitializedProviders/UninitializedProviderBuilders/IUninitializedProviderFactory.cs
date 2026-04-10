@@ -2,6 +2,6 @@
 {
     internal interface IUninitializedProviderFactory
     {
-        IFixtureUninitializedProvider CreateDefaultUninitializedProvider();
+        IUninitializedProvider CreateDefaultUninitializedProvider();
     }
 }

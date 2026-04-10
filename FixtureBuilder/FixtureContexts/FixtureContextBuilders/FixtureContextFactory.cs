@@ -17,7 +17,7 @@ namespace FixtureBuilder.FixtureContexts.FixtureContextBuilders
         {
             var converter = new Func<IValueConverter>(() => new ConverterFactory().CreateDefaultConverter());
             var typeLink = new Func<ITypeLink>(() => new TypeLinkFactory().CreateDefaultTypeLink());
-            var uninitializedProvider = new Func<IFixtureUninitializedProvider>(() => new UninitializedProviderFactory().CreateDefaultUninitializedProvider());
+            var uninitializedProvider = new Func<IUninitializedProvider>(() => new UninitializedProviderFactory().CreateDefaultUninitializedProvider());
             var valueProvider = new Func<IValueProvider>(() => new ValueProviderFactory().CreateDefaultValueProvider());
             var parameterProvider = new Func<IParameterProvider>(() => new AutoParameterProvider());
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());

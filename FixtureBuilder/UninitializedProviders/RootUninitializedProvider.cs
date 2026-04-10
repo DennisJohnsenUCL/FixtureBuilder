@@ -10,7 +10,7 @@ namespace FixtureBuilder.UninitializedProviders
     /// <see cref="InvalidOperationException"/> wrapping the original exception if the type
     /// cannot be created uninitialized.
     /// </summary>
-    internal class RootUninitializedProvider : IFixtureUninitializedProvider
+    internal class RootUninitializedProvider : IUninitializedProvider
     {
         private readonly IMemberInitializer _memberInitializer;
 
@@ -20,10 +20,14 @@ namespace FixtureBuilder.UninitializedProviders
             _memberInitializer = memberInitializer;
         }
 
-        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
+
+            recursiveResolveContext ??= new();
+            if (!recursiveResolveContext.Add(request.Type))
+                throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in UseAutoConstructor.");
 
             if (request.Type.IsInterface || request.Type.IsAbstract) return null;
 
@@ -35,7 +39,7 @@ namespace FixtureBuilder.UninitializedProviders
             catch (Exception) { }
 
             if (instance is not null && initializeMembers != InitializeMembers.None)
-                _memberInitializer.InitializeMembers(instance, initializeMembers, context);
+                _memberInitializer.InitializeMembers(instance, initializeMembers, context, new(recursiveResolveContext.Types));
 
             return instance;
         }

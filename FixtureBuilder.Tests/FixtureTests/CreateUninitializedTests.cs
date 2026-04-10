@@ -158,7 +158,6 @@ internal class CreateUninitializedTests
         public OuterAndInner OuterAndInner = outerAndInner;
     }
     [Test]
-    [Ignore("Will cause the test environment to crash")]
     public void CircularDependency_InitializeNonNullables_ThrowsException()
     {
         Assert.Throws<InvalidOperationException>(() => Fixture.New<OuterAndInner>().CreateUninitialized(InitializeMembers.NonNullables));

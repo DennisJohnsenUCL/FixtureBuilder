@@ -88,7 +88,7 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             _contextMock
                 .Setup(c => c.ResolveParameterValue(It.IsAny<ParameterInfo>(),
                     It.IsAny<IFixtureContext>(),
-                    It.IsAny<AutoResolveContext>()))
+                    It.IsAny<RecursiveResolveContext>()))
                 .Returns("test-value");
 
             var result = (SingleParam)_sut.AutoResolve(request, _contextMock.Object);
@@ -110,12 +110,12 @@ namespace FixtureBuilder.Tests.AutoConstructingProviders
             _contextMock
                 .Setup(c => c.ResolveParameterValue(It.Is<ParameterInfo>(p => p.ParameterType == typeof(string)),
                     It.IsAny<IFixtureContext>(),
-                    It.IsAny<AutoResolveContext>()))
+                    It.IsAny<RecursiveResolveContext>()))
                 .Returns("hello");
             _contextMock
                 .Setup(c => c.ResolveParameterValue(It.Is<ParameterInfo>(p => p.ParameterType == typeof(int)),
                     It.IsAny<IFixtureContext>(),
-                    It.IsAny<AutoResolveContext>()))
+                    It.IsAny<RecursiveResolveContext>()))
                 .Returns(42);
 
             var result = (TwoParams)_sut.AutoResolve(request, _contextMock.Object);

@@ -102,7 +102,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             var capturedInitMembers = InitializeMembers.None;
             var resolverMock = new Mock<IContextResolver>();
             resolverMock.Setup(r => r.UninitializedProvider.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
-                .Callback<FixtureRequest, InitializeMembers, IFixtureContext>((_, init, _) => capturedInitMembers = init)
+                .Callback<FixtureRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((_, init, _, _) => capturedInitMembers = init)
                 .Returns(expected);
             var options = new FixtureOptions();
             var context = new FixtureContext(resolverMock.Object, options);

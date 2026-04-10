@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ParameterProviders
@@ -22,7 +21,7 @@ namespace FixtureBuilder.ParameterProviders
     /// </remarks>
     internal class AutoParameterProvider : IParameterProvider
     {
-        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context, AutoResolveContext autoResolveContext)
+        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
         {
             if (paramInfo.HasDefaultValue && context.Options.PreferDefaultParameterValues)
                 return paramInfo.DefaultValue;
@@ -41,7 +40,7 @@ namespace FixtureBuilder.ParameterProviders
             result = context.ResolveValue(paramRequest, context);
             if (result != null) return result;
 
-            return context.AutoResolve(paramRequest, context, autoResolveContext);
+            return context.AutoResolve(paramRequest, context, recursiveResolveContext);
         }
     }
 }

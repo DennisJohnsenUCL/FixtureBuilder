@@ -98,7 +98,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
             _sut.ResolveUninitialized(request, InitializeMembers.None, context);
 
             _memberInitializer.Verify(
-                m => m.InitializeMembers(It.IsAny<object>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()),
+                m => m.InitializeMembers(It.IsAny<object>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>(), It.IsAny<RecursiveResolveContext>()),
                 Times.Never);
         }
 
@@ -111,7 +111,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders
             _sut.ResolveUninitialized(request, InitializeMembers.All, context);
 
             _memberInitializer.Verify(
-                m => m.InitializeMembers(It.IsAny<SimpleClass>(), InitializeMembers.All, context),
+                m => m.InitializeMembers(It.IsAny<SimpleClass>(), InitializeMembers.All, context, It.IsAny<RecursiveResolveContext>()),
                 Times.Once);
         }
 

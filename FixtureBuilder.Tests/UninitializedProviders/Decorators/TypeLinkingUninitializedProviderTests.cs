@@ -7,16 +7,18 @@ namespace FixtureBuilder.Tests.UninitializedProviders.Decorators
 {
     internal sealed class TypeLinkingUninitializedProviderTests
     {
-        private Mock<IFixtureUninitializedProvider> _innerMock;
+        private Mock<IUninitializedProvider> _innerMock;
         private Mock<IFixtureContext> _contextMock;
         private TypeLinkingUninitializedProvider _sut;
+        private RecursiveResolveContext _recursiveResolveContext;
 
         [SetUp]
         public void SetUp()
         {
-            _innerMock = new Mock<IFixtureUninitializedProvider>();
+            _innerMock = new Mock<IUninitializedProvider>();
             _contextMock = new Mock<IFixtureContext>();
             _sut = new TypeLinkingUninitializedProvider(_innerMock.Object);
+            _recursiveResolveContext = new();
         }
 
         [Test]
@@ -39,10 +41,10 @@ namespace FixtureBuilder.Tests.UninitializedProviders.Decorators
             var expected = new List<int>();
 
             _contextMock.Setup(c => c.Link(typeof(IEnumerable<int>))).Returns(typeof(List<int>));
-            _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object))
+            _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object, _recursiveResolveContext))
                 .Returns(expected);
 
-            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object);
+            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             using (Assert.EnterMultipleScope())
             {
@@ -59,10 +61,10 @@ namespace FixtureBuilder.Tests.UninitializedProviders.Decorators
             var expected = "hello";
 
             _contextMock.Setup(c => c.Link(typeof(string))).Returns((Type?)null);
-            _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object))
+            _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object, _recursiveResolveContext))
                 .Returns(expected);
 
-            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object);
+            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             using (Assert.EnterMultipleScope())
             {
@@ -81,7 +83,7 @@ namespace FixtureBuilder.Tests.UninitializedProviders.Decorators
             _innerMock.Setup(i => i.ResolveUninitialized(request, initializeMembers, _contextMock.Object))
                 .Returns((object?)null);
 
-            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object);
+            var result = _sut.ResolveUninitialized(request, initializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             Assert.That(result, Is.Null);
         }

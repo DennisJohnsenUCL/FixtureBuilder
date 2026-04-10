@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using FixtureBuilder.AutoConstructingProviders;
 using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.UninitializedProviders;
 
@@ -39,9 +38,9 @@ namespace FixtureBuilder.FixtureContexts
             return _resolver.TypeLink.Link(target);
         }
 
-        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
-            return _resolver.UninitializedProvider.ResolveUninitialized(request, initializeMembers, context);
+            return _resolver.UninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
         }
 
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
@@ -49,14 +48,14 @@ namespace FixtureBuilder.FixtureContexts
             return _resolver.ValueProvider.ResolveValue(request, context);
         }
 
-        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context, AutoResolveContext autoResolveContext)
+        public object? ResolveParameterValue(ParameterInfo paramInfo, IFixtureContext context, RecursiveResolveContext recursaiveResolveContext)
         {
-            return _resolver.ParameterProvider.ResolveParameterValue(paramInfo, context, autoResolveContext);
+            return _resolver.ParameterProvider.ResolveParameterValue(paramInfo, context, recursaiveResolveContext);
         }
 
-        public object AutoResolve(FixtureRequest request, IFixtureContext context, AutoResolveContext? autoResolveContext = null)
+        public object AutoResolve(FixtureRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
-            return _resolver.AutoConstructingProvider.AutoResolve(request, context, autoResolveContext);
+            return _resolver.AutoConstructingProvider.AutoResolve(request, context, recursiveResolveContext);
         }
 
         public void SetOptions(FixtureOptions options)

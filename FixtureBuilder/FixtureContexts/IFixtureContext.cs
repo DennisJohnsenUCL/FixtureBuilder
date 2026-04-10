@@ -10,7 +10,7 @@ namespace FixtureBuilder.FixtureContexts
     internal interface IFixtureContext :
         IValueConverter,
         ITypeLink,
-        IFixtureUninitializedProvider,
+        IUninitializedProvider,
         IValueProvider,
         IParameterProvider,
         IAutoConstructingProvider

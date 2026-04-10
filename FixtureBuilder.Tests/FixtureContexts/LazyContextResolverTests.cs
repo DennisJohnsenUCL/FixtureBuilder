@@ -13,7 +13,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
     {
         private Func<IValueConverter> _converter;
         private Func<ITypeLink> _typeLink;
-        private Func<IFixtureUninitializedProvider> _uninitializedProvider;
+        private Func<IUninitializedProvider> _uninitializedProvider;
         private Func<IValueProvider> _valueProvider;
         private Func<IParameterProvider> _parameterProvider;
         private Func<IAutoConstructingProvider> _autoConstructingProvider;
@@ -23,7 +23,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
         {
             _converter = () => Mock.Of<IValueConverter>();
             _typeLink = () => Mock.Of<ITypeLink>();
-            _uninitializedProvider = () => Mock.Of<IFixtureUninitializedProvider>();
+            _uninitializedProvider = () => Mock.Of<IUninitializedProvider>();
             _valueProvider = () => Mock.Of<IValueProvider>();
             _parameterProvider = () => Mock.Of<IParameterProvider>();
             _autoConstructingProvider = () => Mock.Of<IAutoConstructingProvider>();
@@ -136,7 +136,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
         [Test]
         public void GetUninitializedProvider_ReturnsInstanceFromFactory()
         {
-            var expected = Mock.Of<IFixtureUninitializedProvider>();
+            var expected = Mock.Of<IUninitializedProvider>();
             _uninitializedProvider = () => expected;
 
             var result = CreateSut().UninitializedProvider;
@@ -148,7 +148,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
         public void GetUninitializedProvider_CalledTwice_ReturnsSameInstance()
         {
             var callCount = 0;
-            var instance = Mock.Of<IFixtureUninitializedProvider>();
+            var instance = Mock.Of<IUninitializedProvider>();
             _uninitializedProvider = () => { callCount++; return instance; };
             var sut = CreateSut();
 
@@ -262,7 +262,7 @@ namespace FixtureBuilder.Tests.FixtureContexts
             _ = new LazyContextResolver(
                 () => { converterCalled = true; return Mock.Of<IValueConverter>(); },
                 () => { typeLinkCalled = true; return Mock.Of<ITypeLink>(); },
-                () => { providerCalled = true; return Mock.Of<IFixtureUninitializedProvider>(); },
+                () => { providerCalled = true; return Mock.Of<IUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<IValueProvider>(); },
                 () => { parameterProviderCalled = true; return Mock.Of<IParameterProvider>(); },
                 () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); });

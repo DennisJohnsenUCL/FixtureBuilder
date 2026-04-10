@@ -4,13 +4,13 @@ using FixtureBuilder.ValueProviders.Providers;
 namespace FixtureBuilder.UninitializedProviders
 {
     /// <summary>
-    /// The default <see cref="IFixtureUninitializedProvider"/> implementation that defines the
+    /// The default <see cref="IUninitializedProvider"/> implementation that defines the
     /// resolution pipeline for uninitialized fixture values. Attempts resolution in order:
     /// first via the <see cref="IFixtureContext"/>'s registered providers, then via
     /// <see cref="DefaultBclTypeProvider"/> for <c>System</c>-namespace types, and finally
     /// via <see cref="IFixtureContext.ResolveUninitialized"/> for direct construction.
     /// </summary>
-    internal class CompositeUninitializedProvider : IFixtureUninitializedProvider
+    internal class CompositeUninitializedProvider : IUninitializedProvider
     {
         private readonly DefaultBclTypeProvider _defaultBclTypeProvider;
 
@@ -21,7 +21,7 @@ namespace FixtureBuilder.UninitializedProviders
             _defaultBclTypeProvider = defaultBclTypeProvider;
         }
 
-        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context)
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext)
         {
             object? result;
 
@@ -31,7 +31,7 @@ namespace FixtureBuilder.UninitializedProviders
             result = _defaultBclTypeProvider.ResolveValue(request, context);
             if (result != null) return result;
 
-            result = context.ResolveUninitialized(request, initializeMembers, context);
+            result = context.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
 
             if (!context.Options.AllowSkipUninitializableMembers && result == null)
                 throw new InvalidOperationException($"Could not get a value for or instantiate {request.Type.Name} uninitialized.");

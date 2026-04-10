@@ -5,7 +5,7 @@ namespace FixtureBuilder.UninitializedProviders.UninitializedProviderBuilders
 {
     internal class UninitializedProviderFactory : IUninitializedProviderFactory
     {
-        public IFixtureUninitializedProvider CreateDefaultUninitializedProvider()
+        public IUninitializedProvider CreateDefaultUninitializedProvider()
         {
             var creator = new RootUninitializedProvider(
                 new MemberInitializer(

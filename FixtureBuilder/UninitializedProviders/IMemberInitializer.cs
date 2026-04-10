@@ -4,6 +4,6 @@ namespace FixtureBuilder.UninitializedProviders
 {
     internal interface IMemberInitializer
     {
-        void InitializeMembers(object instance, InitializeMembers initializeMembers, IFixtureContext context);
+        void InitializeMembers(object instance, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext recursiveResolveContext);
     }
 }
