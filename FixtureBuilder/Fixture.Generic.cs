@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using FixtureBuilder.ConstructingProviders;
 using FixtureBuilder.Extensions;
@@ -315,20 +314,12 @@ namespace FixtureBuilder
             ValidateNullableValueTypeAssignment(fieldType, value);
 
             var sourceType = value?.GetType();
-            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
+            if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
-                backingField.SetValue(instance, value);
+                value = _context.Convert(fieldType, value!, _context)
+                    ?? throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");
             }
-            else if (fieldType != typeof(string)
-                && value != null
-                && typeof(IEnumerable).IsAssignableFrom(fieldType)
-                && typeof(IEnumerable).IsAssignableFrom(sourceType))
-            {
-                var collection = _context.Convert(fieldType, value, _context)!;
-                backingField.SetValue(instance, collection);
-            }
-            else throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}");
-
+            backingField.SetValue(instance, value);
             return this;
         }
 

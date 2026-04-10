@@ -35,15 +35,9 @@ namespace FixtureBuilder.Tests.FixtureContexts
         {
             var options = FixtureOptions.Default;
 
-            _sut.SetOptions(options);
+            _sut.Options = options;
 
             Assert.That(_sut.Options, Is.SameAs(options));
-        }
-
-        [Test]
-        public void SetOptions_NullOptions_ThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() => _sut.SetOptions((FixtureOptions)null!));
         }
 
         [Test]

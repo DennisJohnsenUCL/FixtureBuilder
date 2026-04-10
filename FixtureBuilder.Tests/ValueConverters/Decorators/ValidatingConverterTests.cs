@@ -73,7 +73,7 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         }
 
         [Test]
-        public void Convert_InnerReturnsNull_ThrowsException()
+        public void Convert_InnerReturnsNull_ReturnsNull()
         {
             var context = new Mock<IFixtureContext>().Object;
             var mock = new Mock<IValueConverter>();
@@ -83,11 +83,12 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
 
             var cut = new ValidatingConverter(inner);
 
-            Assert.Throws<InvalidOperationException>(() => cut.Convert(typeof(int), "Any string", context));
+            var result = cut.Convert(typeof(int), "Any string", context);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
-        public void Convert_InnerReturnsWrongType_ThrowsException()
+        public void Convert_InnerReturnsWrongType_ReturnsNull()
         {
             var expected = "Test string";
             var context = new Mock<IFixtureContext>().Object;
@@ -99,7 +100,8 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
 
             var cut = new ValidatingConverter(inner);
 
-            Assert.Throws<InvalidOperationException>(() => cut.Convert(typeof(int), "Any string", context));
+            var result = cut.Convert(typeof(int), "Any string", context);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
