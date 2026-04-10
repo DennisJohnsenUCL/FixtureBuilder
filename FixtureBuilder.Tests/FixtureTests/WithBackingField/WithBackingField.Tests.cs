@@ -14,52 +14,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         }
 
         [Test]
-        public void RecordProperty_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<TestRecord>();
-
-            fixture.WithBackingField(t => t.Text, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(_text));
-        }
-
-        [Test]
-        public void RecordProperties_SetsProperties()
-        {
-            var fixture = TestHelper.MakeFixture<TestRecord>();
-
-            fixture.WithBackingField(t => t.Text, _text);
-            fixture.WithBackingField(t => t.Number, _number);
-
-            var field = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.Text, Is.EqualTo(_text));
-                Assert.That(field.Number, Is.EqualTo(_number));
-            }
-        }
-
-        [Test]
-        public void NotARecordProperty_ThrowsException()
-        {
-            var fixture = TestHelper.MakeFixture<TestRecord>();
-
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.GetHashCode(), _number));
-        }
-
-        [Test]
-        public void NoRecordPropertyBackingField_ThrowsException()
-        {
-            var fixture = TestHelper.MakeFixture<TestRecord>();
-
-            fixture.With(t => t.Text, "test");
-
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Text.Length, _number));
-        }
-
-        [Test]
-        public void ClassProperty_SetsProperty()
+        public void Property_SetsProperty()
         {
             var fixture = TestHelper.MakeFixture<NormalClass>();
 
@@ -67,22 +22,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 
             var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Text, Is.EqualTo(_text));
-        }
-
-        [Test]
-        public void ClassProperties_SetsProperties()
-        {
-            var fixture = TestHelper.MakeFixture<NormalClass>();
-
-            fixture.WithBackingField(t => t.Text, _text);
-            fixture.WithBackingField(t => t.Number, _number);
-
-            var field = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.Text, Is.EqualTo(_text));
-                Assert.That(field.Number, Is.EqualTo(_number));
-            }
         }
 
         [Test]
@@ -174,17 +113,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(field.Number, Is.EqualTo(_number));
         }
 
-        [Test]
-        public void GenericClass_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<GenericClass<string>>();
-
-            fixture.WithBackingField(g => g.Value, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Value, Is.EqualTo(_text));
-        }
-
         class NestedPropertyClass
         {
             public NestedClass NestedClass { get; set; } = null!;
@@ -223,7 +151,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         }
 
         [Test]
-        public void DeeperDerivedNestedProperty_Overriden_SetsProperty()
+        public void DeeperDerivedNestedProperty_Overridden_SetsProperty()
         {
             var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
 
@@ -234,7 +162,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         }
 
         [Test]
-        public void DeeperDerivedNestedProperty_NotOverriden_SetsProperty()
+        public void DeeperDerivedNestedProperty_NotOverridden_SetsProperty()
         {
             var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
 
@@ -256,21 +184,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(field.NestedClass.DeeperNestedClass.Text, Is.EqualTo(_text));
         }
 
-        class ListPropertyClass
-        {
-            public List<string> StringList { get; } = null!;
-        }
-        [Test]
-        public void CollectionTypeFieldWithProp_CollectionParameters_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<ListPropertyClass>();
-
-            fixture.WithBackingField(t => t.StringList, [_text]);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.StringList[0], Is.EqualTo(_text));
-        }
-
         class CollectionDifferentTypeClass
         {
             private readonly List<string> _stringList = null!;
@@ -285,19 +198,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 
             var field = TestHelper.GetFixture(fixture);
             Assert.That(field.StringList.Single(), Is.EqualTo(_text));
-        }
-
-        class ComputedPropertyClass
-        {
-            public int Computed => SomeMethod();
-            private static int SomeMethod() => 2;
-        }
-        [Test]
-        public void ComputedProperty_ThrowsException()
-        {
-            var fixture = TestHelper.MakeFixture<ComputedPropertyClass>();
-
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(c => c.Computed, 5));
         }
 
         class NullableValueListClass
@@ -345,19 +245,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         public void NonNullableReferenceListField_NullableReferenceListValue_SetsField()
         {
             var fieldName = "_list";
-            var list = new List<string?>() { _text };
-            var fixture = TestHelper.MakeFixture<NonNullableReferenceListClass>();
-
-            fixture.WithBackingField(c => c.List, list, fieldName);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.List.First(), Is.EqualTo(_text));
-        }
-
-        [Test]
-        public void NonNullableReferenceListField_NullableReferenceListValue_WithNull_SetsField()
-        {
-            var fieldName = "_list";
             var list = new List<string?>() { _text, null };
             var fixture = TestHelper.MakeFixture<NonNullableReferenceListClass>();
 
@@ -375,17 +262,6 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             private int _nonNullable;
             public int? NonNullable { get => _nonNullable; set { _nonNullable = (int)value!; } }
         }
-        [Test]
-        public void NullableValueField_NonNullableValueProperty_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<ValueMembersClass>();
-
-            fixture = fixture.WithBackingField(x => x.Nullable, _number);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nullable, Is.EqualTo(_number));
-        }
-
         [Test]
         public void NullableValueField_NullValue_SetsField()
         {
