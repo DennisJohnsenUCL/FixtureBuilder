@@ -14,6 +14,7 @@ namespace FixtureBuilder.FixtureContexts
         IAutoConstructingProvider,
         IOptionsContext
     {
+        object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
         object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
     }
 }

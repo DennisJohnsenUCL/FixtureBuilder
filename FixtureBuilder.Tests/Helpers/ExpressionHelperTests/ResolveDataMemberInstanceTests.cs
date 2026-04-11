@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
             context.Setup(c => c.Options).Returns(options);
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedChild);

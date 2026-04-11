@@ -69,7 +69,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedMiddle = new Middle();
             var memberExpr = GetMemberExpr<Root, int>(x => x.MiddleField.ValueField);
             var context = CreateContext();
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
@@ -110,11 +110,11 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedLeaf = new Leaf();
             var memberExpr = GetMemberExpr<Root, string>(x => x.MiddleField.LeafField.TagField);
             var context = CreateContext();
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Leaf)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedLeaf);
@@ -139,7 +139,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedMiddle = new Middle();
             var memberExpr = GetMemberExpr<Root, int>(x => x.Middle.ValueField);
             var context = CreateContext();
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
@@ -161,7 +161,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedMiddle = new Middle();
             var memberExpr = GetMemberExpr<Root, Leaf>(x => x.MiddleField.Leaf);
             var context = CreateContext();
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Middle)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
@@ -202,7 +202,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var resolvedLeaf = new Leaf();
             var memberExpr = GetMemberExpr<Root, Leaf>(x => x.MiddleField.LeafField);
             var context = CreateContext();
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Leaf)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedLeaf);

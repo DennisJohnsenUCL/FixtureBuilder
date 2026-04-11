@@ -58,6 +58,15 @@ namespace FixtureBuilder.FixtureContexts
             action.Invoke(Options);
         }
 
+        public object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
+        {
+            request.Type = Link(request.Type) ?? request.Type;
+            var result = ResolveValue(request, this);
+            if (result is not NoResult) return result;
+
+            return InstantiateWithStrategy(request, instantiationMethod, initializeMembers);
+        }
+
         public object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
         {
             return instantiationMethod switch

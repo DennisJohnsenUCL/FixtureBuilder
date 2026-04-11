@@ -141,7 +141,7 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
-            var value = (TProp)_context.InstantiateWithStrategy(new FixtureRequest(typeof(TProp)), _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None);
+            var value = (TProp)_context.ProvideWithStrategy(new FixtureRequest(typeof(TProp)), _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
             return InstantiateInternal(expr, value);
         }

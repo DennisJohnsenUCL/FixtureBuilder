@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
             context.Setup(c => c.Options).Returns(options);
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolved);
@@ -155,7 +155,7 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
             context.Setup(c => c.Options).Returns(options);
-            context.Setup(c => c.InstantiateWithStrategy(
+            context.Setup(c => c.ProvideWithStrategy(
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolved);
@@ -178,6 +178,42 @@ namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions { AllowInstantiateNestedMembers = false };
             context.Setup(c => c.Options).Returns(options);
+
+            Assert.Throws<InvalidOperationException>(
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+        }
+
+        [Test]
+        public void NullWritableProperty_ProviderReturnsNull_ThrowsInvalidOperationException()
+        {
+            var parent = new Parent();
+            var prop = typeof(Parent).GetProperty(nameof(Parent.Child))!;
+            var dataMember = new DataMemberInfo(prop);
+            var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions();
+            context.Setup(c => c.Options).Returns(options);
+            context.Setup(c => c.ProvideWithStrategy(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
+                .Returns(null!);
+
+            Assert.Throws<InvalidOperationException>(
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+        }
+
+        [Test]
+        public void NullWritableField_ProviderReturnsNull_ThrowsInvalidOperationException()
+        {
+            var parent = new Parent();
+            var field = typeof(Parent).GetField(nameof(Parent.ChildField))!;
+            var dataMember = new DataMemberInfo(field);
+            var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions();
+            context.Setup(c => c.Options).Returns(options);
+            context.Setup(c => c.ProvideWithStrategy(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
+                .Returns(null!);
 
             Assert.Throws<InvalidOperationException>(
                 () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));

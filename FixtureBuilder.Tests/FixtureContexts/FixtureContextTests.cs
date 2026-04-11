@@ -109,5 +109,98 @@ namespace FixtureBuilder.Tests.FixtureContexts
                 Assert.That(capturedInitMembers, Is.EqualTo(InitializeMembers.All));
             }
         }
+
+        [Test]
+        public void ProvideWithStrategy_ProviderHasValue_ReturnsProvidedValue()
+        {
+            var expected = "Provided value";
+            var request = new FixtureRequest(typeof(string));
+            var resolverMock = new Mock<IContextResolver>();
+            resolverMock.Setup(r => r.ValueProvider.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(expected);
+            resolverMock.Setup(r => r.TypeLink.Link(It.IsAny<Type>()))
+                .Returns((Type?)null);
+            var options = new FixtureOptions();
+            var context = new FixtureContext(resolverMock.Object, options);
+
+            var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ProvideWithStrategy_ProviderHasValue_DoesNotCallInstantiate()
+        {
+            var request = new FixtureRequest(typeof(string));
+            var resolverMock = new Mock<IContextResolver>();
+            resolverMock.Setup(r => r.ValueProvider.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns("Provided value");
+            resolverMock.Setup(r => r.TypeLink.Link(It.IsAny<Type>()))
+                .Returns((Type?)null);
+            var options = new FixtureOptions();
+            var context = new FixtureContext(resolverMock.Object, options);
+
+            context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
+
+            resolverMock.Verify(r => r.AutoConstructingProvider.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
+        }
+
+        [Test]
+        public void ProvideWithStrategy_ProviderReturnsNull_ReturnsNull()
+        {
+            var request = new FixtureRequest(typeof(string));
+            var resolverMock = new Mock<IContextResolver>();
+            resolverMock.Setup(r => r.ValueProvider.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(null!);
+            resolverMock.Setup(r => r.TypeLink.Link(It.IsAny<Type>()))
+                .Returns((Type?)null);
+            var options = new FixtureOptions();
+            var context = new FixtureContext(resolverMock.Object, options);
+
+            var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void ProvideWithStrategy_NoProvider_FallsBackToInstantiate()
+        {
+            var expected = "Instantiated value";
+            var request = new FixtureRequest(typeof(string));
+            var resolverMock = new Mock<IContextResolver>();
+            resolverMock.Setup(r => r.ValueProvider.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+            resolverMock.Setup(r => r.AutoConstructingProvider.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(expected);
+            resolverMock.Setup(r => r.TypeLink.Link(It.IsAny<Type>()))
+                .Returns((Type?)null);
+            var options = new FixtureOptions();
+            var context = new FixtureContext(resolverMock.Object, options);
+
+            var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ProvideWithStrategy_LinksType_BeforeResolving()
+        {
+            var request = new FixtureRequest(typeof(IDisposable));
+            var resolverMock = new Mock<IContextResolver>();
+            FixtureRequest? capturedRequest = null;
+            resolverMock.Setup(r => r.ValueProvider.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Callback<FixtureRequest, IFixtureContext>((req, _) => capturedRequest = req)
+                .Returns(new NoResult());
+            resolverMock.Setup(r => r.TypeLink.Link(typeof(IDisposable)))
+                .Returns(typeof(MemoryStream));
+            resolverMock.Setup(r => r.AutoConstructingProvider.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(new MemoryStream());
+            var options = new FixtureOptions();
+            var context = new FixtureContext(resolverMock.Object, options);
+
+            context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
+
+            Assert.That(capturedRequest!.Type, Is.EqualTo(typeof(MemoryStream)));
+        }
     }
 }

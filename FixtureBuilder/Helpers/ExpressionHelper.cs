@@ -160,7 +160,11 @@ namespace FixtureBuilder.Helpers
 
             var type = dataMember.DataMemberType;
 
-            current = context.InstantiateWithStrategy(new FixtureRequest(type), context.Options.NestedMemberInstantiationMethod, InitializeMembers.None);
+            current = context.ProvideWithStrategy(new FixtureRequest(type), context.Options.NestedMemberInstantiationMethod, InitializeMembers.None)
+                ?? throw new InvalidOperationException($"User-registered Provider returned null for {type.Name} in Expression chain resolution. " +
+                $"Providers for types in Expression chain Resolution must return concrete values. " +
+                $"Use Instantiate to explicitly instantiate the member instead.");
+
             dataMember.SetValue(parent, current);
             return current;
         }
