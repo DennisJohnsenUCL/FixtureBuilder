@@ -150,7 +150,6 @@ namespace FixtureBuilder.Helpers
                 throw new InvalidOperationException($"Property {prop.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
 
             var current = prop.GetValue(parent);
-
             if (current != null) return current;
 
             if (!context.Options.AllowInstantiateNestedMembers)
@@ -162,9 +161,7 @@ namespace FixtureBuilder.Helpers
             var type = prop.PropertyType;
 
             current = context.InstantiateWithStrategy(new FixtureRequest(type), context.Options.NestedMemberInstantiationMethod, InitializeMembers.None);
-
             prop.SetValue(parent, current);
-
             return current;
         }
 
@@ -202,69 +199,72 @@ namespace FixtureBuilder.Helpers
         }
 
         /// <summary>
-        /// Validates that the specified expression represents a direct property access chain
+        /// Validates that the specified expression represents a direct property or field access chain
         /// rooted at the lambda parameter.
         /// </summary>
         /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
         /// <param name="expr">
-        /// A lambda expression expected to be a property access chain, e.g., <c>x => x.Property1.Property2</c>.
+        /// A lambda expression expected to be a property or field access chain, e.g., <c>x => x.Property1.Property2</c>.
         /// </param>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a direct property access chain. This includes
-        /// expressions that reference methods, constants, fields, computed values, or the bare parameter itself.
+        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain. This includes
+        /// expressions that reference methods, constants, computed values, or the bare parameter itself.
         /// </exception>
         public static void ValidateExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
-            var message = $"Expression must be a direct property access chain, e.g., x => x.Property1.Property2. Methods, constants, fields, and computed values are not valid.";
-
-            var param = expr.Parameters[0];
-
-            if (expr.Body == param) throw new InvalidOperationException(message);
-
-            Expression current = expr.Body;
-            while (current is MemberExpression { Member: PropertyInfo } member)
-            {
-                current = member.Expression!;
-            }
-
-            if (expr.Body is not MemberExpression || current != param)
-                throw new InvalidOperationException(message);
+            if (expr.Body is not MemberExpression || !TryWalkToParameter(expr.Body, expr.Parameters[0]))
+                throw new InvalidOperationException(
+                    "Expression must be a direct property or field access chain, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
         }
 
         /// <summary>
-        /// Validates that the specified expression represents a direct property access chain
+        /// Validates that the specified expression represents a direct property or field access chain terminating in a property
+        /// rooted at the lambda parameter.
+        /// </summary>
+        /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
+        /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
+        /// <param name="expr">
+        /// A lambda expression expected to be a property or field access chain, e.g., <c>x => x.Property1.Property2</c>.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain. This includes
+        /// expressions that reference methods, constants, computed values, or the bare parameter itself.
+        /// </exception>
+        public static void ValidatePropertyExpression<T, TProp>(Expression<Func<T, TProp>> expr)
+        {
+            if (expr.Body is not MemberExpression { Member: PropertyInfo } || !TryWalkToParameter(expr.Body, expr.Parameters[0]))
+                throw new InvalidOperationException(
+                    "Expression must be a direct property or field access chain terminating in a property, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
+        }
+
+        /// <summary>
+        /// Validates that the specified expression represents a direct property or field access chain
         /// rooted at the lambda parameter, and ending in a method invocation.
         /// </summary>
         /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <param name="expr">
-        /// A lambda expression expected to be a property access chain ending in a method invocation, e.g., <c>x => x.Property1.Method()</c>.
+        /// A lambda expression expected to be a property or field access chain ending in a method invocation, e.g., <c>x => x.Property1.Method()</c>.
         /// </param>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a direct property access chain. This includes
+        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain. This includes
         /// expressions that reference constants, fields, computed values, or the bare parameter itself.
         /// </exception>
-        public static void ValidateExpression<T>(Expression<Action<T>> expr)
+        public static void ValidateMethodExpression<T>(Expression<Action<T>> expr)
         {
-            var message = "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). " +
-                          "Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.";
+            if (expr.Body is not MethodCallExpression { Object: { } obj } || !TryWalkToParameter(obj, expr.Parameters[0]))
+                throw new InvalidOperationException(
+                    "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.");
+        }
 
-            if (expr.Body is not MethodCallExpression call)
-                throw new InvalidOperationException(message);
-
-            if (call.Object == null)
-                throw new InvalidOperationException(message);
-
-            var param = expr.Parameters[0];
-
-            Expression current = call.Object;
-            while (current is MemberExpression { Member: PropertyInfo } member)
+        internal static bool TryWalkToParameter(Expression body, ParameterExpression param)
+        {
+            Expression current = body;
+            while (current is MemberExpression member)
             {
                 current = member.Expression!;
             }
-
-            if (current != param)
-                throw new InvalidOperationException(message);
+            return current == param;
         }
     }
 }

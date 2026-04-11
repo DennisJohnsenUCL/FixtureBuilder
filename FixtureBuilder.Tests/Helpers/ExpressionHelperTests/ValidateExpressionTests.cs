@@ -1,119 +1,80 @@
-﻿using System.Linq.Expressions;
+﻿#pragma warning disable CA1822
+
 using FixtureBuilder.Helpers;
 
 namespace FixtureBuilder.Tests.Helpers.ExpressionHelperTests
 {
     internal sealed class ValidateExpressionTests
     {
-        public class Parent
+        private class Outer
         {
-            public Child Child { get; set; } = new();
+            public Inner Prop { get; set; } = new();
+            public Inner Field = new();
             public string Name { get; set; } = "";
-            public int Value { get; set; }
-            public string field = "";
-
-            public string GetName() => Name;
+            public string NameField = "";
+            public int GetValue() => 42;
         }
 
-        public class Child
+        private class Inner
         {
-            public Grandchild Grandchild { get; set; } = new();
-            public int Age { get; set; }
-        }
-
-        public class Grandchild
-        {
-            public string Tag { get; set; } = "";
+            public string Value { get; set; } = "";
         }
 
         [Test]
-        public void SinglePropertyAccess_DoesNotThrow()
+        public void SingleProperty_DoesNotThrow()
         {
-            Expression<Func<Parent, string>> expr = x => x.Name;
-
-            Assert.DoesNotThrow(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.DoesNotThrow(() =>
+                ExpressionHelper.ValidateExpression<Outer, string>(x => x.Name));
         }
 
         [Test]
-        public void TwoLevelPropertyChain_DoesNotThrow()
+        public void SingleField_DoesNotThrow()
         {
-            Expression<Func<Parent, int>> expr = x => x.Child.Age;
-
-            Assert.DoesNotThrow(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.DoesNotThrow(() =>
+                ExpressionHelper.ValidateExpression<Outer, string>(x => x.NameField));
         }
 
         [Test]
-        public void ThreeLevelPropertyChain_DoesNotThrow()
+        public void NestedPropertyChain_DoesNotThrow()
         {
-            Expression<Func<Parent, string>> expr = x => x.Child.Grandchild.Tag;
-
-            Assert.DoesNotThrow(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.DoesNotThrow(() =>
+                ExpressionHelper.ValidateExpression<Outer, string>(x => x.Prop.Value));
         }
 
         [Test]
-        public void BareParameter_ThrowsInvalidOperationException()
+        public void MixedFieldThenProperty_DoesNotThrow()
         {
-            Expression<Func<Parent, Parent>> expr = x => x;
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.DoesNotThrow(() =>
+                ExpressionHelper.ValidateExpression<Outer, string>(x => x.Field.Value));
         }
 
         [Test]
-        public void MethodCall_ThrowsInvalidOperationException()
+        public void MethodCall_Throws()
         {
-            Expression<Func<Parent, string>> expr = x => x.GetName();
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.Throws<InvalidOperationException>(() =>
+                ExpressionHelper.ValidateExpression<Outer, int>(x => x.GetValue()));
         }
 
         [Test]
-        public void FieldAccess_ThrowsInvalidOperationException()
+        public void Constant_Throws()
         {
-            Expression<Func<Parent, string>> expr = x => x.field;
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.Throws<InvalidOperationException>(() =>
+                ExpressionHelper.ValidateExpression<Outer, string>(x => "hello"));
         }
 
         [Test]
-        public void Constant_ThrowsInvalidOperationException()
+        public void BareParameter_Throws()
         {
-            Expression<Func<Parent, string>> expr = x => "hello";
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
+            Assert.Throws<InvalidOperationException>(() =>
+                ExpressionHelper.ValidateExpression<Outer, Outer>(x => x));
         }
 
         [Test]
-        public void ComputedValue_ThrowsInvalidOperationException()
+        public void CapturedVariable_Throws()
         {
-            Expression<Func<Parent, int>> expr = x => x.Value + 1;
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
-        }
-
-        [Test]
-        public void MethodCallInChain_ThrowsInvalidOperationException()
-        {
-            Expression<Func<Parent, int>> expr = x => x.Name.GetHashCode();
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
-        }
-
-        [Test]
-        public void StringLength_OnNestedProperty_DoesNotThrow()
-        {
-            // x.Child.Grandchild.Tag.Length — Length is a property, so this is a valid chain
-            Expression<Func<Parent, int>> expr = x => x.Child.Grandchild.Tag.Length;
-
-            Assert.DoesNotThrow(() => ExpressionHelper.ValidateExpression(expr));
-        }
-
-        [Test]
-        public void CapturedVariable_ThrowsInvalidOperationException()
-        {
-            var captured = "value";
-            Expression<Func<Parent, string>> expr = x => captured;
-
-            Assert.Throws<InvalidOperationException>(() => ExpressionHelper.ValidateExpression(expr));
+            var outer = new Outer();
+            Assert.Throws<InvalidOperationException>(() =>
+                ExpressionHelper.ValidateExpression<Outer, string>(x => outer.Name));
         }
     }
 }

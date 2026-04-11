@@ -302,7 +302,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionHelper.ValidatePropertyExpression(expr);
             var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
             var propertyParentType = instance.GetType();
 
@@ -341,7 +341,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionHelper.ValidatePropertyExpression(expr);
             ExpressionHelper.ValidatePropertyWriteable(expr);
 
             var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
@@ -380,7 +380,7 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionHelper.ValidateMethodExpression(expr);
             ExpressionHelper.ResolveMethodParent(_fixture, expr, _context);
 
             var action = expr.Compile();
