@@ -34,7 +34,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, DataMemberInfo dataMember) ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
+        public static (object Instance, DataMemberInfo DataMember) ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
@@ -64,7 +64,7 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, DataMemberInfo dataMember) ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
+        public static (object Instance, DataMemberInfo DataMember) ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
@@ -110,7 +110,7 @@ namespace FixtureBuilder.Helpers
         /// </param>
         /// <param name="context">The fixture context used to initialize property values.</param>
         /// <returns>A tuple of the resolved instance and the final property in the path.</returns>
-        internal static (object instance, DataMemberInfo dataMember) ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, IFixtureContext context)
+        internal static (object Instance, DataMemberInfo DataMember) ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, IFixtureContext context)
         {
             var members = new Stack<DataMemberInfo>();
             while (memberExpr != null)
