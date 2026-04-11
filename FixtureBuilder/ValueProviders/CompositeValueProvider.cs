@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.FixtureContexts;
+﻿using FixtureBuilder.Extensions;
+using FixtureBuilder.FixtureContexts;
 
 namespace FixtureBuilder.ValueProviders
 {
@@ -23,6 +24,15 @@ namespace FixtureBuilder.ValueProviders
             foreach (var provider in _providers)
             {
                 var result = provider.ResolveValue(request, context);
+
+                if (result == null
+                    && request.Type.IsValueType
+                    && request.Type.GetGenericTypeDefinitionOrDefault() != typeof(Nullable<>))
+                {
+                    throw new InvalidOperationException($"ValueProvider {provider.GetType().Name} returned null for a non-nullable value type. " +
+                        $"This is not allowed as null cannot be assigned to non-nullable value types.");
+                }
+
                 if (result is not NoResult) return result;
             }
 

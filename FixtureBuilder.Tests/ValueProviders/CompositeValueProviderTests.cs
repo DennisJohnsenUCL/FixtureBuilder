@@ -9,6 +9,13 @@ namespace FixtureBuilder.Tests.ValueProviders
         private Mock<IFixtureContext> _contextMock;
         private FixtureRequest _request;
 
+        private Mock<IValueProvider> CreateProvider(object? returnValue)
+        {
+            var mock = new Mock<IValueProvider>();
+            mock.Setup(p => p.ResolveValue(_request, _contextMock.Object)).Returns(returnValue);
+            return mock;
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -83,11 +90,29 @@ namespace FixtureBuilder.Tests.ValueProviders
             provider.Verify(p => p.ResolveValue(_request, _contextMock.Object), Times.Once);
         }
 
-        private Mock<IValueProvider> CreateProvider(object? returnValue)
+        [Test]
+        public void Resolve_WhenProviderReturnsNullForNonNullableValueType_ThrowsInvalidOperationException()
         {
-            var mock = new Mock<IValueProvider>();
-            mock.Setup(p => p.ResolveValue(_request, _contextMock.Object)).Returns(returnValue);
-            return mock;
+            var request = new FixtureRequest(typeof(int));
+            var provider = new Mock<IValueProvider>();
+            provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
+            var sut = new CompositeValueProvider([provider.Object]);
+
+            Assert.Throws<InvalidOperationException>(
+                () => sut.ResolveValue(request, _contextMock.Object));
+        }
+
+        [Test]
+        public void Resolve_WhenProviderReturnsNullForNullableValueType_ReturnsNull()
+        {
+            var request = new FixtureRequest(typeof(int?));
+            var provider = new Mock<IValueProvider>();
+            provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
+            var sut = new CompositeValueProvider([provider.Object]);
+
+            var result = sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.Null);
         }
     }
 }
