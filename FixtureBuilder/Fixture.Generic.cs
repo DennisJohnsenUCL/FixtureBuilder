@@ -141,7 +141,11 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
-            var value = (TProp)_context.ProvideWithStrategy(new FixtureRequest(typeof(TProp)), _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
+            ExpressionHelper.ValidateExpression(expr);
+
+            var source = ((MemberExpression)expr.Body).Member;
+            var request = new FixtureRequest(typeof(TProp), source, source.Name);
+            var value = (TProp)_context.ProvideWithStrategy(request, _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
             return InstantiateInternal(expr, value);
         }
@@ -159,7 +163,11 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
-            var value = func(new MemberInstantiator<TProp>(_context));
+            ExpressionHelper.ValidateExpression(expr);
+
+            var source = ((MemberExpression)expr.Body).Member;
+            var request = new FixtureRequest(typeof(TProp), source, source.Name);
+            var value = func(new MemberInstantiator<TProp>(request, _context));
 
             return InstantiateInternal(expr, value);
         }
@@ -168,7 +176,6 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
             var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
 
             if (dataMember.IsPropertyInfo)
@@ -458,7 +465,9 @@ namespace FixtureBuilder
                     $"Please use UseAutoConstructor, UseConstructor, or CreateUninitialized before calling any configuration methods. " +
                     $"Explicit instantiation can be allowed via AllowImplicitConstruction option.");
 
-            return (T)_context.InstantiateWithStrategy(new FixtureRequest(typeof(T)), _context.Options.DefaultInstantiationMethod, _context.Options.DefaultInitializeMembers);
+            var request = new FixtureRequest(typeof(T));
+
+            return (T)_context.InstantiateWithStrategy(request, _context.Options.DefaultInstantiationMethod, _context.Options.DefaultInitializeMembers);
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)

@@ -8,6 +8,7 @@ namespace FixtureBuilder.Tests.MemberInstantiators
     internal class MemberInstantiatorTests
     {
         private Mock<IFixtureContext> _contextMock = null!;
+        private FixtureRequest _request = null!;
         private MemberInstantiator<TestClass> _sut = null!;
 
         class TestClass
@@ -19,7 +20,8 @@ namespace FixtureBuilder.Tests.MemberInstantiators
         public void SetUp()
         {
             _contextMock = new Mock<IFixtureContext>();
-            _sut = new MemberInstantiator<TestClass>(_contextMock.Object);
+            _request = new FixtureRequest(typeof(TestClass));
+            _sut = new MemberInstantiator<TestClass>(_request, _contextMock.Object);
         }
 
         [Test]

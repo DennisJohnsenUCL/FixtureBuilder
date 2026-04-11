@@ -159,8 +159,11 @@ namespace FixtureBuilder.Helpers
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
             var type = dataMember.DataMemberType;
+            var request = dataMember.IsPropertyInfo
+                ? new FixtureRequest(type, dataMember.Property, dataMember.Name)
+                : new FixtureRequest(type, dataMember.Field, dataMember.Name);
 
-            current = context.ProvideWithStrategy(new FixtureRequest(type), context.Options.NestedMemberInstantiationMethod, InitializeMembers.None)
+            current = context.ProvideWithStrategy(request, context.Options.NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {type.Name} in Expression chain resolution. " +
                 $"Providers for types in Expression chain Resolution must return concrete values. " +
                 $"Use Instantiate to explicitly instantiate the member instead.");
