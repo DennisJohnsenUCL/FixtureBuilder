@@ -179,5 +179,21 @@ namespace FixtureBuilder.Tests.FixtureTests
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        class FieldIntermediateClass
+        {
+            public NestedClass NestedClass = null!;
+        }
+
+        [Test]
+        public void FieldIntermediate_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<FieldIntermediateClass>();
+
+            fixture.WithSetter(t => t.NestedClass.Value, _text);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.NestedClass.Value, Is.EqualTo(_text));
+        }
     }
 }

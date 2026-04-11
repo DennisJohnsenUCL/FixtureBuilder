@@ -156,5 +156,60 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.That(result, Is.SameAs(fixture));
         }
+
+        class OuterWithField
+        {
+            public Inner Nested = null!;
+        }
+
+        [Test]
+        public void Instantiate_FieldTarget_SetsField()
+        {
+            var fixture = TestHelper.MakeFixture<OuterWithField>();
+
+            fixture.Instantiate(o => o.Nested);
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Nested, Is.Not.Null);
+                Assert.That(result.Nested.Value, Is.EqualTo("constructed"));
+            }
+        }
+
+        [Test]
+        public void Instantiate_WithFunc_FieldTarget_SetsField()
+        {
+            var fixture = TestHelper.MakeFixture<OuterWithField>();
+
+            fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor());
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Nested, Is.Not.Null);
+        }
+
+        class OuterWithNestedField
+        {
+            public MiddleWithField Middle = null!;
+        }
+        class MiddleWithField
+        {
+            public Inner Nested = null!;
+        }
+        [Test]
+        public void Instantiate_DoublyNestedFieldTarget_SetsField()
+        {
+            var fixture = TestHelper.MakeFixture<OuterWithNestedField>();
+
+            fixture.Instantiate(o => o.Middle.Nested);
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Middle, Is.Not.Null);
+                Assert.That(result.Middle.Nested, Is.Not.Null);
+                Assert.That(result.Middle.Nested.Value, Is.EqualTo("constructed"));
+            }
+        }
     }
 }

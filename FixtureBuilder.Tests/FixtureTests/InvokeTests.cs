@@ -84,5 +84,25 @@
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        private class FieldIntermediateEntity
+        {
+            public ChildEntity Child = null!;
+        }
+
+        [Test]
+        public void FieldIntermediate_InitializesAndInvokes()
+        {
+            var fixture = TestHelper.MakeFixture<FieldIntermediateEntity>();
+
+            fixture.Invoke(x => x.Child.DoSomething());
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Child, Is.Not.Null);
+                Assert.That(result.Child.WasCalled, Is.True);
+            }
+        }
     }
 }

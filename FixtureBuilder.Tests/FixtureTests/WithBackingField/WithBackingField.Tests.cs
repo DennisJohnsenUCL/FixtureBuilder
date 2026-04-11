@@ -292,5 +292,21 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        class FieldIntermediateClass
+        {
+            public NormalClass NormalClass = null!;
+        }
+
+        [Test]
+        public void FieldIntermediate_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<FieldIntermediateClass>();
+
+            fixture.WithBackingField(t => t.NormalClass.Text, _text);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.NormalClass.Text, Is.EqualTo(_text));
+        }
     }
 }

@@ -148,5 +148,25 @@
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        private class FieldTerminatorEntity
+        {
+            public ChildEntity Child = null!;
+        }
+
+        [Test]
+        public void FieldTerminator_CallsMethodOnField()
+        {
+            var fixture = TestHelper.MakeFixture<FieldTerminatorEntity>();
+
+            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Child, Is.Not.Null);
+                Assert.That(result.Child.PrivateWasCalled, Is.True);
+            }
+        }
     }
 }

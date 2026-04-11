@@ -141,9 +141,9 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
-            var instance = (TProp)_context.InstantiateWithStrategy(new FixtureRequest(typeof(TProp)), _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None);
+            var value = (TProp)_context.InstantiateWithStrategy(new FixtureRequest(typeof(TProp)), _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None);
 
-            return InstantiateInternal(expr, instance);
+            return InstantiateInternal(expr, value);
         }
 
         /// <summary>
@@ -159,23 +159,23 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
-            var instance = func(new MemberInstantiator<TProp>(_context));
+            var value = func(new MemberInstantiator<TProp>(_context));
 
-            return InstantiateInternal(expr, instance);
+            return InstantiateInternal(expr, value);
         }
 
-        private Fixture<T> InstantiateInternal<TProp>(Expression<Func<T, TProp>> expr, TProp instance)
+        private Fixture<T> InstantiateInternal<TProp>(Expression<Func<T, TProp>> expr, TProp value)
         {
             _fixture ??= InstantiateFixture();
 
             ExpressionHelper.ValidateExpression(expr);
-            var (_, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
 
             if (dataMember.IsPropertyInfo)
-                ((IFixtureConfigurator<T>)this).With(expr, instance);
+                ((IFixtureConfigurator<T>)this).With(expr, value);
 
             else if (dataMember.IsFieldInfo)
-                ((IFixtureConfigurator<T>)this).WithField(expr, dataMember.Name, instance);
+                WithFieldInternal(dataMember.Name, instance.GetType(), value, instance);
 
             return this;
         }
@@ -222,10 +222,10 @@ namespace FixtureBuilder
             return WithFieldInternal(fieldName, dataMemberType, value, instance);
         }
 
-        private Fixture<T> WithFieldInternal(string fieldName, Type propertyType, object? value, object instance)
+        private Fixture<T> WithFieldInternal(string fieldName, Type dataMemberType, object? value, object instance)
         {
-            if (!FieldHelper.TryGetField(propertyType, fieldName, out var fieldInfo))
-                throw new InvalidOperationException($"Field '{fieldName}' not found on {propertyType.Name}.");
+            if (!FieldHelper.TryGetField(dataMemberType, fieldName, out var fieldInfo))
+                throw new InvalidOperationException($"Field '{fieldName}' not found on {dataMemberType.Name}.");
 
             var fieldType = fieldInfo.FieldType;
 

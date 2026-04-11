@@ -83,5 +83,28 @@
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        class BaseClassWithFieldIntermediate
+        {
+            public NestedClassWithField NestedClass = null!;
+        }
+
+        class NestedClassWithField
+        {
+            private readonly string _field = null!;
+            public string GetField => _field;
+        }
+
+        [Test]
+        public void FieldTerminator_SetsField()
+        {
+            var fieldName = "_field";
+            var fixture = TestHelper.MakeFixture<BaseClassWithFieldIntermediate>();
+
+            fixture.WithField(c => c.NestedClass, fieldName, _text);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.NestedClass.GetField, Is.EqualTo(_text));
+        }
     }
 }
