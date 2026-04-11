@@ -48,6 +48,19 @@ internal class DataMemberInfo : MemberInfo
     /// <param name="fieldInfo">The field to wrap.</param>
     public DataMemberInfo(FieldInfo fieldInfo) => _field = fieldInfo;
 
+    public static DataMemberInfo FromMemberInfo(MemberInfo memberInfo)
+    {
+        if (memberInfo is PropertyInfo pi) return new(pi);
+        if (memberInfo is FieldInfo fi) return new(fi);
+        throw new InvalidOperationException("MemberInfo must be a PropertyInfo or FieldInfo to be a valid DataMemberInfo.");
+    }
+
+    public bool TryIsPropertyInfo(out PropertyInfo propertyInfo)
+    {
+        propertyInfo = _property!;
+        return IsPropertyInfo;
+    }
+
     /// <summary>
     /// Gets the <see cref="Type"/> of the data member — <see cref="PropertyInfo.PropertyType"/>
     /// for properties, <see cref="FieldInfo.FieldType"/> for fields.

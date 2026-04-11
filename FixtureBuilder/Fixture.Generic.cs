@@ -169,9 +169,13 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             ExpressionHelper.ValidateExpression(expr);
-            ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
+            var (_, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
 
-            ((IFixtureConfigurator<T>)this).With(expr, instance);
+            if (dataMember.IsPropertyInfo)
+                ((IFixtureConfigurator<T>)this).With(expr, instance);
+
+            else if (dataMember.IsFieldInfo)
+                ((IFixtureConfigurator<T>)this).WithField(expr, dataMember.Name, instance);
 
             return this;
         }
@@ -212,10 +216,10 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyInstance(_fixture, expr, _context);
-            var propertyType = property.PropertyType;
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberInstance(_fixture, expr, _context);
+            var dataMemberType = dataMember.DataMemberType;
 
-            return WithFieldInternal(fieldName, propertyType, value, instance);
+            return WithFieldInternal(fieldName, dataMemberType, value, instance);
         }
 
         private Fixture<T> WithFieldInternal(string fieldName, Type propertyType, object? value, object instance)
@@ -303,7 +307,8 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             ExpressionHelper.ValidatePropertyExpression(expr);
-            var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+            var property = dataMember.Property;
             var propertyParentType = instance.GetType();
 
             if (!FieldHelper.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
@@ -344,7 +349,8 @@ namespace FixtureBuilder
             ExpressionHelper.ValidatePropertyExpression(expr);
             ExpressionHelper.ValidatePropertyWriteable(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyParent(_fixture, expr, _context);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+            var property = dataMember.Property;
 
             property.SetValue(instance, value);
 
@@ -427,10 +433,10 @@ namespace FixtureBuilder
 
             ExpressionHelper.ValidateExpression(expr);
 
-            var (instance, property) = ExpressionHelper.ResolvePropertyInstance(_fixture, expr, _context);
-            var propertyType = property.PropertyType;
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberInstance(_fixture, expr, _context);
+            var dataMemberType = dataMember.DataMemberType;
 
-            InvokePrivateInternal(propertyType, instance, methodName, arguments);
+            InvokePrivateInternal(dataMemberType, instance, methodName, arguments);
 
             return this;
         }

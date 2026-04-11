@@ -34,13 +34,13 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, PropertyInfo property) ResolvePropertyParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
+        public static (object instance, DataMemberInfo dataMember) ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolvePropertyPath(memberExpr, root, resolveInstance: false, context);
+            return ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context);
         }
 
         /// <summary>
@@ -64,13 +64,13 @@ namespace FixtureBuilder.Helpers
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public static (object instance, PropertyInfo property) ResolvePropertyInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
+        public static (object instance, DataMemberInfo dataMember) ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, IFixtureContext context)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolvePropertyPath(memberExpr, root, resolveInstance: true, context);
+            return ResolveDataMemberPath(memberExpr, root, resolveInstance: true, context);
         }
 
         /// <summary>
@@ -93,9 +93,9 @@ namespace FixtureBuilder.Helpers
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var call = (MethodCallExpression)expr.Body;
-            var memberExpr = call.Object as MemberExpression;
 
-            if (memberExpr is not null) ResolvePropertyPath(memberExpr, root, resolveInstance: true, context);
+            if (call.Object is MemberExpression memberExpr)
+                ResolveDataMemberPath(memberExpr, root, resolveInstance: true, context);
         }
 
         /// <summary>
@@ -110,26 +110,26 @@ namespace FixtureBuilder.Helpers
         /// </param>
         /// <param name="context">The fixture context used to initialize property values.</param>
         /// <returns>A tuple of the resolved instance and the final property in the path.</returns>
-        internal static (object instance, PropertyInfo property) ResolvePropertyPath(MemberExpression? memberExpr, object root, bool resolveInstance, IFixtureContext context)
+        internal static (object instance, DataMemberInfo dataMember) ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, IFixtureContext context)
         {
-            var members = new Stack<PropertyInfo>();
+            var members = new Stack<DataMemberInfo>();
             while (memberExpr != null)
             {
-                members.Push((PropertyInfo)memberExpr.Member);
+                members.Push(DataMemberInfo.FromMemberInfo(memberExpr.Member));
                 memberExpr = memberExpr.Expression as MemberExpression;
             }
 
             object current = root;
             while (members.Count > 1)
             {
-                var prop = members.Pop();
-                current = InitializePropertyValue(current, prop, context);
+                var dataMember = members.Pop();
+                current = InitializeDataMemberValue(current, dataMember, context);
             }
 
-            var finalProp = members.Pop();
-            if (resolveInstance) current = InitializePropertyValue(current, finalProp, context);
+            var finaldataMember = members.Pop();
+            if (resolveInstance) current = InitializeDataMemberValue(current, finaldataMember, context);
 
-            return (current, finalProp);
+            return (current, finaldataMember);
         }
 
         /// <summary>
@@ -138,30 +138,30 @@ namespace FixtureBuilder.Helpers
         /// and assigned back to the property.
         /// </summary>
         /// <param name="parent">The object instance that owns the property.</param>
-        /// <param name="prop">The property to read or initialize.</param>
+        /// <param name="dataMember">The property to read or initialize.</param>
         /// <param name="context">The fixture context used to resolve a new instance when the property is <see langword="null"/>.</param>
         /// <returns>The existing or newly initialized value of the property.</returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when the property value is <see langword="null"/> and the property does not have a setter.
         /// </exception>
-        internal static object InitializePropertyValue(object parent, PropertyInfo prop, IFixtureContext context)
+        internal static object InitializeDataMemberValue(object parent, DataMemberInfo dataMember, IFixtureContext context)
         {
-            if (!prop.CanRead)
-                throw new InvalidOperationException($"Property {prop.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
+            if (dataMember.TryIsPropertyInfo(out var pi) && !pi.CanRead)
+                throw new InvalidOperationException($"Property {dataMember.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
 
-            var current = prop.GetValue(parent);
+            var current = dataMember.GetValue(parent);
             if (current != null) return current;
 
             if (!context.Options.AllowInstantiateNestedMembers)
-                throw new InvalidOperationException($"Property {prop.Name} in member chain is null, and instantiation of null chain members is disabled.");
+                throw new InvalidOperationException($"Property or field {dataMember.Name} in member chain is null, and instantiation of null chain members is disabled.");
 
-            if (!prop.CanWrite)
-                throw new InvalidOperationException($"Property {prop.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
+            if (dataMember.IsPropertyInfo && !pi.CanWrite)
+                throw new InvalidOperationException($"Property {dataMember.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
-            var type = prop.PropertyType;
+            var type = dataMember.DataMemberType;
 
             current = context.InstantiateWithStrategy(new FixtureRequest(type), context.Options.NestedMemberInstantiationMethod, InitializeMembers.None);
-            prop.SetValue(parent, current);
+            dataMember.SetValue(parent, current);
             return current;
         }
 
