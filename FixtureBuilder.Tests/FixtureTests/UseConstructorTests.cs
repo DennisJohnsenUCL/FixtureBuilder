@@ -1,4 +1,4 @@
-﻿#pragma warning disable IDE0290 // Use primary constructor
+﻿#pragma warning disable IDE0290
 
 namespace FixtureBuilder.Tests.FixtureTests
 {

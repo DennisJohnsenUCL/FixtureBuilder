@@ -1,5 +1,6 @@
-﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.UninitializedProviders;
+﻿using FixtureBuilder.Core;
+using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureTests

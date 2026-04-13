@@ -7,7 +7,7 @@
         {
             var method = typeof(Fixture).GetMethod("New", []);
 
-            Assert.That(method!.ReturnType.GetGenericTypeDefinition, Is.EqualTo(typeof(IFixtureConstructor<>)));
+            Assert.That(method!.ReturnType.GetGenericTypeDefinition(), Is.EqualTo(typeof(IFixtureConstructor<>)));
         }
 
         [Test]

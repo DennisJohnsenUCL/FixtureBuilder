@@ -1,11 +1,12 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using FixtureBuilder.ConstructingProviders;
+using FixtureBuilder.Configuration;
+using FixtureBuilder.Configuration.MemberInstantiators;
+using FixtureBuilder.Core;
+using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Creation.ConstructingProviders;
+using FixtureBuilder.Creation.UninitializedProviders;
 using FixtureBuilder.Extensions;
-using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.Helpers;
-using FixtureBuilder.MemberInstantiators;
-using FixtureBuilder.UninitializedProviders;
 
 namespace FixtureBuilder
 {

@@ -1,4 +1,4 @@
-﻿using FixtureBuilder.UninitializedProviders;
+﻿using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Tests.FixtureTests;
 

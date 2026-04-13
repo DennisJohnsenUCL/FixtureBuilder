@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using FixtureBuilder.FixtureContexts;
+﻿#pragma warning disable CA1822 // Mark members as static
 
-#pragma warning disable CA1822 // Mark members as static
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Tests
 {

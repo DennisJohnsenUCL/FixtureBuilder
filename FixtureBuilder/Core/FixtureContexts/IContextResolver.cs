@@ -1,0 +1,17 @@
+﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Assignment.ValueProviders;
+using FixtureBuilder.Configuration.ValueConverters;
+using FixtureBuilder.Creation.AutoConstructingProviders;
+using FixtureBuilder.Creation.UninitializedProviders;
+
+namespace FixtureBuilder.Core.FixtureContexts
+{
+    internal interface IContextResolver
+    {
+        IValueConverter Converter { get; }
+        ITypeLink TypeLink { get; }
+        IUninitializedProvider UninitializedProvider { get; }
+        IValueProvider ValueProvider { get; }
+        IAutoConstructingProvider AutoConstructingProvider { get; }
+    }
+}
