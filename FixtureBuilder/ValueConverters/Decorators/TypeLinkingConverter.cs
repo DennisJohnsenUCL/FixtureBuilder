@@ -15,8 +15,7 @@ namespace FixtureBuilder.ValueConverters.Decorators
 
         public object? Convert(Type target, object value, IFixtureContext context)
         {
-            var link = context.Link(target);
-            if (link != null) target = link;
+            target = context.UnwrapAndLink(target);
 
             var result = _inner.Convert(target, value, context);
             if (result != null) return result;

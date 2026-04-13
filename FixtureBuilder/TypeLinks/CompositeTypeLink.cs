@@ -15,9 +15,6 @@
         {
             ArgumentNullException.ThrowIfNull(target);
 
-            var nullableType = Nullable.GetUnderlyingType(target);
-            if (nullableType != null) target = nullableType;
-
             foreach (var typeLink in _typeLinks)
             {
                 var result = typeLink.Link(target);

@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.FixtureContexts;
-using FixtureBuilder.TypeLinks;
 using FixtureBuilder.ValueConverters;
 using FixtureBuilder.ValueConverters.Decorators;
 using Moq;
@@ -27,17 +26,18 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
         {
             var targetType = typeof(string);
             var value = "test";
-            var context = new Mock<IFixtureContext>().Object;
+            var contextMock = new Mock<IFixtureContext>();
+            contextMock.Setup(c => c.UnwrapAndLink(targetType)).Returns(targetType);
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns((object?)null);
+            innerMock.Setup(x => x.Convert(targetType, value, contextMock.Object)).Returns((object?)null);
 
             var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value, context);
+            var result = converter.Convert(targetType, value, contextMock.Object);
 
             Assert.That(result, Is.Null);
-            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, contextMock.Object), Times.Once);
         }
 
         [Test]
@@ -46,60 +46,56 @@ namespace FixtureBuilder.Tests.ValueConverters.Decorators
             var targetType = typeof(string);
             var value = "test";
             var expectedResult = "converted";
-            var context = new Mock<IFixtureContext>().Object;
+            var contextMock = new Mock<IFixtureContext>();
+            contextMock.Setup(c => c.UnwrapAndLink(targetType)).Returns(targetType);
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
-
-            var typeLinkMock = new Mock<ITypeLink>();
-            typeLinkMock.Setup(x => x.Link(targetType)).Returns((Type?)null);
+            innerMock.Setup(x => x.Convert(targetType, value, contextMock.Object)).Returns(expectedResult);
 
             var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var result = converter.Convert(targetType, value, context);
+            var result = converter.Convert(targetType, value, contextMock.Object);
 
             Assert.That(expectedResult, Is.EqualTo(result));
-            innerMock.Verify(x => x.Convert(targetType, value, context), Times.Once);
+            innerMock.Verify(x => x.Convert(targetType, value, contextMock.Object), Times.Once);
         }
 
         [Test]
-        public void Convert_TypeLink_UpdatesTarget()
+        public void Convert_UnwrapAndLinkReturnsLinkedType_UpdatesTarget()
         {
             var originalType = typeof(string);
             var linkedType = typeof(int);
             var value = "test";
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(x => x.Link(originalType)).Returns(linkedType);
-            var context = contextMock.Object;
+            contextMock.Setup(c => c.UnwrapAndLink(originalType)).Returns(linkedType);
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(linkedType, value, context)).Returns(42);
+            innerMock.Setup(x => x.Convert(linkedType, value, contextMock.Object)).Returns(42);
 
             var converter = new TypeLinkingConverter(innerMock.Object);
 
-            converter.Convert(originalType, value, context);
+            converter.Convert(originalType, value, contextMock.Object);
 
-            innerMock.Verify(x => x.Convert(linkedType, value, context), Times.Once);
+            innerMock.Verify(x => x.Convert(linkedType, value, contextMock.Object), Times.Once);
             innerMock.Verify(x => x.Convert(originalType, It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
-        public void Convert_TypeLink_ReturnsResult()
+        public void Convert_UnwrapAndLinkReturnsLinkedType_ReturnsResult()
         {
             var originalType = typeof(string);
             var linkedType = typeof(int);
             var value = "test";
             var expectedResult = 42;
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(x => x.Link(originalType)).Returns(linkedType);
-            var context = contextMock.Object;
+            contextMock.Setup(c => c.UnwrapAndLink(originalType)).Returns(linkedType);
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(linkedType, value, context)).Returns(expectedResult);
+            innerMock.Setup(x => x.Convert(linkedType, value, contextMock.Object)).Returns(expectedResult);
 
             var converter = new TypeLinkingConverter(innerMock.Object);
 
-            var result = converter.Convert(originalType, value, context);
+            var result = converter.Convert(originalType, value, contextMock.Object);
 
             Assert.That(expectedResult, Is.EqualTo(result));
         }

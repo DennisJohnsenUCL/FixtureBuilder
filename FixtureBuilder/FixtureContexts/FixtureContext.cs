@@ -32,11 +32,6 @@ namespace FixtureBuilder.FixtureContexts
             return _resolver.Converter.Convert(target, value, context);
         }
 
-        public Type? Link(Type target)
-        {
-            return _resolver.TypeLink.Link(target);
-        }
-
         public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
             return _resolver.UninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
@@ -58,9 +53,16 @@ namespace FixtureBuilder.FixtureContexts
             action.Invoke(Options);
         }
 
+        public Type UnwrapAndLink(Type type)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            type = _resolver.TypeLink.Link(type) ?? type;
+            return type;
+        }
+
         public object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
         {
-            request.Type = Link(request.Type) ?? request.Type;
+            request.Type = UnwrapAndLink(request.Type);
             var result = ResolveValue(request, this);
             if (result is not NoResult) return result;
 
