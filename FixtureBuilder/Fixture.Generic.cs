@@ -148,7 +148,7 @@ namespace FixtureBuilder
             var request = new FixtureRequest(typeof(TProp), source, source.Name);
             var value = (TProp)_context.ProvideWithStrategy(request, _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
-            return InstantiateInternal(expr, value);
+            return ((IFixtureConfigurator<T>)this).With(expr, value);
         }
 
         /// <summary>
@@ -170,22 +170,7 @@ namespace FixtureBuilder
             var request = new FixtureRequest(typeof(TProp), source, source.Name);
             var value = func(new MemberInstantiator<TProp>(request, _context));
 
-            return InstantiateInternal(expr, value);
-        }
-
-        private Fixture<T> InstantiateInternal<TProp>(Expression<Func<T, TProp>> expr, TProp value)
-        {
-            _fixture ??= InstantiateFixture();
-
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
-
-            if (dataMember.IsPropertyInfo)
-                ((IFixtureConfigurator<T>)this).With(expr, value);
-
-            else if (dataMember.IsFieldInfo)
-                WithFieldInternal(dataMember.Name, instance.GetType(), value, instance);
-
-            return this;
+            return ((IFixtureConfigurator<T>)this).With(expr, value);
         }
 
         /// <summary>
@@ -346,11 +331,6 @@ namespace FixtureBuilder
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration.</returns>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value)
-            => WithSetterInternal(expr, value);
-
-        private Fixture<T> WithSetterInternal<TProp>(
-            Expression<Func<T, TProp>> expr,
-            TProp value)
         {
             _fixture ??= InstantiateFixture();
 
@@ -379,7 +359,13 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            if (ExpressionHelper.IsPropertyWritable(expr)) return WithSetterInternal(expr, value);
+            ExpressionHelper.ValidateExpression(expr);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+
+            if (dataMember.IsFieldInfo)
+                return WithFieldInternal(dataMember.Name, instance.GetType(), value, instance);
+
+            if (ExpressionHelper.IsPropertyWritable(expr)) return ((IFixtureConfigurator<T>)this).WithSetter(expr, value);
             else return WithBackingFieldInternal(expr, value);
         }
 

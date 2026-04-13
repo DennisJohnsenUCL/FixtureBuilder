@@ -81,5 +81,25 @@
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        class OuterFieldClass
+        {
+            public InnerFieldClass Inner = null!;
+        }
+        class InnerFieldClass
+        {
+            public string Field = null!;
+        }
+        [Test]
+        public void FieldExpression_SetsField()
+        {
+            var text = "hello";
+            var fixture = TestHelper.MakeFixture<OuterFieldClass>();
+
+            fixture.With(f => f.Inner.Field, text);
+
+            var field = TestHelper.GetFixture(fixture);
+            Assert.That(field.Inner.Field, Is.EqualTo(text));
+        }
     }
 }
