@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using Moq;
 
 namespace FixtureBuilder.Tests.Core.FixtureContexts.FixtureContextTests

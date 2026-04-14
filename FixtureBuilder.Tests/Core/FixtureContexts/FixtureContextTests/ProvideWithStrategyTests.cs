@@ -1,5 +1,6 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 

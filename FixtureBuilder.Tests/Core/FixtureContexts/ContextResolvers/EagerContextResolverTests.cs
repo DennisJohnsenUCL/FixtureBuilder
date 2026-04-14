@@ -3,12 +3,12 @@
 using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
-namespace FixtureBuilder.Tests.Core.FixtureContexts
+namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
 {
     [TestFixture]
     internal sealed class EagerContextResolverTests

@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Creation;
+﻿using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
+using FixtureBuilder.Creation;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 

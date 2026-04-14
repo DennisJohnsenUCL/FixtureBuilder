@@ -4,7 +4,7 @@ using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
-namespace FixtureBuilder.Core.FixtureContexts
+namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
 {
     /// <summary>
     /// An <see cref="IContextResolver"/> that defers creation of its components until first access,
