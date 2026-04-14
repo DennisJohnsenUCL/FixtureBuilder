@@ -1,11 +1,13 @@
 name: Pack FixtureBuilder
-
 on:
   workflow_dispatch:
 
 jobs:
   pack:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     steps:
       - uses: actions/checkout@v6
 
@@ -22,18 +24,19 @@ jobs:
       - name: Test
         run: dotnet test FixtureBuilder.Tests/FixtureBuilder.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
 
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v6
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v3
         if: always()
         with:
-          name: test-results
+          name: Test Results
           path: TestResults/*.trx
+          reporter: dotnet-trx
 
       - name: Pack
         run: dotnet pack FixtureBuilder/FixtureBuilder.csproj --configuration Release --no-restore
 
       - name: Push to NuGet
+        if: github.ref == 'refs/heads/main'
         run: dotnet nuget push **/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Upload nupkg as artifact
