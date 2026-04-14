@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.Core.FixtureContexts
 {
-    internal enum InstantiationMethod
+    public enum InstantiationMethod
     {
         UseAutoConstructor,
         UseDefaultConstructor,

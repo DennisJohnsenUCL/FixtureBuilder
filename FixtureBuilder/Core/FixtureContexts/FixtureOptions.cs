@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Core.FixtureContexts
 {
-    internal class FixtureOptions
+    public class FixtureOptions
     {
         public FixtureOptions() { }
 

@@ -7,7 +7,7 @@ using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Core.FixtureContexts
 {
-    internal class FixtureContextFactory
+    internal static class FixtureContextFactory
     {
         public static IFixtureContext CreateLazyContext()
         {
@@ -19,6 +19,20 @@ namespace FixtureBuilder.Core.FixtureContexts
 
             var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider);
             var options = FixtureOptions.Default;
+            var context = new FixtureContext(resolver, options) as IFixtureContext;
+            return context;
+        }
+
+        public static IFixtureContext CreateEagerContext(FixtureOptions? options)
+        {
+            var converter = ConverterFactory.CreateDefaultConverter();
+            var typeLink = TypeLinkFactory.CreateDefaultTypeLink();
+            var uninitializedProvider = UninitializedProviderFactory.CreateDefaultUninitializedProvider();
+            var valueProvider = ValueProviderFactory.CreateDefaultValueProvider();
+            var autoConstructingProvider = new AutoConstructingProvider();
+
+            var resolver = new EagerContextResolver(converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider);
+            options ??= FixtureOptions.Default;
             var context = new FixtureContext(resolver, options) as IFixtureContext;
             return context;
         }
