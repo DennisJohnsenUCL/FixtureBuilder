@@ -17,17 +17,14 @@ If you want to write clean tests that focus only on the method you want to test,
 ## Quick Example
 
 ```csharp
-
 using FixtureBuilder;
 
 public class User
-
 {
 	public string Name { get; }
 	private int _age;
 
 	public User(string name) { Name = name; }
-
 }
 
 // Build a test fixture for User, bypassing the constructor
@@ -41,12 +38,14 @@ var fixture = new Fixture<User>()
 
 ## Core APIs
 
+### Creation
 - `CreateUninitialized()`: Instantiates the object without invoking its constructor.
 
 - `UseConstructor(params object[] arguments)`: Instantiates with specific constructor arguments.
 
 - `UseAutoConstructor()`: Instantiates the object by automatically invoking its simplest constructor, recursively building dependencies
 
+### Configuration
 - `WithField(string fieldName, object value)`: Sets a field value directly.
 
 - `WithField(Expression<Func<T, TProp>> expr, string fieldName, object value)`: Sets a field value on a member of the object.
@@ -63,6 +62,10 @@ var fixture = new Fixture<User>()
 
 - `InvokePrivate(Expression<Func<T, TProp>> expr, string methodName, params object?[] arguments)`: Invokes a private method on a member of the test object.
 
+- `Instantiate(Expression<Func<T, TProp>> expr)`: Instantiates the given member using the default instantiation method.
+
+- `Instantiate(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp>, func)`: Instantiates the given member using the chosen instantiation method via the `IConstructor`.
+
 - `CastTo<TTarget>()`: Casts fixture to another type for chaining configurations.
 
 
@@ -73,4 +76,4 @@ Configuration methods WithField and InvokePrivate that take stringly-typed field
 
 ## Feedback & Issues
 
-For bug reports, feature requests, or usage questions, please contact the maintainer.
+For bug reports, feature requests, or usage questions, please submit an issue on the Github repository.

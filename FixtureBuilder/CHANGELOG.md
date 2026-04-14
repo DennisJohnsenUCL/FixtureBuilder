@@ -1,3 +1,14 @@
+#### 1.1.1
+
+- New method Instantiate allows for setting a member or a nested member on the test object without providing a specific value.
+  - A specific construction method can be chosen with a lambda parameter on Instantiate, allowing for precise control.
+  - A default option will be used if no construction method is chosen.
+- Expressions may now contain public fields when configuring nested members on the text object, not just properties.
+- Fixed circular dependencies causing a stack overflow when constructing objects with UseAutoConstructor or CreateInitialized.
+  - The circular dependency is now caught early and an exception is thrown.
+- Fixed InvokePrivate throwing an exception for overloaded methods, and failing to find method overlods with optional parameters.
+  - The best fitting method is now chosen based on the given parameters.
+
 #### 1.1.0
 
 - Construction method .BypassConstructor has been renamed to .CreateUninitialized.

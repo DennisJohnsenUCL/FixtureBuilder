@@ -11,13 +11,13 @@
 		<Authors>DennisJohnsen</Authors>
 		<Description>Provides advanced fixture creation and configuration utilities for .NET unit testing, supporting construction and setup of objects—including setting fields, properties, and bypassing constructors.</Description>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
 		<Title>FixtureBuilder</Title>
 		<PackageId>FixtureBuilder</PackageId>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageReleaseNotes>https://github.com/DennisJohnsenUCL/FixtureBuilder/blob/main/FixtureBuilder/CHANGELOG.md</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/DennisJohnsenUCL/FixtureBuilder</PackageProjectUrl>
-		<Copyright>Copyright © 2026 Dennis Johnsen</Copyright>
+		<Copyright>Copyright © 2025-2026 Dennis Johnsen</Copyright>
 		<RepositoryUrl>https://github.com/DennisJohnsenUCL/FixtureBuilder</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>testing;unit-testing;test-helpers;object-builder;reflection</PackageTags>
@@ -39,6 +39,5 @@
 	<ItemGroup>
 	  <PackageReference Include="MemberLens.Attributes" Version="1.0.1" />
 	</ItemGroup>
-
 
 </Project>
