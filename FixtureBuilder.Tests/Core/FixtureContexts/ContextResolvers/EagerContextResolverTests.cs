@@ -14,7 +14,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
     internal sealed class EagerContextResolverTests
     {
         private IValueConverter _converter;
-        private ITypeLink _typeLink;
+        private ICompositeTypeLink _typeLink;
         private IUninitializedProvider _uninitializedProvider;
         private IValueProvider _valueProvider;
         private IAutoConstructingProvider _autoConstructingProvider;
@@ -23,7 +23,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void SetUp()
         {
             _converter = new Mock<IValueConverter>().Object;
-            _typeLink = new Mock<ITypeLink>().Object;
+            _typeLink = new Mock<ICompositeTypeLink>().Object;
             _uninitializedProvider = new Mock<IUninitializedProvider>().Object;
             _valueProvider = new Mock<IValueProvider>().Object;
             _autoConstructingProvider = new Mock<IAutoConstructingProvider>().Object;

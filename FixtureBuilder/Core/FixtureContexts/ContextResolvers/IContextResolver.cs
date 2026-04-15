@@ -9,7 +9,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
     internal interface IContextResolver
     {
         IValueConverter Converter { get; }
-        ITypeLink TypeLink { get; }
+        ICompositeTypeLink TypeLink { get; }
         IUninitializedProvider UninitializedProvider { get; }
         IValueProvider ValueProvider { get; }
         IAutoConstructingProvider AutoConstructingProvider { get; }

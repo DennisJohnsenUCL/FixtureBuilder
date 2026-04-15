@@ -111,5 +111,44 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             Assert.That(result, Is.EqualTo(firstResult));
             typeLink3.Verify(x => x.Link(It.IsAny<Type>()), Times.Never);
         }
+
+        [Test]
+        public void AddTypeLink_AddedLinkIsUsedByLink()
+        {
+            var targetType = typeof(string);
+            var expectedResult = typeof(int);
+
+            var addedLink = new Mock<ITypeLink>();
+            addedLink.Setup(x => x.Link(targetType)).Returns(expectedResult);
+
+            var composite = new CompositeTypeLink([]);
+            composite.AddTypeLink(addedLink.Object);
+
+            var result = composite.Link(targetType);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void AddTypeLink_PrependedBeforeExistingLinks()
+        {
+            var targetType = typeof(string);
+            var addedResult = typeof(int);
+            var originalResult = typeof(long);
+
+            var originalLink = new Mock<ITypeLink>();
+            originalLink.Setup(x => x.Link(targetType)).Returns(originalResult);
+
+            var addedLink = new Mock<ITypeLink>();
+            addedLink.Setup(x => x.Link(targetType)).Returns(addedResult);
+
+            var composite = new CompositeTypeLink([originalLink.Object]);
+            composite.AddTypeLink(addedLink.Object);
+
+            var result = composite.Link(targetType);
+
+            Assert.That(result, Is.EqualTo(addedResult));
+            originalLink.Verify(x => x.Link(It.IsAny<Type>()), Times.Never);
+        }
     }
 }

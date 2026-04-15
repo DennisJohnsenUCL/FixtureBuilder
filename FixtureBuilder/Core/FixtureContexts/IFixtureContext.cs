@@ -1,6 +1,6 @@
-﻿using FixtureBuilder.Assignment.ValueProviders;
+﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Core;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
@@ -8,6 +8,7 @@ namespace FixtureBuilder.Core.FixtureContexts
 {
     internal interface IFixtureContext :
         IValueConverter,
+        ICompositeTypeLink,
         IUninitializedProvider,
         IValueProvider,
         IAutoConstructingProvider,

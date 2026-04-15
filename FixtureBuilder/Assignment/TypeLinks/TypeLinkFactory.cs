@@ -6,7 +6,7 @@ namespace FixtureBuilder.Assignment.TypeLinks
 {
     internal class TypeLinkFactory
     {
-        public static ITypeLink CreateDefaultTypeLink()
+        public static ICompositeTypeLink CreateDefaultTypeLink()
         {
             var typeLink = new CompositeTypeLink([
                 //Non-dictionary enumerables

@@ -13,7 +13,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
     internal class LazyContextResolver : IContextResolver
     {
         private readonly Lazy<IValueConverter> _converter;
-        private readonly Lazy<ITypeLink> _typeLink;
+        private readonly Lazy<ICompositeTypeLink> _typeLink;
         private readonly Lazy<IUninitializedProvider> _uninitializedProvider;
         private readonly Lazy<IValueProvider> _valueProvider;
         private readonly Lazy<IAutoConstructingProvider> _autoConstructingProvider;
@@ -28,7 +28,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         /// <paramref name="converter"/>, <paramref name="typeLink"/>, or <paramref name="uninitializedProvider"/> is <see langword="null"/>.
         /// </exception>
         public LazyContextResolver(Func<IValueConverter> converter,
-            Func<ITypeLink> typeLink,
+            Func<ICompositeTypeLink> typeLink,
             Func<IUninitializedProvider> uninitializedProvider,
             Func<IValueProvider> valueProvider,
             Func<IAutoConstructingProvider> autoConstructingProvider)
@@ -40,7 +40,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
             ArgumentNullException.ThrowIfNull(autoConstructingProvider);
 
             _converter = new Lazy<IValueConverter>(converter);
-            _typeLink = new Lazy<ITypeLink>(typeLink);
+            _typeLink = new Lazy<ICompositeTypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IUninitializedProvider>(uninitializedProvider);
             _valueProvider = new Lazy<IValueProvider>(valueProvider);
             _autoConstructingProvider = new Lazy<IAutoConstructingProvider>(autoConstructingProvider);
@@ -56,7 +56,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         /// Returns the <see cref="ITypeLink"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="ITypeLink"/>.</returns>
-        public ITypeLink TypeLink => _typeLink.Value;
+        public ICompositeTypeLink TypeLink => _typeLink.Value;
 
         /// <summary>
         /// Returns the <see cref="IUninitializedProvider"/>, creating it on first access via the factory provided at construction.

@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Core.FixtureContexts;
+﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder
 {
@@ -37,6 +38,11 @@ namespace FixtureBuilder
         {
             ArgumentNullException.ThrowIfNull(action);
             _context.SetOptions(action);
+        }
+
+        public void AddTypeLink(ITypeLink link)
+        {
+            _context.AddTypeLink(link);
         }
 
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)

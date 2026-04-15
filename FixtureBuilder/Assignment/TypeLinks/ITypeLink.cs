@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.Assignment.TypeLinks
 {
-    internal interface ITypeLink
+    public interface ITypeLink
     {
         Type? Link(Type target);
     }

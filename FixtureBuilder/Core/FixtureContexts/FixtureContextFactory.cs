@@ -13,7 +13,7 @@ namespace FixtureBuilder.Core.FixtureContexts
         public static IFixtureContext CreateLazyContext()
         {
             var converter = new Func<IValueConverter>(() => ConverterFactory.CreateDefaultConverter());
-            var typeLink = new Func<ITypeLink>(() => TypeLinkFactory.CreateDefaultTypeLink());
+            var typeLink = new Func<ICompositeTypeLink>(() => TypeLinkFactory.CreateDefaultTypeLink());
             var uninitializedProvider = new Func<IUninitializedProvider>(() => UninitializedProviderFactory.CreateDefaultUninitializedProvider());
             var valueProvider = new Func<IValueProvider>(() => ValueProviderFactory.CreateDefaultValueProvider());
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());

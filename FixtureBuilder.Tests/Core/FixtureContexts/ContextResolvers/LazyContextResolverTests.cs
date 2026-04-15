@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
     internal sealed class LazyContextResolverTests
     {
         private Func<IValueConverter> _converter;
-        private Func<ITypeLink> _typeLink;
+        private Func<ICompositeTypeLink> _typeLink;
         private Func<IUninitializedProvider> _uninitializedProvider;
         private Func<IValueProvider> _valueProvider;
         private Func<IAutoConstructingProvider> _autoConstructingProvider;
@@ -20,7 +20,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void SetUp()
         {
             _converter = () => Mock.Of<IValueConverter>();
-            _typeLink = () => Mock.Of<ITypeLink>();
+            _typeLink = () => Mock.Of<ICompositeTypeLink>();
             _uninitializedProvider = () => Mock.Of<IUninitializedProvider>();
             _valueProvider = () => Mock.Of<IValueProvider>();
             _autoConstructingProvider = () => Mock.Of<IAutoConstructingProvider>();
@@ -97,7 +97,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         [Test]
         public void GetTypeLink_ReturnsInstanceFromFactory()
         {
-            var expected = Mock.Of<ITypeLink>();
+            var expected = Mock.Of<ICompositeTypeLink>();
             _typeLink = () => expected;
 
             var result = CreateSut().TypeLink;
@@ -109,7 +109,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void GetTypeLink_CalledTwice_ReturnsSameInstance()
         {
             var callCount = 0;
-            var instance = Mock.Of<ITypeLink>();
+            var instance = Mock.Of<ICompositeTypeLink>();
             _typeLink = () => { callCount++; return instance; };
             var sut = CreateSut();
 
@@ -222,7 +222,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
 
             _ = new LazyContextResolver(
                 () => { converterCalled = true; return Mock.Of<IValueConverter>(); },
-                () => { typeLinkCalled = true; return Mock.Of<ITypeLink>(); },
+                () => { typeLinkCalled = true; return Mock.Of<ICompositeTypeLink>(); },
                 () => { providerCalled = true; return Mock.Of<IUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<IValueProvider>(); },
                 () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); });

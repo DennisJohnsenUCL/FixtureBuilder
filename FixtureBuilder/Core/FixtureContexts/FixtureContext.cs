@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
+﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
@@ -32,6 +33,16 @@ namespace FixtureBuilder.Core.FixtureContexts
         public object? Convert(Type target, object value, IFixtureContext context)
         {
             return _resolver.Converter.Convert(target, value, context);
+        }
+
+        public Type? Link(Type target)
+        {
+            return _resolver.TypeLink.Link(target);
+        }
+
+        public void AddTypeLink(ITypeLink link)
+        {
+            _resolver.TypeLink.AddTypeLink(link);
         }
 
         public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)

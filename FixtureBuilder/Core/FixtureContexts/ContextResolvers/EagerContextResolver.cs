@@ -9,13 +9,13 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
     internal class EagerContextResolver : IContextResolver
     {
         public IValueConverter Converter { get; }
-        public ITypeLink TypeLink { get; }
+        public ICompositeTypeLink TypeLink { get; }
         public IUninitializedProvider UninitializedProvider { get; }
         public IValueProvider ValueProvider { get; }
         public IAutoConstructingProvider AutoConstructingProvider { get; }
 
         public EagerContextResolver(IValueConverter converter,
-            ITypeLink typeLink,
+            ICompositeTypeLink typeLink,
             IUninitializedProvider uninitializedProvider,
             IValueProvider valueProvider,
             IAutoConstructingProvider autoConstructingProvider)

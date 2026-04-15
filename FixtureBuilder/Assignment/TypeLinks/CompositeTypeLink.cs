@@ -1,8 +1,8 @@
 ﻿namespace FixtureBuilder.Assignment.TypeLinks
 {
-    internal class CompositeTypeLink : ITypeLink
+    internal class CompositeTypeLink : ICompositeTypeLink
     {
-        private readonly IEnumerable<ITypeLink> _typeLinks;
+        private IEnumerable<ITypeLink> _typeLinks;
 
         public CompositeTypeLink(IEnumerable<ITypeLink> typeLinks)
         {
@@ -21,6 +21,11 @@
                 if (result != null) return result;
             }
             return null;
+        }
+
+        public void AddTypeLink(ITypeLink link)
+        {
+            _typeLinks = _typeLinks.Prepend(link);
         }
     }
 }
