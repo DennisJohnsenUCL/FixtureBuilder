@@ -16,6 +16,17 @@ namespace FixtureBuilder
             _context = InitializeContext(options);
         }
 
+        public IFixtureConstructor<T> New<T>() where T : class
+        {
+            return new Fixture<T>(_context);
+        }
+
+        public IFixtureConstructor<T> New<T>(T instance) where T : class
+        {
+            ArgumentNullException.ThrowIfNull(instance);
+            return new Fixture<T>(instance, _context);
+        }
+
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)
         {
             return FixtureContextFactory.CreateEagerContext(options);

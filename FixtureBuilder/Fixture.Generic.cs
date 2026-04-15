@@ -28,8 +28,12 @@ namespace FixtureBuilder
             return _fixture;
         }
 
-        internal Fixture()
+        internal Fixture() : this(InitializeContext()) { }
+
+        internal Fixture(IFixtureContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             if (typeof(T).IsInterface)
                 throw new InvalidOperationException($"Cannot create fixtures of interface types: {typeof(T).Name}. Please use concrete types for fixtures.");
 
@@ -38,15 +42,19 @@ namespace FixtureBuilder
 
             if (typeof(T).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
-            _context = InitializeContext();
+            _context = context;
         }
 
-        internal Fixture(T instance)
+        internal Fixture(T instance) : this(instance, InitializeContext()) { }
+
+        internal Fixture(T instance, IFixtureContext context)
         {
             ArgumentNullException.ThrowIfNull(instance);
+            ArgumentNullException.ThrowIfNull(context);
+
             if (instance.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
-            _context = InitializeContext();
+            _context = context;
             _fixture = instance;
         }
 
