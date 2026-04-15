@@ -6,6 +6,12 @@ namespace FixtureBuilder
     {
         private readonly IFixtureContext _context;
 
+        public FixtureOptions Options
+        {
+            get => _context.Options;
+            set => _context.Options = value;
+        }
+
         public FixtureFactory()
         {
             _context = InitializeContext();
@@ -25,6 +31,12 @@ namespace FixtureBuilder
         {
             ArgumentNullException.ThrowIfNull(instance);
             return new Fixture<T>(instance, _context);
+        }
+
+        public void SetOptions(Action<FixtureOptions> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+            _context.SetOptions(action);
         }
 
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)

@@ -20,15 +20,14 @@ namespace FixtureBuilder.Tests.FixtureFactoryTests
         public void New_ReturnsFixtureConstructor()
         {
             var result = _factory.New<TestClass>();
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<IFixtureConstructor<TestClass>>());
         }
 
         [Test]
         public void New_WithInstance_ReturnsFixtureConstructor()
         {
-            var instance = new TestClass();
-            var result = _factory.New(instance);
-            Assert.That(result, Is.Not.Null);
+            var result = _factory.New(new TestClass());
+            Assert.That(result, Is.InstanceOf<IFixtureConstructor<TestClass>>());
         }
 
         [Test]
@@ -55,6 +54,24 @@ namespace FixtureBuilder.Tests.FixtureFactoryTests
             var factory = new FixtureFactory(FixtureOptions.Default);
             var result = factory.New<TestClass>();
             Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void New_FixtureUsesFactoryContext()
+        {
+            var fixtureA = _factory.New<TestClass>();
+            var fixtureB = _factory.New<TestClass>();
+
+            Assert.That(TestHelper.GetContext(fixtureA), Is.SameAs(TestHelper.GetContext(fixtureB)));
+        }
+
+        [Test]
+        public void New_WithInstance_FixtureUsesFactoryContext()
+        {
+            var fixtureA = _factory.New(new TestClass());
+            var fixtureB = _factory.New(new TestClass());
+
+            Assert.That(TestHelper.GetContext(fixtureA), Is.SameAs(TestHelper.GetContext(fixtureB)));
         }
     }
 }
