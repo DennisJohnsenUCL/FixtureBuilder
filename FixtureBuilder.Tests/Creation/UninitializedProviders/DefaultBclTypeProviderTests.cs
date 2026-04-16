@@ -1,9 +1,9 @@
-﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
-namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
+namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal sealed class DefaultBclTypeProviderTests
     {

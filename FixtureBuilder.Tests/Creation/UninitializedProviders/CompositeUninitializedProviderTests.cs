@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation;
 using FixtureBuilder.Creation.UninitializedProviders;
