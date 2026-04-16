@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
-using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
@@ -12,7 +11,7 @@ namespace FixtureBuilder.Core.FixtureContexts
     {
         public static IFixtureContext CreateLazyContext()
         {
-            var converter = new Func<IValueConverter>(() => ConverterFactory.CreateDefaultConverter());
+            var converter = new Func<ConverterGraph>(() => ConverterFactory.CreateDefaultConverter());
             var typeLink = new Func<ICompositeTypeLink>(() => TypeLinkFactory.CreateDefaultTypeLink());
             var uninitializedProvider = new Func<IUninitializedProvider>(() => UninitializedProviderFactory.CreateDefaultUninitializedProvider());
             var valueProvider = new Func<ICompositeValueProvider>(() => ValueProviderFactory.CreateDefaultValueProvider());

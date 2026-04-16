@@ -1,10 +1,8 @@
-﻿using FixtureBuilder.Configuration.ValueConverters;
-
-namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
+﻿namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
 {
     internal class ConverterFactory
     {
-        public static IValueConverter CreateDefaultConverter()
+        public static ConverterGraph CreateDefaultConverter()
         {
             var converter = new ConverterBuilder()
                 .WithStrategies()

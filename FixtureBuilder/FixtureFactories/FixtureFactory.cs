@@ -55,6 +55,12 @@ namespace FixtureBuilder
             _context.AddProvider(adaptedProvider);
         }
 
+        public void AddConverter(ICustomConverter converter)
+        {
+            var adaptedConverter = new CustomConverterAdapter(converter);
+            _context.AddConverter(adaptedConverter);
+        }
+
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)
         {
             return FixtureContextFactory.CreateEagerContext(options);

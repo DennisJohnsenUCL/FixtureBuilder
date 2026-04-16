@@ -1,5 +1,6 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
+using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation;
 using FixtureBuilder.Creation.ConstructingProviders;
@@ -33,7 +34,12 @@ namespace FixtureBuilder.Core.FixtureContexts
 
         public object? Convert(Type target, object value, IFixtureContext context)
         {
-            return _resolver.Converter.Convert(target, value, context);
+            return _resolver.Converter.Root.Convert(target, value, context);
+        }
+
+        public void AddConverter(IValueConverter converter)
+        {
+            _resolver.Converter.Composite.AddConverter(converter);
         }
 
         public Type? Link(Type target)

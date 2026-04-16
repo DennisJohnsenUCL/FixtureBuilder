@@ -1,6 +1,7 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
+using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
@@ -12,7 +13,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
     /// </summary>
     internal class LazyContextResolver : IContextResolver
     {
-        private readonly Lazy<IValueConverter> _converter;
+        private readonly Lazy<ConverterGraph> _converter;
         private readonly Lazy<ICompositeTypeLink> _typeLink;
         private readonly Lazy<IUninitializedProvider> _uninitializedProvider;
         private readonly Lazy<ICompositeValueProvider> _valueProvider;
@@ -27,7 +28,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         /// <exception cref="ArgumentNullException">
         /// <paramref name="converter"/>, <paramref name="typeLink"/>, or <paramref name="uninitializedProvider"/> is <see langword="null"/>.
         /// </exception>
-        public LazyContextResolver(Func<IValueConverter> converter,
+        public LazyContextResolver(Func<ConverterGraph> converter,
             Func<ICompositeTypeLink> typeLink,
             Func<IUninitializedProvider> uninitializedProvider,
             Func<ICompositeValueProvider> valueProvider,
@@ -39,7 +40,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
             ArgumentNullException.ThrowIfNull(valueProvider);
             ArgumentNullException.ThrowIfNull(autoConstructingProvider);
 
-            _converter = new Lazy<IValueConverter>(converter);
+            _converter = new Lazy<ConverterGraph>(converter);
             _typeLink = new Lazy<ICompositeTypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IUninitializedProvider>(uninitializedProvider);
             _valueProvider = new Lazy<ICompositeValueProvider>(valueProvider);
@@ -50,7 +51,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         /// Returns the <see cref="IValueConverter"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="IValueConverter"/>.</returns>
-        public IValueConverter Converter => _converter.Value;
+        public ConverterGraph Converter => _converter.Value;
 
         /// <summary>
         /// Returns the <see cref="ITypeLink"/>, creating it on first access via the factory provided at construction.

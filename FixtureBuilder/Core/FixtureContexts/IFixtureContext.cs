@@ -7,7 +7,7 @@ using FixtureBuilder.Creation.UninitializedProviders;
 namespace FixtureBuilder.Core.FixtureContexts
 {
     internal interface IFixtureContext :
-        IValueConverter,
+        ICompositeConverter,
         ICompositeTypeLink,
         IUninitializedProvider,
         ICompositeValueProvider,

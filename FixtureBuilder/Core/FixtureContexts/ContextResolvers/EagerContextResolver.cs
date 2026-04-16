@@ -1,6 +1,6 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
-using FixtureBuilder.Configuration.ValueConverters;
+using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
@@ -8,13 +8,13 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
 {
     internal class EagerContextResolver : IContextResolver
     {
-        public IValueConverter Converter { get; }
+        public ConverterGraph Converter { get; }
         public ICompositeTypeLink TypeLink { get; }
         public IUninitializedProvider UninitializedProvider { get; }
         public ICompositeValueProvider ValueProvider { get; }
         public IAutoConstructingProvider AutoConstructingProvider { get; }
 
-        public EagerContextResolver(IValueConverter converter,
+        public EagerContextResolver(ConverterGraph converter,
             ICompositeTypeLink typeLink,
             IUninitializedProvider uninitializedProvider,
             ICompositeValueProvider valueProvider,

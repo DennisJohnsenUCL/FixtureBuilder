@@ -7,6 +7,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 {
     internal sealed class CompositeConverterTests
     {
+        private IFixtureContext _context;
+
+        [SetUp]
+        public void Setup()
+        {
+            _context = new Mock<IFixtureContext>().Object;
+        }
+
         [Test]
         public void Constructor_ConvertersNull_ThrowsException()
         {
@@ -28,9 +36,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var composite = new CompositeConverter(converters);
             var targetType = typeof(string);
             var value = "test";
-            var context = new Mock<IFixtureContext>().Object;
 
-            var result = composite.Convert(targetType, value, context);
+            var result = composite.Convert(targetType, value, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -47,9 +54,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var composite = new CompositeConverter([converter1.Object, converter2.Object]);
             var targetType = typeof(string);
             var value = "test";
-            var context = new Mock<IFixtureContext>().Object;
 
-            var result = composite.Convert(targetType, value, context);
+            var result = composite.Convert(targetType, value, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -60,19 +66,18 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var expectedResult = "converted";
             var targetType = typeof(string);
             var value = "test";
-            var context = new Mock<IFixtureContext>().Object;
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
+            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(expectedResult);
 
             var converter2 = new Mock<IValueConverter>();
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object]);
 
-            var result = composite.Convert(targetType, value, context);
+            var result = composite.Convert(targetType, value, _context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            converter1.Verify(x => x.Convert(targetType, value, context), Times.Once);
+            converter1.Verify(x => x.Convert(targetType, value, _context), Times.Once);
             converter2.Verify(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
@@ -82,21 +87,20 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var expectedResult = "converted";
             var targetType = typeof(string);
             var value = "test";
-            var context = new Mock<IFixtureContext>().Object;
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, context)).Returns(new NoResult());
+            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(new NoResult());
 
             var converter2 = new Mock<IValueConverter>();
-            converter2.Setup(x => x.Convert(targetType, value, context)).Returns(expectedResult);
+            converter2.Setup(x => x.Convert(targetType, value, _context)).Returns(expectedResult);
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object]);
 
-            var result = composite.Convert(targetType, value, context);
+            var result = composite.Convert(targetType, value, _context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
-            converter1.Verify(x => x.Convert(targetType, value, context), Times.Once);
-            converter2.Verify(x => x.Convert(targetType, value, context), Times.Once);
+            converter1.Verify(x => x.Convert(targetType, value, _context), Times.Once);
+            converter2.Verify(x => x.Convert(targetType, value, _context), Times.Once);
         }
 
         [Test]
@@ -105,23 +109,63 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var firstResult = "first";
             var targetType = typeof(string);
             var value = "test";
-            var context = new Mock<IFixtureContext>().Object;
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, context)).Returns(new NoResult());
+            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(new NoResult());
 
             var converter2 = new Mock<IValueConverter>();
-            converter2.Setup(x => x.Convert(targetType, value, context)).Returns(firstResult);
+            converter2.Setup(x => x.Convert(targetType, value, _context)).Returns(firstResult);
 
             var converter3 = new Mock<IValueConverter>();
-            converter3.Setup(x => x.Convert(targetType, value, context)).Returns("should not reach");
+            converter3.Setup(x => x.Convert(targetType, value, _context)).Returns("should not reach");
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object, converter3.Object]);
 
-            var result = composite.Convert(targetType, value, context);
+            var result = composite.Convert(targetType, value, _context);
 
             Assert.That(result, Is.EqualTo(firstResult));
             converter3.Verify(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+        }
+
+        [Test]
+        public void AddConverter_AddedConverterIsUsedByConvert()
+        {
+            var targetType = typeof(string);
+            var value = "test";
+            var expected = "converted";
+
+            var addedConverter = new Mock<IValueConverter>();
+            addedConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(expected);
+
+            var sut = new CompositeConverter([]);
+            sut.AddConverter(addedConverter.Object);
+
+            var result = sut.Convert(targetType, value, _context);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void AddConverter_PrependedBeforeExistingConverters()
+        {
+            var targetType = typeof(string);
+            var value = "test";
+            var addedResult = "from-added";
+            var originalResult = "from-original";
+
+            var originalConverter = new Mock<IValueConverter>();
+            originalConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(originalResult);
+
+            var addedConverter = new Mock<IValueConverter>();
+            addedConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(addedResult);
+
+            var sut = new CompositeConverter([originalConverter.Object]);
+            sut.AddConverter(addedConverter.Object);
+
+            var result = sut.Convert(targetType, value, _context);
+
+            Assert.That(result, Is.EqualTo(addedResult));
+            originalConverter.Verify(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
     }
 }

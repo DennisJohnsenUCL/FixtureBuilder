@@ -3,9 +3,9 @@ using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Configuration.ValueConverters
 {
-    internal class CompositeConverter : IValueConverter
+    internal class CompositeConverter : ICompositeConverter
     {
-        private readonly IEnumerable<IValueConverter> _converters;
+        private IEnumerable<IValueConverter> _converters;
 
         public CompositeConverter(IEnumerable<IValueConverter> converters)
         {
@@ -22,6 +22,11 @@ namespace FixtureBuilder.Configuration.ValueConverters
                 if (result is not NoResult) return result;
             }
             return new NoResult();
+        }
+
+        public void AddConverter(IValueConverter converter)
+        {
+            _converters = _converters.Prepend(converter);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
 
         public ConverterBuilder And()
         {
-            _builder.WithDecorator(new CompositeConverter(_converters));
+            _builder.WithComposite(new CompositeConverter(_converters));
             return _builder;
         }
     }

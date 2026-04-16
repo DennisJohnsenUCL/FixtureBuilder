@@ -5,19 +5,21 @@ namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
     internal class ConverterBuilder
     {
         private IValueConverter? _converter;
+        private ICompositeConverter? _composite;
 
         public ConverterBuilder() { }
 
-        public IValueConverter Build()
+        public ConverterGraph Build()
         {
             ValidateCanDecorate();
-            return _converter!;
+            return new ConverterGraph(_converter!, _composite!);
         }
 
-        public ConverterBuilder WithDecorator(IValueConverter converter)
+        public ConverterBuilder WithComposite(ICompositeConverter converter)
         {
             ArgumentNullException.ThrowIfNull(converter);
             _converter = converter;
+            _composite = converter;
             return this;
         }
 

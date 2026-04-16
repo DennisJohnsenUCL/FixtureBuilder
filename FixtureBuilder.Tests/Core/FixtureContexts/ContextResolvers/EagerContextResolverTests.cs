@@ -3,6 +3,7 @@
 using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
+using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
@@ -13,7 +14,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
     [TestFixture]
     internal sealed class EagerContextResolverTests
     {
-        private IValueConverter _converter;
+        private ConverterGraph _converter;
         private ICompositeTypeLink _typeLink;
         private IUninitializedProvider _uninitializedProvider;
         private ICompositeValueProvider _valueProvider;
@@ -22,7 +23,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         [SetUp]
         public void SetUp()
         {
-            _converter = new Mock<IValueConverter>().Object;
+            _converter = new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object);
             _typeLink = new Mock<ICompositeTypeLink>().Object;
             _uninitializedProvider = new Mock<IUninitializedProvider>().Object;
             _valueProvider = new Mock<ICompositeValueProvider>().Object;

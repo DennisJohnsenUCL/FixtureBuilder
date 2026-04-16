@@ -1,6 +1,7 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
+using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
@@ -10,16 +11,19 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
 {
     internal sealed class LazyContextResolverTests
     {
-        private Func<IValueConverter> _converter;
+        private Func<ConverterGraph> _converter;
         private Func<ICompositeTypeLink> _typeLink;
         private Func<IUninitializedProvider> _uninitializedProvider;
         private Func<ICompositeValueProvider> _valueProvider;
         private Func<IAutoConstructingProvider> _autoConstructingProvider;
 
+        private static ConverterGraph CreateGraph() =>
+            new(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object);
+
         [SetUp]
         public void SetUp()
         {
-            _converter = () => Mock.Of<IValueConverter>();
+            _converter = () => CreateGraph();
             _typeLink = () => Mock.Of<ICompositeTypeLink>();
             _uninitializedProvider = () => Mock.Of<IUninitializedProvider>();
             _valueProvider = () => Mock.Of<ICompositeValueProvider>();
@@ -68,7 +72,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         [Test]
         public void GetConverter_ReturnsInstanceFromFactory()
         {
-            var expected = Mock.Of<IValueConverter>();
+            var expected = CreateGraph();
             _converter = () => expected;
 
             var result = CreateSut().Converter;
@@ -80,7 +84,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void GetConverter_CalledTwice_ReturnsSameInstance()
         {
             var callCount = 0;
-            var instance = Mock.Of<IValueConverter>();
+            var instance = CreateGraph();
             _converter = () => { callCount++; return instance; };
             var sut = CreateSut();
 
@@ -221,7 +225,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
             var autoConstructingProviderCalled = false;
 
             _ = new LazyContextResolver(
-                () => { converterCalled = true; return Mock.Of<IValueConverter>(); },
+                () => { converterCalled = true; return CreateGraph(); },
                 () => { typeLinkCalled = true; return Mock.Of<ICompositeTypeLink>(); },
                 () => { providerCalled = true; return Mock.Of<IUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<ICompositeValueProvider>(); },

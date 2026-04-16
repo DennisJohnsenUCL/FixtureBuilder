@@ -6,17 +6,17 @@ namespace FixtureBuilder.FixtureFactories
 {
     internal class CustomProviderAdapter : IValueProvider
     {
-        private readonly ICustomProvider _adaptee;
+        private readonly ICustomProvider _provider;
 
-        public CustomProviderAdapter(ICustomProvider adaptee)
+        public CustomProviderAdapter(ICustomProvider provider)
         {
-            ArgumentNullException.ThrowIfNull(adaptee);
-            _adaptee = adaptee;
+            ArgumentNullException.ThrowIfNull(provider);
+            _provider = provider;
         }
 
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            return _adaptee.ResolveValue(request);
+            return _provider.ResolveValue(request);
         }
     }
 }
