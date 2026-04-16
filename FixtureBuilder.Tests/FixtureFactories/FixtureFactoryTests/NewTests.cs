@@ -1,6 +1,7 @@
 ﻿using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories;
 
-namespace FixtureBuilder.Tests.FixtureFactoryTests
+namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class NewTests
     {

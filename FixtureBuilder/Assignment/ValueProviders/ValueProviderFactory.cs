@@ -4,7 +4,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
 {
     internal class ValueProviderFactory
     {
-        public static IValueProvider CreateDefaultValueProvider()
+        public static ICompositeValueProvider CreateDefaultValueProvider()
         {
             var provider = new CompositeValueProvider([
                 new DefaultParameterProvider(),

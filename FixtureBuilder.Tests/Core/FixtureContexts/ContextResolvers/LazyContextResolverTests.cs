@@ -13,7 +13,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         private Func<IValueConverter> _converter;
         private Func<ICompositeTypeLink> _typeLink;
         private Func<IUninitializedProvider> _uninitializedProvider;
-        private Func<IValueProvider> _valueProvider;
+        private Func<ICompositeValueProvider> _valueProvider;
         private Func<IAutoConstructingProvider> _autoConstructingProvider;
 
         [SetUp]
@@ -22,7 +22,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
             _converter = () => Mock.Of<IValueConverter>();
             _typeLink = () => Mock.Of<ICompositeTypeLink>();
             _uninitializedProvider = () => Mock.Of<IUninitializedProvider>();
-            _valueProvider = () => Mock.Of<IValueProvider>();
+            _valueProvider = () => Mock.Of<ICompositeValueProvider>();
             _autoConstructingProvider = () => Mock.Of<IAutoConstructingProvider>();
         }
 
@@ -155,7 +155,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         [Test]
         public void GetValueProvider_ReturnsInstanceFromFactory()
         {
-            var expected = Mock.Of<IValueProvider>();
+            var expected = Mock.Of<ICompositeValueProvider>();
             _valueProvider = () => expected;
 
             var result = CreateSut().ValueProvider;
@@ -167,7 +167,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void GetValueProvider_CalledTwice_ReturnsSameInstance()
         {
             var callCount = 0;
-            var instance = Mock.Of<IValueProvider>();
+            var instance = Mock.Of<ICompositeValueProvider>();
             _valueProvider = () => { callCount++; return instance; };
             var sut = CreateSut();
 
@@ -224,7 +224,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
                 () => { converterCalled = true; return Mock.Of<IValueConverter>(); },
                 () => { typeLinkCalled = true; return Mock.Of<ICompositeTypeLink>(); },
                 () => { providerCalled = true; return Mock.Of<IUninitializedProvider>(); },
-                () => { valueProviderCalled = true; return Mock.Of<IValueProvider>(); },
+                () => { valueProviderCalled = true; return Mock.Of<ICompositeValueProvider>(); },
                 () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); });
 
             using (Assert.EnterMultipleScope())

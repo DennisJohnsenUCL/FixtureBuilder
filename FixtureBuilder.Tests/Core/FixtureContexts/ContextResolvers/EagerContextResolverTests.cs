@@ -16,7 +16,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         private IValueConverter _converter;
         private ICompositeTypeLink _typeLink;
         private IUninitializedProvider _uninitializedProvider;
-        private IValueProvider _valueProvider;
+        private ICompositeValueProvider _valueProvider;
         private IAutoConstructingProvider _autoConstructingProvider;
 
         [SetUp]
@@ -25,7 +25,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
             _converter = new Mock<IValueConverter>().Object;
             _typeLink = new Mock<ICompositeTypeLink>().Object;
             _uninitializedProvider = new Mock<IUninitializedProvider>().Object;
-            _valueProvider = new Mock<IValueProvider>().Object;
+            _valueProvider = new Mock<ICompositeValueProvider>().Object;
             _autoConstructingProvider = new Mock<IAutoConstructingProvider>().Object;
         }
 

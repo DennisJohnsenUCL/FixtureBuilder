@@ -1,4 +1,4 @@
 ﻿namespace FixtureBuilder.Core
 {
-    internal class NoResult();
+    public class NoResult();
 }

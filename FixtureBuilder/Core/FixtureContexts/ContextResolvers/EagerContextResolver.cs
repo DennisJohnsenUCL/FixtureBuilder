@@ -11,13 +11,13 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         public IValueConverter Converter { get; }
         public ICompositeTypeLink TypeLink { get; }
         public IUninitializedProvider UninitializedProvider { get; }
-        public IValueProvider ValueProvider { get; }
+        public ICompositeValueProvider ValueProvider { get; }
         public IAutoConstructingProvider AutoConstructingProvider { get; }
 
         public EagerContextResolver(IValueConverter converter,
             ICompositeTypeLink typeLink,
             IUninitializedProvider uninitializedProvider,
-            IValueProvider valueProvider,
+            ICompositeValueProvider valueProvider,
             IAutoConstructingProvider autoConstructingProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);

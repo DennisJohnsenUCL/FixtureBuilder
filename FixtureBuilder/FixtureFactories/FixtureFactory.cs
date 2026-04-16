@@ -1,7 +1,11 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     public class FixtureFactory
     {
@@ -43,6 +47,12 @@ namespace FixtureBuilder
         public void AddTypeLink(ITypeLink link)
         {
             _context.AddTypeLink(link);
+        }
+
+        public void AddProvider(ICustomProvider provider)
+        {
+            var adaptedProvider = new CustomProviderAdapter(provider);
+            _context.AddProvider(adaptedProvider);
         }
 
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)

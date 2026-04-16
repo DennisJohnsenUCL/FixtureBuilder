@@ -10,7 +10,7 @@ namespace FixtureBuilder.Core.FixtureContexts
         IValueConverter,
         ICompositeTypeLink,
         IUninitializedProvider,
-        IValueProvider,
+        ICompositeValueProvider,
         IAutoConstructingProvider,
         IOptionsContext
     {

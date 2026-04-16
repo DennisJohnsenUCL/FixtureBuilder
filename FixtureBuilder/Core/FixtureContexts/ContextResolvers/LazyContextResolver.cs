@@ -15,7 +15,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         private readonly Lazy<IValueConverter> _converter;
         private readonly Lazy<ICompositeTypeLink> _typeLink;
         private readonly Lazy<IUninitializedProvider> _uninitializedProvider;
-        private readonly Lazy<IValueProvider> _valueProvider;
+        private readonly Lazy<ICompositeValueProvider> _valueProvider;
         private readonly Lazy<IAutoConstructingProvider> _autoConstructingProvider;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         public LazyContextResolver(Func<IValueConverter> converter,
             Func<ICompositeTypeLink> typeLink,
             Func<IUninitializedProvider> uninitializedProvider,
-            Func<IValueProvider> valueProvider,
+            Func<ICompositeValueProvider> valueProvider,
             Func<IAutoConstructingProvider> autoConstructingProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);
@@ -42,7 +42,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
             _converter = new Lazy<IValueConverter>(converter);
             _typeLink = new Lazy<ICompositeTypeLink>(typeLink);
             _uninitializedProvider = new Lazy<IUninitializedProvider>(uninitializedProvider);
-            _valueProvider = new Lazy<IValueProvider>(valueProvider);
+            _valueProvider = new Lazy<ICompositeValueProvider>(valueProvider);
             _autoConstructingProvider = new Lazy<IAutoConstructingProvider>(autoConstructingProvider);
         }
 
@@ -68,7 +68,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         /// Returns the <see cref="IValueProvider"/>, creating it on first access via the factory provided at construction.
         /// </summary>
         /// <returns>The lazily resolved <see cref="IValueProvider"/>
-        public IValueProvider ValueProvider => _valueProvider.Value;
+        public ICompositeValueProvider ValueProvider => _valueProvider.Value;
 
         public IAutoConstructingProvider AutoConstructingProvider => _autoConstructingProvider.Value;
     }

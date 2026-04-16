@@ -15,7 +15,7 @@ namespace FixtureBuilder.Core.FixtureContexts
             var converter = new Func<IValueConverter>(() => ConverterFactory.CreateDefaultConverter());
             var typeLink = new Func<ICompositeTypeLink>(() => TypeLinkFactory.CreateDefaultTypeLink());
             var uninitializedProvider = new Func<IUninitializedProvider>(() => UninitializedProviderFactory.CreateDefaultUninitializedProvider());
-            var valueProvider = new Func<IValueProvider>(() => ValueProviderFactory.CreateDefaultValueProvider());
+            var valueProvider = new Func<ICompositeValueProvider>(() => ValueProviderFactory.CreateDefaultValueProvider());
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());
 
             var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider);

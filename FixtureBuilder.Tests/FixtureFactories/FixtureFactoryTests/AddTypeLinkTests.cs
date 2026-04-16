@@ -1,7 +1,7 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using Moq;
 
-namespace FixtureBuilder.Tests.FixtureFactoryTests
+namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class AddTypeLinkTests
     {

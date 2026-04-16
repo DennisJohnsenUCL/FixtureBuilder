@@ -9,9 +9,9 @@ namespace FixtureBuilder.Assignment.ValueProviders
     /// <see cref="IValueProvider"/> instances, returning the first non-null result.
     /// Returns <see langword="null"/> if no provider resolves the request.
     /// </summary>
-    internal class CompositeValueProvider : IValueProvider
+    internal class CompositeValueProvider : ICompositeValueProvider
     {
-        private readonly IEnumerable<IValueProvider> _providers;
+        private IEnumerable<IValueProvider> _providers;
 
         public CompositeValueProvider(IEnumerable<IValueProvider> providers)
         {
@@ -38,6 +38,11 @@ namespace FixtureBuilder.Assignment.ValueProviders
             }
 
             return new NoResult();
+        }
+
+        public void AddProvider(IValueProvider provider)
+        {
+            _providers = _providers.Prepend(provider);
         }
     }
 }

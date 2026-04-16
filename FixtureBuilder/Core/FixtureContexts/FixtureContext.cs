@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation;
 using FixtureBuilder.Creation.ConstructingProviders;
@@ -53,6 +54,11 @@ namespace FixtureBuilder.Core.FixtureContexts
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             return _resolver.ValueProvider.ResolveValue(request, context);
+        }
+
+        public void AddProvider(IValueProvider provider)
+        {
+            _resolver.ValueProvider.AddProvider(provider);
         }
 
         public object AutoResolve(FixtureRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)

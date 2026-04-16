@@ -115,5 +115,44 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
 
             Assert.That(result, Is.Null);
         }
+
+        [Test]
+        public void AddProvider_AddedProviderIsUsedByResolveValue()
+        {
+            var request = new FixtureRequest(typeof(string));
+            var expected = "from-added";
+
+            var addedProvider = new Mock<IValueProvider>();
+            addedProvider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(expected);
+
+            var sut = new CompositeValueProvider([]);
+            sut.AddProvider(addedProvider.Object);
+
+            var result = sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void AddProvider_PrependedBeforeExistingProviders()
+        {
+            var request = new FixtureRequest(typeof(string));
+            var addedResult = "from-added";
+            var originalResult = "from-original";
+
+            var originalProvider = new Mock<IValueProvider>();
+            originalProvider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(originalResult);
+
+            var addedProvider = new Mock<IValueProvider>();
+            addedProvider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(addedResult);
+
+            var sut = new CompositeValueProvider([originalProvider.Object]);
+            sut.AddProvider(addedProvider.Object);
+
+            var result = sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.SameAs(addedResult));
+            originalProvider.Verify(p => p.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
+        }
     }
 }

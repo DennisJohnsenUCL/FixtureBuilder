@@ -11,7 +11,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         IValueConverter Converter { get; }
         ICompositeTypeLink TypeLink { get; }
         IUninitializedProvider UninitializedProvider { get; }
-        IValueProvider ValueProvider { get; }
+        ICompositeValueProvider ValueProvider { get; }
         IAutoConstructingProvider AutoConstructingProvider { get; }
     }
 }
