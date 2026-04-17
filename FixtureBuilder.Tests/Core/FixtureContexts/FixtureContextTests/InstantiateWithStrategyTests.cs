@@ -25,22 +25,21 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.FixtureContextTests
             Assert.That(result, Is.EqualTo(expected));
         }
 
-        class DefaultCtorClass
-        {
-            public bool DefaultCtorCalled;
-            public DefaultCtorClass() => DefaultCtorCalled = true;
-        }
         [Test]
         public void InstantiateWithStrategy_UseDefaultConstructor_ResolvesWithDefaultConstructor()
         {
-            var request = new FixtureRequest(typeof(DefaultCtorClass));
+            var expected = "Test string value";
+            var request = new FixtureRequest(typeof(string));
             var resolverMock = new Mock<IContextResolver>();
+            resolverMock
+                .Setup(r => r.ConstructingProvider.ResolveWithArguments(It.IsAny<FixtureRequest>(), It.IsAny<object?[]>()))
+                .Returns(expected);
             var options = new FixtureOptions();
             var context = new FixtureContext(resolverMock.Object, options);
 
             var result = context.InstantiateWithStrategy(request, InstantiationMethod.UseDefaultConstructor, InitializeMembers.None);
 
-            Assert.That(((DefaultCtorClass)result).DefaultCtorCalled, Is.True);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]

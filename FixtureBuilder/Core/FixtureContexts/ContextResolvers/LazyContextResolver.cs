@@ -3,6 +3,7 @@ using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Creation.AutoConstructingProviders;
+using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
@@ -18,6 +19,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
         private readonly Lazy<IUninitializedProvider> _uninitializedProvider;
         private readonly Lazy<ICompositeValueProvider> _valueProvider;
         private readonly Lazy<IAutoConstructingProvider> _autoConstructingProvider;
+        private readonly Lazy<IConstructingProvider> _constructingProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyContextResolver"/> class.
@@ -32,7 +34,8 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
             Func<ICompositeTypeLink> typeLink,
             Func<IUninitializedProvider> uninitializedProvider,
             Func<ICompositeValueProvider> valueProvider,
-            Func<IAutoConstructingProvider> autoConstructingProvider)
+            Func<IAutoConstructingProvider> autoConstructingProvider,
+            Func<IConstructingProvider> constructingProvider)
         {
             ArgumentNullException.ThrowIfNull(converter);
             ArgumentNullException.ThrowIfNull(typeLink);
@@ -45,32 +48,19 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
             _uninitializedProvider = new Lazy<IUninitializedProvider>(uninitializedProvider);
             _valueProvider = new Lazy<ICompositeValueProvider>(valueProvider);
             _autoConstructingProvider = new Lazy<IAutoConstructingProvider>(autoConstructingProvider);
+            _constructingProvider = new Lazy<IConstructingProvider>(constructingProvider);
         }
 
-        /// <summary>
-        /// Returns the <see cref="IValueConverter"/>, creating it on first access via the factory provided at construction.
-        /// </summary>
-        /// <returns>The lazily resolved <see cref="IValueConverter"/>.</returns>
         public ConverterGraph Converter => _converter.Value;
 
-        /// <summary>
-        /// Returns the <see cref="ITypeLink"/>, creating it on first access via the factory provided at construction.
-        /// </summary>
-        /// <returns>The lazily resolved <see cref="ITypeLink"/>.</returns>
         public ICompositeTypeLink TypeLink => _typeLink.Value;
 
-        /// <summary>
-        /// Returns the <see cref="IUninitializedProvider"/>, creating it on first access via the factory provided at construction.
-        /// </summary>
-        /// <returns>The lazily resolved <see cref="IUninitializedProvider"/>
         public IUninitializedProvider UninitializedProvider => _uninitializedProvider.Value;
 
-        /// <summary>
-        /// Returns the <see cref="IValueProvider"/>, creating it on first access via the factory provided at construction.
-        /// </summary>
-        /// <returns>The lazily resolved <see cref="IValueProvider"/>
         public ICompositeValueProvider ValueProvider => _valueProvider.Value;
 
         public IAutoConstructingProvider AutoConstructingProvider => _autoConstructingProvider.Value;
+
+        public IConstructingProvider ConstructingProvider => _constructingProvider.Value;
     }
 }

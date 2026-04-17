@@ -23,7 +23,7 @@ namespace FixtureBuilder.Creation.ConstructingProviders
         public object ResolveWithArguments(FixtureRequest request, params object?[] args)
         {
             if (request.Type.IsInterface || request.Type.IsAbstract)
-                throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
+                throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {type.Name}.");
 
             try
             {

@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Configuration
@@ -23,7 +22,7 @@ namespace FixtureBuilder.Configuration
 
         public T UseConstructor(params object?[] arguments)
         {
-            return (T)new ConstructingProvider().ResolveWithArguments(_request, arguments);
+            return (T)_context.ResolveWithArguments(_request, arguments);
         }
 
         public T CreateUninitialized()

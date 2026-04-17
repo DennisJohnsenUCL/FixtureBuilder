@@ -3,7 +3,6 @@ using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation;
-using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Core.FixtureContexts
@@ -72,6 +71,16 @@ namespace FixtureBuilder.Core.FixtureContexts
             return _resolver.AutoConstructingProvider.AutoResolve(request, context, recursiveResolveContext);
         }
 
+        public object ResolveWithArguments(FixtureRequest request, params object?[] args)
+        {
+            return _resolver.ConstructingProvider.ResolveWithArguments(request, args);
+        }
+
+        public object ResolveWithArguments(Type type, params object?[] args)
+        {
+            return _resolver.ConstructingProvider.ResolveWithArguments(type, args);
+        }
+
         public void SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);
@@ -100,7 +109,7 @@ namespace FixtureBuilder.Core.FixtureContexts
             {
                 InstantiationMethod.UseAutoConstructor => AutoResolve(request, this),
 
-                InstantiationMethod.UseDefaultConstructor => new ConstructingProvider().ResolveWithArguments(request),
+                InstantiationMethod.UseDefaultConstructor => ResolveWithArguments(request),
 
                 InstantiationMethod.CreateUninitialized => ResolveUninitialized(request, initializeMembers, this)
                     ?? throw new InvalidOperationException($"Failed to instantiate {request.Type.Name} uninitialized."),

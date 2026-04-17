@@ -4,6 +4,7 @@ using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
+using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
@@ -16,6 +17,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         private Func<IUninitializedProvider> _uninitializedProvider;
         private Func<ICompositeValueProvider> _valueProvider;
         private Func<IAutoConstructingProvider> _autoConstructingProvider;
+        private Func<IConstructingProvider> _constructingProvider;
 
         private static ConverterGraph CreateGraph() =>
             new(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object);
@@ -28,11 +30,12 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
             _uninitializedProvider = () => Mock.Of<IUninitializedProvider>();
             _valueProvider = () => Mock.Of<ICompositeValueProvider>();
             _autoConstructingProvider = () => Mock.Of<IAutoConstructingProvider>();
+            _constructingProvider = () => Mock.Of<ConstructingProvider>();
         }
 
         private LazyContextResolver CreateSut() => new(
             _converter, _typeLink, _uninitializedProvider,
-            _valueProvider, _autoConstructingProvider);
+            _valueProvider, _autoConstructingProvider, _constructingProvider);
 
         [Test]
         public void Constructor_NullConverter_Throws()
@@ -66,6 +69,13 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void Constructor_NullAutoConstructingProvider_Throws()
         {
             _autoConstructingProvider = null!;
+            Assert.Throws<ArgumentNullException>(() => CreateSut());
+        }
+
+        [Test]
+        public void Constructor_NullConstructingProvider_Throws()
+        {
+            _constructingProvider = null!;
             Assert.Throws<ArgumentNullException>(() => CreateSut());
         }
 
@@ -215,6 +225,35 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         }
 
         [Test]
+        public void GetConstructingProvider_ReturnsInstanceFromFactory()
+        {
+            var expected = Mock.Of<IConstructingProvider>();
+            _constructingProvider = () => expected;
+
+            var result = CreateSut().ConstructingProvider;
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void GetConstructingProvider_CalledTwice_ReturnsSameInstance()
+        {
+            var callCount = 0;
+            var instance = Mock.Of<IConstructingProvider>();
+            _constructingProvider = () => { callCount++; return instance; };
+            var sut = CreateSut();
+
+            var first = sut.ConstructingProvider;
+            var second = sut.ConstructingProvider;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(second, Is.SameAs(first));
+                Assert.That(callCount, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
         public void FactoriesAreNotCalledUntilAccessed()
         {
             var converterCalled = false;
@@ -223,13 +262,15 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
             var valueProviderCalled = false;
             var parameterProviderCalled = false;
             var autoConstructingProviderCalled = false;
+            var constructingProviderCalled = false;
 
             _ = new LazyContextResolver(
                 () => { converterCalled = true; return CreateGraph(); },
                 () => { typeLinkCalled = true; return Mock.Of<ICompositeTypeLink>(); },
                 () => { providerCalled = true; return Mock.Of<IUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<ICompositeValueProvider>(); },
-                () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); });
+                () => { autoConstructingProviderCalled = true; return Mock.Of<IAutoConstructingProvider>(); },
+                () => { constructingProviderCalled = true; return Mock.Of<IConstructingProvider>(); });
 
             using (Assert.EnterMultipleScope())
             {
@@ -239,6 +280,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
                 Assert.That(valueProviderCalled, Is.False);
                 Assert.That(parameterProviderCalled, Is.False);
                 Assert.That(autoConstructingProviderCalled, Is.False);
+                Assert.That(constructingProviderCalled, Is.False);
             }
         }
     }

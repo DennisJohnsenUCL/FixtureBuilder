@@ -53,9 +53,28 @@ namespace FixtureBuilder.Tests.Configuration.MemberInstantiators
         [Test]
         public void UseConstructor_ReturnsInstance()
         {
+            var expected = new TestClass();
+            _contextMock
+                .Setup(c => c.ResolveWithArguments(It.IsAny<FixtureRequest>(), It.IsAny<object?[]>()))
+                .Returns(expected);
+
             var result = _sut.UseConstructor();
 
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void UseConstructor_PassesArgumentsToContext()
+        {
+            var args = new object?[] { "arg1", 42 };
+            var expected = new TestClass();
+            _contextMock
+                .Setup(c => c.ResolveWithArguments(It.IsAny<FixtureRequest>(), args))
+                .Returns(expected);
+
+            var result = _sut.UseConstructor(args);
+
+            Assert.That(result, Is.SameAs(expected));
         }
 
         [Test]

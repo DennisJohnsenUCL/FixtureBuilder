@@ -6,6 +6,7 @@ using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
+using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
@@ -19,6 +20,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         private IUninitializedProvider _uninitializedProvider;
         private ICompositeValueProvider _valueProvider;
         private IAutoConstructingProvider _autoConstructingProvider;
+        private IConstructingProvider _constructingProvider;
 
         [SetUp]
         public void SetUp()
@@ -28,6 +30,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
             _uninitializedProvider = new Mock<IUninitializedProvider>().Object;
             _valueProvider = new Mock<ICompositeValueProvider>().Object;
             _autoConstructingProvider = new Mock<IAutoConstructingProvider>().Object;
+            _constructingProvider = new Mock<IConstructingProvider>().Object;
         }
 
         private void CreateResolver() =>
@@ -35,7 +38,8 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
                 _typeLink,
                 _uninitializedProvider,
                 _valueProvider,
-                _autoConstructingProvider);
+                _autoConstructingProvider,
+                _constructingProvider);
 
         [Test]
         public void Constructor_NullConverter_Throws()
@@ -69,6 +73,13 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextResolvers
         public void Constructor_NullAutoConstructingProvider_Throws()
         {
             _autoConstructingProvider = null!;
+            Assert.Throws<ArgumentNullException>(CreateResolver);
+        }
+
+        [Test]
+        public void Constructor_NullConstructingProvider_Throws()
+        {
+            _constructingProvider = null!;
             Assert.Throws<ArgumentNullException>(CreateResolver);
         }
     }

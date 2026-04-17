@@ -3,7 +3,6 @@ using System.Reflection;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 using FixtureBuilder.Extensions;
 
@@ -95,8 +94,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseConstructor(params object[] arguments)
         {
             var request = new FixtureRequest(typeof(T));
-            var constructor = new ConstructingProvider();
-            var instance = constructor.ResolveWithArguments(request, arguments);
+            var instance = _context.ResolveWithArguments(request, arguments);
 
             _fixture = (T)instance;
 
