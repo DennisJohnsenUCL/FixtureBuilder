@@ -68,6 +68,80 @@ var fixture = new Fixture<User>()
 
 - `CastTo<TTarget>()`: Casts fixture to another type for chaining configurations.
 
+## FixtureFactory
+
+`FixtureFactory` is a pre-configured fixture producer. Where `Fixture<T>` creates a single test object, `FixtureFactory` lets you define shared configuration once — type mappings, value providers, default values — and then produce consistently configured fixtures from it.
+
+### Basic Usage
+
+```csharp
+var factory = new FixtureFactory();
+var fixture = factory.New<User>().UseAutoConstructor().Build();
+```
+
+### Pre-Configured Values
+
+Use `With` methods to pre-configure values that apply to all fixtures the factory produces. These methods are fluent and can be chained.
+
+```csharp
+var factory = new FixtureFactory()
+    .With("Alice")                         // All strings receive "Alice"
+    .With("Alice", "Name")                 // Only members named "Name" receive "Alice"
+    .WithParameter(30)                     // Constructor parameters of type int receive 30
+    .WithParameter(30, "age")              // Only the parameter named "age" receives 30
+    .WithPropertyOrField("Bob")            // Properties and fields of type string receive "Bob"
+    .WithPropertyOrField("Bob", "Name")    // Only the property/field named "Name" receives "Bob"
+    .WithNamed("Name", "Alice");           // Any member named "Name", regardless of kind, receives "Alice"
+
+var user = factory.New().UseAutoConstructor().Build();
+```
+
+`With` matches by type across all member kinds (constructor parameters, properties, fields). `WithParameter` and `WithPropertyOrField` restrict matching to specific member kinds. All overloads accepting a name parameter additionally require the member name to match.
+
+### Options
+
+Configure factory-wide options either at construction or afterwards:
+
+```csharp
+// At construction
+var factory = new FixtureFactory(new FixtureOptions { AllowPrivateConstructors = true });
+
+// After construction
+factory.Options = new FixtureOptions { AllowPrivateConstructors = true };
+
+// Or modify in place
+factory.SetOptions(o => o.AllowPrivateConstructors = true);
+```
+
+Options apply to all fixtures produced by the factory.
+
+### Existing Instances
+
+Pass an existing instance to configure and build from:
+
+```csharp
+var existing = new User("Alice");
+var fixture = factory.New(existing)
+    .WithField("_age", 30)
+    .Build();
+```
+
+### Extensibility
+
+Register custom type links, value providers, and value converters to extend the factory's behavior:
+
+```csharp
+// Map an interface to a concrete type
+factory.AddTypeLink(myTypeLink);
+
+// Add a custom value provider
+factory.AddProvider(myProvider);
+
+// Add a custom value converter
+factory.AddConverter(myConverter);
+```
+
+Custom providers implement `ICustomProvider` and custom converters implement `ICustomConverter`. Both are available in the `FixtureBuilder.Core` namespace.
 
 ## MemberLens
 
