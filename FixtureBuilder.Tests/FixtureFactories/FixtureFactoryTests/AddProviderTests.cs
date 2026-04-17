@@ -3,7 +3,7 @@ using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
-    internal sealed class FixtureFactoryAddProviderTests
+    internal sealed class AddProviderTests
     {
         public class TestClass { }
 

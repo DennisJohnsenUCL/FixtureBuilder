@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.FixtureTests
+﻿using System.Reflection;
+
+namespace FixtureBuilder.Tests.FixtureTests
 {
     internal class NewTests
     {
@@ -14,7 +16,7 @@
         public void NoPrebuiltFixture_FixtureIsNull()
         {
             var fixture = Fixture.New<TestClass>();
-            var field = TestHelper.GetFixture(fixture);
+            var field = fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
 
             Assert.That(field, Is.Null);
         }

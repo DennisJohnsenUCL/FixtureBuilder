@@ -40,12 +40,14 @@ namespace FixtureBuilder.Tests
 
         internal static T GetFixture<T>(IFixtureConfigurator<T> fixture) where T : class
         {
-            return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+            return fixture.Build();
+            //return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
         }
 
         internal static T GetFixture<T>(IFixtureConstructor<T> fixture) where T : class
         {
-            return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+            return fixture.Build();
+            //return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
         }
     }
 

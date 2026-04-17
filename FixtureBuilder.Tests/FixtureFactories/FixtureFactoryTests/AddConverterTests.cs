@@ -3,7 +3,7 @@ using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
-    internal sealed class FixtureFactoryAddConverterTests
+    internal sealed class AddConverterTests
     {
         [Test]
         public void AddConverter_FixtureUsesAddedConverter()
