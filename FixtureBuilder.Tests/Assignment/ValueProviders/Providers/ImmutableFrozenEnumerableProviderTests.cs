@@ -1,4 +1,5 @@
-﻿using System.Collections.Frozen;
+﻿using System.Collections;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using FixtureBuilder.Assignment.ValueProviders.Providers;
@@ -26,216 +27,52 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             Assert.DoesNotThrow(() => new ImmutableFrozenEnumerableProvider());
         }
 
-        // --- Immutable single-element collections ---
-
-        [Test]
-        public void Resolve_ImmutableList_ReturnsEmptyInstance()
+        [TestCase(typeof(ImmutableList<int>), TestName = "Resolve_ImmutableList_ReturnsEmptyInstance")]
+        [TestCase(typeof(ReadOnlyCollection<int>), TestName = "Resolve_ReadOnlyCollection_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableHashSet<string>), TestName = "Resolve_ImmutableHashSet_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableSortedSet<int>), TestName = "Resolve_ImmutableSortedSet_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableStack<int>), TestName = "Resolve_ImmutableStack_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableQueue<int>), TestName = "Resolve_ImmutableQueue_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableArray<int>), TestName = "Resolve_ImmutableArray_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableDictionary<string, int>), TestName = "Resolve_ImmutableDictionary_ReturnsEmptyInstance")]
+        [TestCase(typeof(ReadOnlyDictionary<string, int>), TestName = "Resolve_ReadOnlyDictionary_ReturnsEmptyInstance")]
+        [TestCase(typeof(ImmutableSortedDictionary<string, int>), TestName = "Resolve_ImmutableSortedDictionary_ReturnsEmptyInstance")]
+        public void Resolve_ExactTypedCollection_ReturnsEmptyInstance(Type collectionType)
         {
-            var request = new FixtureRequest(typeof(ImmutableList<int>));
+            var request = new FixtureRequest(collectionType);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableList<int>>());
-                Assert.That(result, Is.Empty);
+                Assert.That(result, Is.TypeOf(collectionType));
+                Assert.That((IEnumerable)result!, Is.Empty);
             }
         }
 
-        [Test]
-        public void Resolve_ReadOnlyCollection_ReturnsEmptyInstance()
+        [TestCase(typeof(FrozenSet<int>), TestName = "Resolve_FrozenSet_ReturnsEmptyInstance")]
+        [TestCase(typeof(FrozenDictionary<string, int>), TestName = "Resolve_FrozenDictionary_ReturnsEmptyInstance")]
+        public void Resolve_AssignableCollection_ReturnsEmptyInstance(Type collectionType)
         {
-            var request = new FixtureRequest(typeof(ReadOnlyCollection<int>));
+            var request = new FixtureRequest(collectionType);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ReadOnlyCollection<int>>());
-                Assert.That(result, Is.Empty);
+                Assert.That(result, Is.AssignableTo(collectionType));
+                Assert.That((IEnumerable)result!, Is.Empty);
             }
         }
 
-        [Test]
-        public void Resolve_ImmutableHashSet_ReturnsEmptyInstance()
+        [TestCase(typeof(List<int>), TestName = "Resolve_MutableList_ReturnsNoResult")]
+        [TestCase(typeof(string), TestName = "Resolve_PlainClass_ReturnsNoResult")]
+        [TestCase(typeof(int), TestName = "Resolve_NonGenericType_ReturnsNoResult")]
+        public void Resolve_UnsupportedType_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(typeof(ImmutableHashSet<string>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableHashSet<string>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_ImmutableSortedSet_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ImmutableSortedSet<int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableSortedSet<int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_ImmutableStack_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ImmutableStack<int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableStack<int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_ImmutableQueue_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ImmutableQueue<int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableQueue<int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_ImmutableArray_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ImmutableArray<int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableArray<int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_FrozenSet_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(FrozenSet<int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.AssignableTo<FrozenSet<int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        // --- Immutable dictionary types ---
-
-        [Test]
-        public void Resolve_ImmutableDictionary_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ImmutableDictionary<string, int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableDictionary<string, int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_ReadOnlyDictionary_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ReadOnlyDictionary<string, int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ReadOnlyDictionary<string, int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_ImmutableSortedDictionary_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(ImmutableSortedDictionary<string, int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<ImmutableSortedDictionary<string, int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_FrozenDictionary_ReturnsEmptyInstance()
-        {
-            var request = new FixtureRequest(typeof(FrozenDictionary<string, int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.AssignableTo<FrozenDictionary<string, int>>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        // --- Unsupported types ---
-
-        [Test]
-        public void Resolve_MutableList_ReturnsNoResult()
-        {
-            var request = new FixtureRequest(typeof(List<int>));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_PlainClass_ReturnsNoResult()
-        {
-            var request = new FixtureRequest(typeof(string));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_NonGenericType_ReturnsNoResult()
-        {
-            var request = new FixtureRequest(typeof(int));
+            var request = new FixtureRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
