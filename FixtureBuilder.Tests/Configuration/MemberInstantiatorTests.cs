@@ -4,7 +4,7 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
-namespace FixtureBuilder.Tests.Configuration.MemberInstantiators
+namespace FixtureBuilder.Tests.Configuration
 {
     internal class MemberInstantiatorTests
     {

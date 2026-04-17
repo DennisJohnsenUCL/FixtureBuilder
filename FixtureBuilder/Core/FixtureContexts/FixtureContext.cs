@@ -76,11 +76,6 @@ namespace FixtureBuilder.Core.FixtureContexts
             return _resolver.ConstructingProvider.ResolveWithArguments(request, args);
         }
 
-        public object ResolveWithArguments(Type type, params object?[] args)
-        {
-            return _resolver.ConstructingProvider.ResolveWithArguments(type, args);
-        }
-
         public void SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);

@@ -3,7 +3,6 @@
 using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.ConstructingProviders;

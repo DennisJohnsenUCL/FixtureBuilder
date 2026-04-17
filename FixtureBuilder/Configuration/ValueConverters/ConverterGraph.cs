@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
+﻿namespace FixtureBuilder.Configuration.ValueConverters
 {
     internal class ConverterGraph
     {
