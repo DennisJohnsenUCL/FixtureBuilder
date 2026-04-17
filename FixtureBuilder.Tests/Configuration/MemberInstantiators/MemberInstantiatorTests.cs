@@ -1,4 +1,4 @@
-﻿using FixtureBuilder.Configuration.MemberInstantiators;
+﻿using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;

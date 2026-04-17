@@ -3,7 +3,7 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
-namespace FixtureBuilder.Configuration.MemberInstantiators
+namespace FixtureBuilder.Configuration
 {
     internal class MemberInstantiator<T> : IConstructor<T>
     {

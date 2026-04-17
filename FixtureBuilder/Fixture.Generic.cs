@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using FixtureBuilder.Configuration;
-using FixtureBuilder.Configuration.MemberInstantiators;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.ConstructingProviders;
