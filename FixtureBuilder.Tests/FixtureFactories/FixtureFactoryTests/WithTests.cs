@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.Creation.UninitializedProviders;
+﻿#pragma warning disable CS0649
+
+using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {

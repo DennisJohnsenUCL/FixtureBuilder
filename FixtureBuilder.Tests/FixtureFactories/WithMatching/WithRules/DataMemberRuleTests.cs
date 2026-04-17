@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿#pragma warning disable CS0649
+
+using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
