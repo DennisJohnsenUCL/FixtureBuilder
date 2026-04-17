@@ -6,6 +6,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
     internal sealed class AddTypeLinkTests
     {
         public class TestClass { }
+        public interface ITestInterface { }
+        public class TestImplementation : ITestInterface { }
 
         [Test]
         public void AddTypeLink_FixtureUsesAddedLink()
@@ -24,6 +26,36 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             var result = context.Link(targetType);
 
             Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void AddTypeLink_TypeParams_LinksInputToOutput()
+        {
+            var factory = new FixtureFactory();
+
+            factory.AddTypeLink<ITestInterface, TestImplementation>();
+
+            var fixture = factory.New<TestClass>();
+            var context = TestHelper.GetContext(fixture);
+            var result = context.Link(typeof(ITestInterface));
+
+            Assert.That(result, Is.EqualTo(typeof(TestImplementation)));
+        }
+
+        [Test]
+        public void AddTypeLink_TypeArguments_LinksInputToOutput()
+        {
+            var factory = new FixtureFactory();
+
+#pragma warning disable CA2263 // Prefer generic overload when type is known
+            factory.AddTypeLink(typeof(ITestInterface), typeof(TestImplementation));
+#pragma warning restore CA2263 // Prefer generic overload when type is known
+
+            var fixture = factory.New<TestClass>();
+            var context = TestHelper.GetContext(fixture);
+            var result = context.Link(typeof(ITestInterface));
+
+            Assert.That(result, Is.EqualTo(typeof(TestImplementation)));
         }
     }
 }
