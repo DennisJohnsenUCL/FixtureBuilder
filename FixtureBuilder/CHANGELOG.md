@@ -1,3 +1,10 @@
+#### 1.2.1
+
+- Added overloads for .AddTypeLink on FixtureFactory that take the input type and output type directly as parameters
+- Added overloads for .WithX methods on FixtureFactory that take funcs instead of a flat value
+  - These allow for adding factories that generate when needed values rather than providing a static value
+- Added .WhenBuilding method to FixtureFactory which allows for adding .WithX providers that apply only when building a test object of a given type.
+
 #### 1.2.0
 
 - Added the new major feature FixtureFactory. new FixtureFactory() will provide a factory instance that can be used to set options for and preconfigure Fixture instances.

@@ -91,12 +91,30 @@ var factory = new FixtureFactory()
     .WithParameter(30, "age")              // Only the parameter named "age" receives 30
     .WithPropertyOrField("Bob")            // Properties and fields of type string receive "Bob"
     .WithPropertyOrField("Bob", "Name")    // Only the property/field named "Name" receives "Bob"
-    .WithNamed("Name", "Alice");           // Any member named "Name", regardless of kind, receives "Alice"
 
 var user = factory.New().UseAutoConstructor().Build();
 ```
 
+All `With` methods have overloads that take a func delegate instead of a flat value. These allow for registering factories that generate new values every time they are called.
 `With` matches by type across all member kinds (constructor parameters, properties, fields). `WithParameter` and `WithPropertyOrField` restrict matching to specific member kinds. All overloads accepting a name parameter additionally require the member name to match.
+
+### Scoped Configuration
+
+Use `WhenBuilding` to scope pre-configured values to a specific test object type:
+
+```csharp
+var factory = new FixtureFactory()
+    .WhenBuilding<User>(b => b
+        .With<string>("Alice", "name")
+        .WithParameter<int>(30, "age"))
+    .WhenBuilding<Company>(b => b
+        .With<string>("Acme Corp", "name"));
+
+var user = factory.New<User>().UseAutoConstructor().Build();
+var company = factory.New<Company>().UseAutoConstructor().Build();
+```
+
+Values configured inside `WhenBuilding` only apply when the factory is producing that specific type. This avoids conflicts when different types share parameter names or types.
 
 ### Options
 
@@ -133,6 +151,8 @@ Register custom type links, value providers, and value converters to extend the 
 ```csharp
 // Map an interface to a concrete type
 factory.AddTypeLink(myTypeLink);
+factory.AddTypeLink<ITypeA, TypeB>();
+factory.AddTypeLink(typeof(ITypeA), typeof(TypeB));
 
 // Add a custom value provider
 factory.AddProvider(myProvider);
