@@ -84,23 +84,38 @@ namespace FixtureBuilder
         public FixtureFactory With<T>(T value)
             => AddProvider(b => b.With(value));
 
+        public FixtureFactory With<T>(Func<T> func)
+            => AddProvider(b => b.With(func));
+
         public FixtureFactory With<T>(T value, string name)
             => AddProvider(b => b.With(value, name));
+
+        public FixtureFactory With<T>(Func<T> func, string name)
+            => AddProvider(b => b.With(func, name));
 
         public FixtureFactory WithParameter<T>(T value)
             => AddProvider(b => b.WithParameter(value));
 
+        public FixtureFactory WithParameter<T>(Func<T> func)
+            => AddProvider(b => b.WithParameter(func));
+
         public FixtureFactory WithParameter<T>(T value, string name)
             => AddProvider(b => b.WithParameter(value, name));
+
+        public FixtureFactory WithParameter<T>(Func<T> func, string name)
+            => AddProvider(b => b.WithParameter(func, name));
 
         public FixtureFactory WithPropertyOrField<T>(T value)
             => AddProvider(b => b.WithPropertyOrField(value));
 
+        public FixtureFactory WithPropertyOrField<T>(Func<T> func)
+            => AddProvider(b => b.WithPropertyOrField(func));
+
         public FixtureFactory WithPropertyOrField<T>(T value, string name)
             => AddProvider(b => b.WithPropertyOrField(value, name));
 
-        public FixtureFactory WithNamed(string name, object? value)
-            => AddProvider(b => b.WithNamed(name, value));
+        public FixtureFactory WithPropertyOrField<T>(Func<T> func, string name)
+            => AddProvider(b => b.WithPropertyOrField(func, name));
 
         private FixtureFactory AddProvider(Func<MatchingProviderBuilder, MatchingProvider> build)
         {

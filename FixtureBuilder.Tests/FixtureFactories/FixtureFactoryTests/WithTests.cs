@@ -198,41 +198,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             Assert.That(result.Name, Is.Not.EqualTo("prop-injected"));
         }
 
-        // --- WithNamed(name, value) ---
-
-        [Test]
-        public void WithNamed_MatchingParameterName_AppliesValue()
-        {
-            _factory.WithNamed("name", "named-injected");
-
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("named-injected"));
-        }
-
-        [Test]
-        public void WithNamed_NonMatchingName_DoesNotApply()
-        {
-            _factory.WithNamed("other", "named-injected");
-
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.Not.EqualTo("named-injected"));
-        }
-
-        [Test]
-        public void WithNamed_MatchingPropertyName_AppliesValue()
-        {
-            _factory.WithNamed("Name", "named-injected");
-
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("named-injected"));
-        }
-
         // --- Chaining ---
 
         [Test]
@@ -248,6 +213,84 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
                 Assert.That(result.Name, Is.EqualTo("injected"));
                 Assert.That(result.Age, Is.EqualTo(42));
             }
+        }
+
+        // --- With<T>(func) ---
+
+        [Test]
+        public void With_Func_MatchingType_AppliesValue()
+        {
+            _factory.With(() => "injected");
+
+            var fixture = _factory.New<ConstructorClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("injected"));
+        }
+
+        // --- With<T>(func, name) ---
+
+        [Test]
+        public void WithName_Func_MatchingTypeAndName_AppliesValue()
+        {
+            _factory.With(() => "injected", "name");
+
+            var fixture = _factory.New<ConstructorClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("injected"));
+        }
+
+        // --- WithParameter<T>(func) ---
+
+        [Test]
+        public void WithParameter_Func_MatchingParameterType_AppliesValue()
+        {
+            _factory.WithParameter(() => "param-injected");
+
+            var fixture = _factory.New<ConstructorClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("param-injected"));
+        }
+
+        // --- WithParameter<T>(func, name) ---
+
+        [Test]
+        public void WithParameterName_Func_MatchingTypeAndName_AppliesValue()
+        {
+            _factory.WithParameter(() => "param-injected", "name");
+
+            var fixture = _factory.New<ConstructorClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("param-injected"));
+        }
+
+        // --- WithPropertyOrField<T>(func) ---
+
+        [Test]
+        public void WithPropertyOrField_Func_MatchingPropertyType_AppliesValue()
+        {
+            _factory.WithPropertyOrField(() => "prop-injected");
+
+            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("prop-injected"));
+        }
+
+        // --- WithPropertyOrField<T>(func, name) ---
+
+        [Test]
+        public void WithPropertyOrFieldName_Func_MatchingTypeAndName_AppliesValue()
+        {
+            _factory.WithPropertyOrField(() => "prop-injected", "Name");
+
+            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("prop-injected"));
         }
     }
 }

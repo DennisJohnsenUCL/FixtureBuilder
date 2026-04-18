@@ -71,7 +71,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
             var rule = new Mock<IWithRule>();
             rule.Setup(r => r.IsMatch(_request)).Returns(true);
 
-            var sut = new MatchingProvider([rule.Object], null);
+            var sut = new MatchingProvider([rule.Object], (object?)null);
 
             var result = sut.ResolveValue(_request, _contextMock.Object);
 
@@ -89,6 +89,38 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
             var result = sut.ResolveValue(_request, _contextMock.Object);
 
             Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void ResolveValue_AllRulesMatch_InvokesFunc()
+        {
+            var expected = "from func";
+            var rule = new Mock<IWithRule>();
+            rule.Setup(r => r.IsMatch(_request)).Returns(true);
+
+            var sut = new MatchingProvider([rule.Object], () => expected);
+
+            var result = sut.ResolveValue(_request, _contextMock.Object);
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void ResolveValue_RulesDoNotMatch_DoesNotInvokeFunc()
+        {
+            var wasCalled = false;
+            var rule = new Mock<IWithRule>();
+            rule.Setup(r => r.IsMatch(_request)).Returns(false);
+
+            var sut = new MatchingProvider([rule.Object], () =>
+            {
+                wasCalled = true;
+                return "value";
+            });
+
+            sut.ResolveValue(_request, _contextMock.Object);
+
+            Assert.That(wasCalled, Is.False);
         }
     }
 }
