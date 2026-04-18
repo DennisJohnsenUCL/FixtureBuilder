@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class TryWalkToParameterTests
     {
@@ -22,7 +22,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void BareParameter_ReturnsTrue()
         {
             Expression<Func<Outer, Outer>> expr = x => x;
-            var result = ExpressionHelper.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -30,7 +30,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void SingleProperty_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.Name;
-            var result = ExpressionHelper.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void SingleField_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.NameField;
-            var result = ExpressionHelper.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -46,7 +46,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void NestedPropertyChain_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.Prop.Value;
-            var result = ExpressionHelper.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -54,7 +54,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void MixedFieldAndPropertyChain_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.Field.Value;
-            var result = ExpressionHelper.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             var outer = new Outer();
             Expression<Func<Outer, string>> expr = x => outer.Name;
-            var result = ExpressionHelper.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.False);
         }
 
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Outer, string>> expr1 = x => x.Name;
             Expression<Func<Outer, string>> expr2 = y => y.Name;
-            var result = ExpressionHelper.TryWalkToParameter(expr1.Body, expr2.Parameters[0]);
+            var result = ExpressionValidator.TryWalkToParameter(expr1.Body, expr2.Parameters[0]);
             Assert.That(result, Is.False);
         }
     }

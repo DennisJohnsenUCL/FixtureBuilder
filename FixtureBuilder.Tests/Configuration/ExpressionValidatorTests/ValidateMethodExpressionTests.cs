@@ -2,7 +2,7 @@
 
 using FixtureBuilder.Configuration;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidateMethodExpressionTests
     {
@@ -22,28 +22,28 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void MethodOnProperty_DoesNotThrow()
         {
             Assert.DoesNotThrow(() =>
-                ExpressionHelper.ValidateMethodExpression<Outer>(x => x.Prop.DoSomething()));
+                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.Prop.DoSomething()));
         }
 
         [Test]
         public void MethodOnField_DoesNotThrow()
         {
             Assert.DoesNotThrow(() =>
-                ExpressionHelper.ValidateMethodExpression<Outer>(x => x.Field.DoSomething()));
+                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.Field.DoSomething()));
         }
 
         [Test]
         public void MethodDirectlyOnParameter_DoesNotThrow()
         {
             Assert.DoesNotThrow(() =>
-                ExpressionHelper.ValidateMethodExpression<Outer>(x => x.GetValue()));
+                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.GetValue()));
         }
 
         [Test]
         public void StaticMethod_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                ExpressionHelper.ValidateMethodExpression<Outer>(x => Console.WriteLine()));
+                ExpressionValidator.ValidateMethodExpression<Outer>(x => Console.WriteLine()));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             var outer = new Outer();
             Assert.Throws<InvalidOperationException>(() =>
-                ExpressionHelper.ValidateMethodExpression<Outer>(x => outer.GetValue()));
+                ExpressionValidator.ValidateMethodExpression<Outer>(x => outer.GetValue()));
         }
     }
 }

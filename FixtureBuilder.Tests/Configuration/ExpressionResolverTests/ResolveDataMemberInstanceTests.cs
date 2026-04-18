@@ -5,10 +5,12 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class ResolveDataMemberInstanceTests
     {
+        private readonly ExpressionResolver _sut = new(typeof(object));
+
         private class Root
         {
             public Child Child { get; set; } = null!;
@@ -23,10 +25,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void NullRoot_ThrowsArgumentException()
         {
             Expression<Func<Root, int>> expr = x => x.Child.Value;
-            var context = Mock.Of<IFixtureContext>();
 
             Assert.Throws<ArgumentException>(
-                () => ExpressionHelper.ResolveDataMemberInstance<Root, int>(null!, expr, context));
+                () => _sut.ResolveDataMemberInstance<Root, int>(null!, expr, Mock.Of<IFixtureContext>()));
         }
 
         [Test]
@@ -34,9 +35,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             var root = new Root { Child = new Child { Value = 42 } };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
-            var context = Mock.Of<IFixtureContext>();
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberInstance(root, expr, context);
+            var (instance, dataMember) = _sut.ResolveDataMemberInstance(root, expr, Mock.Of<IFixtureContext>());
 
             using (Assert.EnterMultipleScope())
             {
@@ -59,7 +59,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedChild);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberInstance(root, expr, context.Object);
+            var (instance, dataMember) = _sut.ResolveDataMemberInstance(root, expr, context.Object);
 
             using (Assert.EnterMultipleScope())
             {

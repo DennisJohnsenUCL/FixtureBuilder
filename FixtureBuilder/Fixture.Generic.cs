@@ -11,6 +11,7 @@ namespace FixtureBuilder
     internal class Fixture<T> : IFixtureConstructor<T>, IFixtureConfigurator<T> where T : class
     {
         private readonly IFixtureContext _context;
+        private readonly ExpressionResolver _expressionResolver;
         private T _fixture = null!;
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace FixtureBuilder
             if (typeof(T).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = context;
+            _expressionResolver = new ExpressionResolver(typeof(T));
         }
 
         internal Fixture(T instance) : this(instance, InitializeContext()) { }
@@ -53,6 +55,7 @@ namespace FixtureBuilder
             if (instance.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = context;
+            _expressionResolver = new ExpressionResolver(typeof(T));
             _fixture = instance;
         }
 
@@ -147,7 +150,7 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionValidator.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
             var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
@@ -169,7 +172,7 @@ namespace FixtureBuilder
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionValidator.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
             var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
@@ -212,9 +215,9 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionValidator.ValidateExpression(expr);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberInstance(_fixture, expr, _context);
+            var (instance, dataMember) = _expressionResolver.ResolveDataMemberInstance(_fixture, expr, _context);
             var dataMemberType = dataMember.DataMemberType;
 
             return WithFieldInternal(fieldName, dataMemberType, value, instance);
@@ -304,8 +307,8 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidatePropertyExpression(expr);
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+            ExpressionValidator.ValidatePropertyExpression(expr);
+            var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr, _context);
             var property = dataMember.Property;
             var propertyParentType = instance.GetType();
 
@@ -339,10 +342,10 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidatePropertyExpression(expr);
-            ExpressionHelper.ValidatePropertyWriteable(expr);
+            ExpressionValidator.ValidatePropertyExpression(expr);
+            ExpressionValidator.ValidatePropertyWriteable(expr);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+            var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr, _context);
             var property = dataMember.Property;
 
             property.SetValue(instance, value);
@@ -364,13 +367,13 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(_fixture, expr, _context);
+            ExpressionValidator.ValidateExpression(expr);
+            var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr, _context);
 
             if (dataMember.IsFieldInfo)
                 return WithFieldInternal(dataMember.Name, instance.GetType(), value, instance);
 
-            if (ExpressionHelper.IsPropertyWritable(expr)) return ((IFixtureConfigurator<T>)this).WithSetter(expr, value);
+            if (ExpressionValidator.IsPropertyWritable(expr)) return ((IFixtureConfigurator<T>)this).WithSetter(expr, value);
             else return WithBackingFieldInternal(expr, value);
         }
 
@@ -385,8 +388,8 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateMethodExpression(expr);
-            ExpressionHelper.ResolveMethodParent(_fixture, expr, _context);
+            ExpressionValidator.ValidateMethodExpression(expr);
+            _expressionResolver.ResolveMethodParent(_fixture, expr, _context);
 
             var action = expr.Compile();
             action.Invoke(_fixture);
@@ -430,9 +433,9 @@ namespace FixtureBuilder
         {
             _fixture ??= InstantiateFixture();
 
-            ExpressionHelper.ValidateExpression(expr);
+            ExpressionValidator.ValidateExpression(expr);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberInstance(_fixture, expr, _context);
+            var (instance, dataMember) = _expressionResolver.ResolveDataMemberInstance(_fixture, expr, _context);
             var dataMemberType = dataMember.DataMemberType;
 
             InvokePrivateInternal(dataMemberType, instance, methodName, arguments);

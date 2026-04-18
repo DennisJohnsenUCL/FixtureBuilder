@@ -3,10 +3,12 @@ using FixtureBuilder.Configuration;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class ResolveDataMemberParentTests
     {
+        private readonly ExpressionResolver _sut = new(typeof(object));
+
         private class Root
         {
             public Child Child { get; set; } = null!;
@@ -21,10 +23,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void NullRoot_ThrowsArgumentException()
         {
             Expression<Func<Root, int>> expr = x => x.Child.Value;
-            var context = Mock.Of<IFixtureContext>();
 
             Assert.Throws<ArgumentException>(
-                () => ExpressionHelper.ResolveDataMemberParent<Root, int>(null!, expr, context));
+                () => _sut.ResolveDataMemberParent<Root, int>(null!, expr, Mock.Of<IFixtureContext>()));
         }
 
         [Test]
@@ -32,9 +33,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             var root = new Root { Child = new Child() };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
-            var context = new Mock<IFixtureContext>();
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberParent(root, expr, context.Object);
+            var (instance, dataMember) = _sut.ResolveDataMemberParent(root, expr, new Mock<IFixtureContext>().Object);
 
             using (Assert.EnterMultipleScope())
             {

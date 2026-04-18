@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class IsPropertyWriteableTests
     {
@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, string>> expr = x => x.Writable;
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.True);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.True);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, int>> expr = x => x.ReadOnly;
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.False);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.False);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, int>> expr = x => x.Child.Age;
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.True);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.True);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, int>> expr = x => x.Child.ReadOnly;
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.False);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.False);
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, string>> expr = x => x.GetValue();
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.False);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.False);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, string>> expr = x => "hello";
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.False);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.False);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, string>> expr = x => x.field;
 
-            Assert.That(ExpressionHelper.IsPropertyWritable(expr), Is.False);
+            Assert.That(ExpressionValidator.IsPropertyWritable(expr), Is.False);
         }
     }
 }

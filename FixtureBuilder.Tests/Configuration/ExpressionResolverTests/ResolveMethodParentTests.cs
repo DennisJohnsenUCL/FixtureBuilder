@@ -7,10 +7,12 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class ResolveMethodParentTests
     {
+        private readonly ExpressionResolver _sut = new(typeof(object));
+
         private class Root
         {
             public Child Child { get; set; } = null!;
@@ -27,20 +29,18 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void NullRoot_ThrowsArgumentException()
         {
             Expression<Action<Root>> expr = x => x.RootMethod();
-            var context = Mock.Of<IFixtureContext>();
 
             Assert.Throws<ArgumentException>(
-                () => ExpressionHelper.ResolveMethodParent<Root>(null!, expr, context));
+                () => _sut.ResolveMethodParent<Root>(null!, expr, Mock.Of<IFixtureContext>()));
         }
 
         [Test]
         public void MethodDirectlyOnRoot_DoesNotCallContext()
         {
-            var root = new Root();
             Expression<Action<Root>> expr = x => x.RootMethod();
             var context = new Mock<IFixtureContext>();
 
-            ExpressionHelper.ResolveMethodParent(root, expr, context.Object);
+            _sut.ResolveMethodParent(new Root(), expr, context.Object);
 
             context.VerifyNoOtherCalls();
         }
@@ -59,7 +59,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedChild);
 
-            ExpressionHelper.ResolveMethodParent(root, expr, context.Object);
+            _sut.ResolveMethodParent(root, expr, context.Object);
 
             Assert.That(root.Child, Is.SameAs(resolvedChild));
         }
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             Expression<Action<Root>> expr = x => x.Child.DoWork();
             var context = new Mock<IFixtureContext>();
 
-            ExpressionHelper.ResolveMethodParent(root, expr, context.Object);
+            _sut.ResolveMethodParent(root, expr, context.Object);
 
             Assert.That(root.Child, Is.SameAs(existingChild));
             context.VerifyNoOtherCalls();

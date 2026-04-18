@@ -1,6 +1,6 @@
 ﻿using FixtureBuilder.Configuration;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidatePropertyExpressionTests
     {
@@ -22,49 +22,49 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         public void SingleProperty_DoesNotThrow()
         {
             Assert.DoesNotThrow(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, string>(x => x.Name));
+                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Name));
         }
 
         [Test]
         public void NestedProperty_DoesNotThrow()
         {
             Assert.DoesNotThrow(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, string>(x => x.Prop.Value));
+                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Prop.Value));
         }
 
         [Test]
         public void FieldThenProperty_DoesNotThrow()
         {
             Assert.DoesNotThrow(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, string>(x => x.Field.Value));
+                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Field.Value));
         }
 
         [Test]
         public void SingleField_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, string>(x => x.NameField));
+                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.NameField));
         }
 
         [Test]
         public void PropertyThenField_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, string>(x => x.Prop.ValueField));
+                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Prop.ValueField));
         }
 
         [Test]
         public void BareParameter_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, Outer>(x => x));
+                ExpressionValidator.ValidatePropertyExpression<Outer, Outer>(x => x));
         }
 
         [Test]
         public void Constant_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                ExpressionHelper.ValidatePropertyExpression<Outer, string>(x => "hello"));
+                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => "hello"));
         }
     }
 }

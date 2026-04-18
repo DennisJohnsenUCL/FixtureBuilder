@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 
-namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
+namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidatePropertyWriteableTests
     {
@@ -23,7 +23,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, string>> expr = x => x.Writable;
 
-            Assert.DoesNotThrow(() => ExpressionHelper.ValidatePropertyWriteable(expr));
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyWriteable(expr));
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
         {
             Expression<Func<Parent, int>> expr = x => x.Child.Age;
 
-            Assert.DoesNotThrow(() => ExpressionHelper.ValidatePropertyWriteable(expr));
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyWriteable(expr));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             Expression<Func<Parent, int>> expr = x => x.ReadOnly;
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.ValidatePropertyWriteable(expr));
+                () => ExpressionValidator.ValidatePropertyWriteable(expr));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             Expression<Func<Parent, int>> expr = x => x.Child.ReadOnly;
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.ValidatePropertyWriteable(expr));
+                () => ExpressionValidator.ValidatePropertyWriteable(expr));
         }
     }
 }
