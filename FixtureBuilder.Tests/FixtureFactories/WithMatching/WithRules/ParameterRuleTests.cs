@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿#pragma warning disable IDE0060
+
+using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
@@ -23,7 +25,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_RequestSourceIsParameterInfo_ReturnsTrue()
         {
             var paramInfo = GetParameterInfo();
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object), null);
             var sut = new ParameterRule();
 
             Assert.That(sut.IsMatch(request), Is.True);
@@ -41,7 +43,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         [Test]
         public void IsMatch_RequestSourceIsNotParameterInfo_ReturnsFalse()
         {
-            var request = new FixtureRequest(typeof(string), this, "Name");
+            var request = new FixtureRequest(typeof(string), this, typeof(object), "Name");
             var sut = new ParameterRule();
 
             Assert.That(sut.IsMatch(request), Is.False);

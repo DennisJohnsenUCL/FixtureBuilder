@@ -26,7 +26,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             _uninitializedProvider = uninitializedProvider;
         }
 
-        public void InitializeMembers(object instance, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
+        public void InitializeMembers(object instance, InitializeMembers initializeMembers, Type rootType, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
         {
             var dataMembers = instance.GetType().GetDataMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -43,8 +43,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 if (Equals(value, defaultValue))
                 {
                     FixtureRequest? request = null;
-                    if (dataMember.IsPropertyInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Property, dataMember.Name);
-                    if (dataMember.IsFieldInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Field, dataMember.Name);
+                    if (dataMember.IsPropertyInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Property, rootType, dataMember.Name);
+                    if (dataMember.IsFieldInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Field, rootType, dataMember.Name);
                     if (request == null) return;
 
                     value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);

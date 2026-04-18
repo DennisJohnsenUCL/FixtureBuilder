@@ -41,7 +41,7 @@ namespace FixtureBuilder.Configuration
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context);
+            return ResolveDataMemberPath(memberExpr, root, typeof(T), resolveInstance: false, context);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace FixtureBuilder.Configuration
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolveDataMemberPath(memberExpr, root, resolveInstance: true, context);
+            return ResolveDataMemberPath(memberExpr, root, typeof(T), resolveInstance: true, context);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace FixtureBuilder.Configuration
             var call = (MethodCallExpression)expr.Body;
 
             if (call.Object is MemberExpression memberExpr)
-                ResolveDataMemberPath(memberExpr, root, resolveInstance: true, context);
+                ResolveDataMemberPath(memberExpr, root, typeof(T), resolveInstance: true, context);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <param name="context">The fixture context used to initialize property values.</param>
         /// <returns>A tuple of the resolved instance and the final property in the path.</returns>
-        internal static (object Instance, DataMemberInfo DataMember) ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, IFixtureContext context)
+        internal static (object Instance, DataMemberInfo DataMember) ResolveDataMemberPath(MemberExpression? memberExpr, object root, Type rootType, bool resolveInstance, IFixtureContext context)
         {
             var members = new Stack<DataMemberInfo>();
             while (memberExpr != null)
@@ -124,11 +124,11 @@ namespace FixtureBuilder.Configuration
             while (members.Count > 1)
             {
                 var dataMember = members.Pop();
-                current = InitializeDataMemberValue(current, dataMember, context);
+                current = InitializeDataMemberValue(current, dataMember, rootType, context);
             }
 
             var finaldataMember = members.Pop();
-            if (resolveInstance) current = InitializeDataMemberValue(current, finaldataMember, context);
+            if (resolveInstance) current = InitializeDataMemberValue(current, finaldataMember, rootType, context);
 
             return (current, finaldataMember);
         }
@@ -145,7 +145,7 @@ namespace FixtureBuilder.Configuration
         /// <exception cref="InvalidOperationException">
         /// Thrown when the property value is <see langword="null"/> and the property does not have a setter.
         /// </exception>
-        internal static object InitializeDataMemberValue(object parent, DataMemberInfo dataMember, IFixtureContext context)
+        internal static object InitializeDataMemberValue(object parent, DataMemberInfo dataMember, Type rootType, IFixtureContext context)
         {
             if (dataMember.TryIsPropertyInfo(out var pi) && !pi.CanRead)
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
@@ -161,8 +161,8 @@ namespace FixtureBuilder.Configuration
 
             var type = dataMember.DataMemberType;
             var request = dataMember.IsPropertyInfo
-                ? new FixtureRequest(type, dataMember.Property, dataMember.Name)
-                : new FixtureRequest(type, dataMember.Field, dataMember.Name);
+                ? new FixtureRequest(type, dataMember.Property, rootType, dataMember.Name)
+                : new FixtureRequest(type, dataMember.Field, rootType, dataMember.Name);
 
             current = context.ProvideWithStrategy(request, context.Options.NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {type.Name} in Expression chain resolution. " +

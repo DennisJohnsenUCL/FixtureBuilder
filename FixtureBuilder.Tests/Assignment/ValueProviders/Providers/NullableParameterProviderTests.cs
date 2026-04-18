@@ -11,6 +11,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
     internal sealed class NullableParameterProviderTests
     {
         private NullableParameterProvider _sut;
+        private readonly Type _rootType = typeof(object);
         private Mock<IFixtureContext> _contextMock;
 
         private static ParameterInfo GetParameterInfo(string methodName, string paramName)
@@ -46,7 +47,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NullableReferenceParameter_OptionEnabled_ReturnsNull()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
@@ -59,7 +60,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NullableValueTypeParameter_OptionEnabled_ReturnsNull()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableInt), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
@@ -72,7 +73,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NullableParameter_OptionDisabled_ReturnsNoResult()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions { PreferNullParameterValues = false };
             _contextMock.Setup(c => c.Options).Returns(options);
 
@@ -85,7 +86,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NonNullableParameter_OptionEnabled_ReturnsNoResult()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.NonNullableString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 
@@ -108,7 +109,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NonNullableValueType_OptionEnabled_ReturnsNoResult()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.NonNullableInt), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
 

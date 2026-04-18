@@ -3,21 +3,23 @@
     public class FixtureRequest
     {
         public Type Type { get; set; }
-        public string? Name { get; }
         public object? RequestSource { get; }
+        public Type RootType { get; }
+        public string? Name { get; }
 
         internal FixtureRequest(Type type)
         {
             ArgumentNullException.ThrowIfNull(type);
             Type = type;
+            RootType = Type;
         }
 
-        internal FixtureRequest(Type type, object requestSource, string? name = null)
+        internal FixtureRequest(Type type, object requestSource, Type rootType, string? name) : this(type)
         {
-            ArgumentNullException.ThrowIfNull(type);
             ArgumentNullException.ThrowIfNull(requestSource);
-            Type = type;
+            ArgumentNullException.ThrowIfNull(rootType);
             RequestSource = requestSource;
+            RootType = rootType;
             Name = name;
         }
     }

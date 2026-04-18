@@ -5,6 +5,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
 {
     internal sealed class NameRuleTests
     {
+        private readonly Type _rootType = typeof(object);
+
         [Test]
         public void Constructor_NullName_Throws()
         {
@@ -15,7 +17,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_SameName_ReturnsTrue()
         {
             var sut = new NameRule("FirstName");
-            var request = new FixtureRequest(typeof(string), this, "FirstName");
+            var request = new FixtureRequest(typeof(string), this, _rootType, "FirstName");
 
             Assert.That(sut.IsMatch(request), Is.True);
         }
@@ -24,7 +26,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_DifferentName_ReturnsFalse()
         {
             var sut = new NameRule("FirstName");
-            var request = new FixtureRequest(typeof(string), this, "LastName");
+            var request = new FixtureRequest(typeof(string), this, _rootType, "LastName");
 
             Assert.That(sut.IsMatch(request), Is.False);
         }
@@ -42,7 +44,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_CaseSensitive()
         {
             var sut = new NameRule("FirstName");
-            var request = new FixtureRequest(typeof(string), this, "firstname");
+            var request = new FixtureRequest(typeof(string), this, _rootType, "firstname");
 
             Assert.That(sut.IsMatch(request), Is.False);
         }

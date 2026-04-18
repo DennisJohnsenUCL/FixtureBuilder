@@ -40,7 +40,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
 
             var constructor = GetConstructorInfo(request, context);
             var parameters = constructor.GetParameters();
-            var parameterValues = GetParameterValues(parameters, context, recursiveResolveContext);
+            var parameterValues = GetParameterValues(parameters, request.RootType, context, recursiveResolveContext);
 
             try
             {
@@ -53,13 +53,13 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             }
         }
 
-        private IEnumerable<object?> GetParameterValues(ParameterInfo[] parameters, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
+        private IEnumerable<object?> GetParameterValues(ParameterInfo[] parameters, Type rootType, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
         {
             return parameters.Select(p =>
             {
                 var paramType = context.UnwrapAndLink(p.ParameterType);
 
-                var request = new FixtureRequest(paramType, p, p.Name);
+                var request = new FixtureRequest(paramType, p, rootType, p.Name);
                 var result = context.ResolveValue(request, context);
                 if (result is not NoResult) return result;
 

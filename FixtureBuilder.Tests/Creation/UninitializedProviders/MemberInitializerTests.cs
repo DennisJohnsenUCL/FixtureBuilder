@@ -10,6 +10,8 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal sealed class MemberInitializerTests
     {
+        private readonly Type _rootType = typeof(object);
+
         private Mock<IDataMemberSkipFilter> _skipFilter;
         private Mock<IUninitializedProvider> _uninitializedProvider;
         private RecursiveResolveContext _recursiveResolveContext;
@@ -91,7 +93,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
                 .Returns(expectedValue);
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             var result = instance.Name;
 
@@ -109,7 +111,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(f => f.ShouldSkip(It.IsAny<DataMemberInfo>(), initMembers))
                 .Returns(false);
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             _uninitializedProvider.Verify(
                 p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()),
@@ -132,7 +134,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
                 .Returns("resolved");
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             _uninitializedProvider.Verify(
                 p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext),
@@ -155,7 +157,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
                 .Returns(expectedValue);
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             var result = instance.Value;
 
@@ -177,7 +179,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context))
                 .Returns((object?)null);
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             var result = instance.Name;
 
@@ -200,7 +202,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
                 .Returns(() => $"value{++callCount}");
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             using (Assert.EnterMultipleScope())
             {
@@ -226,7 +228,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Callback<FixtureRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((req, _, _, _) => capturedRequest = req)
                 .Returns("value");
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             using (Assert.EnterMultipleScope())
             {
@@ -251,7 +253,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
                 .Returns(42);
 
-            _sut.InitializeMembers(instance, initMembers, context, _recursiveResolveContext);
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             var result = instance.Count;
 
@@ -259,5 +261,28 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         }
 
         #endregion
+
+        [Test]
+        public void InitializeMembers_PassesRootTypeToRequest()
+        {
+            var instance = new TestClassWithProperty();
+            var context = Mock.Of<IFixtureContext>();
+            var initMembers = InitializeMembers.All;
+            var rootType = typeof(string);
+            FixtureRequest? capturedRequest = null;
+
+            _skipFilter
+                .Setup(f => f.ShouldSkip(It.IsAny<DataMemberInfo>(), initMembers))
+                .Returns(false);
+
+            _uninitializedProvider
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Callback<FixtureRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((req, _, _, _) => capturedRequest = req)
+                .Returns("value");
+
+            _sut.InitializeMembers(instance, initMembers, rootType, context, _recursiveResolveContext);
+
+            Assert.That(capturedRequest!.RootType, Is.EqualTo(typeof(string)));
+        }
     }
 }

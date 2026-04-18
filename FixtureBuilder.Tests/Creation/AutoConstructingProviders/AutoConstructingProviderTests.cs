@@ -370,5 +370,23 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         }
 
         #endregion
+
+        [Test]
+        public void AutoResolve_ParameterRequest_CarriesRootType()
+        {
+            var request = new FixtureRequest(typeof(SingleParam));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
+            _contextMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns("test-value");
+
+            _sut.AutoResolve(request, _contextMock.Object);
+
+            _contextMock.Verify(c => c.ResolveValue(
+                It.Is<FixtureRequest>(r => r.RootType == typeof(SingleParam)),
+                It.IsAny<IFixtureContext>()), Times.Once);
+        }
     }
 }

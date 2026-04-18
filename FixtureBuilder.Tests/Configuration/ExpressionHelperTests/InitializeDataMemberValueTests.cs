@@ -10,6 +10,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
 {
     internal sealed class InitializeDataMemberValueTests
     {
+        private readonly Type _rootType = typeof(object);
+
         private class Parent
         {
             public Child Child { get; set; } = null!;
@@ -36,7 +38,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var dataMember = new DataMemberInfo(prop);
             var context = Mock.Of<IFixtureContext>();
 
-            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context);
+            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context);
 
             Assert.That(result, Is.SameAs(parent.PrePopulated));
         }
@@ -49,7 +51,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var dataMember = new DataMemberInfo(prop);
             var context = new Mock<IFixtureContext>();
 
-            ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object);
+            ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object);
 
             context.VerifyNoOtherCalls();
         }
@@ -69,7 +71,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolved);
 
-            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object);
+            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -89,7 +91,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             context.Setup(c => c.Options).Returns(options);
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object));
         }
 
         [Test]
@@ -103,7 +105,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             context.Setup(c => c.Options).Returns(options);
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object));
         }
 
         [Test]
@@ -115,7 +117,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var context = Mock.Of<IFixtureContext>();
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context));
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context));
         }
 
         // --- Field-backed ---
@@ -128,7 +130,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var dataMember = new DataMemberInfo(field);
             var context = Mock.Of<IFixtureContext>();
 
-            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context);
+            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context);
 
             Assert.That(result, Is.SameAs(parent.PrePopulatedField));
         }
@@ -141,7 +143,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var dataMember = new DataMemberInfo(field);
             var context = new Mock<IFixtureContext>();
 
-            ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object);
+            ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object);
 
             context.VerifyNoOtherCalls();
         }
@@ -161,7 +163,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolved);
 
-            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object);
+            var result = ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -181,7 +183,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             context.Setup(c => c.Options).Returns(options);
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object));
         }
 
         [Test]
@@ -199,7 +201,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                 .Returns(null!);
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object));
         }
 
         [Test]
@@ -217,7 +219,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                 .Returns(null!);
 
             Assert.Throws<InvalidOperationException>(
-                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, context.Object));
+                () => ExpressionHelper.InitializeDataMemberValue(parent, dataMember, _rootType, context.Object));
         }
     }
 }

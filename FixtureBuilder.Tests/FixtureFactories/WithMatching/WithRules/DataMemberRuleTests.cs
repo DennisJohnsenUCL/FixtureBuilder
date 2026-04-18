@@ -8,6 +8,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
 {
     internal sealed class DataMemberRuleTests
     {
+        private readonly Type _rootType = typeof(object);
+
         private class SampleClass
         {
             public string Property { get; set; } = "";
@@ -24,7 +26,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_RequestSourceIsPropertyInfo_ReturnsTrue()
         {
             var prop = GetPropertyInfo();
-            var request = new FixtureRequest(prop.PropertyType, prop, prop.Name);
+            var request = new FixtureRequest(prop.PropertyType, prop, _rootType, prop.Name);
             var sut = new DataMemberRule();
 
             Assert.That(sut.IsMatch(request), Is.True);
@@ -34,7 +36,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_RequestSourceIsFieldInfo_ReturnsTrue()
         {
             var field = GetFieldInfo();
-            var request = new FixtureRequest(field.FieldType, field, field.Name);
+            var request = new FixtureRequest(field.FieldType, field, _rootType, field.Name);
             var sut = new DataMemberRule();
 
             Assert.That(sut.IsMatch(request), Is.True);
@@ -53,7 +55,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_RequestSourceIsParameterInfo_ReturnsFalse()
         {
             var paramInfo = typeof(SampleClass).GetConstructors()[0].GetParameters();
-            var request = new FixtureRequest(typeof(string), paramInfo, "Name");
+            var request = new FixtureRequest(typeof(string), paramInfo, _rootType, "Name");
             var sut = new DataMemberRule();
 
             Assert.That(sut.IsMatch(request), Is.False);

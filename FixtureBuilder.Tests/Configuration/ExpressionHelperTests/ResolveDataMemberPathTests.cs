@@ -9,6 +9,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
 {
     internal sealed class ResolveDataMemberPathTests
     {
+        private readonly Type _rootType = typeof(object);
+
         private class Root
         {
             public Middle Middle { get; set; } = null!;
@@ -51,7 +53,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var memberExpr = GetMemberExpr<Root, string>(x => x.NameField);
             var context = Mock.Of<IFixtureContext>();
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -75,7 +77,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -95,7 +97,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var memberExpr = GetMemberExpr<Root, int>(x => x.MiddleField.ValueField);
             var context = new Mock<IFixtureContext>();
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context.Object);
 
             Assert.That(instance, Is.SameAs(existingMiddle));
             context.VerifyNoOtherCalls();
@@ -120,7 +122,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedLeaf);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -145,7 +147,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -167,7 +169,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedMiddle);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -186,7 +188,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
             var memberExpr = GetMemberExpr<Root, Leaf>(x => x.MiddleField.LeafField);
             var context = new Mock<IFixtureContext>();
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: false, context.Object);
 
             using (Assert.EnterMultipleScope())
             {
@@ -208,7 +210,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionHelperTests
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedLeaf);
 
-            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, resolveInstance: true, context.Object);
+            var (instance, dataMember) = ExpressionHelper.ResolveDataMemberPath(memberExpr, root, _rootType, resolveInstance: true, context.Object);
 
             using (Assert.EnterMultipleScope())
             {

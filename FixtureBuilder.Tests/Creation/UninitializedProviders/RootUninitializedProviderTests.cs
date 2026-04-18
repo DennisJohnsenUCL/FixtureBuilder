@@ -8,6 +8,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal class RootUninitializedProviderTests
     {
+        private readonly Type _rootType = typeof(object);
         private Mock<IMemberInitializer> _memberInitializer;
         private RootUninitializedProvider _sut;
 
@@ -68,7 +69,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_NullContext_ThrowsArgumentNullException()
         {
-            var request = new FixtureRequest(typeof(SimpleClass), "test");
+            var request = new FixtureRequest(typeof(SimpleClass), this, _rootType, null);
 
             var ex = Assert.Throws<ArgumentNullException>(() =>
                 _sut.ResolveUninitialized(request, InitializeMembers.None, null!));
@@ -79,7 +80,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_SimpleClass_ReturnsUninitializedInstance()
         {
-            var request = new FixtureRequest(typeof(ClassWithConstructorSideEffect), "test");
+            var request = new FixtureRequest(typeof(ClassWithConstructorSideEffect), this, _rootType, null);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -94,33 +95,33 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_InitializeMembersNone_DoesNotCallMemberInitializer()
         {
-            var request = new FixtureRequest(typeof(SimpleClass), "test");
+            var request = new FixtureRequest(typeof(SimpleClass), this, _rootType, null);
             var context = Mock.Of<IFixtureContext>();
 
             _sut.ResolveUninitialized(request, InitializeMembers.None, context);
 
             _memberInitializer.Verify(
-                m => m.InitializeMembers(It.IsAny<object>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>(), It.IsAny<RecursiveResolveContext>()),
+                m => m.InitializeMembers(It.IsAny<object>(), It.IsAny<InitializeMembers>(), _rootType, It.IsAny<IFixtureContext>(), It.IsAny<RecursiveResolveContext>()),
                 Times.Never);
         }
 
         [Test]
         public void ResolveUninitialized_InitializeMembersAll_CallsMemberInitializer()
         {
-            var request = new FixtureRequest(typeof(SimpleClass), "test");
+            var request = new FixtureRequest(typeof(SimpleClass), this, _rootType, null);
             var context = Mock.Of<IFixtureContext>();
 
             _sut.ResolveUninitialized(request, InitializeMembers.All, context);
 
             _memberInitializer.Verify(
-                m => m.InitializeMembers(It.IsAny<SimpleClass>(), InitializeMembers.All, context, It.IsAny<RecursiveResolveContext>()),
+                m => m.InitializeMembers(It.IsAny<SimpleClass>(), InitializeMembers.All, _rootType, context, It.IsAny<RecursiveResolveContext>()),
                 Times.Once);
         }
 
         [Test]
         public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string), "test");
+            var request = new FixtureRequest(typeof(string), this, _rootType, null);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -128,5 +129,19 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             Assert.That(result, Is.TypeOf<NoResult>());
         }
         #endregion
+
+        [Test]
+        public void ResolveUninitialized_PassesRootTypeToMemberInitializer()
+        {
+            var rootType = typeof(string);
+            var request = new FixtureRequest(typeof(SimpleClass), this, rootType, null);
+            var context = Mock.Of<IFixtureContext>();
+
+            _sut.ResolveUninitialized(request, InitializeMembers.All, context);
+
+            _memberInitializer.Verify(
+                m => m.InitializeMembers(It.IsAny<SimpleClass>(), InitializeMembers.All, rootType, context, It.IsAny<RecursiveResolveContext>()),
+                Times.Once);
+        }
     }
 }

@@ -123,6 +123,18 @@ namespace FixtureBuilder
             return this;
         }
 
+        public FixtureFactory WhenBuilding<TRoot>(Action<RootProviderBuilder<TRoot>> builderAction)
+        {
+            ArgumentNullException.ThrowIfNull(builderAction);
+            var builder = new RootProviderBuilder<TRoot>();
+            builderAction(builder);
+            foreach (var provider in builder.Providers)
+            {
+                _context.AddProvider(provider);
+            }
+            return this;
+        }
+
         #endregion
 
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)

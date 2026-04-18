@@ -10,6 +10,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 {
     internal sealed class MatchingProviderBuilderTests
     {
+        private readonly Type _rootType = typeof(object);
         private Mock<IFixtureContext> _contextMock;
 
         [SetUp]
@@ -56,7 +57,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter("world", "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -72,7 +73,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter("world", "other");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -112,7 +113,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter(() => "world", "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -128,11 +129,41 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter(() => "world", "other");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void With_BaseRulesApplied_AllRulesMustMatch()
+        {
+            var baseRule = new Mock<IWithRule>();
+            baseRule.Setup(r => r.IsMatch(It.IsAny<FixtureRequest>())).Returns(false);
+
+            var builder = new MatchingProviderBuilder([baseRule.Object]);
+            var provider = builder.With("hello");
+            var request = new FixtureRequest(typeof(string));
+
+            var result = provider.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void With_BaseRulesPass_ReturnsValue()
+        {
+            var baseRule = new Mock<IWithRule>();
+            baseRule.Setup(r => r.IsMatch(It.IsAny<FixtureRequest>())).Returns(true);
+
+            var builder = new MatchingProviderBuilder([baseRule.Object]);
+            var provider = builder.With("hello");
+            var request = new FixtureRequest(typeof(string));
+
+            var result = provider.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.EqualTo("hello"));
         }
     }
 }

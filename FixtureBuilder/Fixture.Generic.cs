@@ -150,7 +150,7 @@ namespace FixtureBuilder
             ExpressionHelper.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
-            var request = new FixtureRequest(typeof(TProp), source, source.Name);
+            var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
             var value = (TProp)_context.ProvideWithStrategy(request, _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
             return ((IFixtureConfigurator<T>)this).With(expr, value);
@@ -172,7 +172,7 @@ namespace FixtureBuilder
             ExpressionHelper.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
-            var request = new FixtureRequest(typeof(TProp), source, source.Name);
+            var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
             var value = func(new MemberInstantiator<TProp>(request, _context));
 
             return ((IFixtureConfigurator<T>)this).With(expr, value);
