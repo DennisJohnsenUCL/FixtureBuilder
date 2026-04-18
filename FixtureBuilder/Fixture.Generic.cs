@@ -222,7 +222,7 @@ namespace FixtureBuilder
 
         private Fixture<T> WithFieldInternal(string fieldName, Type dataMemberType, object? value, object instance)
         {
-            if (!FieldHelper.TryGetField(dataMemberType, fieldName, out var fieldInfo))
+            if (!dataMemberType.TryGetField(fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {dataMemberType.Name}.");
 
             var fieldType = fieldInfo.FieldType;

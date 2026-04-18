@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Configuration
 {
@@ -8,24 +9,6 @@ namespace FixtureBuilder.Configuration
     /// </summary>
     internal static class FieldHelper
     {
-        /// <summary>
-        /// Attempts to retrieve a field from the specified type by name.
-        /// </summary>
-        /// <param name="type">The type to search for the field.</param>
-        /// <param name="fieldName">The name of the field to find.</param>
-        /// <param name="fieldInfo">
-        /// When this method returns, contains the <see cref="FieldInfo"/> for the specified field
-        /// if found; otherwise, <see langword="null"/>.
-        /// </param>
-        /// <returns>
-        /// <see langword="true"/> if the field was found on the type; otherwise, <see langword="false"/>.
-        /// </returns>
-        public static bool TryGetField(Type type, string fieldName, out FieldInfo fieldInfo)
-        {
-            fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
-            return fieldInfo != null;
-        }
-
         /// <summary>
         /// Attempts to retrieve a field from the specified type by checking multiple candidate field names in order.
         /// </summary>
@@ -43,7 +26,7 @@ namespace FixtureBuilder.Configuration
         {
             foreach (var name in fieldNames)
             {
-                if (TryGetField(type, name, out fieldInfo)) return true;
+                if (type.TryGetField(name, out fieldInfo)) return true;
             }
             fieldInfo = null!;
             return false;

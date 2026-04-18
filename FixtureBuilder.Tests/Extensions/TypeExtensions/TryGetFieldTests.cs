@@ -1,9 +1,9 @@
 ﻿#pragma warning disable CS0649
 #pragma warning disable CS0414
 
-using FixtureBuilder.Configuration;
+using FixtureBuilder.Extensions;
 
-namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
+namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class TryGetFieldTests
     {
@@ -17,7 +17,7 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
         [Test]
         public void TryGetField_PublicInstanceField_ReturnsTrueAndFieldInfo()
         {
-            var result = FieldHelper.TryGetField(typeof(FieldTestTarget), "PublicField", out var fieldInfo);
+            var result = typeof(FieldTestTarget).TryGetField("PublicField", out var fieldInfo);
 
             using (Assert.EnterMultipleScope())
             {
@@ -31,7 +31,7 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
         [Test]
         public void TryGetField_PrivateInstanceField_ReturnsTrueAndFieldInfo()
         {
-            var result = FieldHelper.TryGetField(typeof(FieldTestTarget), "_privateField", out var fieldInfo);
+            var result = typeof(FieldTestTarget).TryGetField("_privateField", out var fieldInfo);
 
             using (Assert.EnterMultipleScope())
             {
@@ -45,7 +45,7 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
         [Test]
         public void TryGetField_ProtectedInstanceField_ReturnsTrueAndFieldInfo()
         {
-            var result = FieldHelper.TryGetField(typeof(FieldTestTarget), "ProtectedField", out var fieldInfo);
+            var result = typeof(FieldTestTarget).TryGetField("ProtectedField", out var fieldInfo);
 
             using (Assert.EnterMultipleScope())
             {
@@ -58,7 +58,7 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
         [Test]
         public void TryGetField_NonExistentField_ReturnsFalseAndNull()
         {
-            var result = FieldHelper.TryGetField(typeof(FieldTestTarget), "NoSuchField", out var fieldInfo);
+            var result = typeof(FieldTestTarget).TryGetField("NoSuchField", out var fieldInfo);
 
             using (Assert.EnterMultipleScope())
             {

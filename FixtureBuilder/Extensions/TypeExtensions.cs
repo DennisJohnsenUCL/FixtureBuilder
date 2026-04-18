@@ -7,6 +7,24 @@ namespace FixtureBuilder.Extensions
     internal static class TypeExtensions
     {
         /// <summary>
+        /// Attempts to retrieve a field from the specified type by name.
+        /// </summary>
+        /// <param name="type">The type to search for the field.</param>
+        /// <param name="fieldName">The name of the field to find.</param>
+        /// <param name="fieldInfo">
+        /// When this method returns, contains the <see cref="FieldInfo"/> for the specified field
+        /// if found; otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the field was found on the type; otherwise, <see langword="false"/>.
+        /// </returns>
+        public static bool TryGetField(this Type type, string fieldName, out FieldInfo fieldInfo)
+        {
+            fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
+            return fieldInfo != null;
+        }
+
+        /// <summary>
         /// Returns a sequence of <see cref="DataMemberInfo"/> instances representing all properties and fields
         /// of the specified type that match the given binding constraints.
         /// </summary>
