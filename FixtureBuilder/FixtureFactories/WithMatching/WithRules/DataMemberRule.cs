@@ -9,9 +9,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching.WithRules
         {
             var requestSourceType = request.RequestSource;
 
-            if (requestSourceType is PropertyInfo
-                || requestSourceType is FieldInfo) return true;
-            return false;
+            return requestSourceType is PropertyInfo || requestSourceType is FieldInfo;
         }
     }
 }

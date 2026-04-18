@@ -7,8 +7,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching.WithRules
     {
         public bool IsMatch(FixtureRequest request)
         {
-            if (request.RequestSource is ParameterInfo) return true;
-            return false;
+            return request.RequestSource is ParameterInfo;
         }
     }
 }
