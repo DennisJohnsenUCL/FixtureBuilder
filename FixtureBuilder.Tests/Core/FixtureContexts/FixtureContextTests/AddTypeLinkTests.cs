@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using Moq;

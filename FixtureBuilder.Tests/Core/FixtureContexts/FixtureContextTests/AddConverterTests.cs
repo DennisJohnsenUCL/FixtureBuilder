@@ -1,5 +1,5 @@
 ﻿using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using Moq;

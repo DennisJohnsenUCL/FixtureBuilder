@@ -1,4 +1,4 @@
-﻿using FixtureBuilder.Core.FixtureContexts;
+﻿using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {

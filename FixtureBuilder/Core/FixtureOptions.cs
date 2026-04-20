@@ -1,6 +1,7 @@
-﻿using FixtureBuilder.Creation.UninitializedProviders;
+﻿using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Creation.UninitializedProviders;
 
-namespace FixtureBuilder.Core.FixtureContexts
+namespace FixtureBuilder.Core
 {
     public class FixtureOptions
     {

@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Assignment.ValueProviders;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using Moq;

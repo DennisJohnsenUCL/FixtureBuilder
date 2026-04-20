@@ -2,6 +2,7 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Tests
