@@ -42,6 +42,11 @@ namespace FixtureBuilder
             return new Fixture<T>(instance, _context);
         }
 
+        public T Build<T>() where T : class
+        {
+            return ((IFixtureConstructor<T>)new Fixture<T>(_context)).Build();
+        }
+
         public void SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);
