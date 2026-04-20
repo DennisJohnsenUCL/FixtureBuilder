@@ -17,12 +17,12 @@ namespace FixtureBuilder.Configuration
 
         public T UseAutoConstructor()
         {
-            return (T)_context.AutoResolve(_request, _context);
+            return (T)_context.AutoConstructingProvider.AutoResolve(_request, _context);
         }
 
         public T UseConstructor(params object?[] arguments)
         {
-            return (T)_context.ResolveWithArguments(_request, arguments);
+            return (T)_context.ConstructingProvider.ResolveWithArguments(_request, arguments);
         }
 
         public T CreateUninitialized()
@@ -30,7 +30,7 @@ namespace FixtureBuilder.Configuration
 
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
-            var instance = _context.ResolveUninitialized(_request, initializeMembers, _context)
+            var instance = _context.UninitializedProvider.ResolveUninitialized(_request, initializeMembers, _context)
                 ?? throw new InvalidOperationException("Failed to intantiate {typeof(T).Name} uninitialized.");
             return (T)instance;
         }

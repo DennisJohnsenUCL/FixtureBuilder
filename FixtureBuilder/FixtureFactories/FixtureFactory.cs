@@ -67,19 +67,19 @@ namespace FixtureBuilder
 
         public void AddTypeLink(ITypeLink link)
         {
-            _context.AddTypeLink(link);
+            _context.TypeLink.AddTypeLink(link);
         }
 
         public void AddProvider(ICustomProvider provider)
         {
             var adaptedProvider = new CustomProviderAdapter(provider);
-            _context.AddProvider(adaptedProvider);
+            _context.ValueProvider.AddProvider(adaptedProvider);
         }
 
         public void AddConverter(ICustomConverter converter)
         {
             var adaptedConverter = new CustomConverterAdapter(converter);
-            _context.AddConverter(adaptedConverter);
+            _context.Converter.Composite.AddConverter(adaptedConverter);
         }
 
         #endregion
@@ -124,7 +124,7 @@ namespace FixtureBuilder
 
         private FixtureFactory AddProvider(Func<MatchingProviderBuilder, MatchingProvider> build)
         {
-            _context.AddProvider(build(_providerBuilder));
+            _context.ValueProvider.AddProvider(build(_providerBuilder));
             return this;
         }
 
@@ -135,7 +135,7 @@ namespace FixtureBuilder
             builderAction(builder);
             foreach (var provider in builder.Providers)
             {
-                _context.AddProvider(provider);
+                _context.ValueProvider.AddProvider(provider);
             }
             return this;
         }

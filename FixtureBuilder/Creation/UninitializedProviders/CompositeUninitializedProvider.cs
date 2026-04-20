@@ -25,13 +25,13 @@ namespace FixtureBuilder.Creation.UninitializedProviders
         {
             request.Type = context.UnwrapAndLink(request.Type);
 
-            var result = context.ResolveValue(request, context);
+            var result = context.ValueProvider.ResolveValue(request, context);
             if (result is not NoResult) return result;
 
             result = _defaultBclTypeProvider.ResolveValue(request, context);
             if (result is not NoResult) return result;
 
-            result = context.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
+            result = context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
 
             if (!context.Options.AllowSkipUninitializableMembers && result is NoResult)
                 throw new InvalidOperationException($"Could not get a value for or instantiate {request.Type.Name} uninitialized.");

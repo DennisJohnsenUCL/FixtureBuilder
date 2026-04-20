@@ -79,7 +79,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.CreateUninitialized(InitializeMembers initializeMembers)
         {
             var request = new FixtureRequest(typeof(T));
-            var instance = _context.ResolveUninitialized(request, initializeMembers, _context);
+            var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
             if (instance is NoResult || instance == null)
                 throw new InvalidOperationException($"Failed to intantiate {typeof(T).Name} uninitialized.");
 
@@ -97,7 +97,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseConstructor(params object[] arguments)
         {
             var request = new FixtureRequest(typeof(T));
-            var instance = _context.ResolveWithArguments(request, arguments);
+            var instance = _context.ConstructingProvider.ResolveWithArguments(request, arguments);
 
             _fixture = (T)instance;
 
@@ -115,7 +115,7 @@ namespace FixtureBuilder
         IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseAutoConstructor()
         {
             var request = new FixtureRequest(typeof(T));
-            var instance = _context.AutoResolve(request, _context);
+            var instance = _context.AutoConstructingProvider.AutoResolve(request, _context);
 
             _fixture = (T)instance;
 
@@ -322,7 +322,7 @@ namespace FixtureBuilder
             var sourceType = value?.GetType();
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
-                value = _context.Convert(fieldType, value!, _context);
+                value = _context.Converter.Root.Convert(fieldType, value!, _context);
                 if (value is NoResult)
                     throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");
             }

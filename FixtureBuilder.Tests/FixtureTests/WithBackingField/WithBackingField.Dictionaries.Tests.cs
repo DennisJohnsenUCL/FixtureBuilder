@@ -101,9 +101,7 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         class DictionarySortedListClass
         {
             private readonly Dictionary<int, string> _dictionary = null!;
-#pragma warning disable IDE0028 // Simplify collection initialization
             public SortedList Dictionary => new(_dictionary);
-#pragma warning restore IDE0028 // Simplify collection initialization
         }
         [Test]
         public void DictionaryField_SortedListProperty_SetsField()

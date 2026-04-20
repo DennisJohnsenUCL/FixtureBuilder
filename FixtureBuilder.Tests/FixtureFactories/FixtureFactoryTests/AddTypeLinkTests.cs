@@ -23,7 +23,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.Link(targetType);
+            var result = context.TypeLink.Link(targetType);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.Link(typeof(ITestInterface));
+            var result = context.TypeLink.Link(typeof(ITestInterface));
 
             Assert.That(result, Is.EqualTo(typeof(TestImplementation)));
         }
@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.Link(typeof(ITestInterface));
+            var result = context.TypeLink.Link(typeof(ITestInterface));
 
             Assert.That(result, Is.EqualTo(typeof(TestImplementation)));
         }

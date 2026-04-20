@@ -5,24 +5,28 @@ using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
 
-namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
+namespace FixtureBuilder.Core.FixtureContexts
 {
-    internal class EagerContextResolver : IContextResolver
+    internal class EagerContext : ContextBase, IFixtureContext
     {
-        public ConverterGraph Converter { get; }
-        public ICompositeTypeLink TypeLink { get; }
-        public IUninitializedProvider UninitializedProvider { get; }
-        public ICompositeValueProvider ValueProvider { get; }
-        public IAutoConstructingProvider AutoConstructingProvider { get; }
-        public IConstructingProvider ConstructingProvider { get; }
+        public override FixtureOptions Options { get; set; }
 
-        public EagerContextResolver(ConverterGraph converter,
+        public override ConverterGraph Converter { get; }
+        public override ICompositeTypeLink TypeLink { get; }
+        public override IUninitializedProvider UninitializedProvider { get; }
+        public override ICompositeValueProvider ValueProvider { get; }
+        public override IAutoConstructingProvider AutoConstructingProvider { get; }
+        public override IConstructingProvider ConstructingProvider { get; }
+
+        public EagerContext(FixtureOptions options,
+            ConverterGraph converter,
             ICompositeTypeLink typeLink,
             IUninitializedProvider uninitializedProvider,
             ICompositeValueProvider valueProvider,
             IAutoConstructingProvider autoConstructingProvider,
             IConstructingProvider constructingProvider)
         {
+            ArgumentNullException.ThrowIfNull(options);
             ArgumentNullException.ThrowIfNull(converter);
             ArgumentNullException.ThrowIfNull(typeLink);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);
@@ -30,6 +34,7 @@ namespace FixtureBuilder.Core.FixtureContexts.ContextResolvers
             ArgumentNullException.ThrowIfNull(autoConstructingProvider);
             ArgumentNullException.ThrowIfNull(constructingProvider);
 
+            Options = options;
             Converter = converter;
             TypeLink = typeLink;
             UninitializedProvider = uninitializedProvider;

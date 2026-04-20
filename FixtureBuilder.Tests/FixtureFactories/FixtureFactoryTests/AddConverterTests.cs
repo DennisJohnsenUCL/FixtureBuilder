@@ -20,7 +20,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.Convert(target, value, context);
+            var result = context.Converter.Root.Convert(target, value, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }

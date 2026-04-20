@@ -2,7 +2,6 @@
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.ConverterBuilders;
-using FixtureBuilder.Core.FixtureContexts.ContextResolvers;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
@@ -20,9 +19,8 @@ namespace FixtureBuilder.Core.FixtureContexts
             var autoConstructingProvider = new Func<IAutoConstructingProvider>(() => new AutoConstructingProvider());
             var constructingProvider = new Func<IConstructingProvider>(() => new ConstructingProvider());
 
-            var resolver = new LazyContextResolver(converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider, constructingProvider);
             var options = FixtureOptions.Default;
-            var context = new FixtureContext(resolver, options) as IFixtureContext;
+            var context = new LazyContext(options, converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider, constructingProvider);
             return context;
         }
 
@@ -35,9 +33,8 @@ namespace FixtureBuilder.Core.FixtureContexts
             var autoConstructingProvider = new AutoConstructingProvider();
             var constructingProvider = new ConstructingProvider();
 
-            var resolver = new EagerContextResolver(converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider, constructingProvider);
             options ??= FixtureOptions.Default;
-            var context = new FixtureContext(resolver, options) as IFixtureContext;
+            var context = new EagerContext(options, converter, typeLink, uninitializedProvider, valueProvider, autoConstructingProvider, constructingProvider);
             return context;
         }
     }

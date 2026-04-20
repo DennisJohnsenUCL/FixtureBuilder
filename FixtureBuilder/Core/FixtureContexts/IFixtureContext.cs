@@ -7,15 +7,15 @@ using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Core.FixtureContexts
 {
-    internal interface IFixtureContext :
-        ICompositeConverter,
-        ICompositeTypeLink,
-        IUninitializedProvider,
-        ICompositeValueProvider,
-        IAutoConstructingProvider,
-        IConstructingProvider,
-        IOptionsContext
+    internal interface IFixtureContext : IOptionsContext
     {
+        ConverterGraph Converter { get; }
+        ICompositeTypeLink TypeLink { get; }
+        IUninitializedProvider UninitializedProvider { get; }
+        ICompositeValueProvider ValueProvider { get; }
+        IAutoConstructingProvider AutoConstructingProvider { get; }
+        IConstructingProvider ConstructingProvider { get; }
+
         Type UnwrapAndLink(Type type);
         object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
         object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);

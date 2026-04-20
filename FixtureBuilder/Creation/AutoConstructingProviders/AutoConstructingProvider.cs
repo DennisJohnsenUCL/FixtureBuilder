@@ -60,7 +60,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 var paramType = context.UnwrapAndLink(p.ParameterType);
 
                 var request = new FixtureRequest(paramType, p, rootType, p.Name);
-                var result = context.ResolveValue(request, context);
+                var result = context.ValueProvider.ResolveValue(request, context);
                 if (result is not NoResult) return result;
 
                 return AutoResolve(request, context, recursiveResolveContext);

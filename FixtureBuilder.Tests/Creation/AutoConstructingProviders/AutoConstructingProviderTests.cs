@@ -1,6 +1,7 @@
 ﻿#pragma warning disable IDE0060
 #pragma warning disable CS9113
 
+using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.AutoConstructingProviders;
@@ -13,12 +14,15 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
     {
         private AutoConstructingProvider _sut;
         private Mock<IFixtureContext> _contextMock;
+        private Mock<ICompositeValueProvider> _valueProviderMock;
 
         [SetUp]
         public void SetUp()
         {
             _sut = new AutoConstructingProvider();
+            _valueProviderMock = new Mock<ICompositeValueProvider>();
             _contextMock = new Mock<IFixtureContext>();
+            _contextMock.Setup(c => c.ValueProvider).Returns(_valueProviderMock.Object);
         }
 
         public class SingleParam(string value)
@@ -87,7 +91,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(),
                     It.IsAny<IFixtureContext>()))
                 .Returns("test-value");
@@ -110,11 +114,11 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(int))).Returns(typeof(int));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(p => p.Type == typeof(string)),
                     It.IsAny<IFixtureContext>()))
                 .Returns("hello");
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(p => p.Type == typeof(int)),
                     It.IsAny<IFixtureContext>()))
                 .Returns(42);
@@ -177,7 +181,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = false };
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("dummy");
 
@@ -193,7 +197,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = true };
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("dummy");
 
@@ -209,7 +213,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = false };
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("dummy");
 
@@ -263,7 +267,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner))).Returns(typeof(Inner));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(new NoResult());
 
@@ -280,7 +284,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner))).Returns(typeof(Inner));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
 
@@ -304,7 +308,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner))).Returns(typeof(Inner));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(Inner)),
                     It.IsAny<IFixtureContext>()))
                 .Returns(new Inner());
@@ -321,7 +325,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner))).Returns(typeof(Inner));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(Inner)),
                     It.IsAny<IFixtureContext>()))
                 .Returns(new Inner());
@@ -345,7 +349,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<Type>())).Returns((Type t) => t);
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(new NoResult());
 
@@ -361,7 +365,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<Type>())).Returns((Type t) => t);
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(new NoResult());
 
@@ -378,13 +382,13 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.Options).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string))).Returns(typeof(string));
-            _contextMock
+            _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("test-value");
 
             _sut.AutoResolve(request, _contextMock.Object);
 
-            _contextMock.Verify(c => c.ResolveValue(
+            _valueProviderMock.Verify(c => c.ResolveValue(
                 It.Is<FixtureRequest>(r => r.RootType == typeof(SingleParam)),
                 It.IsAny<IFixtureContext>()), Times.Once);
         }
