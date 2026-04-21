@@ -9,6 +9,20 @@ namespace FixtureBuilder.Configuration
     /// </summary>
     internal static class FieldHelper
     {
+        public static void SetFieldValue(FieldInfo fieldInfo, object instance, object? value)
+        {
+            var fieldType = fieldInfo.FieldType;
+
+            ValidateNullableValueTypeAssignment(fieldType, value);
+
+            var sourceType = value?.GetType();
+            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
+            {
+                fieldInfo.SetValue(instance, value);
+            }
+            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
+        }
+
         /// <summary>
         /// Attempts to retrieve a field from the specified type by checking multiple candidate field names in order.
         /// </summary>
@@ -74,6 +88,12 @@ namespace FixtureBuilder.Configuration
             return true;
         }
 
+        public static void ValidateNullableValueTypeAssignment(Type type, object? value)
+        {
+            if (value == null && type.IsValueType && !(type.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
+                throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
+        }
+
         /// <summary>
         /// Generates an array of common backing field name conventions for a given property name.
         /// </summary>
@@ -82,7 +102,7 @@ namespace FixtureBuilder.Configuration
         /// An array of candidate field names in priority order: compiler-generated backing field,
         /// underscore-prefixed camelCase, camelCase, and underscore-prefixed original name.
         /// </returns>
-        public static string[] GetCommonFieldNames(string propName) =>
+        internal static string[] GetCommonFieldNames(string propName) =>
             [$"<{propName}>k__BackingField",
             $"_{char.ToLower(propName[0]) + propName[1..]}",
             $"{char.ToLower(propName[0]) + propName[1..]}",

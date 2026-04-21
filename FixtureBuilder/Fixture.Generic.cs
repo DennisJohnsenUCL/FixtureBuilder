@@ -42,7 +42,7 @@ namespace FixtureBuilder
             if (typeof(T).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = context;
-            _expressionResolver = new ExpressionResolver(typeof(T));
+            _expressionResolver = InitializeExpressionResolver();
         }
 
         internal Fixture(T instance) : this(instance, InitializeContext()) { }
@@ -55,7 +55,7 @@ namespace FixtureBuilder
             if (instance.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = context;
-            _expressionResolver = new ExpressionResolver(typeof(T));
+            _expressionResolver = InitializeExpressionResolver();
             _fixture = instance;
         }
 
@@ -228,16 +228,7 @@ namespace FixtureBuilder
             if (!dataMemberType.TryGetField(fieldName, out var fieldInfo))
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {dataMemberType.Name}.");
 
-            var fieldType = fieldInfo.FieldType;
-
-            ValidateNullableValueTypeAssignment(fieldType, value);
-
-            var sourceType = value?.GetType();
-            if (sourceType == null || fieldType == sourceType || fieldType.IsAssignableFrom(sourceType))
-            {
-                fieldInfo.SetValue(instance, value);
-            }
-            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
+            FieldHelper.SetFieldValue(fieldInfo, instance, value);
 
             return this;
         }
@@ -317,7 +308,7 @@ namespace FixtureBuilder
 
             var fieldType = backingField.FieldType;
 
-            ValidateNullableValueTypeAssignment(fieldType, value);
+            FieldHelper.ValidateNullableValueTypeAssignment(fieldType, value);
 
             var sourceType = value?.GetType();
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
@@ -371,10 +362,15 @@ namespace FixtureBuilder
             var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr, _context);
 
             if (dataMember.IsFieldInfo)
-                return WithFieldInternal(dataMember.Name, instance.GetType(), value, instance);
+                FieldHelper.SetFieldValue(dataMember.Field, instance, value);
 
-            if (ExpressionValidator.IsPropertyWritable(expr)) return ((IFixtureConfigurator<T>)this).WithSetter(expr, value);
-            else return WithBackingFieldInternal(expr, value);
+            else if (ExpressionValidator.IsPropertyWritable(expr))
+                ((IFixtureConfigurator<T>)this).WithSetter(expr, value);
+
+            else
+                WithBackingFieldInternal(expr, value);
+
+            return this;
         }
 
         /// <summary>
@@ -465,15 +461,14 @@ namespace FixtureBuilder
             return (T)_context.InstantiateWithStrategy(request, _context.Options.DefaultInstantiationMethod, _context.Options.DefaultInitializeMembers);
         }
 
-        private static void ValidateNullableValueTypeAssignment(Type type, object? value)
-        {
-            if (value == null && type.IsValueType && !(type.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
-                throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
-        }
-
         private static IFixtureContext InitializeContext()
         {
             return FixtureContextFactory.CreateLazyContext();
+        }
+
+        private static ExpressionResolver InitializeExpressionResolver()
+        {
+            return new ExpressionResolver(typeof(T));
         }
     }
 }

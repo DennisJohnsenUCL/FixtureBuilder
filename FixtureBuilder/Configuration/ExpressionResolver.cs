@@ -128,10 +128,10 @@ namespace FixtureBuilder.Configuration
                 current = InitializeDataMemberValue(current, dataMember, context);
             }
 
-            var finaldataMember = members.Pop();
-            if (resolveInstance) current = InitializeDataMemberValue(current, finaldataMember, context);
+            var finalDataMember = members.Pop();
+            if (resolveInstance) current = InitializeDataMemberValue(current, finalDataMember, context);
 
-            return (current, finaldataMember);
+            return (current, finalDataMember);
         }
 
         /// <summary>
@@ -161,9 +161,10 @@ namespace FixtureBuilder.Configuration
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
             var type = dataMember.DataMemberType;
+            var name = dataMember.Name;
             var request = dataMember.IsPropertyInfo
-                ? new FixtureRequest(type, dataMember.Property, _rootType, dataMember.Name)
-                : new FixtureRequest(type, dataMember.Field, _rootType, dataMember.Name);
+                ? new FixtureRequest(type, dataMember.Property, _rootType, name)
+                : new FixtureRequest(type, dataMember.Field, _rootType, name);
 
             current = context.ProvideWithStrategy(request, context.Options.NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {type.Name} in Expression chain resolution. " +
