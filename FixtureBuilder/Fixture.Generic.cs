@@ -306,18 +306,8 @@ namespace FixtureBuilder
             if (!FieldHelper.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
-            var fieldType = backingField.FieldType;
+            FieldHelper.SetBackingFieldValue(backingField, property, instance, value, _context);
 
-            FieldHelper.ValidateNullableValueTypeAssignment(fieldType, value);
-
-            var sourceType = value?.GetType();
-            if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
-            {
-                value = _context.Converter.Root.Convert(fieldType, value!, _context);
-                if (value is NoResult)
-                    throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");
-            }
-            backingField.SetValue(instance, value);
             return this;
         }
 

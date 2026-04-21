@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using FixtureBuilder.Core;
+using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Configuration
@@ -21,6 +23,23 @@ namespace FixtureBuilder.Configuration
                 fieldInfo.SetValue(instance, value);
             }
             else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
+        }
+
+        public static void SetBackingFieldValue(FieldInfo backingField, PropertyInfo property, object instance, object? value, IFixtureContext context)
+        {
+            var fieldType = backingField.FieldType;
+
+            ValidateNullableValueTypeAssignment(fieldType, value);
+
+            var sourceType = value?.GetType();
+            if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
+            {
+                value = context.Converter.Root.Convert(fieldType, value!, context);
+                if (value is NoResult)
+                    throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");
+            }
+
+            backingField.SetValue(instance, value);
         }
 
         /// <summary>
@@ -88,7 +107,7 @@ namespace FixtureBuilder.Configuration
             return true;
         }
 
-        public static void ValidateNullableValueTypeAssignment(Type type, object? value)
+        private static void ValidateNullableValueTypeAssignment(Type type, object? value)
         {
             if (value == null && type.IsValueType && !(type.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
