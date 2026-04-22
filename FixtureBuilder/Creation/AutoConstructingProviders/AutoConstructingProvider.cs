@@ -33,7 +33,12 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
 
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
-                throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in UseAutoConstructor.");
+            {
+                if (!context.Options.AllowResolveCircularDependencies)
+                    throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in UseAutoConstructor.");
+
+                return recursiveResolveContext.AddShell(request.Type);
+            }
 
             if (request.Type.IsInterface || request.Type.IsAbstract)
                 throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
@@ -45,9 +50,10 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             try
             {
                 var instance = constructor.Invoke([.. parameterValues]);
+                recursiveResolveContext.Copy(request.Type, instance);
                 return instance;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not InvalidOperationException)
             {
                 throw new InvalidOperationException($"Failed to AutoResolve {request.Type.Name}, see inner exception for details", ex);
             }
@@ -63,7 +69,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 var result = context.ValueProvider.ResolveValue(request, context);
                 if (result is not NoResult) return result;
 
-                return AutoResolve(request, context, recursiveResolveContext);
+                return AutoResolve(request, context, recursiveResolveContext.Branch());
             });
         }
 

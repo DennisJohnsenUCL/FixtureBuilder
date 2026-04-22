@@ -339,8 +339,8 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
 
         #region Circular dependency tests
 
-        public class CircularA(CircularB b) { }
-        public class CircularB(CircularA a) { }
+        public class CircularA(CircularB b, string name) { public CircularB B => b; public string Name => name; }
+        public class CircularB(CircularA a, string name) { public CircularA A => a; public string Name => name; }
 
         [Test]
         public void AutoResolve_CircularDependency_ThrowsInvalidOperationException()
@@ -371,6 +371,113 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
 
             Assert.Throws<InvalidOperationException>(() =>
                 _sut.AutoResolve(request, _contextMock.Object));
+        }
+
+        [Test]
+        public void AutoResolve_CircularDependency_ResolvesWithShell()
+        {
+            var request = new FixtureRequest(typeof(CircularA));
+            var options = new FixtureOptions { AllowResolveCircularDependencies = true };
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<Type>())).Returns((Type t) => t);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns("test-value");
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type != typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var result = (CircularA)_sut.AutoResolve(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Name, Is.EqualTo("test-value"));
+                Assert.That(result.B, Is.Not.Null);
+                Assert.That(result.B.Name, Is.EqualTo("test-value"));
+                Assert.That(result.B.A, Is.Not.Null);
+                Assert.That(result.B.A.Name, Is.EqualTo("test-value"));
+            }
+        }
+
+        public class TriA(TriB b, string name) { public TriB B => b; public string Name => name; }
+        public class TriB(TriC c, string name) { public TriC C => c; public string Name => name; }
+        public class TriC(TriA a, string name) { public TriA A => a; public string Name => name; }
+
+        [Test]
+        public void AutoResolve_ThreeWayCircularDependency_ResolvesWithShell()
+        {
+            var request = new FixtureRequest(typeof(TriA));
+            var options = new FixtureOptions { AllowResolveCircularDependencies = true };
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<Type>())).Returns((Type t) => t);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns("test-value");
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type != typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var result = (TriA)_sut.AutoResolve(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Name, Is.EqualTo("test-value"));
+                Assert.That(result.B, Is.Not.Null);
+                Assert.That(result.B.Name, Is.EqualTo("test-value"));
+                Assert.That(result.B.C, Is.Not.Null);
+                Assert.That(result.B.C.Name, Is.EqualTo("test-value"));
+                Assert.That(result.B.C.A, Is.Not.Null);
+                Assert.That(result.B.C.A.Name, Is.EqualTo("test-value"));
+            }
+        }
+
+        public class BranchRoot(BranchLeft left, BranchRight right, string name)
+        { public BranchLeft Left => left; public BranchRight Right => right; public string Name => name; }
+        public class BranchLeft(BranchRoot root, string name)
+        { public BranchRoot Root => root; public string Name => name; }
+        public class BranchRight(BranchRoot root, string name)
+        { public BranchRoot Root => root; public string Name => name; }
+
+        [Test]
+        public void AutoResolve_TwoBranchesCyclingToSameAncestor_ResolvesWithShell()
+        {
+            var request = new FixtureRequest(typeof(BranchRoot));
+            var options = new FixtureOptions { AllowResolveCircularDependencies = true };
+            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<Type>())).Returns((Type t) => t);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns("test-value");
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type != typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var result = (BranchRoot)_sut.AutoResolve(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Name, Is.EqualTo("test-value"));
+                Assert.That(result.Left, Is.Not.Null);
+                Assert.That(result.Left.Name, Is.EqualTo("test-value"));
+                Assert.That(result.Left.Root, Is.Not.Null);
+                Assert.That(result.Left.Root.Name, Is.EqualTo("test-value"));
+                Assert.That(result.Right, Is.Not.Null);
+                Assert.That(result.Right.Name, Is.EqualTo("test-value"));
+                Assert.That(result.Right.Root, Is.Not.Null);
+                Assert.That(result.Right.Root.Name, Is.EqualTo("test-value"));
+            }
         }
 
         #endregion

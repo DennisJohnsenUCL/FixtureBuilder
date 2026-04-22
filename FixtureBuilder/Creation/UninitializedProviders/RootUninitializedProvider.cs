@@ -40,7 +40,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             catch (Exception) { }
 
             if (instance is not NoResult && instance != null && initializeMembers != InitializeMembers.None)
-                _memberInitializer.InitializeMembers(instance, initializeMembers, request.RootType, context, new(recursiveResolveContext.Types));
+                _memberInitializer.InitializeMembers(instance, initializeMembers, request.RootType, context, recursiveResolveContext.Branch());
 
             return instance;
         }

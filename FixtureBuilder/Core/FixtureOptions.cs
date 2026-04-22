@@ -105,5 +105,16 @@ namespace FixtureBuilder.Core
         /// <br /><br />This is triggered when Instantiate is called without specifying an explicit instantiation method. (<c>fixture.Instantiate(x => x.Name)</c>).
         /// </remarks>
         public InstantiationMethod DefaultInstantiateInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
+
+        /// <summary>
+        /// Whether UseAutoConstructor and CreateUninitialized will attempt to resolve circular dependencies.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="false" /> <br /><br />
+        /// When <see langword="true"/>, circular dependencies are resolved by creating uninitialized shell objects
+        /// whose fields are populated once the real instance is constructed.
+        /// When <see langword="false"/>, circular dependencies throw an <see cref="InvalidOperationException"/>.
+        /// </remarks>
+        public bool AllowResolveCircularDependencies { get; set; } = false;
     }
 }
