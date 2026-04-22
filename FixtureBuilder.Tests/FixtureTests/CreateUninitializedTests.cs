@@ -149,17 +149,40 @@ internal class CreateUninitializedTests
         }
     }
 
-    class OuterAndInner(Middle middle)
+    class OuterAndInner
     {
-        public Middle Middle = middle;
+        public Middle Middle { get; set; }
+        public string Name { get; set; }
     }
-    class Middle(OuterAndInner outerAndInner)
+    class Middle
     {
-        public OuterAndInner OuterAndInner = outerAndInner;
+        public OuterAndInner OuterAndInner { get; set; }
+        public string Name { get; set; }
     }
+
     [Test]
     public void CircularDependency_InitializeNonNullables_ThrowsException()
     {
-        Assert.Throws<InvalidOperationException>(() => Fixture.New<OuterAndInner>().CreateUninitialized(InitializeMembers.NonNullables));
+        Assert.Throws<InvalidOperationException>(() =>
+            Fixture.New<OuterAndInner>().CreateUninitialized(InitializeMembers.NonNullables));
+    }
+
+    [Test]
+    public void CircularDependency_InitializeNonNullables_WithAllowResolve_ResolvesWithShell()
+    {
+        var fixture = Fixture.New<OuterAndInner>();
+
+        TestHelper.SetOption(fixture, o => o.AllowResolveCircularDependencies = true);
+        fixture.CreateUninitialized(InitializeMembers.NonNullables);
+        var result = TestHelper.GetFixture(fixture);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Name, Is.EqualTo("Name"));
+            Assert.That(result.Middle, Is.Not.Null);
+            Assert.That(result.Middle.Name, Is.EqualTo("Name"));
+            Assert.That(result.Middle.OuterAndInner, Is.Not.Null);
+            Assert.That(result.Middle.OuterAndInner.Name, Is.EqualTo("Name"));
+        }
     }
 }

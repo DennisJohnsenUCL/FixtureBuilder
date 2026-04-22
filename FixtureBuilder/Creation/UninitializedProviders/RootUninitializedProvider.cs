@@ -28,7 +28,13 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
-                throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in UseAutoConstructor.");
+            {
+                if (!context.Options.AllowResolveCircularDependencies)
+                    throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in CreateUninitialized.");
+
+                return recursiveResolveContext.AddShell(request.Type);
+            }
+
 
             if (request.Type.IsInterface || request.Type.IsAbstract) return null;
 
@@ -40,7 +46,10 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             catch (Exception) { }
 
             if (instance is not NoResult && instance != null && initializeMembers != InitializeMembers.None)
+            {
                 _memberInitializer.InitializeMembers(instance, initializeMembers, request.RootType, context, recursiveResolveContext.Branch());
+                recursiveResolveContext.Copy(request.Type, instance!);
+            }
 
             return instance;
         }
