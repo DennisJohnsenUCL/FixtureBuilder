@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.FixtureFactories.WithMatching
 {
-    public class RootProviderBuilder<TRoot> : IProviderBuilder<RootProviderBuilder<TRoot>>
+    internal class RootProviderBuilder<TRoot> : IRootProviderBuilder<TRoot>
     {
         private readonly List<MatchingProvider> _providers = [];
         private readonly MatchingProviderBuilder _innerBuilder = new([new RootTypeRule(typeof(TRoot))]);
@@ -15,19 +15,19 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
             return this;
         }
 
-        public RootProviderBuilder<TRoot> With<T>(T value) => Add(_innerBuilder.With(value));
-        public RootProviderBuilder<TRoot> With<T>(Func<T> func) => Add(_innerBuilder.With(func));
-        public RootProviderBuilder<TRoot> With<T>(T value, string name) => Add(_innerBuilder.With(value, name));
-        public RootProviderBuilder<TRoot> With<T>(Func<T> func, string name) => Add(_innerBuilder.With(func, name));
+        public IRootProviderBuilder<TRoot> With<T>(T value) => Add(_innerBuilder.With(value));
+        public IRootProviderBuilder<TRoot> With<T>(Func<T> func) => Add(_innerBuilder.With(func));
+        public IRootProviderBuilder<TRoot> With<T>(T value, string name) => Add(_innerBuilder.With(value, name));
+        public IRootProviderBuilder<TRoot> With<T>(Func<T> func, string name) => Add(_innerBuilder.With(func, name));
 
-        public RootProviderBuilder<TRoot> WithParameter<T>(T value) => Add(_innerBuilder.WithParameter(value));
-        public RootProviderBuilder<TRoot> WithParameter<T>(Func<T> func) => Add(_innerBuilder.WithParameter(func));
-        public RootProviderBuilder<TRoot> WithParameter<T>(T value, string name) => Add(_innerBuilder.WithParameter(value, name));
-        public RootProviderBuilder<TRoot> WithParameter<T>(Func<T> func, string name) => Add(_innerBuilder.WithParameter(func, name));
+        public IRootProviderBuilder<TRoot> WithParameter<T>(T value) => Add(_innerBuilder.WithParameter(value));
+        public IRootProviderBuilder<TRoot> WithParameter<T>(Func<T> func) => Add(_innerBuilder.WithParameter(func));
+        public IRootProviderBuilder<TRoot> WithParameter<T>(T value, string name) => Add(_innerBuilder.WithParameter(value, name));
+        public IRootProviderBuilder<TRoot> WithParameter<T>(Func<T> func, string name) => Add(_innerBuilder.WithParameter(func, name));
 
-        public RootProviderBuilder<TRoot> WithPropertyOrField<T>(T value) => Add(_innerBuilder.WithPropertyOrField(value));
-        public RootProviderBuilder<TRoot> WithPropertyOrField<T>(Func<T> func) => Add(_innerBuilder.WithPropertyOrField(func));
-        public RootProviderBuilder<TRoot> WithPropertyOrField<T>(T value, string name) => Add(_innerBuilder.WithPropertyOrField(value, name));
-        public RootProviderBuilder<TRoot> WithPropertyOrField<T>(Func<T> func, string name) => Add(_innerBuilder.WithPropertyOrField(func, name));
+        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(T value) => Add(_innerBuilder.WithPropertyOrField(value));
+        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(Func<T> func) => Add(_innerBuilder.WithPropertyOrField(func));
+        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(T value, string name) => Add(_innerBuilder.WithPropertyOrField(value, name));
+        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(Func<T> func, string name) => Add(_innerBuilder.WithPropertyOrField(func, name));
     }
 }

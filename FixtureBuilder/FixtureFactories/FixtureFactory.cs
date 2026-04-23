@@ -128,7 +128,7 @@ namespace FixtureBuilder
             return this;
         }
 
-        public FixtureFactory WhenBuilding<TRoot>(Action<RootProviderBuilder<TRoot>> builderAction)
+        public FixtureFactory WhenBuilding<TRoot>(Action<IRootProviderBuilder<TRoot>> builderAction)
         {
             ArgumentNullException.ThrowIfNull(builderAction);
             var builder = new RootProviderBuilder<TRoot>();

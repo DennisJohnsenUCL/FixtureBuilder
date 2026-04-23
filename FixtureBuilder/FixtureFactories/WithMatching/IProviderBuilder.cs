@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.FixtureFactories.WithMatching
 {
-    internal interface IProviderBuilder<TReturn>
+    public interface IProviderBuilder<TReturn>
     {
         TReturn With<T>(T value);
         TReturn With<T>(Func<T> func);
