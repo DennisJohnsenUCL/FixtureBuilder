@@ -34,7 +34,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
             {
-                if (!context.Options.AllowResolveCircularDependencies)
+                if (!context.OptionsFor(request.RootType).AllowResolveCircularDependencies)
                     throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in UseAutoConstructor.");
 
                 return recursiveResolveContext.AddShell(request.Type);
@@ -75,7 +75,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
 
         private static ConstructorInfo GetConstructorInfo(FixtureRequest request, IFixtureContext context)
         {
-            var options = context.Options;
+            var options = context.OptionsFor(request.RootType);
             ConstructorInfo? ctor;
 
             if (options.PreferSimplestConstructor && options.AllowPrivateConstructors)
@@ -86,7 +86,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             {
                 ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public);
 
-                if (ctor == null && context.Options.AllowPrivateConstructors)
+                if (ctor == null && options.AllowPrivateConstructors)
                     ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.NonPublic);
             }
 

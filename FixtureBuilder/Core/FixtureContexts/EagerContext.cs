@@ -9,7 +9,7 @@ namespace FixtureBuilder.Core.FixtureContexts
 {
     internal class EagerContext : ContextBase, IFixtureContext
     {
-        public override FixtureOptions Options { get; set; }
+        public override FixtureOptions Options { protected get; set; }
 
         public override ConverterGraph Converter { get; }
         public override ICompositeTypeLink TypeLink { get; }

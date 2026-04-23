@@ -1,4 +1,10 @@
-﻿namespace FixtureBuilder.FixtureFactories.WithMatching
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.FixtureFactories.WithMatching
 {
-    public interface IRootProviderBuilder<TRoot> : IProviderBuilder<IRootProviderBuilder<TRoot>>;
+    public interface IRootProviderBuilder<TRoot> : IProviderBuilder<IRootProviderBuilder<TRoot>>
+    {
+        FixtureOptions Options { set; }
+        void SetOptions(Action<FixtureOptions> optionsAction);
+    }
 }

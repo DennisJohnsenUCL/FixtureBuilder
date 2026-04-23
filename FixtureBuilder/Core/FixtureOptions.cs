@@ -9,6 +9,8 @@ namespace FixtureBuilder.Core
 
         public static FixtureOptions Default => new();
 
+        public FixtureOptions Clone() => (FixtureOptions)MemberwiseClone();
+
         /// <summary>
         /// The default InitializeMembers setting used by CreateUninitialized.
         /// </summary>

@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefault), "value");
             var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefault), "value");
             var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions { PreferDefaultParameterValues = false };
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -75,7 +75,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithoutDefault), "value");
             var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -88,7 +88,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithNullDefault), "value");
             var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -101,7 +101,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithStringDefault), "value");
             var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
             var options = new FixtureOptions();
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

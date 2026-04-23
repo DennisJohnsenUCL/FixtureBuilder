@@ -33,7 +33,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
             result = context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
 
-            if (!context.Options.AllowSkipUninitializableMembers && result is NoResult)
+            if (!context.OptionsFor(request.RootType).AllowSkipUninitializableMembers && result is NoResult)
                 throw new InvalidOperationException($"Could not get a value for or instantiate {request.Type.Name} uninitialized.");
 
             return result;

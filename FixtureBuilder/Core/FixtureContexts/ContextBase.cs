@@ -9,7 +9,8 @@ namespace FixtureBuilder.Core.FixtureContexts
 {
     internal abstract class ContextBase : IFixtureContext
     {
-        public abstract FixtureOptions Options { get; set; }
+        public abstract FixtureOptions Options { protected get; set; }
+        protected readonly Dictionary<Type, FixtureOptions> RootOptions = [];
 
         public abstract ConverterGraph Converter { get; }
         public abstract ICompositeTypeLink TypeLink { get; }
@@ -18,10 +19,24 @@ namespace FixtureBuilder.Core.FixtureContexts
         public abstract IAutoConstructingProvider AutoConstructingProvider { get; }
         public abstract IConstructingProvider ConstructingProvider { get; }
 
+        public FixtureOptions GetBaseOptions()
+            => Options;
+
         public void SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);
             action.Invoke(Options);
+        }
+
+        public void AddRootOptions(Type type, FixtureOptions options)
+        {
+            RootOptions.Add(type, options);
+        }
+
+        public FixtureOptions OptionsFor(Type type)
+        {
+            if (RootOptions.TryGetValue(type, out var rootOptions)) return rootOptions;
+            else return Options;
         }
 
         public Type UnwrapAndLink(Type type)

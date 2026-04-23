@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         IAutoConstructingProvider autoConstructingProvider,
         IConstructingProvider constructingProvider) : ContextBase
     {
-        public override FixtureOptions Options { get; set; } = options;
+        public override FixtureOptions Options { protected get; set; } = options;
         public override ConverterGraph Converter { get; } = converter;
         public override ICompositeTypeLink TypeLink { get; } = typeLink;
         public override IUninitializedProvider UninitializedProvider { get; } = uninitializedProvider;

@@ -15,7 +15,7 @@ namespace FixtureBuilder
 
         public FixtureOptions Options
         {
-            get => _context.Options;
+            get => _context.GetBaseOptions();
             set => _context.Options = value;
         }
 
@@ -131,7 +131,7 @@ namespace FixtureBuilder
         public FixtureFactory WhenBuilding<TRoot>(Action<IRootProviderBuilder<TRoot>> builderAction)
         {
             ArgumentNullException.ThrowIfNull(builderAction);
-            var builder = new RootProviderBuilder<TRoot>();
+            var builder = new RootProviderBuilder<TRoot>(_context);
             builderAction(builder);
             foreach (var provider in builder.Providers)
             {

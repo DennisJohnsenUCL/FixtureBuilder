@@ -15,10 +15,12 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
             _contextMock = new Mock<IFixtureContext>();
         }
 
+        private RootProviderBuilder<string> CreateBuilder() => new(_contextMock.Object);
+
         [Test]
         public void With_ReturnsBuilderForChaining()
         {
-            var builder = new RootProviderBuilder<string>();
+            var builder = CreateBuilder();
 
             var result = builder.With(42);
 
@@ -28,7 +30,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         [Test]
         public void With_AddsProviderToList()
         {
-            var builder = new RootProviderBuilder<string>();
+            var builder = CreateBuilder();
 
             builder.With(42);
 
@@ -38,7 +40,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         [Test]
         public void With_MultipleCallsAddsMultipleProviders()
         {
-            var builder = new RootProviderBuilder<string>();
+            var builder = CreateBuilder();
 
             builder.With(42).With("hello");
 
@@ -48,7 +50,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         [Test]
         public void With_ProviderIncludesRootTypeRule_MatchingRootType_ReturnsValue()
         {
-            var builder = new RootProviderBuilder<string>();
+            var builder = CreateBuilder();
             builder.With(42);
 
             var request = new FixtureRequest(typeof(int), "source", typeof(string), null);
@@ -60,13 +62,53 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         [Test]
         public void With_ProviderIncludesRootTypeRule_NonMatchingRootType_ReturnsNoResult()
         {
-            var builder = new RootProviderBuilder<string>();
+            var builder = CreateBuilder();
             builder.With(42);
 
             var request = new FixtureRequest(typeof(int), "source", typeof(double), null);
             var result = builder.Providers[0].ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        // Options setter
+
+        [Test]
+        public void OptionsSetter_CallsAddRootOptionsOnContext()
+        {
+            var builder = CreateBuilder();
+            var options = new FixtureOptions();
+
+            builder.Options = options;
+
+            _contextMock.Verify(c => c.AddRootOptions(typeof(string), options), Times.Once);
+        }
+
+        // SetOptions
+
+        [Test]
+        public void SetOptions_ClonesBaseOptionsAndAppliesAction()
+        {
+            var baseOptions = new FixtureOptions { AllowPrivateConstructors = true };
+            _contextMock.Setup(c => c.GetBaseOptions()).Returns(baseOptions);
+            var builder = CreateBuilder();
+
+            builder.SetOptions(o => o.AllowPrivateConstructors = false);
+
+            _contextMock.Verify(c => c.AddRootOptions(typeof(string),
+                It.Is<FixtureOptions>(o => o.AllowPrivateConstructors == false)), Times.Once);
+        }
+
+        [Test]
+        public void SetOptions_DoesNotMutateBaseOptions()
+        {
+            var baseOptions = new FixtureOptions { AllowPrivateConstructors = true };
+            _contextMock.Setup(c => c.GetBaseOptions()).Returns(baseOptions);
+            var builder = CreateBuilder();
+
+            builder.SetOptions(o => o.AllowPrivateConstructors = false);
+
+            Assert.That(baseOptions.AllowPrivateConstructors, Is.True);
         }
     }
 }

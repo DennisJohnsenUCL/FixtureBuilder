@@ -154,7 +154,7 @@ namespace FixtureBuilder.Configuration
             var current = dataMember.GetValue(parent);
             if (current != null) return current;
 
-            if (!context.Options.AllowInstantiateNestedMembers)
+            if (!context.OptionsFor(_rootType).AllowInstantiateNestedMembers)
                 throw new InvalidOperationException($"Property or field {dataMember.Name} in member chain is null, and instantiation of null chain members is disabled.");
 
             if (dataMember.IsPropertyInfo && !pi.CanWrite)
@@ -166,7 +166,7 @@ namespace FixtureBuilder.Configuration
                 ? new FixtureRequest(type, dataMember.Property, _rootType, name)
                 : new FixtureRequest(type, dataMember.Field, _rootType, name);
 
-            current = context.ProvideWithStrategy(request, context.Options.NestedMemberInstantiationMethod, InitializeMembers.None)
+            current = context.ProvideWithStrategy(request, context.OptionsFor(_rootType).NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {type.Name} in Expression chain resolution. " +
                 $"Providers for types in Expression chain Resolution must return concrete values. " +
                 $"Use Instantiate to explicitly instantiate the member instead.");

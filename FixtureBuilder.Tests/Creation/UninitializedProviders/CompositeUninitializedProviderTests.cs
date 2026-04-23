@@ -70,7 +70,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
             var expected = new CompositeUninitializedProvider(_defaultBclTypeProvider);
             var options = new FixtureOptions();
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(CompositeUninitializedProvider))).Returns(typeof(CompositeUninitializedProvider));
             _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
             _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
@@ -88,7 +88,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         {
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
             var options = new FixtureOptions();
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(CompositeUninitializedProvider))).Returns(typeof(CompositeUninitializedProvider));
             _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
             _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
@@ -105,7 +105,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         {
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
             var options = new FixtureOptions() { AllowSkipUninitializableMembers = false };
-            _contextMock.Setup(c => c.Options).Returns(options);
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(CompositeUninitializedProvider))).Returns(typeof(CompositeUninitializedProvider));
             _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
             _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))

@@ -40,7 +40,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         {
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
-            context.Setup(c => c.Options).Returns(options);
+            context.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             return context;
         }
 

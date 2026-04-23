@@ -29,7 +29,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
             {
-                if (!context.Options.AllowResolveCircularDependencies)
+                if (!context.OptionsFor(request.RootType).AllowResolveCircularDependencies)
                     throw new InvalidOperationException($"Circular dependency detected for {request.Type.Name} in CreateUninitialized.");
 
                 return recursiveResolveContext.AddShell(request.Type);

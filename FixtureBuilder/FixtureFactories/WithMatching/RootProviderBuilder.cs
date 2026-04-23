@@ -1,13 +1,32 @@
-﻿using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
+﻿using FixtureBuilder.Core;
+using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
 namespace FixtureBuilder.FixtureFactories.WithMatching
 {
     internal class RootProviderBuilder<TRoot> : IRootProviderBuilder<TRoot>
     {
+        private readonly IFixtureContext _context;
+
         private readonly List<MatchingProvider> _providers = [];
+        internal IReadOnlyList<MatchingProvider> Providers => _providers.AsReadOnly();
+
         private readonly MatchingProviderBuilder _innerBuilder = new([new RootTypeRule(typeof(TRoot))]);
 
-        internal IReadOnlyList<MatchingProvider> Providers => _providers.AsReadOnly();
+        public FixtureOptions Options { set { _context.AddRootOptions(typeof(TRoot), value); } }
+
+        public RootProviderBuilder(IFixtureContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            _context = context;
+        }
+
+        public void SetOptions(Action<FixtureOptions> optionsAction)
+        {
+            var options = (_context.GetBaseOptions().Clone());
+            optionsAction(options);
+            _context.AddRootOptions(typeof(TRoot), options);
+        }
 
         private RootProviderBuilder<TRoot> Add(MatchingProvider provider)
         {

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
@@ -16,7 +15,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
         {
             if (request.RequestSource is ParameterInfo paramInfo
                 && paramInfo.HasDefaultValue
-                && context.Options.PreferDefaultParameterValues)
+                && context.OptionsFor(request.RootType).PreferDefaultParameterValues)
             {
                 return paramInfo.DefaultValue;
             }

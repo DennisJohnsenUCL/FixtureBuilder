@@ -37,8 +37,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(context.Options.AllowPrivateConstructors, Is.False);
-                Assert.That(context.Options, Is.SameAs(factory.Options));
+                Assert.That(context.GetBaseOptions().AllowPrivateConstructors, Is.False);
+                Assert.That(context.GetBaseOptions(), Is.SameAs(factory.Options));
             }
         }
     }

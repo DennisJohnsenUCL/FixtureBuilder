@@ -13,7 +13,7 @@ namespace FixtureBuilder.Core.FixtureContexts
     /// </summary>
     internal class LazyContext : ContextBase, IFixtureContext
     {
-        public override FixtureOptions Options { get; set; }
+        public override FixtureOptions Options { protected get; set; }
 
         private readonly Lazy<ConverterGraph> _converter;
         public override ConverterGraph Converter => _converter.Value;

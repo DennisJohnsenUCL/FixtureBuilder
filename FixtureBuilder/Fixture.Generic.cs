@@ -67,7 +67,7 @@ namespace FixtureBuilder
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for further configuration of the created entity.</returns>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.CreateUninitialized()
-            => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.Options.DefaultInitializeMembers);
+            => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.OptionsFor(typeof(T)).DefaultInitializeMembers);
 
         /// <summary>
         /// Creates an instance of the entity type <typeparamref name="T"/> without invoking its constructor.
@@ -154,7 +154,7 @@ namespace FixtureBuilder
 
             var source = ((MemberExpression)expr.Body).Member;
             var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
-            var value = (TProp)_context.ProvideWithStrategy(request, _context.Options.DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
+            var value = (TProp)_context.ProvideWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
             return ((IFixtureConfigurator<T>)this).With(expr, value);
         }
@@ -441,14 +441,14 @@ namespace FixtureBuilder
 
         internal T InstantiateFixture()
         {
-            if (!_context.Options.AllowImplicitConstruction)
+            if (!_context.OptionsFor(typeof(T)).AllowImplicitConstruction)
                 throw new InvalidOperationException($"Skipping instantiation step is not allowed. " +
                     $"Please use UseAutoConstructor, UseConstructor, or CreateUninitialized before calling any configuration methods. " +
                     $"Explicit instantiation can be allowed via AllowImplicitConstruction option.");
 
             var request = new FixtureRequest(typeof(T));
 
-            return (T)_context.InstantiateWithStrategy(request, _context.Options.DefaultInstantiationMethod, _context.Options.DefaultInitializeMembers);
+            return (T)_context.InstantiateWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultInstantiationMethod, _context.OptionsFor(typeof(T)).DefaultInitializeMembers);
         }
 
         private static IFixtureContext InitializeContext()

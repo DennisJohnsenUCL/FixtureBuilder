@@ -9,17 +9,12 @@ using Moq;
 
 namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
 {
-    internal sealed class SetOptionsTests
+    internal sealed class GetBaseOptionsTests
     {
-        private FixtureOptions _options;
-        private TestableContext _sut;
-
-        [SetUp]
-        public void SetUp()
+        private static TestableContext CreateContext(FixtureOptions options)
         {
-            _options = FixtureOptions.Default;
-            _sut = new TestableContext(
-                _options,
+            return new TestableContext(
+                options,
                 new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object),
                 new Mock<ICompositeTypeLink>().Object,
                 new Mock<IUninitializedProvider>().Object,
@@ -29,27 +24,25 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         }
 
         [Test]
-        public void SetOptions_SetsOptions()
+        public void GetBaseOptions_ReturnsOptionsPassedToContext()
         {
-            var options = FixtureOptions.Default;
+            var options = new FixtureOptions();
+            var context = CreateContext(options);
 
-            _sut.Options = options;
+            var result = context.GetBaseOptions();
 
-            Assert.That(_sut.GetBaseOptions(), Is.SameAs(options));
+            Assert.That(result, Is.SameAs(options));
         }
 
         [Test]
-        public void SetOptions_Action_SetsOptions()
+        public void GetBaseOptions_AfterSetOptions_ReturnsSameInstance()
         {
-            _sut.SetOptions(o => o.AllowPrivateConstructors = false);
+            var options = new FixtureOptions();
+            var context = CreateContext(options);
 
-            Assert.That(_sut.GetBaseOptions().AllowPrivateConstructors, Is.False);
-        }
+            context.SetOptions(o => o.AllowPrivateConstructors = false);
 
-        [Test]
-        public void SetOptions_Action_NullAction_ThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() => _sut.SetOptions(null!));
+            Assert.That(context.GetBaseOptions(), Is.SameAs(options));
         }
     }
 }

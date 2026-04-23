@@ -151,13 +151,13 @@ internal class CreateUninitializedTests
 
     class OuterAndInner
     {
-        public Middle Middle { get; set; }
-        public string Name { get; set; }
+        public Middle Middle { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
     class Middle
     {
-        public OuterAndInner OuterAndInner { get; set; }
-        public string Name { get; set; }
+        public OuterAndInner OuterAndInner { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     [Test]

@@ -16,7 +16,7 @@ namespace FixtureBuilder.Tests.FixtureTests
                 DefaultInitializeMembers = InitializeMembers.All
             };
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.Options).Returns(options);
+            contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             var fixture = Fixture.New<string>();
             TestHelper.SetContext(fixture, contextMock.Object);
 
@@ -35,7 +35,7 @@ namespace FixtureBuilder.Tests.FixtureTests
             var expected = "test string value";
             var options = new FixtureOptions();
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.Options).Returns(options);
+            contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             contextMock.Setup(c => c.InstantiateWithStrategy(It.IsAny<FixtureRequest>(), It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(expected);
             var fixture = Fixture.New<string>();
@@ -51,7 +51,7 @@ namespace FixtureBuilder.Tests.FixtureTests
         {
             var options = new FixtureOptions { AllowImplicitConstruction = false };
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.Options).Returns(options);
+            contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             var fixture = Fixture.New<string>();
             TestHelper.SetContext(fixture, contextMock.Object);
 

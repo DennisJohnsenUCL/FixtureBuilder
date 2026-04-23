@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
@@ -15,7 +14,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             if (request.RequestSource is ParameterInfo paramInfo
-                && context.Options.PreferNullParameterValues
+                && context.OptionsFor(request.RootType).PreferNullParameterValues
                 && new NullabilityInfoContext().Create(paramInfo).ReadState == NullabilityState.Nullable)
             {
                 return null;
