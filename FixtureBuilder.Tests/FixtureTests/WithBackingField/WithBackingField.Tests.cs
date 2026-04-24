@@ -354,10 +354,36 @@
                 new() { Inner = 2 },
                 new() { Inner = 3 }
             };
+
             fixture.WithBackingField(t => t.Values, source);
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Values.Select(v => v.Inner), Is.EqualTo([1, 2, 3]));
+        }
+
+        class ImplicitConversionDictionaryClass
+        {
+            private readonly Dictionary<string, TargetType> _values = null!;
+            public Dictionary<string, SourceType> Values => _values.ToDictionary(k => k.Key, v => new SourceType { Inner = v.Value.Inner });
+        }
+
+        [Test]
+        public void WithBackingField_ImplicitConversion_DictionaryElements_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<ImplicitConversionDictionaryClass>();
+            TestHelper.SetOption(fixture, o => o.AllowImplicitConversion = true);
+
+            var source = new Dictionary<string, SourceType>
+            {
+                { "one", new() { Inner = 1 } },
+                { "two", new() { Inner = 2 } },
+                { "three", new() { Inner = 3 } }
+            };
+
+            fixture.WithBackingField(t => t.Values, source);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Values.Select(v => v.Value.Inner), Is.EqualTo([1, 2, 3]));
         }
     }
 }

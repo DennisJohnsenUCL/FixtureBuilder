@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.Decorators;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
 
@@ -234,13 +235,49 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var targetType = typeof(Dictionary<string, long>);
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var context = new Mock<IFixtureContext>().Object;
+
+            var rootConverter = new Mock<IValueConverter>();
+            rootConverter.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var composite = new Mock<ICompositeConverter>();
+            var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
+
+            var context = new Mock<IFixtureContext>();
+            context.Setup(c => c.Converter).Returns(converterGraph);
 
             var innerMock = new Mock<IValueConverter>();
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 
-            Assert.Throws<InvalidCastException>(() => converter.Convert(targetType, value, context));
+            Assert.Throws<InvalidCastException>(() => converter.Convert(targetType, value, context.Object));
+        }
+
+        [Test]
+        public void Convert_ElementsNotAssignable_ConvertsViaRoot()
+        {
+            var targetType = typeof(Dictionary<string, long>);
+            var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+
+            var rootConverter = new Mock<IValueConverter>();
+            rootConverter.Setup(c => c.Convert(typeof(long), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((Type t, object v, IFixtureContext c) => System.Convert.ChangeType(v, t));
+
+            var composite = new Mock<ICompositeConverter>();
+            var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
+
+            var context = new Mock<IFixtureContext>();
+            context.Setup(c => c.Converter).Returns(converterGraph);
+
+            var innerMock = new Mock<IValueConverter>();
+            innerMock.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((Type t, object v, IFixtureContext c) => v);
+
+            var converter = new DictionaryElementCastingConverter(innerMock.Object);
+
+            var result = (Dictionary<string, long>)converter.Convert(targetType, value, context.Object)!;
+
+            Assert.That(result, Is.EqualTo(new Dictionary<string, long> { { "one", 1L }, { "two", 2L }, { "three", 3L } }));
         }
     }
 }

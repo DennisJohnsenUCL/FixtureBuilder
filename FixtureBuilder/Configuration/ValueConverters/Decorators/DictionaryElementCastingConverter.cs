@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
-using FixtureBuilder.Configuration.ValueConverters;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
@@ -28,14 +28,14 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             {
                 var (targetKeyType, targetValueType) = target.GetDictionaryEnumerableTypes();
 
-                var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value);
+                var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value, context);
 
                 return _inner.Convert(target, castDictionary, context);
             }
             return _inner.Convert(target, value, context);
         }
 
-        private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values)
+        private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values, IFixtureContext context)
         {
             var enumerator = values.GetEnumerator();
             if (enumerator.MoveNext())
@@ -46,15 +46,30 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 {
                     var (key, value) = getter(enumerator.Current);
 
+                    key = ConvertElement(key, fieldKeyType, context);
+                    value = ConvertElement(value, fieldValueType, context);
+
                     try
                     {
-                        dict.Add(key, value);
+                        dict.Add(key!, value);
                     }
                     catch (ArgumentException ex) { throw new InvalidCastException(ex.Message); }
                 } while (enumerator.MoveNext());
                 values = dict;
             }
             return values;
+        }
+
+        private static object? ConvertElement(object? item, Type targetType, IFixtureContext context)
+        {
+            if (item == null) return null;
+            if (targetType.IsAssignableFrom(item.GetType())) return item;
+
+            var converted = context.Converter.Root.Convert(targetType, item, context);
+            if (converted is NoResult)
+                throw new InvalidCastException(
+                    $"Cannot convert element of type {item.GetType().Name} to {targetType.Name}.");
+            return converted;
         }
 
         private static Func<object, (object Key, object Value)> MakeKeyValueGetter(Type pairType)
