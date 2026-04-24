@@ -280,7 +280,7 @@
         }
 
         [Test]
-        public void WithBackingField_InstantiatesFixture()
+        public void InstantiatesFixture()
         {
             var fixture = TestHelper.MakeFixture<NormalClass>();
 
@@ -305,6 +305,36 @@
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.NormalClass.Text, Is.EqualTo(_text));
+        }
+
+        class ImplicitConversionClass
+        {
+            private readonly TargetType _value;
+            public SourceType Value => new() { Inner = _value.Inner };
+        }
+
+        struct SourceType
+        {
+            public int Inner;
+        }
+
+        struct TargetType
+        {
+            public int Inner;
+            public static implicit operator TargetType(SourceType s) => new() { Inner = s.Inner };
+        }
+
+        [Test]
+        public void WithBackingField_ImplicitConversion_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<ImplicitConversionClass>();
+            TestHelper.SetOption(fixture, o => o.AllowImplicitConversion = true);
+
+            var source = new SourceType { Inner = 42 };
+            fixture.WithBackingField(t => t.Value, source);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Value.Inner, Is.EqualTo(42));
         }
     }
 }

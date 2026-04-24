@@ -32,6 +32,11 @@ namespace FixtureBuilder.Configuration
             ValidateNullableValueTypeAssignment(fieldType, value);
 
             var sourceType = value?.GetType();
+
+            var t1 = sourceType != null;
+            var t2 = fieldType != sourceType;
+            var t3 = !fieldType.IsAssignableFrom(sourceType);
+
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
                 value = context.Converter.Root.Convert(fieldType, value!, context);

@@ -118,5 +118,13 @@ namespace FixtureBuilder.Core
         /// When <see langword="false"/>, circular dependencies throw an <see cref="InvalidOperationException"/>.
         /// </remarks>
         public bool AllowResolveCircularDependencies { get; set; } = false;
+
+        /// <summary>
+        /// Whether value converters will attempt implicit conversion when assigning a value to a backing field of a different type to its property.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="false" />
+        /// </remarks>
+        public bool AllowImplicitConversion { get; set; } = false;
     }
 }

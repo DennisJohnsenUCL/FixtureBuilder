@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests
             return Fixture.New(instance);
         }
 
-        internal static void SetOption<T>(IFixtureConstructor<T> fixture, Action<FixtureOptions> action) where T : class
+        internal static void SetOption<T>(IFixtureConfigurator<T> fixture, Action<FixtureOptions> action) where T : class
         {
             ((IFixtureContext)fixture
                 .GetType()

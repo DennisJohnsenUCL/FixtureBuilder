@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
+using FixtureBuilder.Configuration.ValueConverters.Converters;
 using FixtureBuilder.Configuration.ValueConverters.DictionaryConverters;
 
 namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
@@ -34,6 +35,12 @@ namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
                 new NonGenericCollectionConverter(),
                 new BlockingCollectionConverter()]);
 
+            return this;
+        }
+
+        public CompositeConverterBuilder AddImplicitStrategy()
+        {
+            _converters = _converters.Concat([new ImplicitConverter()]);
             return this;
         }
 

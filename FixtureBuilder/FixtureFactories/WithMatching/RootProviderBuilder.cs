@@ -23,7 +23,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
 
         public void SetOptions(Action<FixtureOptions> optionsAction)
         {
-            var options = (_context.GetBaseOptions().Clone());
+            var options = _context.GetBaseOptions().Clone();
             optionsAction(options);
             _context.AddRootOptions(typeof(TRoot), options);
         }

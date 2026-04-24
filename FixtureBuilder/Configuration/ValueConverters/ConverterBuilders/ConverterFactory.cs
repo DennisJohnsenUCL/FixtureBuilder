@@ -8,6 +8,7 @@
                 .WithStrategies()
                     .AddEnumerableStrategies()
                     .AddDictionaryStrategies()
+                    .AddImplicitStrategy()
                     .And()
                 .WithDictionaryElementCasting()
                 .WithEnumerableElementCasting()
