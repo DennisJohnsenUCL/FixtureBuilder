@@ -336,5 +336,28 @@
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Value.Inner, Is.EqualTo(42));
         }
+
+        class ImplicitConversionListClass
+        {
+            private readonly List<TargetType> _values = null!;
+            public List<SourceType> Values => [.. _values.Select(t => new SourceType { Inner = t.Inner })];
+        }
+        [Test]
+        public void WithBackingField_ImplicitConversion_ListElements_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<ImplicitConversionListClass>();
+            TestHelper.SetOption(fixture, o => o.AllowImplicitConversion = true);
+
+            var source = new List<SourceType>
+            {
+                new() { Inner = 1 },
+                new() { Inner = 2 },
+                new() { Inner = 3 }
+            };
+            fixture.WithBackingField(t => t.Values, source);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Values.Select(v => v.Inner), Is.EqualTo([1, 2, 3]));
+        }
     }
 }

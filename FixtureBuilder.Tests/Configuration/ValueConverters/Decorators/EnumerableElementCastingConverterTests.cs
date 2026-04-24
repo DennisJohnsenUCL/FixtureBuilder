@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.Decorators;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
 
@@ -195,13 +196,48 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var targetType = typeof(List<long>);
             var value = new List<int> { 1, 2, 3 };
-            var context = new Mock<IFixtureContext>().Object;
+            var context = new Mock<IFixtureContext>();
+            var rootConverter = new Mock<IValueConverter>();
+            rootConverter.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var composite = new Mock<ICompositeConverter>();
+            var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
+
+            context.Setup(c => c.Converter).Returns(converterGraph);
 
             var innerMock = new Mock<IValueConverter>();
 
             var converter = new EnumerableElementCastingConverter(innerMock.Object);
 
-            Assert.Throws<InvalidCastException>(() => converter.Convert(targetType, value, context));
+            Assert.Throws<InvalidCastException>(() => converter.Convert(targetType, value, context.Object));
+        }
+
+        [Test]
+        public void Convert_ElementsNotAssignable_ConvertsViaRoot()
+        {
+            var targetType = typeof(List<long>);
+            var value = new List<int> { 1, 2, 3 };
+
+            var rootConverter = new Mock<IValueConverter>();
+            rootConverter.Setup(c => c.Convert(typeof(long), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((Type t, object v, IFixtureContext c) => System.Convert.ChangeType(v, t));
+
+            var composite = new Mock<ICompositeConverter>();
+            var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
+
+            var context = new Mock<IFixtureContext>();
+            context.Setup(c => c.Converter).Returns(converterGraph);
+
+            var innerMock = new Mock<IValueConverter>();
+            innerMock.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((Type t, object v, IFixtureContext c) => v);
+
+            var converter = new EnumerableElementCastingConverter(innerMock.Object);
+
+            var result = (List<long>)converter.Convert(targetType, value, context.Object)!;
+
+            Assert.That(result, Is.EqualTo(new List<long> { 1L, 2L, 3L }));
         }
     }
 }

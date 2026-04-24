@@ -1,9 +1,7 @@
-﻿using FixtureBuilder.Configuration.ValueConverters;
+﻿using System.Collections;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
-using System.Collections;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
 
 namespace FixtureBuilder.Configuration.ValueConverters.Decorators
 {
@@ -27,34 +25,39 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 && !target.IsArray
                 && !target.IsDictionary())
             {
-                var typedList = CastElements(enumerable, targetElementType);
+                var typedList = CastElements(enumerable, targetElementType, context);
 
                 return _inner.Convert(target, typedList, context);
             }
             return _inner.Convert(target, value, context);
         }
 
-        private static IEnumerable CastElements(IEnumerable values, Type elementType)
+        private static IEnumerable CastElements(IEnumerable values, Type elementType, IFixtureContext context)
         {
-            var typedElements = typeof(Enumerable)
-                .GetMethod("Cast")!
-                .MakeGenericMethod(elementType)
-                .Invoke(null, [values])!;
+            var listType = typeof(List<>).MakeGenericType(elementType);
+            var list = (IList)Activator.CreateInstance(listType)!;
 
-            try
+            foreach (var item in values)
             {
-                var typedList = typeof(Enumerable)
-                    .GetMethod("ToList")!
-                    .MakeGenericMethod(elementType)
-                    .Invoke(null, [typedElements])!;
+                if (item == null)
+                {
+                    list.Add(null);
+                }
+                else if (elementType.IsAssignableFrom(item.GetType()))
+                {
+                    list.Add(item);
+                }
+                else
+                {
+                    var converted = context.Converter.Root.Convert(elementType, item, context);
+                    if (converted is NoResult)
+                        throw new InvalidCastException(
+                            $"Cannot convert element of type {item.GetType().Name} to {elementType.Name}.");
+                    list.Add(converted);
+                }
+            }
 
-                return (IEnumerable)typedList;
-            }
-            catch (TargetInvocationException ex) when (ex.InnerException != null)
-            {
-                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                throw;
-            }
+            return list;
         }
     }
 }
