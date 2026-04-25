@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS0649
 
 using FixtureBuilder.Core;
+using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
@@ -196,6 +197,42 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             var fixture = _factory.New<PrivateConstructorClass>();
 
             Assert.Throws<InvalidOperationException>(() => TestHelper.GetFixture(fixture));
+        }
+
+        [Test]
+        public void WhenBuilding_AddProvider_AppliesForMatchingRootType()
+        {
+            var request = new FixtureRequest(typeof(string), "source", typeof(PersonClass), null);
+            var expected = "from-added";
+
+            var provider = new Mock<ICustomProvider>();
+            provider.Setup(p => p.ResolveValue(It.Is<FixtureRequest>(r => r.Type == request.Type))).Returns(expected);
+
+            _factory.WhenBuilding<PersonClass>(b => b.AddProvider(provider.Object));
+
+            var fixture = _factory.New<PersonClass>();
+            var context = TestHelper.GetContext(fixture);
+            var result = context.ValueProvider.ResolveValue(request, context);
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void WhenBuilding_AddProvider_DoesNotApplyForNonMatchingRootType()
+        {
+            var request = new FixtureRequest(typeof(string), "source", typeof(BusinessClass), null);
+            var expected = "from-added";
+
+            var provider = new Mock<ICustomProvider>();
+            provider.Setup(p => p.ResolveValue(It.Is<FixtureRequest>(r => r.Type == request.Type))).Returns(expected);
+
+            _factory.WhenBuilding<PersonClass>(b => b.AddProvider(provider.Object));
+
+            var fixture = _factory.New<BusinessClass>();
+            var context = TestHelper.GetContext(fixture);
+            var result = context.ValueProvider.ResolveValue(request, context);
+
+            Assert.That(result, Is.Not.SameAs(expected));
         }
     }
 }

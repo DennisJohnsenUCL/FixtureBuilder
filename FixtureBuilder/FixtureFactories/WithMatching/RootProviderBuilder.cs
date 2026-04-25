@@ -28,6 +28,12 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
             _context.AddRootOptions(typeof(TRoot), options);
         }
 
+        public void AddProvider(ICustomProvider provider)
+        {
+            var adaptedRootProvider = new CustomProviderAdapter(provider, typeof(TRoot));
+            _context.ValueProvider.AddProvider(adaptedRootProvider);
+        }
+
         private RootProviderBuilder<TRoot> Add(MatchingProvider provider)
         {
             _providers.Add(provider);

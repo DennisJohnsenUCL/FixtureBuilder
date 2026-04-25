@@ -1,5 +1,7 @@
-﻿using FixtureBuilder.Core;
+﻿using FixtureBuilder.Assignment.ValueProviders;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using Moq;
 
@@ -109,6 +111,27 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
             builder.SetOptions(o => o.AllowPrivateConstructors = false);
 
             Assert.That(baseOptions.AllowPrivateConstructors, Is.True);
+        }
+
+        [Test]
+        public void AddProvider_NullProvider_Throws()
+        {
+            var builder = CreateBuilder();
+
+            Assert.Throws<ArgumentNullException>(() => builder.AddProvider(null!));
+        }
+
+        [Test]
+        public void AddProvider_AddsAdaptedProviderToContext()
+        {
+            var valueProviderMock = new Mock<ICompositeValueProvider>();
+            _contextMock.Setup(c => c.ValueProvider).Returns(valueProviderMock.Object);
+            var builder = CreateBuilder();
+            var providerMock = new Mock<ICustomProvider>();
+
+            builder.AddProvider(providerMock.Object);
+
+            valueProviderMock.Verify(v => v.AddProvider(It.IsAny<CustomProviderAdapter>()), Times.Once);
         }
     }
 }
