@@ -65,9 +65,15 @@ namespace FixtureBuilder
             AddTypeLink(new TypeLink(typeIn, typeOut));
         }
 
-        public void AddTypeLink(ITypeLink link)
+        public void AddTypeLink(ICustomTypeLink typeLink)
         {
-            _context.TypeLink.AddTypeLink(link);
+            var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
+            AddTypeLink(adaptedTypeLink);
+        }
+
+        private void AddTypeLink(ITypeLink typeLink)
+        {
+            _context.TypeLink.AddTypeLink(typeLink);
         }
 
         public void AddProvider(ICustomProvider provider)

@@ -1,5 +1,5 @@
-﻿using FixtureBuilder.Assignment.TypeLinks;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
+using FixtureBuilder.FixtureFactories;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
@@ -17,8 +17,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             var request = new FixtureRequest(typeof(string));
             var expectedResult = typeof(int);
 
-            var link = new Mock<ITypeLink>();
-            link.Setup(x => x.Link(It.Is<FixtureRequest>(r => r.Type == typeof(string)))).Returns(expectedResult);
+            var link = new Mock<ICustomTypeLink>();
+            link.Setup(x => x.Link(typeof(string))).Returns(expectedResult);
 
             factory.AddTypeLink(link.Object);
 

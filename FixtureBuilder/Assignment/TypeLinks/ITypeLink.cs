@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Assignment.TypeLinks
 {
-    public interface ITypeLink
+    internal interface ITypeLink
     {
         Type? Link(FixtureRequest request);
     }
