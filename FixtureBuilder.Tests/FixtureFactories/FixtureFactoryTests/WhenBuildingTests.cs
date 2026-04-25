@@ -234,5 +234,37 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             Assert.That(result, Is.Not.SameAs(expected));
         }
+
+        [Test]
+        public void WhenBuilding_AddConverter_AppliesForMatchingRootType()
+        {
+            var converter = new Mock<ICustomConverter>();
+            converter.Setup(c => c.Convert(typeof(string), It.IsAny<object>())).Returns("converted-value");
+
+            _factory.WhenBuilding<PersonClass>(b => b.AddConverter(converter.Object));
+
+            var fixture = _factory.New<PersonClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(string), "source", typeof(PersonClass), null);
+            var result = context.Converter.Composite.Convert(request, "original", context);
+
+            Assert.That(result, Is.EqualTo("converted-value"));
+        }
+
+        [Test]
+        public void WhenBuilding_AddConverter_DoesNotApplyForNonMatchingRootType()
+        {
+            var converter = new Mock<ICustomConverter>();
+            converter.Setup(c => c.Convert(typeof(string), It.IsAny<object>())).Returns("converted-value");
+
+            _factory.WhenBuilding<PersonClass>(b => b.AddConverter(converter.Object));
+
+            var fixture = _factory.New<BusinessClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(string), "source", typeof(BusinessClass), null);
+            var result = context.Converter.Composite.Convert(request, "original", context);
+
+            Assert.That(result, Is.Not.EqualTo("converted-value"));
+        }
     }
 }

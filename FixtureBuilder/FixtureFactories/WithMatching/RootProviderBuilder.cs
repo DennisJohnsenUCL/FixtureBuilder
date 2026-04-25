@@ -31,6 +31,12 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
             _context.ValueProvider.AddProvider(adaptedRootProvider);
         }
 
+        public void AddConverter(ICustomConverter converter)
+        {
+            var adaptedRootConverter = new CustomConverterAdapter(converter, typeof(TRoot));
+            _context.Converter.Composite.AddConverter(adaptedRootConverter);
+        }
+
         private RootProviderBuilder<TRoot> Add(MatchingProvider provider)
         {
             _context.ValueProvider.AddProvider(provider);

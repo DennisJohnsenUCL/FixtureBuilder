@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Assignment.ValueProviders;
+using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
@@ -104,6 +105,28 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
             builder.AddProvider(providerMock.Object);
 
             valueProviderMock.Verify(v => v.AddProvider(It.IsAny<CustomProviderAdapter>()), Times.Once);
+        }
+
+        [Test]
+        public void AddConverter_NullConverter_Throws()
+        {
+            var builder = CreateBuilder();
+
+            Assert.Throws<ArgumentNullException>(() => builder.AddConverter(null!));
+        }
+
+        [Test]
+        public void AddConverter_AddsAdaptedConverterToContext()
+        {
+            var compositeMock = new Mock<ICompositeConverter>();
+            var converterGraph = new ConverterGraph(Mock.Of<IValueConverter>(), compositeMock.Object);
+            _contextMock.Setup(c => c.Converter).Returns(converterGraph);
+            var builder = CreateBuilder();
+            var converterMock = new Mock<ICustomConverter>();
+
+            builder.AddConverter(converterMock.Object);
+
+            compositeMock.Verify(v => v.AddConverter(It.IsAny<CustomConverterAdapter>()), Times.Once);
         }
     }
 }

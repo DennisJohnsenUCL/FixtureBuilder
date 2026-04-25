@@ -7,5 +7,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
         FixtureOptions Options { set; }
         void SetOptions(Action<FixtureOptions> optionsAction);
         void AddProvider(ICustomProvider provider);
+        void AddConverter(ICustomConverter converter);
     }
 }
