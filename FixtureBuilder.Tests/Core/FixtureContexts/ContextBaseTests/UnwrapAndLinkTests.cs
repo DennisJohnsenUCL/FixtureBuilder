@@ -34,10 +34,11 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NonNullableNonLinkedType_ReturnsSameType()
         {
-            _typeLinkMock.Setup(r => r.Link(typeof(string))).Returns((Type?)null);
+            var request = new FixtureRequest(typeof(string));
+            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>())).Returns((Type?)null);
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(typeof(string));
+            var result = context.UnwrapAndLink(request);
 
             Assert.That(result, Is.EqualTo(typeof(string)));
         }
@@ -45,10 +46,11 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NullableValueType_ReturnsUnderlyingType()
         {
-            _typeLinkMock.Setup(r => r.Link(typeof(int))).Returns((Type?)null);
+            var request = new FixtureRequest(typeof(int?));
+            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>())).Returns((Type?)null);
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(typeof(int?));
+            var result = context.UnwrapAndLink(request);
 
             Assert.That(result, Is.EqualTo(typeof(int)));
         }
@@ -56,10 +58,11 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_LinkedType_ReturnsLinkedType()
         {
-            _typeLinkMock.Setup(r => r.Link(typeof(IDisposable))).Returns(typeof(MemoryStream));
+            var request = new FixtureRequest(typeof(IDisposable));
+            _typeLinkMock.Setup(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(IDisposable)))).Returns(typeof(MemoryStream));
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(typeof(IDisposable));
+            var result = context.UnwrapAndLink(request);
 
             Assert.That(result, Is.EqualTo(typeof(MemoryStream)));
         }
@@ -67,10 +70,11 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NullableValueType_UnwrapsThenLinks()
         {
-            _typeLinkMock.Setup(r => r.Link(typeof(int))).Returns(typeof(long));
+            var request = new FixtureRequest(typeof(int?));
+            _typeLinkMock.Setup(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int)))).Returns(typeof(long));
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(typeof(int?));
+            var result = context.UnwrapAndLink(request);
 
             Assert.That(result, Is.EqualTo(typeof(long)));
         }
@@ -78,13 +82,14 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NullableValueType_LinksOnUnwrappedType_NotOnNullable()
         {
-            _typeLinkMock.Setup(r => r.Link(typeof(int))).Returns((Type?)null);
+            var request = new FixtureRequest(typeof(int?));
+            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>())).Returns((Type?)null);
             var context = CreateContext();
 
-            context.UnwrapAndLink(typeof(int?));
+            context.UnwrapAndLink(request);
 
-            _typeLinkMock.Verify(r => r.Link(typeof(int)), Times.Once);
-            _typeLinkMock.Verify(r => r.Link(typeof(int?)), Times.Never);
+            _typeLinkMock.Verify(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int))), Times.Once);
+            _typeLinkMock.Verify(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int?))), Times.Never);
         }
     }
 }

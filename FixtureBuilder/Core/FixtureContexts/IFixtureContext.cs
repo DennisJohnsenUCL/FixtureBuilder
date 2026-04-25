@@ -16,7 +16,7 @@ namespace FixtureBuilder.Core.FixtureContexts
         IAutoConstructingProvider AutoConstructingProvider { get; }
         IConstructingProvider ConstructingProvider { get; }
 
-        Type UnwrapAndLink(Type type);
+        Type UnwrapAndLink(FixtureRequest request);
         object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
         object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
     }

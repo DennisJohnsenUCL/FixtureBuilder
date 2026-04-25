@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Tests.Assignment.TypeLinks
 {
@@ -41,21 +42,13 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
         }
 
         [Test]
-        public void Link_TargetNull_ThrowsException()
-        {
-            var link = new TypeLink(typeof(IEnumerable<>), typeof(List<>));
-
-            Assert.Throws<ArgumentNullException>(() => link.Link(null!));
-        }
-
-        [Test]
         public void Link_TargetInType_ReturnsOutType()
         {
             var inType = typeof(int);
             var outType = typeof(long);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(inType);
+            var result = link.Link(new FixtureRequest(inType));
 
             Assert.That(result, Is.EqualTo(outType));
         }
@@ -67,7 +60,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(long);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(typeof(string));
+            var result = link.Link(new FixtureRequest(typeof(string)));
 
             Assert.That(result, Is.Null);
         }
@@ -79,7 +72,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(List<>);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(inType.MakeGenericType(typeof(string)));
+            var result = link.Link(new FixtureRequest(inType.MakeGenericType(typeof(string))));
 
             Assert.That(result, Is.EqualTo(outType.MakeGenericType(typeof(string))));
         }
@@ -91,7 +84,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(List<>);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(typeof(string));
+            var result = link.Link(new FixtureRequest(typeof(string)));
 
             Assert.That(result, Is.Null);
         }
@@ -103,7 +96,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(List<>);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(typeof(Stack<>));
+            var result = link.Link(new FixtureRequest(typeof(Stack<>)));
 
             Assert.That(result, Is.Null);
         }

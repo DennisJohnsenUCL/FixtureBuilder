@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Assignment.TypeLinks
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Assignment.TypeLinks
 {
     internal readonly struct TypeLink : ITypeLink
     {
@@ -17,9 +19,9 @@
             _outType = outType;
         }
 
-        public Type? Link(Type target)
+        public Type? Link(FixtureRequest request)
         {
-            ArgumentNullException.ThrowIfNull(target);
+            var target = request.Type;
 
             if (target == _inType) return _outType;
 

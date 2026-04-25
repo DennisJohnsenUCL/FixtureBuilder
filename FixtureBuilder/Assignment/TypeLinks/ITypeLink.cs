@@ -1,7 +1,9 @@
-﻿namespace FixtureBuilder.Assignment.TypeLinks
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Assignment.TypeLinks
 {
     public interface ITypeLink
     {
-        Type? Link(Type target);
+        Type? Link(FixtureRequest request);
     }
 }

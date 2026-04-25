@@ -1,4 +1,5 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
@@ -13,17 +14,17 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         public void AddTypeLink_FixtureUsesAddedLink()
         {
             var factory = new FixtureFactory();
-            var targetType = typeof(string);
+            var request = new FixtureRequest(typeof(string));
             var expectedResult = typeof(int);
 
             var link = new Mock<ITypeLink>();
-            link.Setup(x => x.Link(targetType)).Returns(expectedResult);
+            link.Setup(x => x.Link(It.Is<FixtureRequest>(r => r.Type == typeof(string)))).Returns(expectedResult);
 
             factory.AddTypeLink(link.Object);
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.TypeLink.Link(targetType);
+            var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
@@ -37,7 +38,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.TypeLink.Link(typeof(ITestInterface));
+            var result = context.TypeLink.Link(new FixtureRequest(typeof(ITestInterface)));
 
             Assert.That(result, Is.EqualTo(typeof(TestImplementation)));
         }
@@ -53,7 +54,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.TypeLink.Link(typeof(ITestInterface));
+            var result = context.TypeLink.Link(new FixtureRequest(typeof(ITestInterface)));
 
             Assert.That(result, Is.EqualTo(typeof(TestImplementation)));
         }

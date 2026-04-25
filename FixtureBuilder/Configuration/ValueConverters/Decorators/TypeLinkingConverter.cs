@@ -16,7 +16,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
 
         public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            request.Type = context.UnwrapAndLink(request.Type);
+            request.Type = context.UnwrapAndLink(request);
 
             var result = _inner.Convert(request, value, context);
             if (result != null) return result;

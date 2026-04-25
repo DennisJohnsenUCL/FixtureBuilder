@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Assignment.TypeLinks
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Assignment.TypeLinks
 {
     internal class CompositeTypeLink : ICompositeTypeLink
     {
@@ -11,13 +13,13 @@
             _typeLinks = typeLinks;
         }
 
-        public Type? Link(Type target)
+        public Type? Link(FixtureRequest request)
         {
-            ArgumentNullException.ThrowIfNull(target);
+            ArgumentNullException.ThrowIfNull(request);
 
             foreach (var typeLink in _typeLinks)
             {
-                var result = typeLink.Link(target);
+                var result = typeLink.Link(request);
                 if (result != null) return result;
             }
             return null;
