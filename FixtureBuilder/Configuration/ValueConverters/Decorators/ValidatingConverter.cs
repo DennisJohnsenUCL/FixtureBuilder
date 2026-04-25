@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Configuration.ValueConverters.Decorators
@@ -15,15 +14,15 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            ArgumentNullException.ThrowIfNull(target);
+            ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
             if (value == null) return null;
-            if (value.GetType().IsAssignableTo(target)) return value;
+            if (value.GetType().IsAssignableTo(request.Type)) return value;
 
-            var result = _inner.Convert(target, value, context);
-            if (result is not NoResult && result != null && !result.GetType().IsAssignableTo(target)) return new NoResult();
+            var result = _inner.Convert(request, value, context);
+            if (result is not NoResult && result != null && !result.GetType().IsAssignableTo(request.Type)) return new NoResult();
             return result;
         }
     }

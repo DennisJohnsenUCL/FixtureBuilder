@@ -9,8 +9,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
 {
     internal class FrozenSetConverter : IValueConverter
     {
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
+            var target = request.Type;
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenSet<>)
                 && value.GetType().GetEnumerableElementType() == target.GenericTypeArguments[0])
             {

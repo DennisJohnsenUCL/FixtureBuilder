@@ -17,7 +17,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArray_ValueEnumerable_Converts()
         {
-            var target = typeof(string[]);
+            var target = new FixtureRequest(typeof(string[]));
             var value = new ArrayList { "test1", "test2", "test3" };
             var expected = new string[] { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
@@ -32,7 +32,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArray_ValueGenericEnumerable_Converts()
         {
-            var target = typeof(string[]);
+            var target = new FixtureRequest(typeof(string[]));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = new string[] { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
@@ -47,7 +47,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotArray_ReturnsNoResult()
         {
-            var target = typeof(List<string>);
+            var target = new FixtureRequest(typeof(List<string>));
             var value = new ArrayList { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -61,7 +61,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var target = typeof(string[]);
+            var target = new FixtureRequest(typeof(string[]));
             var value = 42;
             var context = new Mock<IFixtureContext>().Object;
 

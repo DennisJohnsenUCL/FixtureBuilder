@@ -38,9 +38,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(LinkedList<string>), TestName = "Convert_TargetLinkedList_Converts")]
         public void Convert_OrderPreservingTarget_Converts(Type target)
         {
+            var request = new FixtureRequest(target);
             var value = new string[] { "test1", "test2", "test3" };
 
-            var result = _sut.Convert(target, value, _context);
+            var result = _sut.Convert(request, value, _context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -54,9 +55,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(ConcurrentBag<string>), TestName = "Convert_TargetConcurrentBag_Converts")]
         public void Convert_ReverseOrderTarget_Converts(Type target)
         {
+            var request = new FixtureRequest(target);
             IEnumerable<string> value = ["test1", "test2", "test3"];
 
-            var result = _sut.Convert(target, value, _context);
+            var result = _sut.Convert(request, value, _context);
 
             using (Assert.EnterMultipleScope())
             {
@@ -68,9 +70,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetList_ValueNotArray_Converts()
         {
+            var request = new FixtureRequest(typeof(List<string>));
             var value = ImmutableList.CreateRange(["test1", "test2", "test3"]);
 
-            var result = _sut.Convert(typeof(List<string>), value, _context);
+            var result = _sut.Convert(request, value, _context);
 
             Assert.That(result, Is.EqualTo(new List<string> { "test1", "test2", "test3" }));
         }
@@ -78,7 +81,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetList_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
-            var result = _sut.Convert(typeof(List<string>), new int[] { 1, 2, 3 }, _context);
+            var request = new FixtureRequest(typeof(List<string>));
+            var result = _sut.Convert(request, new int[] { 1, 2, 3 }, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -86,7 +90,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotMutableGenericCollection_ReturnsNoResult()
         {
-            var result = _sut.Convert(typeof(ImmutableList<string>), new string[] { "test1" }, _context);
+            var request = new FixtureRequest(typeof(ImmutableList<string>));
+            var result = _sut.Convert(request, new string[] { "test1" }, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -94,7 +99,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var result = _sut.Convert(typeof(List<string>), 42, _context);
+            var request = new FixtureRequest(typeof(List<string>));
+            var result = _sut.Convert(request, 42, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -102,7 +108,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var result = _sut.Convert(typeof(List<string>), new ArrayList { "test1" }, _context);
+            var request = new FixtureRequest(typeof(List<string>));
+            var result = _sut.Convert(request, new ArrayList { "test1" }, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

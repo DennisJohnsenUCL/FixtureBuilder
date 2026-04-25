@@ -37,12 +37,13 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_ValueNull_ReturnsNull()
         {
+            var request = new FixtureRequest(typeof(string));
             var inner = new Mock<IValueConverter>().Object;
             var context = new Mock<IFixtureContext>().Object;
 
             var cut = new ValidatingConverter(inner);
 
-            var actual = cut.Convert(typeof(string), null!, context);
+            var actual = cut.Convert(request, null!, context);
 
             Assert.That(actual, Is.Null);
         }
@@ -51,7 +52,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void Convert_ContextNull_ThrowsException()
         {
             var inner = new Mock<IValueConverter>().Object;
-            var target = typeof(int);
+            var target = new FixtureRequest(typeof(int));
             var value = "Test string";
 
             var cut = new ValidatingConverter(inner);
@@ -62,13 +63,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_TargetEqualsValueType_ReturnsValue()
         {
+            var request = new FixtureRequest(typeof(string));
             var inner = new Mock<IValueConverter>().Object;
             var context = new Mock<IFixtureContext>().Object;
 
             var cut = new ValidatingConverter(inner);
 
             var expected = "Test string";
-            var actual = cut.Convert(typeof(string), expected, context);
+            var actual = cut.Convert(request, expected, context);
 
             Assert.That(actual, Is.EqualTo(expected));
         }
@@ -76,49 +78,52 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_InnerReturnsNull_ReturnsNull()
         {
+            var request = new FixtureRequest(typeof(int));
             var context = new Mock<IFixtureContext>().Object;
             var mock = new Mock<IValueConverter>();
-            mock.Setup(m => m.Convert(It.IsAny<Type>(), It.IsAny<object>(), context))
+            mock.Setup(m => m.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), context))
                 .Returns(null!);
             var inner = mock.Object;
 
             var cut = new ValidatingConverter(inner);
 
-            var result = cut.Convert(typeof(int), "Any string", context);
+            var result = cut.Convert(request, "Any string", context);
             Assert.That(result, Is.Null);
         }
 
         [Test]
         public void Convert_InnerReturnsWrongType_ReturnsNoResult()
         {
+            var request = new FixtureRequest(typeof(int));
             var expected = "Test string";
             var context = new Mock<IFixtureContext>().Object;
 
             var mock = new Mock<IValueConverter>();
-            mock.Setup(m => m.Convert(It.IsAny<Type>(), It.IsAny<object>(), context))
+            mock.Setup(m => m.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), context))
                 .Returns(expected);
             var inner = mock.Object;
 
             var cut = new ValidatingConverter(inner);
 
-            var result = cut.Convert(typeof(int), "Any string", context);
+            var result = cut.Convert(request, "Any string", context);
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
         public void Convert_InnerReturnsValue_ReturnsValue()
         {
+            var request = new FixtureRequest(typeof(string));
             var expected = "Test string";
             var context = new Mock<IFixtureContext>().Object;
 
             var mock = new Mock<IValueConverter>();
-            mock.Setup(m => m.Convert(It.IsAny<Type>(), It.IsAny<object>(), context))
+            mock.Setup(m => m.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), context))
                 .Returns(expected);
             var inner = mock.Object;
 
             var cut = new ValidatingConverter(inner);
 
-            var actual = cut.Convert(typeof(string), 5, context);
+            var actual = cut.Convert(request, 5, context);
 
             Assert.That(actual, Is.EqualTo(expected));
         }

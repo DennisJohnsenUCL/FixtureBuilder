@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableList_Converts()
         {
-            var target = typeof(ImmutableList<string>);
+            var target = new FixtureRequest(typeof(ImmutableList<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableList.CreateRange(["test1", "test2", "test3"]);
             var context = new Mock<IFixtureContext>().Object;
@@ -33,7 +33,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableHashSet_Converts()
         {
-            var target = typeof(ImmutableHashSet<string>);
+            var target = new FixtureRequest(typeof(ImmutableHashSet<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableHashSet.CreateRange(["test1", "test2", "test3"]);
             var context = new Mock<IFixtureContext>().Object;
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableStack_Converts()
         {
-            var target = typeof(ImmutableStack<string>);
+            var target = new FixtureRequest(typeof(ImmutableStack<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableStack.CreateRange(["test1", "test2", "test3"]);
             var context = new Mock<IFixtureContext>().Object;
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableQueue_Converts()
         {
-            var target = typeof(ImmutableQueue<string>);
+            var target = new FixtureRequest(typeof(ImmutableQueue<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableQueue.CreateRange(["test1", "test2", "test3"]);
             var context = new Mock<IFixtureContext>().Object;
@@ -78,7 +78,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableArray_Converts()
         {
-            var target = typeof(ImmutableArray<string>);
+            var target = new FixtureRequest(typeof(ImmutableArray<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableArray.CreateRange(["test1", "test2", "test3"]);
             var context = new Mock<IFixtureContext>().Object;
@@ -93,7 +93,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableSortedSet_Converts()
         {
-            var target = typeof(ImmutableSortedSet<string>);
+            var target = new FixtureRequest(typeof(ImmutableSortedSet<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = ImmutableSortedSet.CreateRange(["test1", "test2", "test3"]);
             var context = new Mock<IFixtureContext>().Object;
@@ -108,7 +108,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetImmutableList_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
-            var target = typeof(ImmutableList<string>);
+            var target = new FixtureRequest(typeof(ImmutableList<string>));
             var value = new List<int> { 1, 2, 3 };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -122,7 +122,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotImmutable_ReturnsNoResult()
         {
-            var target = typeof(List<string>);
+            var target = new FixtureRequest(typeof(List<string>));
             var value = new string[] { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -136,7 +136,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var target = typeof(ImmutableList<string>);
+            var target = new FixtureRequest(typeof(ImmutableList<string>));
             var value = 42;
             var context = new Mock<IFixtureContext>().Object;
 
@@ -150,7 +150,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var target = typeof(ImmutableList<string>);
+            var target = new FixtureRequest(typeof(ImmutableList<string>));
             var value = new ArrayList { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 

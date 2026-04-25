@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         private DefaultBclTypeProvider _defaultBclTypeProvider;
         private RecursiveResolveContext _recursiveResolveContext;
         private FixtureRequest _request;
-        private const InitializeMembers DefaultInitializeMembers = InitializeMembers.All;
+        private const InitializeMembers _defaultInitializeMembers = InitializeMembers.All;
 
         [SetUp]
         public void SetUp()
@@ -44,7 +44,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _valueProviderMock.Setup(c => c.ResolveValue(_request, _contextMock.Object)).Returns(expected);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            var result = sut.ResolveUninitialized(_request, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            var result = sut.ResolveUninitialized(_request, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             Assert.That(result, Is.SameAs(expected));
             _uninitializedProviderMock.Verify(c => c.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()), Times.Never);
@@ -58,7 +58,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _valueProviderMock.Setup(c => c.ResolveValue(bclRequest, _contextMock.Object)).Returns(new NoResult());
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            var result = sut.ResolveUninitialized(bclRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            var result = sut.ResolveUninitialized(bclRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             Assert.That(result, Is.TypeOf<List<int>>());
             _uninitializedProviderMock.Verify(c => c.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()), Times.Never);
@@ -73,14 +73,14 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(CompositeUninitializedProvider))).Returns(typeof(CompositeUninitializedProvider));
             _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
-            _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
+            _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
                 .Returns(expected);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            var result = sut.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            var result = sut.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             Assert.That(result, Is.SameAs(expected));
-            _uninitializedProviderMock.Verify(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext), Times.Once);
+            _uninitializedProviderMock.Verify(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext), Times.Once);
         }
 
         [Test]
@@ -91,11 +91,11 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(CompositeUninitializedProvider))).Returns(typeof(CompositeUninitializedProvider));
             _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
-            _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
+            _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
                 .Returns(new NoResult());
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            var result = sut.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            var result = sut.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -108,11 +108,11 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(CompositeUninitializedProvider))).Returns(typeof(CompositeUninitializedProvider));
             _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
-            _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
+            _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
                 .Returns(new NoResult());
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            Assert.Throws<InvalidOperationException>(() => sut.ResolveUninitialized(nonSystemRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext));
+            Assert.Throws<InvalidOperationException>(() => sut.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext));
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _valueProviderMock.Setup(c => c.ResolveValue(_request, _contextMock.Object)).Returns("result");
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            sut.ResolveUninitialized(_request, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            sut.ResolveUninitialized(_request, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             _valueProviderMock.Verify(c => c.ResolveValue(_request, _contextMock.Object), Times.Once);
         }
@@ -136,7 +136,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(new List<int>());
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            var result = sut.ResolveUninitialized(originalRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            var result = sut.ResolveUninitialized(originalRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             using (Assert.EnterMultipleScope())
             {
@@ -154,7 +154,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns("resolved");
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            var result = sut.ResolveUninitialized(originalRequest, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            var result = sut.ResolveUninitialized(originalRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             using (Assert.EnterMultipleScope())
             {
@@ -175,7 +175,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns("result");
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
-            sut.ResolveUninitialized(_request, DefaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
+            sut.ResolveUninitialized(_request, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
 
             Assert.That(callOrder, Is.EqualTo(["UnwrapAndLink", "ResolveValue"]));
         }

@@ -25,7 +25,7 @@ namespace FixtureBuilder.Configuration
             else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
         }
 
-        public static void SetBackingFieldValue(FieldInfo backingField, PropertyInfo property, object instance, object? value, IFixtureContext context)
+        public static void SetBackingFieldValue(FieldInfo backingField, PropertyInfo property, object instance, object? value, Type rootType, IFixtureContext context)
         {
             var fieldType = backingField.FieldType;
 
@@ -33,13 +33,10 @@ namespace FixtureBuilder.Configuration
 
             var sourceType = value?.GetType();
 
-            var t1 = sourceType != null;
-            var t2 = fieldType != sourceType;
-            var t3 = !fieldType.IsAssignableFrom(sourceType);
-
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
-                value = context.Converter.Root.Convert(fieldType, value!, context);
+                var request = new FixtureRequest(fieldType, rootType);
+                value = context.Converter.Root.Convert(request, value!, context);
                 if (value is NoResult)
                     throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");
             }
@@ -60,7 +57,7 @@ namespace FixtureBuilder.Configuration
         /// <see langword="true"/> if any of the candidate field names matched a field on the type;
         /// otherwise, <see langword="false"/>.
         /// </returns>
-        public static bool TryGetField(Type type, string[] fieldNames, out FieldInfo fieldInfo)
+        internal static bool TryGetField(Type type, string[] fieldNames, out FieldInfo fieldInfo)
         {
             foreach (var name in fieldNames)
             {

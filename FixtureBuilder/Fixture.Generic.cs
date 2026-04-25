@@ -306,7 +306,7 @@ namespace FixtureBuilder
             if (!FieldHelper.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
-            FieldHelper.SetBackingFieldValue(backingField, property, instance, value, _context);
+            FieldHelper.SetBackingFieldValue(backingField, property, instance, value, typeof(T), _context);
 
             return this;
         }

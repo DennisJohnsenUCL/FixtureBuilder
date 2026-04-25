@@ -1,9 +1,10 @@
-﻿using FixtureBuilder.Core.FixtureContexts;
+﻿using FixtureBuilder.Core;
+using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Configuration.ValueConverters
 {
     internal interface IValueConverter
     {
-        object? Convert(Type target, object value, IFixtureContext context);
+        object? Convert(FixtureRequest request, object value, IFixtureContext context);
     }
 }

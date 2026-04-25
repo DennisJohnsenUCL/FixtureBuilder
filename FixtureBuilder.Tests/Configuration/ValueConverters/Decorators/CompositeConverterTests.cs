@@ -34,7 +34,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var converters = Enumerable.Empty<IValueConverter>();
             var composite = new CompositeConverter(converters);
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
 
             var result = composite.Convert(targetType, value, _context);
@@ -46,13 +46,13 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void Convert_NoConverterReturnsResult_ReturnsNull()
         {
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
+            converter1.Setup(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
 
             var converter2 = new Mock<IValueConverter>();
-            converter2.Setup(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
+            converter2.Setup(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object]);
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
 
             var result = composite.Convert(targetType, value, _context);
@@ -64,7 +64,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void Convert_FirstConverterReturnsResult_ReturnsResult()
         {
             var expectedResult = "converted";
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
 
             var converter1 = new Mock<IValueConverter>();
@@ -78,14 +78,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             Assert.That(result, Is.EqualTo(expectedResult));
             converter1.Verify(x => x.Convert(targetType, value, _context), Times.Once);
-            converter2.Verify(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+            converter2.Verify(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
         public void Convert_SecondConverterReturnsResult_ReturnsResult()
         {
             var expectedResult = "converted";
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
 
             var converter1 = new Mock<IValueConverter>();
@@ -107,7 +107,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void Convert_StopsAtFirstNonNoResultResult()
         {
             var firstResult = "first";
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
 
             var converter1 = new Mock<IValueConverter>();
@@ -124,13 +124,13 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var result = composite.Convert(targetType, value, _context);
 
             Assert.That(result, Is.EqualTo(firstResult));
-            converter3.Verify(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+            converter3.Verify(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
         public void AddConverter_AddedConverterIsUsedByConvert()
         {
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
             var expected = "converted";
 
@@ -148,7 +148,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void AddConverter_PrependedBeforeExistingConverters()
         {
-            var targetType = typeof(string);
+            var targetType = new FixtureRequest(typeof(string));
             var value = "test";
             var addedResult = "from-added";
             var originalResult = "from-original";
@@ -165,7 +165,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var result = sut.Convert(targetType, value, _context);
 
             Assert.That(result, Is.EqualTo(addedResult));
-            originalConverter.Verify(x => x.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+            originalConverter.Verify(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
     }
 }

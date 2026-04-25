@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
+﻿#pragma warning disable CS0649
+
+namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal sealed class WithBackingFieldTests
     {
@@ -53,8 +55,8 @@
 
         class ExplicitBackingFieldNoUnderscoreClass
         {
-            private readonly string privateExplicitField = null!;
-            public string PrivateExplicitField => privateExplicitField;
+            private readonly string _privateExplicitField = null!;
+            public string PrivateExplicitField => _privateExplicitField;
         }
         [Test]
         public void ExplicitBackingFieldNoUnderscore_SetsProperty()

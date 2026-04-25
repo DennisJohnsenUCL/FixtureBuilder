@@ -12,7 +12,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// </summary>
     internal class DataMemberSkipFilter : IDataMemberSkipFilter
     {
-        private static readonly string[] SkippedNamespacePrefixes = ["System", "Microsoft", "RunTime"];
+        private static readonly string[] _skippedNamespacePrefixes = ["System", "Microsoft", "RunTime"];
 
         public bool ShouldSkip(DataMemberInfo dataMember, InitializeMembers initializeMembers)
         {
@@ -34,7 +34,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
         private static bool IsFromSkippedNamespace(DataMemberInfo dataMember)
         {
             var ns = dataMember.DeclaringType?.Namespace;
-            return ns != null && SkippedNamespacePrefixes.Any(prefix => ns.StartsWith(prefix));
+            return ns != null && _skippedNamespacePrefixes.Any(prefix => ns.StartsWith(prefix));
         }
 
         private static bool IsInaccessibleProperty(DataMemberInfo dataMember)

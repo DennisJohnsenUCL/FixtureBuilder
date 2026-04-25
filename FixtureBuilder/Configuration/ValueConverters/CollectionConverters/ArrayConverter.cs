@@ -6,13 +6,13 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
 {
     internal class ArrayConverter : IValueConverter
     {
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            if (target.IsArray
+            if (request.Type.IsArray
                 && value is IEnumerable enumerable)
             {
                 var valuesList = enumerable.Cast<object>().ToList();
-                var elementType = target.GetElementType()!;
+                var elementType = request.Type.GetElementType()!;
                 var array = Array.CreateInstance(elementType, valuesList.Count);
                 for (int i = 0; i < valuesList.Count; i++)
                 {

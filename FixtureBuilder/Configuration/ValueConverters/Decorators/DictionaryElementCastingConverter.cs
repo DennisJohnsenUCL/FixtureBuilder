@@ -18,8 +18,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
+            var target = request.Type;
             if (target.IsDictionary()
                 && target.IsGenericType
                 && target.GetEnumerableElementType() != value.GetType().GetEnumerableElementType()
@@ -28,14 +29,14 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             {
                 var (targetKeyType, targetValueType) = target.GetDictionaryEnumerableTypes();
 
-                var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value, context);
+                var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value, request.RootType, context);
 
-                return _inner.Convert(target, castDictionary, context);
+                return _inner.Convert(request, castDictionary, context);
             }
-            return _inner.Convert(target, value, context);
+            return _inner.Convert(request, value, context);
         }
 
-        private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values, IFixtureContext context)
+        private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values, Type rootType, IFixtureContext context)
         {
             var enumerator = values.GetEnumerator();
             if (enumerator.MoveNext())
@@ -46,8 +47,8 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 {
                     var (key, value) = getter(enumerator.Current);
 
-                    key = ConvertElement(key, fieldKeyType, context);
-                    value = ConvertElement(value, fieldValueType, context);
+                    key = ConvertElement(key, fieldKeyType, rootType, context);
+                    value = ConvertElement(value, fieldValueType, rootType, context);
 
                     try
                     {
@@ -60,12 +61,13 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             return values;
         }
 
-        private static object? ConvertElement(object? item, Type targetType, IFixtureContext context)
+        private static object? ConvertElement(object? item, Type targetType, Type rootType, IFixtureContext context)
         {
             if (item == null) return null;
             if (targetType.IsAssignableFrom(item.GetType())) return item;
 
-            var converted = context.Converter.Root.Convert(targetType, item, context);
+            var request = new FixtureRequest(targetType, rootType);
+            var converted = context.Converter.Root.Convert(request, item, context);
             if (converted is NoResult)
                 throw new InvalidCastException(
                     $"Cannot convert element of type {item.GetType().Name} to {targetType.Name}.");

@@ -14,9 +14,9 @@ namespace FixtureBuilder.FixtureFactories
             _converter = converter;
         }
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            return _converter.Convert(target, value);
+            return _converter.Convert(request.Type, value);
         }
     }
 }

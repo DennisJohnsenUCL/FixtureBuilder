@@ -9,9 +9,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(Hashtable), typeof(SortedList)];
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            if (_types.Contains(target)
+            if (_types.Contains(request.Type)
                 && (value is IDictionary
                 || value.GetType().GetEnumerableElementType()?.GetGenericTypeDefinitionOrDefault() == (typeof(KeyValuePair<,>))))
             {
@@ -22,7 +22,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
                     value = (IEnumerable)Activator.CreateInstance(intermediateType, value)!;
                 }
 
-                return Activator.CreateInstance(target, value);
+                return Activator.CreateInstance(request.Type, value);
             }
             return new NoResult();
         }

@@ -17,7 +17,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetHashtable_ValueGenericDictionary_Converts()
         {
-            var target = typeof(Hashtable);
+            var target = new FixtureRequest(typeof(Hashtable));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -32,7 +32,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetHashtable_ValueNonGenericDictionary_Converts()
         {
-            var target = typeof(Hashtable);
+            var target = new FixtureRequest(typeof(Hashtable));
             var value = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -47,7 +47,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetHashTable_ValueGenericEnumerableKeyValuePair_Converts()
         {
-            var target = typeof(Hashtable);
+            var target = new FixtureRequest(typeof(Hashtable));
             var value = new List<KeyValuePair<string, int>> { new("one", 1), new("two", 2), new("three", 3) };
             var expected = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetSortedList_ValueGenericDictionary_Converts()
         {
-            var target = typeof(SortedList);
+            var target = new FixtureRequest(typeof(SortedList));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -77,7 +77,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetNotNonGenericDictionary_ReturnsNoResult()
         {
-            var target = typeof(Dictionary<string, int>);
+            var target = new FixtureRequest(typeof(Dictionary<string, int>));
             var value = new SortedList { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -91,7 +91,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNoResult()
         {
-            var target = typeof(Hashtable);
+            var target = new FixtureRequest(typeof(Hashtable));
             var value = new List<int>() { 42 };
             var context = new Mock<IFixtureContext>().Object;
 

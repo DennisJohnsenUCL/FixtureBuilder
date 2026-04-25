@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetBlockingCollection_ValueGenericEnumerable_SameElementType_Converts()
         {
-            var target = typeof(BlockingCollection<string>);
+            var target = new FixtureRequest(typeof(BlockingCollection<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = new BlockingCollection<string> { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
@@ -33,7 +33,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetBlockingCollection_ValueIProducerConsumerCollection_Converts()
         {
-            var target = typeof(BlockingCollection<string>);
+            var target = new FixtureRequest(typeof(BlockingCollection<string>));
             var value = new ConcurrentQueue<string>(["test1", "test2", "test3"]);
             var expected = new BlockingCollection<string> { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetBlockingCollection_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
-            var target = typeof(BlockingCollection<string>);
+            var target = new FixtureRequest(typeof(BlockingCollection<string>));
             var value = new List<int> { 1, 2, 3 };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotBlockingCollection_ReturnsNoResult()
         {
-            var target = typeof(List<string>);
+            var target = new FixtureRequest(typeof(List<string>));
             var value = new string[] { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -76,7 +76,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var target = typeof(BlockingCollection<string>);
+            var target = new FixtureRequest(typeof(BlockingCollection<string>));
             var value = 42;
             var context = new Mock<IFixtureContext>().Object;
 
@@ -90,7 +90,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var target = typeof(BlockingCollection<string>);
+            var target = new FixtureRequest(typeof(BlockingCollection<string>));
             var value = new ArrayList { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 

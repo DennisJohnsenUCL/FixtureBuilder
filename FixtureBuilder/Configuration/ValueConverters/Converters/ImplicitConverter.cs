@@ -11,12 +11,12 @@ namespace FixtureBuilder.Configuration.ValueConverters.Converters
     /// </summary>
     internal class ImplicitConverter : IValueConverter
     {
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            //TODO: context.OptionsFor(request.RootType)
-            if (context.GetBaseOptions().AllowImplicitConversion)
+            if (context.OptionsFor(request.RootType).AllowImplicitConversion)
             {
                 var sourceType = value.GetType();
+                var target = request.Type;
 
                 var implConversionMethod = FindImplicit(sourceType, sourceType, target)
                     ?? FindImplicit(target, sourceType, target);

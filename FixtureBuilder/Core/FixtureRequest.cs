@@ -11,15 +11,19 @@
         {
             ArgumentNullException.ThrowIfNull(type);
             Type = type;
-            RootType = Type;
+            RootType = type;
         }
 
-        internal FixtureRequest(Type type, object requestSource, Type rootType, string? name) : this(type)
+        internal FixtureRequest(Type type, Type rootType) : this(type)
+        {
+            ArgumentNullException.ThrowIfNull(rootType);
+            RootType = rootType;
+        }
+
+        internal FixtureRequest(Type type, object requestSource, Type rootType, string? name) : this(type, rootType)
         {
             ArgumentNullException.ThrowIfNull(requestSource);
-            ArgumentNullException.ThrowIfNull(rootType);
             RequestSource = requestSource;
-            RootType = rootType;
             Name = name;
         }
     }

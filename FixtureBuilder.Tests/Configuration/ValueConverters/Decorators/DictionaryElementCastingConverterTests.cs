@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_NonEnumerableValue_PassesThroughToInner()
         {
-            var targetType = typeof(Dictionary<string, int>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, int>));
             var value = 5;
             var expectedResult = "converted";
             var context = new Mock<IFixtureContext>().Object;
@@ -45,7 +45,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_ValueNotDictionaryOrEnumerableKvp_PassesThroughToInner()
         {
-            var targetType = typeof(Dictionary<string, int>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, int>));
             var value = new List<string> { "one", "two", "three" };
             var expectedResult = "converted";
             var context = new Mock<IFixtureContext>().Object;
@@ -64,7 +64,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_TargetTypeNotDictionary_PassesThroughToInner()
         {
-            var targetType = typeof(List<string>);
+            var targetType = new FixtureRequest(typeof(List<string>));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = "converted";
             var context = new Mock<IFixtureContext>().Object;
@@ -83,7 +83,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_NonGenericDictionaryTargetType_PassesThroughToInner()
         {
-            var targetType = typeof(Hashtable);
+            var targetType = new FixtureRequest(typeof(Hashtable));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = "converted";
             var context = new Mock<IFixtureContext>().Object;
@@ -102,7 +102,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_SameElementTypes_PassesThroughToInner()
         {
-            var targetType = typeof(Dictionary<string, int>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, int>));
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = "converted";
             var context = new Mock<IFixtureContext>().Object;
@@ -121,7 +121,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_GenericDictionaryValue_DifferentElementTypes_CastsElements()
         {
-            var targetType = typeof(Dictionary<object, object>);
+            var targetType = new FixtureRequest(typeof(Dictionary<object, object>));
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = new Dictionary<object, object> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -129,7 +129,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
-                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
+                .Callback<FixtureRequest, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
@@ -149,7 +149,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_GenericDictionaryValue_DifferentElementTypes_DownCastsElements()
         {
-            var targetType = typeof(Dictionary<string, int>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, int>));
             var value = new SortedDictionary<object, object> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -157,7 +157,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
-                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
+                .Callback<FixtureRequest, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
@@ -177,7 +177,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_KvpEnumerable_DifferentElementTypes_CastsElements()
         {
-            var targetType = typeof(Dictionary<object, object>);
+            var targetType = new FixtureRequest(typeof(Dictionary<object, object>));
             var value = new List<KeyValuePair<string, int>> { new("one", 1), new("two", 2), new("three", 3) };
             var expectedResult = new Dictionary<object, object> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -185,7 +185,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
-                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
+                .Callback<FixtureRequest, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
@@ -205,7 +205,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_NonGenericDictionaryValue_CastsToTargetElementType()
         {
-            var targetType = typeof(Dictionary<string, int>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, int>));
             var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expectedResult = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var context = new Mock<IFixtureContext>().Object;
@@ -213,7 +213,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             IEnumerable? capturedEnumerable = null;
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
-                .Callback<Type, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
+                .Callback<FixtureRequest, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable)
                 .Returns(expectedResult);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
@@ -233,11 +233,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_CannotCastElements_ThrowsException()
         {
-            var targetType = typeof(Dictionary<string, long>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, long>));
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
 
             var rootConverter = new Mock<IValueConverter>();
-            rootConverter.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+            rootConverter.Setup(c => c.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
                 .Returns(new NoResult());
 
             var composite = new Mock<ICompositeConverter>();
@@ -256,12 +256,12 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_ElementsNotAssignable_ConvertsViaRoot()
         {
-            var targetType = typeof(Dictionary<string, long>);
+            var targetType = new FixtureRequest(typeof(Dictionary<string, long>));
             var value = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
 
             var rootConverter = new Mock<IValueConverter>();
-            rootConverter.Setup(c => c.Convert(typeof(long), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((Type t, object v, IFixtureContext c) => System.Convert.ChangeType(v, t));
+            rootConverter.Setup(c => c.Convert(It.Is<FixtureRequest>(r => r.Type == typeof(long)), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((FixtureRequest r, object v, IFixtureContext c) => System.Convert.ChangeType(v, r.Type));
 
             var composite = new Mock<ICompositeConverter>();
             var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
@@ -270,8 +270,8 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             context.Setup(c => c.Converter).Returns(converterGraph);
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(c => c.Convert(It.IsAny<Type>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((Type t, object v, IFixtureContext c) => v);
+            innerMock.Setup(c => c.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((FixtureRequest r, object v, IFixtureContext c) => v);
 
             var converter = new DictionaryElementCastingConverter(innerMock.Object);
 

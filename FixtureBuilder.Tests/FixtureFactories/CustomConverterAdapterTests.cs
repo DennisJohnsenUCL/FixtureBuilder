@@ -27,11 +27,12 @@ namespace FixtureBuilder.Tests.FixtureFactories
         public void Convert_DelegatesToAdapteeWithTargetAndValue()
         {
             var target = typeof(string);
+            var request = new FixtureRequest(target);
             var value = "input";
             _adapteeMock.Setup(a => a.Convert(target, value)).Returns("converted");
             var sut = new CustomConverterAdapter(_adapteeMock.Object);
 
-            var result = sut.Convert(target, value, _contextMock.Object);
+            var result = sut.Convert(request, value, _contextMock.Object);
 
             Assert.That(result, Is.EqualTo("converted"));
             _adapteeMock.Verify(a => a.Convert(target, value), Times.Once);
@@ -40,10 +41,11 @@ namespace FixtureBuilder.Tests.FixtureFactories
         [Test]
         public void Convert_DoesNotPassContextToAdaptee()
         {
+            var request = new FixtureRequest(typeof(string));
             _adapteeMock.Setup(a => a.Convert(It.IsAny<Type>(), It.IsAny<object>())).Returns("converted");
             var sut = new CustomConverterAdapter(_adapteeMock.Object);
 
-            sut.Convert(typeof(string), "input", _contextMock.Object);
+            sut.Convert(request, "input", _contextMock.Object);
 
             _contextMock.VerifyNoOtherCalls();
         }

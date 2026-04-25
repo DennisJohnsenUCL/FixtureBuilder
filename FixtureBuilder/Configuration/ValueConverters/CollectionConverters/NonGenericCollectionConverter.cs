@@ -8,14 +8,14 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(ArrayList), typeof(Stack), typeof(Queue)];
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
-            if (_types.Contains(target)
+            if (_types.Contains(request.Type)
                 && value is IEnumerable enumerable)
             {
                 if (value is not ICollection) value = CastToArray(enumerable);
 
-                var collection = Activator.CreateInstance(target, value);
+                var collection = Activator.CreateInstance(request.Type, value);
                 return collection;
             }
 

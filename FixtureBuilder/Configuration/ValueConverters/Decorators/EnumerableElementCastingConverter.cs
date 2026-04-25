@@ -16,8 +16,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
+            var target = request.Type;
             if (value is IEnumerable enumerable
                 && target.GetEnumerableElementType() is Type targetElementType
                 && value.GetType().GetEnumerableElementType() != targetElementType
@@ -25,14 +26,14 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 && !target.IsArray
                 && !target.IsDictionary())
             {
-                var typedList = CastElements(enumerable, targetElementType, context);
+                var typedList = CastElements(enumerable, targetElementType, request.RootType, context);
 
-                return _inner.Convert(target, typedList, context);
+                return _inner.Convert(request, typedList, context);
             }
-            return _inner.Convert(target, value, context);
+            return _inner.Convert(request, value, context);
         }
 
-        private static IEnumerable CastElements(IEnumerable values, Type elementType, IFixtureContext context)
+        private static IEnumerable CastElements(IEnumerable values, Type elementType, Type rootType, IFixtureContext context)
         {
             var listType = typeof(List<>).MakeGenericType(elementType);
             var list = (IList)Activator.CreateInstance(listType)!;
@@ -49,7 +50,8 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 }
                 else
                 {
-                    var converted = context.Converter.Root.Convert(elementType, item, context);
+                    var request = new FixtureRequest(elementType, rootType);
+                    var converted = context.Converter.Root.Convert(request, item, context);
                     if (converted is NoResult)
                         throw new InvalidCastException(
                             $"Cannot convert element of type {item.GetType().Name} to {elementType.Name}.");

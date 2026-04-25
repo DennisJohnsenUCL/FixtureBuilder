@@ -14,11 +14,11 @@ namespace FixtureBuilder.Configuration.ValueConverters
             _converters = converters;
         }
 
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
             foreach (var converter in _converters)
             {
-                var result = converter.Convert(target, value, context);
+                var result = converter.Convert(request, value, context);
                 if (result is not NoResult) return result;
             }
             return new NoResult();

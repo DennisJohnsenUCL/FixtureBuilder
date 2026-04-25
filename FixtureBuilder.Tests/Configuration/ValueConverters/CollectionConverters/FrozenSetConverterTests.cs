@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetFrozenSet_ValueGenericEnumerable_SameElementType_Converts()
         {
-            var target = typeof(FrozenSet<string>);
+            var target = new FixtureRequest(typeof(FrozenSet<string>));
             var value = new List<string> { "test1", "test2", "test3" };
             var expected = FrozenSet.ToFrozenSet(["test1", "test2", "test3"], null);
             var context = new Mock<IFixtureContext>().Object;
@@ -33,7 +33,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetFrozenSet_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
-            var target = typeof(FrozenSet<string>);
+            var target = new FixtureRequest(typeof(FrozenSet<string>));
             var value = new List<int> { 1, 2, 3 };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -47,7 +47,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotFrozenSet_ReturnsNoResult()
         {
-            var target = typeof(List<string>);
+            var target = new FixtureRequest(typeof(List<string>));
             var value = new string[] { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 
@@ -61,7 +61,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var target = typeof(FrozenSet<string>);
+            var target = new FixtureRequest(typeof(FrozenSet<string>));
             var value = 42;
             var context = new Mock<IFixtureContext>().Object;
 
@@ -75,7 +75,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var target = typeof(FrozenSet<string>);
+            var target = new FixtureRequest(typeof(FrozenSet<string>));
             var value = new ArrayList { "test1", "test2", "test3" };
             var context = new Mock<IFixtureContext>().Object;
 

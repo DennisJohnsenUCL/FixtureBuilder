@@ -8,8 +8,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
 {
     internal class FrozenDictionaryConverter : IValueConverter
     {
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
+            var target = request.Type;
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenDictionary<,>)
                 && value.GetType().GetEnumerableElementType() == target.GetEnumerableElementType())
             {

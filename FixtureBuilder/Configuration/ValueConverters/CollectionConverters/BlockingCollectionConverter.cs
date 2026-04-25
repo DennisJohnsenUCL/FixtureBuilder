@@ -7,8 +7,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
 {
     internal class BlockingCollectionConverter : IValueConverter
     {
-        public object? Convert(Type target, object value, IFixtureContext context)
+        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
         {
+            var target = request.Type;
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(BlockingCollection<>)
                 && value.GetType().GetEnumerableElementType() == target.GenericTypeArguments[0])
             {
