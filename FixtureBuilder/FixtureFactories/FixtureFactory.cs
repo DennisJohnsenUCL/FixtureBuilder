@@ -56,14 +56,10 @@ namespace FixtureBuilder
         #region Add methods
 
         public void AddTypeLink<TIn, TOut>()
-        {
-            AddTypeLink(typeof(TIn), typeof(TOut));
-        }
+            => AddTypeLink(typeof(TIn), typeof(TOut));
 
         public void AddTypeLink(Type typeIn, Type typeOut)
-        {
-            AddTypeLink(new TypeLink(typeIn, typeOut));
-        }
+            => AddTypeLink(new TypeLink(typeIn, typeOut));
 
         public void AddTypeLink(ICustomTypeLink typeLink)
         {

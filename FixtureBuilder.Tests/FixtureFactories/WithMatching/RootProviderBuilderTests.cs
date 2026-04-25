@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Assignment.ValueProviders;
+﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -127,6 +128,29 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
             builder.AddConverter(converterMock.Object);
 
             compositeMock.Verify(v => v.AddConverter(It.IsAny<CustomConverterAdapter>()), Times.Once);
+        }
+
+        // AddTypeLink
+
+        [Test]
+        public void AddTypeLink_NullTypeLink_Throws()
+        {
+            var builder = CreateBuilder();
+
+            Assert.Throws<ArgumentNullException>(() => builder.AddTypeLink((ICustomTypeLink)null!));
+        }
+
+        [Test]
+        public void AddTypeLink_AddsAdaptedTypeLinkToContext()
+        {
+            var compositeTypeLinkMock = new Mock<ICompositeTypeLink>();
+            _contextMock.Setup(c => c.TypeLink).Returns(compositeTypeLinkMock.Object);
+            var builder = CreateBuilder();
+            var typeLinkMock = new Mock<ICustomTypeLink>();
+
+            builder.AddTypeLink(typeLinkMock.Object);
+
+            compositeTypeLinkMock.Verify(v => v.AddTypeLink(It.IsAny<RootTypeLinkDecorator>()), Times.Once);
         }
     }
 }

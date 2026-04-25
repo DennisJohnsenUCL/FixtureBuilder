@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS0649
 
 using FixtureBuilder.Core;
+using FixtureBuilder.FixtureFactories;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
@@ -265,6 +266,67 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             var result = context.Converter.Composite.Convert(request, "original", context);
 
             Assert.That(result, Is.Not.EqualTo("converted-value"));
+        }
+
+        public interface IPersonDependency { }
+        public class PersonDependencyImpl : IPersonDependency { }
+
+        [Test]
+        public void WhenBuilding_AddTypeLink_AppliesForMatchingRootType()
+        {
+            var typeLink = new Mock<ICustomTypeLink>();
+            typeLink.Setup(t => t.Link(typeof(IPersonDependency))).Returns(typeof(PersonDependencyImpl));
+
+            _factory.WhenBuilding<PersonClass>(b => b.AddTypeLink(typeLink.Object));
+
+            var fixture = _factory.New<PersonClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(PersonClass), null);
+            var result = context.TypeLink.Link(request);
+
+            Assert.That(result, Is.EqualTo(typeof(PersonDependencyImpl)));
+        }
+
+        [Test]
+        public void WhenBuilding_AddTypeLink_DoesNotApplyForNonMatchingRootType()
+        {
+            var typeLink = new Mock<ICustomTypeLink>();
+            typeLink.Setup(t => t.Link(typeof(IPersonDependency))).Returns(typeof(PersonDependencyImpl));
+
+            _factory.WhenBuilding<PersonClass>(b => b.AddTypeLink(typeLink.Object));
+
+            var fixture = _factory.New<BusinessClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(BusinessClass), null);
+            var result = context.TypeLink.Link(request);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void WhenBuilding_AddTypeLink_Generic_AppliesForMatchingRootType()
+        {
+            _factory.WhenBuilding<PersonClass>(b => b.AddTypeLink<IPersonDependency, PersonDependencyImpl>());
+
+            var fixture = _factory.New<PersonClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(PersonClass), null);
+            var result = context.TypeLink.Link(request);
+
+            Assert.That(result, Is.EqualTo(typeof(PersonDependencyImpl)));
+        }
+
+        [Test]
+        public void WhenBuilding_AddTypeLink_Generic_DoesNotApplyForNonMatchingRootType()
+        {
+            _factory.WhenBuilding<PersonClass>(b => b.AddTypeLink<IPersonDependency, PersonDependencyImpl>());
+
+            var fixture = _factory.New<BusinessClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(BusinessClass), null);
+            var result = context.TypeLink.Link(request);
+
+            Assert.That(result, Is.Null);
         }
     }
 }

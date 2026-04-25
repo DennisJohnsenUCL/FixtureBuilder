@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Core;
+﻿using FixtureBuilder.Assignment.TypeLinks;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
@@ -35,6 +36,24 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
         {
             var adaptedRootConverter = new CustomConverterAdapter(converter, typeof(TRoot));
             _context.Converter.Composite.AddConverter(adaptedRootConverter);
+        }
+
+        public void AddTypeLink<TIn, TOut>()
+            => AddTypeLink(typeof(TIn), typeof(TOut));
+
+        public void AddTypeLink(Type typeIn, Type typeOut)
+            => AddTypeLink(new TypeLink(typeIn, typeOut));
+
+        public void AddTypeLink(ICustomTypeLink typeLink)
+        {
+            var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
+            AddTypeLink(adaptedTypeLink);
+        }
+
+        private void AddTypeLink(ITypeLink typeLink)
+        {
+            var rootTypeLink = new RootTypeLinkDecorator(typeLink, typeof(TRoot));
+            _context.TypeLink.AddTypeLink(rootTypeLink);
         }
 
         private RootProviderBuilder<TRoot> Add(MatchingProvider provider)
