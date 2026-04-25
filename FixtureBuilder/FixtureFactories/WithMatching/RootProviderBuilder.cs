@@ -8,9 +8,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
     {
         private readonly IFixtureContext _context;
 
-        private readonly List<MatchingProvider> _providers = [];
-        internal IReadOnlyList<MatchingProvider> Providers => _providers.AsReadOnly();
-
         private readonly MatchingProviderBuilder _innerBuilder = new([new RootTypeRule(typeof(TRoot))]);
 
         public FixtureOptions Options { set { _context.AddRootOptions(typeof(TRoot), value); } }
@@ -36,7 +33,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
 
         private RootProviderBuilder<TRoot> Add(MatchingProvider provider)
         {
-            _providers.Add(provider);
+            _context.ValueProvider.AddProvider(provider);
             return this;
         }
 

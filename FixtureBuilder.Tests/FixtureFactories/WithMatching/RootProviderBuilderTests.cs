@@ -22,6 +22,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         [Test]
         public void With_ReturnsBuilderForChaining()
         {
+            var valueProviderMock = new Mock<ICompositeValueProvider>();
+            _contextMock.Setup(c => c.ValueProvider).Returns(valueProviderMock.Object);
             var builder = CreateBuilder();
 
             var result = builder.With(42);
@@ -30,47 +32,15 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         }
 
         [Test]
-        public void With_AddsProviderToList()
+        public void With_AddsProviderToContext()
         {
+            var valueProviderMock = new Mock<ICompositeValueProvider>();
+            _contextMock.Setup(c => c.ValueProvider).Returns(valueProviderMock.Object);
             var builder = CreateBuilder();
 
             builder.With(42);
 
-            Assert.That(builder.Providers, Has.Count.EqualTo(1));
-        }
-
-        [Test]
-        public void With_MultipleCallsAddsMultipleProviders()
-        {
-            var builder = CreateBuilder();
-
-            builder.With(42).With("hello");
-
-            Assert.That(builder.Providers, Has.Count.EqualTo(2));
-        }
-
-        [Test]
-        public void With_ProviderIncludesRootTypeRule_MatchingRootType_ReturnsValue()
-        {
-            var builder = CreateBuilder();
-            builder.With(42);
-
-            var request = new FixtureRequest(typeof(int), "source", typeof(string), null);
-            var result = builder.Providers[0].ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.EqualTo(42));
-        }
-
-        [Test]
-        public void With_ProviderIncludesRootTypeRule_NonMatchingRootType_ReturnsNoResult()
-        {
-            var builder = CreateBuilder();
-            builder.With(42);
-
-            var request = new FixtureRequest(typeof(int), "source", typeof(double), null);
-            var result = builder.Providers[0].ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
+            valueProviderMock.Verify(v => v.AddProvider(It.IsAny<MatchingProvider>()), Times.Once);
         }
 
         // Options setter
@@ -112,6 +82,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             Assert.That(baseOptions.AllowPrivateConstructors, Is.True);
         }
+
+        // AddProvider
 
         [Test]
         public void AddProvider_NullProvider_Throws()

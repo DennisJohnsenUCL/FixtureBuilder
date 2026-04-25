@@ -133,10 +133,6 @@ namespace FixtureBuilder
             ArgumentNullException.ThrowIfNull(builderAction);
             var builder = new RootProviderBuilder<TRoot>(_context);
             builderAction(builder);
-            foreach (var provider in builder.Providers)
-            {
-                _context.ValueProvider.AddProvider(provider);
-            }
             return this;
         }
 
