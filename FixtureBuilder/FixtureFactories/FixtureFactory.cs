@@ -2,7 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
-using FixtureBuilder.FixtureFactories.RootProviderBuilders;
+using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -131,10 +131,10 @@ namespace FixtureBuilder
             return this;
         }
 
-        public FixtureFactory WhenBuilding<TRoot>(Action<IRootProviderBuilder<TRoot>> builderAction)
+        public FixtureFactory WhenBuilding<TRoot>(Action<IRootConfigurationBuilder<TRoot>> builderAction)
         {
             ArgumentNullException.ThrowIfNull(builderAction);
-            var builder = new RootProviderBuilder<TRoot>(_context);
+            var builder = new RootConfigurationBuilder<TRoot>(_context);
             builderAction(builder);
             return this;
         }

@@ -1,9 +1,9 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories.WithMatching;
 
-namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
+namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 {
-    public interface IRootProviderBuilder<TRoot> : IProviderBuilder<IRootProviderBuilder<TRoot>>
+    public interface IRootConfigurationBuilder<TRoot> : IProviderBuilder<IRootConfigurationBuilder<TRoot>>
     {
         FixtureOptions Options { set; }
         void SetOptions(Action<FixtureOptions> optionsAction);

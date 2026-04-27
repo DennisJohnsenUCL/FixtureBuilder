@@ -4,7 +4,7 @@ using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
-using FixtureBuilder.FixtureFactories.RootProviderBuilders;
+using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using Moq;
 
@@ -20,7 +20,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
             _contextMock = new Mock<IFixtureContext>();
         }
 
-        private RootProviderBuilder<string> CreateBuilder() => new(_contextMock.Object);
+        private RootConfigurationBuilder<string> CreateBuilder() => new(_contextMock.Object);
 
         [Test]
         public void With_ReturnsBuilderForChaining()

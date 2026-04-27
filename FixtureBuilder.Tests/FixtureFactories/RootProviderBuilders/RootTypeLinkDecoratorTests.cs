@@ -1,6 +1,6 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories.WithMatching;
+using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders

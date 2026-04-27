@@ -1,7 +1,7 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
 
-namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
+namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 {
     internal class RootTypeLinkDecorator : ITypeLink
     {

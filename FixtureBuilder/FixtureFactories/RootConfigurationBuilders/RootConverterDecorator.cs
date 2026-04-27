@@ -2,7 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
-namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
+namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 {
     internal class RootConverterDecorator : IValueConverter
     {

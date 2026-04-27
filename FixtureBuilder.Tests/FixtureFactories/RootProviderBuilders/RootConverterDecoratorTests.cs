@@ -1,7 +1,7 @@
 ﻿using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.FixtureFactories.WithMatching;
+using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders

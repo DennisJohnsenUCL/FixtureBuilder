@@ -4,9 +4,9 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
-namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
+namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 {
-    internal class RootProviderBuilder<TRoot> : IRootProviderBuilder<TRoot>
+    internal class RootConfigurationBuilder<TRoot> : IRootConfigurationBuilder<TRoot>
     {
         private readonly IFixtureContext _context;
 
@@ -14,7 +14,7 @@ namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
 
         public FixtureOptions Options { set { _context.AddRootOptions(typeof(TRoot), value); } }
 
-        public RootProviderBuilder(IFixtureContext context)
+        public RootConfigurationBuilder(IFixtureContext context)
         {
             ArgumentNullException.ThrowIfNull(context);
             _context = context;
@@ -59,25 +59,25 @@ namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
             _context.TypeLink.AddTypeLink(rootTypeLink);
         }
 
-        private RootProviderBuilder<TRoot> Add(MatchingProvider provider)
+        private RootConfigurationBuilder<TRoot> Add(MatchingProvider provider)
         {
             _context.ValueProvider.AddProvider(provider);
             return this;
         }
 
-        public IRootProviderBuilder<TRoot> With<T>(T value) => Add(_innerBuilder.With(value));
-        public IRootProviderBuilder<TRoot> With<T>(Func<T> func) => Add(_innerBuilder.With(func));
-        public IRootProviderBuilder<TRoot> With<T>(T value, string name) => Add(_innerBuilder.With(value, name));
-        public IRootProviderBuilder<TRoot> With<T>(Func<T> func, string name) => Add(_innerBuilder.With(func, name));
+        public IRootConfigurationBuilder<TRoot> With<T>(T value) => Add(_innerBuilder.With(value));
+        public IRootConfigurationBuilder<TRoot> With<T>(Func<T> func) => Add(_innerBuilder.With(func));
+        public IRootConfigurationBuilder<TRoot> With<T>(T value, string name) => Add(_innerBuilder.With(value, name));
+        public IRootConfigurationBuilder<TRoot> With<T>(Func<T> func, string name) => Add(_innerBuilder.With(func, name));
 
-        public IRootProviderBuilder<TRoot> WithParameter<T>(T value) => Add(_innerBuilder.WithParameter(value));
-        public IRootProviderBuilder<TRoot> WithParameter<T>(Func<T> func) => Add(_innerBuilder.WithParameter(func));
-        public IRootProviderBuilder<TRoot> WithParameter<T>(T value, string name) => Add(_innerBuilder.WithParameter(value, name));
-        public IRootProviderBuilder<TRoot> WithParameter<T>(Func<T> func, string name) => Add(_innerBuilder.WithParameter(func, name));
+        public IRootConfigurationBuilder<TRoot> WithParameter<T>(T value) => Add(_innerBuilder.WithParameter(value));
+        public IRootConfigurationBuilder<TRoot> WithParameter<T>(Func<T> func) => Add(_innerBuilder.WithParameter(func));
+        public IRootConfigurationBuilder<TRoot> WithParameter<T>(T value, string name) => Add(_innerBuilder.WithParameter(value, name));
+        public IRootConfigurationBuilder<TRoot> WithParameter<T>(Func<T> func, string name) => Add(_innerBuilder.WithParameter(func, name));
 
-        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(T value) => Add(_innerBuilder.WithPropertyOrField(value));
-        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(Func<T> func) => Add(_innerBuilder.WithPropertyOrField(func));
-        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(T value, string name) => Add(_innerBuilder.WithPropertyOrField(value, name));
-        public IRootProviderBuilder<TRoot> WithPropertyOrField<T>(Func<T> func, string name) => Add(_innerBuilder.WithPropertyOrField(func, name));
+        public IRootConfigurationBuilder<TRoot> WithPropertyOrField<T>(T value) => Add(_innerBuilder.WithPropertyOrField(value));
+        public IRootConfigurationBuilder<TRoot> WithPropertyOrField<T>(Func<T> func) => Add(_innerBuilder.WithPropertyOrField(func));
+        public IRootConfigurationBuilder<TRoot> WithPropertyOrField<T>(T value, string name) => Add(_innerBuilder.WithPropertyOrField(value, name));
+        public IRootConfigurationBuilder<TRoot> WithPropertyOrField<T>(Func<T> func, string name) => Add(_innerBuilder.WithPropertyOrField(func, name));
     }
 }
