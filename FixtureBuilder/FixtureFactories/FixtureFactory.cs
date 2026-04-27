@@ -9,6 +9,12 @@ using FixtureBuilder.FixtureFactories.WithMatching;
 namespace FixtureBuilder
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
+    /// <summary>
+    /// Pre-configured fixture producer. Where <see cref="Fixture"/> creates individual fixtures,
+    /// <see cref="FixtureFactory"/> lets you define shared configuration once — type links, value providers,
+    /// converters, and default values — and produce consistently configured fixtures from it.
+    /// Use <see cref="WhenBuilding{TRoot}"/> to scope registrations to a specific fixture type.
+    /// </summary>
     public class FixtureFactory : IConfigurationBuilder<FixtureFactory>
     {
         private readonly IFixtureContext _context;
