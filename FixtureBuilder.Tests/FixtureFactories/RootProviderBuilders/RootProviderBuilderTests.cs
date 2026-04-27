@@ -4,10 +4,11 @@ using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
+using FixtureBuilder.FixtureFactories.RootProviderBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using Moq;
 
-namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
+namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
 {
     internal sealed class RootProviderBuilderTests
     {

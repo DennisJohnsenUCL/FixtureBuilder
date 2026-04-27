@@ -3,7 +3,7 @@ using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using Moq;
 
-namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
+namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
 {
     internal sealed class RootTypeLinkDecoratorTests
     {

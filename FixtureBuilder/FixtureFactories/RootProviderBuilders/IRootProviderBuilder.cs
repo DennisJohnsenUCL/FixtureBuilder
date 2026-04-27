@@ -1,6 +1,7 @@
 ﻿using FixtureBuilder.Core;
+using FixtureBuilder.FixtureFactories.WithMatching;
 
-namespace FixtureBuilder.FixtureFactories.WithMatching
+namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
 {
     public interface IRootProviderBuilder<TRoot> : IProviderBuilder<IRootProviderBuilder<TRoot>>
     {

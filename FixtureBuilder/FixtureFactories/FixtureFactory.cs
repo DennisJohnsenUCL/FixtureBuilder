@@ -2,6 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
+using FixtureBuilder.FixtureFactories.RootProviderBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure

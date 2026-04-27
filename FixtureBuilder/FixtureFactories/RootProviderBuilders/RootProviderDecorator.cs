@@ -2,7 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
-namespace FixtureBuilder.FixtureFactories.WithMatching
+namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
 {
     internal class RootProviderDecorator : IValueProvider
     {

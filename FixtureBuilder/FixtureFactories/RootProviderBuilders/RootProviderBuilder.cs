@@ -1,9 +1,10 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories.WithMatching;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
-namespace FixtureBuilder.FixtureFactories.WithMatching
+namespace FixtureBuilder.FixtureFactories.RootProviderBuilders
 {
     internal class RootProviderBuilder<TRoot> : IRootProviderBuilder<TRoot>
     {
