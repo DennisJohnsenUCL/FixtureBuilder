@@ -14,35 +14,53 @@ namespace FixtureBuilder
         private readonly IFixtureContext _context;
         private readonly MatchingProviderBuilder _providerBuilder;
 
+        /// <summary>
+        /// Gets or sets the global options for this factory.
+        /// </summary>
         public FixtureOptions Options
         {
             get => _context.GetBaseOptions();
             set => _context.Options = value;
         }
 
+        /// <summary>
+        /// Creates a new fixture factory with default options.
+        /// </summary>
         public FixtureFactory()
         {
             _context = InitializeContext();
             _providerBuilder = InitializeProviderBuilder();
         }
 
+        /// <summary>
+        /// Creates a new fixture factory with the specified options.
+        /// </summary>
         public FixtureFactory(FixtureOptions options)
         {
             _context = InitializeContext(options);
             _providerBuilder = InitializeProviderBuilder();
         }
 
+        /// <summary>
+        /// Creates a new fixture configurator for type <typeparamref name="T"/>.
+        /// </summary>
         public IFixtureConstructor<T> New<T>() where T : class
         {
             return new Fixture<T>(_context);
         }
 
+        /// <summary>
+        /// Creates a new fixture configurator for type <typeparamref name="T"/> using an existing instance.
+        /// </summary>
         public IFixtureConstructor<T> New<T>(T instance) where T : class
         {
             ArgumentNullException.ThrowIfNull(instance);
             return new Fixture<T>(instance, _context);
         }
 
+        /// <summary>
+        /// Creates and returns an instance of <typeparamref name="T"/> using the <see cref="FixtureOptions.DefaultInstantiationMethod"/> with no additional configuration.
+        /// </summary>
         public T Build<T>() where T : class
         {
             return ((IFixtureConstructor<T>)new Fixture<T>(_context)).Build();
@@ -131,6 +149,11 @@ namespace FixtureBuilder
             return this;
         }
 
+        #endregion
+
+        /// <summary>
+        /// Begins a root-scoped configuration block for <typeparamref name="TRoot"/>. Registrations made within the builder action apply only when resolving values for fixtures of type <typeparamref name="TRoot"/>.
+        /// </summary>
         public FixtureFactory WhenBuilding<TRoot>(Action<IRootConfigurationBuilder<TRoot>> builderAction)
         {
             ArgumentNullException.ThrowIfNull(builderAction);
@@ -139,7 +162,6 @@ namespace FixtureBuilder
             return this;
         }
 
-        #endregion
 
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)
         {
