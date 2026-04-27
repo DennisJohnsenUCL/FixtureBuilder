@@ -9,7 +9,7 @@ using FixtureBuilder.FixtureFactories.WithMatching;
 namespace FixtureBuilder
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
-    public class FixtureFactory : IProviderBuilder<FixtureFactory>
+    public class FixtureFactory : IConfigurationBuilder<FixtureFactory>
     {
         private readonly IFixtureContext _context;
         private readonly MatchingProviderBuilder _providerBuilder;
