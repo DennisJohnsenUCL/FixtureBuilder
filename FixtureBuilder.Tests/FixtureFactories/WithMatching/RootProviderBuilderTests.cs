@@ -105,7 +105,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             builder.AddProvider(providerMock.Object);
 
-            valueProviderMock.Verify(v => v.AddProvider(It.IsAny<CustomProviderAdapter>()), Times.Once);
+            valueProviderMock.Verify(v => v.AddProvider(It.IsAny<RootProviderDecorator>()), Times.Once);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             builder.AddConverter(converterMock.Object);
 
-            compositeMock.Verify(v => v.AddConverter(It.IsAny<CustomConverterAdapter>()), Times.Once);
+            compositeMock.Verify(v => v.AddConverter(It.IsAny<RootConverterDecorator>()), Times.Once);
         }
 
         // AddTypeLink

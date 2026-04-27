@@ -5,14 +5,14 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
 {
     internal class RootTypeLinkDecorator : ITypeLink
     {
-        private readonly ITypeLink _typeLink;
+        private readonly ITypeLink _inner;
         private readonly Type _rootType;
 
         public RootTypeLinkDecorator(ITypeLink typeLink, Type rootType)
         {
             ArgumentNullException.ThrowIfNull(typeLink);
             ArgumentNullException.ThrowIfNull(rootType);
-            _typeLink = typeLink;
+            _inner = typeLink;
             _rootType = rootType;
         }
 
@@ -21,7 +21,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
             if (request.RootType != _rootType)
                 return null;
 
-            return _typeLink.Link(request);
+            return _inner.Link(request);
         }
     }
 }

@@ -28,14 +28,16 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
 
         public void AddProvider(ICustomProvider provider)
         {
-            var adaptedRootProvider = new CustomProviderAdapter(provider, typeof(TRoot));
-            _context.ValueProvider.AddProvider(adaptedRootProvider);
+            var adaptedProvider = new CustomProviderAdapter(provider);
+            var decoratedRootProvider = new RootProviderDecorator(adaptedProvider, typeof(TRoot));
+            _context.ValueProvider.AddProvider(decoratedRootProvider);
         }
 
         public void AddConverter(ICustomConverter converter)
         {
-            var adaptedRootConverter = new CustomConverterAdapter(converter, typeof(TRoot));
-            _context.Converter.Composite.AddConverter(adaptedRootConverter);
+            var adaptedConverter = new CustomConverterAdapter(converter);
+            var decoratedRootConverter = new RootConverterDecorator(adaptedConverter, typeof(TRoot));
+            _context.Converter.Composite.AddConverter(decoratedRootConverter);
         }
 
         public void AddTypeLink<TIn, TOut>()

@@ -49,53 +49,5 @@ namespace FixtureBuilder.Tests.FixtureFactories
 
             _contextMock.VerifyNoOtherCalls();
         }
-
-        [Test]
-        public void Constructor_WithRootType_NullAdaptee_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new CustomConverterAdapter(null!, typeof(string)));
-        }
-
-        [Test]
-        public void Constructor_WithRootType_NullRootType_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new CustomConverterAdapter(_adapteeMock.Object, (Type)null!));
-        }
-
-        [Test]
-        public void Convert_WithMatchingRootType_DelegatesToAdaptee()
-        {
-            _adapteeMock.Setup(a => a.Convert(typeof(string), "input")).Returns("converted");
-            var sut = new CustomConverterAdapter(_adapteeMock.Object, typeof(string));
-            var request = new FixtureRequest(typeof(string), "source", typeof(string), null);
-
-            var result = sut.Convert(request, "input", _contextMock.Object);
-
-            Assert.That(result, Is.EqualTo("converted"));
-        }
-
-        [Test]
-        public void Convert_WithNonMatchingRootType_ReturnsNoResult()
-        {
-            var sut = new CustomConverterAdapter(_adapteeMock.Object, typeof(int));
-            var request = new FixtureRequest(typeof(string), "source", typeof(string), null);
-
-            var result = sut.Convert(request, "input", _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-            _adapteeMock.Verify(a => a.Convert(It.IsAny<Type>(), It.IsAny<object>()), Times.Never);
-        }
-
-        [Test]
-        public void Convert_WithoutRootType_AlwaysDelegates()
-        {
-            _adapteeMock.Setup(a => a.Convert(typeof(string), "input")).Returns("converted");
-            var sut = new CustomConverterAdapter(_adapteeMock.Object);
-            var request = new FixtureRequest(typeof(string), "source", typeof(int), null);
-
-            var result = sut.Convert(request, "input", _contextMock.Object);
-
-            Assert.That(result, Is.EqualTo("converted"));
-        }
     }
 }
