@@ -1,6 +1,6 @@
 #### 1.3.0
 
-- Added .Build method to FactoryFactory instantly output a test object with only pre-configuration through the factory.
+- Added .Build method to FactoryFactory to instantly output a test object with only pre-configuration through the factory.
 - Added option AllowResolveCircularDependencies to allow .UseAutoConstructor and .CreateUninitialized methods to resolve circular dependencies rather than throwing.
 - Added option AllowImplicitConversion to allow WithBackingField to apply implicit conversions for properties with backing fields of different types.
 - Added new ways to customize FixtureFactory for specific root object types with FixtureFactory.WhenBuilding:
@@ -9,13 +9,13 @@
   - .AddProvider allows for registering custom providers for specific root object types.
   - .AddConverter allows for registering custom converters for specific root object types.
   - .AddTypeLink allows for registering custom type links for specific root object types.
-- Added summaries everwhere they were missing.
+- Added summaries everywhere they were missing.
 
 #### 1.2.1
 
 - Added overloads for .AddTypeLink on FixtureFactory that take the input type and output type directly as parameters
 - Added overloads for .WithX methods on FixtureFactory that take funcs instead of a flat value
-  - These allow for adding factories that generate when needed values rather than providing a static value
+  - These allow for adding factories that generate values when needed rather than providing a static value
 - Added .WhenBuilding method to FixtureFactory which allows for adding .WithX providers that apply only when building a test object of a given type.
 
 #### 1.2.0
