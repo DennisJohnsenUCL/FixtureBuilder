@@ -92,7 +92,7 @@ var factory = new FixtureFactory()
     .WithPropertyOrField("Bob")            // Properties and fields of type string receive "Bob"
     .WithPropertyOrField("Bob", "Name")    // Only the property/field named "Name" receives "Bob"
 
-var user = factory.New().UseAutoConstructor().Build();
+var user = factory.New<User>().UseAutoConstructor().Build();
 ```
 
 All `With` methods have overloads that take a func delegate instead of a flat value. These allow for registering factories that generate new values every time they are called.
