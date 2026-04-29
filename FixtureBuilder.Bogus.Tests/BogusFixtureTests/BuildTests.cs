@@ -74,5 +74,21 @@
                 Assert.That(results[1].Name, Is.EqualTo("Alice"));
             }
         }
+
+        [Test]
+        public void Build_WithZero_Throws()
+        {
+            var bogus = Fixture.WithBogus<SimpleClass>();
+
+            Assert.That(() => bogus.Build(0), Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
+
+        [Test]
+        public void Build_WithNegative_Throws()
+        {
+            var bogus = Fixture.WithBogus<SimpleClass>();
+
+            Assert.That(() => bogus.Build(-1), Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
     }
 }

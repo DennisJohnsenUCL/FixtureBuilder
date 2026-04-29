@@ -17,6 +17,8 @@ namespace FixtureBuilder.Bogus
 
         IEnumerable<T> IBogusFixtureConfigurator<T>.Build(int count)
         {
+            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count), count, "Can only build positive numbers of objects.");
+
             var fixtures = new List<T>();
             for (int i = 0; i < count; i++)
             {
