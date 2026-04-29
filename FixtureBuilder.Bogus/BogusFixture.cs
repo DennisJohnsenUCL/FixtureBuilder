@@ -1,16 +1,23 @@
 ﻿using System.Linq.Expressions;
+using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Bogus
 {
     internal class BogusFixture<T> : IBogusFixtureConstructor<T>, IBogusFixtureConfigurator<T> where T : class
     {
+        private Func<IFixtureConstructor<T>, IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
 
         public BogusFixture() { }
 
         T IBogusFixtureConfigurator<T>.Build()
         {
-            var fixture = (IFixtureConfigurator<T>)Fixture.New<T>();
+            var fixtureConstructor = Fixture.New<T>();
+
+            IFixtureConfigurator<T> fixture = _constructionCommand != null
+                ? _constructionCommand(fixtureConstructor)
+                : fixtureConstructor;
+
             foreach (var command in _configurationCommands)
             {
                 command(fixture);
@@ -18,7 +25,35 @@ namespace FixtureBuilder.Bogus
             return fixture.Build();
         }
 
-        #region Passthrough methods
+        #region Passthrough construction methods
+
+        IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.CreateUninitialized()
+        {
+            _constructionCommand = f => f.CreateUninitialized();
+            return this;
+        }
+
+        IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
+        {
+            _constructionCommand = f => f.CreateUninitialized(initializeMembers);
+            return this;
+        }
+
+        IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseConstructor(params object[] args)
+        {
+            _constructionCommand = f => f.UseConstructor(args);
+            return this;
+        }
+
+        IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseAutoConstructor()
+        {
+            _constructionCommand = f => f.UseAutoConstructor();
+            return this;
+        }
+
+        #endregion
+
+        #region Passthrough configuration methods
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
