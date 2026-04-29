@@ -12,17 +12,27 @@ namespace FixtureBuilder.Bogus
 
         T IBogusFixtureConfigurator<T>.Build()
         {
-            var fixtureConstructor = Fixture.New<T>();
+            return ((IBogusFixtureConfigurator<T>)this).Build(1).First();
+        }
 
-            IFixtureConfigurator<T> fixture = _constructionCommand != null
-                ? _constructionCommand(fixtureConstructor)
-                : fixtureConstructor;
-
-            foreach (var command in _configurationCommands)
+        IEnumerable<T> IBogusFixtureConfigurator<T>.Build(int count)
+        {
+            var fixtures = new List<T>();
+            for (int i = 0; i < count; i++)
             {
-                command(fixture);
+                var fixtureConstructor = Fixture.New<T>();
+
+                IFixtureConfigurator<T> fixture = _constructionCommand != null
+                    ? _constructionCommand(fixtureConstructor)
+                    : fixtureConstructor;
+
+                foreach (var command in _configurationCommands)
+                {
+                    command(fixture);
+                }
+                fixtures.Add(fixture.Build());
             }
-            return fixture.Build();
+            return fixtures;
         }
 
         #region Passthrough construction methods

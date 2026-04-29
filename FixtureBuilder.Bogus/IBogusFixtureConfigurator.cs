@@ -32,5 +32,7 @@ namespace FixtureBuilder.Bogus
         IBogusFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);
 
         T Build();
+
+        IEnumerable<T> Build(int count);
     }
 }

@@ -2,7 +2,11 @@
 {
     public class BogusFixtureBuildTests
     {
-        private class SimpleClass;
+        private class SimpleClass
+        {
+            public string Name { get; set; } = string.Empty;
+            public int Value { get; set; }
+        }
 
         [Test]
         public void Build_ReturnsNonNullInstance()
@@ -21,14 +25,54 @@
         }
 
         [Test]
-        public void Build_CalledMultipleTimes_ReturnsDistinctInstances()
+        public void Build_WithCount_ReturnsCorrectNumberOfInstances()
+        {
+            var results = Fixture.WithBogus<SimpleClass>().Build(3);
+
+            Assert.That(results.Count(), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void Build_WithCount_ReturnsDistinctInstances()
+        {
+            var results = Fixture.WithBogus<SimpleClass>().Build(3).ToList();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(results[0], Is.Not.SameAs(results[1]));
+                Assert.That(results[1], Is.Not.SameAs(results[2]));
+            }
+        }
+
+        [Test]
+        public void Build_WithCount_ReturnsStableResults()
         {
             var bogus = Fixture.WithBogus<SimpleClass>();
+            var results = bogus.Build(2);
 
-            var first = bogus.Build();
-            var second = bogus.Build();
+            var first = results.ToList();
+            var second = results.ToList();
 
-            Assert.That(first, Is.Not.SameAs(second));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(first[0], Is.SameAs(second[0]));
+                Assert.That(first[1], Is.SameAs(second[1]));
+            }
+        }
+
+        [Test]
+        public void Build_WithCount_AppliesConfigurationToAll()
+        {
+            var results = Fixture.WithBogus<SimpleClass>()
+                .With(x => x.Name, "Alice")
+                .Build(2)
+                .ToList();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(results[0].Name, Is.EqualTo("Alice"));
+                Assert.That(results[1].Name, Is.EqualTo("Alice"));
+            }
         }
     }
 }
