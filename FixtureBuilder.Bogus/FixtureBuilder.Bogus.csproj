@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="FixtureBuilder" Version="1.3.0" />
+    <PackageReference Include="MemberLens.Attributes" Version="1.0.1" />
   </ItemGroup>
 
 </Project>
