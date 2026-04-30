@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Bogus
+﻿using Bogus;
+
+namespace FixtureBuilder.Bogus
 {
     public static class FixtureExtensions
     {
@@ -6,7 +8,8 @@
         {
             public static IBogusFixtureConstructor<T> WithBogus<T>() where T : class
             {
-                return new BogusFixture<T>();
+                var faker = new Faker();
+                return new BogusFixture<T>(faker);
             }
         }
     }
