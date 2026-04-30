@@ -69,6 +69,19 @@ namespace FixtureBuilder.Bogus
 
         #region Faker configuration methods
 
+        IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IBogusConstructor<TProp>, TProp> func)
+        {
+            TProp instantiateFunc(IConstructor<TProp> constructor)
+            {
+                var bogusConstructor = new BogusMemberInstantiator<TProp>(constructor, _faker);
+                return func(bogusConstructor);
+            }
+
+            _configurationCommands.Add(fixture => fixture.Instantiate(expr, instantiateFunc));
+
+            return this;
+        }
+
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithField<TValue>(string fieldName, Func<Faker, TValue> value)
             => AddConfiguration(f => f.WithField(fieldName, value(_faker)));
 
@@ -124,9 +137,6 @@ namespace FixtureBuilder.Bogus
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
             => AddConfiguration(f => f.Instantiate(expr));
-
-        IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
-            => AddConfiguration(f => f.Instantiate(expr, func));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Invoke(Expression<Action<T>> expr)
             => AddConfiguration(f => f.Invoke(expr));

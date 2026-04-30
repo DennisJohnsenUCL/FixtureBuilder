@@ -8,6 +8,8 @@ namespace FixtureBuilder.Bogus
     {
         #region IBogusFixtureConfigurator
 
+        IBogusFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IBogusConstructor<TProp>, TProp> func);
+
         IBogusFixtureConfigurator<T> WithField<TValue>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, Func<Faker, TValue> value);
 
         IBogusFixtureConfigurator<T> WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Field, GenericSource.Method, 0)] string fieldName, Func<Faker, TValue> value);
@@ -37,8 +39,6 @@ namespace FixtureBuilder.Bogus
         #region IFixtureConfigurator
 
         IBogusFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr);
-
-        IBogusFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func);
 
         IBogusFixtureConfigurator<T> WithField<TValue>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, TValue value);
 

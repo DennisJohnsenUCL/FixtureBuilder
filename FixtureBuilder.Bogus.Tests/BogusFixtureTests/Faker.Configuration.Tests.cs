@@ -181,7 +181,7 @@
         public void InvokePrivate_Faker_Nested_PassesGeneratedArgs()
         {
             var result = Fixture.WithBogus<ClassWithNestedMethod>()
-                .InvokePrivate<ClassWithMethod>(x => x.Child, "SetArg", f => [f.Name.FirstName()])
+                .InvokePrivate(x => x.Child, "SetArg", f => [f.Name.FirstName()])
                 .Build();
 
             Assert.That(result.Child.LastArg, Is.Not.Empty);
