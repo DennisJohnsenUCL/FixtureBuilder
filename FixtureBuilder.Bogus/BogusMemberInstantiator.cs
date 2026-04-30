@@ -40,5 +40,10 @@ namespace FixtureBuilder.Bogus
         {
             return _constructor.UseConstructor(args);
         }
+
+        public T UseCustomInstantiator(Func<Faker, T> factory)
+        {
+            return factory(_faker);
+        }
     }
 }

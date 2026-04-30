@@ -11,8 +11,8 @@ namespace FixtureBuilder.Bogus
         private Func<IFixtureConstructor<T>, IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
 
-        public Randomizer Random { get { return _faker.Random; } set { _faker.Random = value; } }
-        public string Locale { get { return _faker.Locale; } set { _faker.Locale = value; } }
+        public Randomizer Random { get => _faker.Random; set { _faker.Random = value; } }
+        public string Locale { get => _faker.Locale; set { _faker.Locale = value; } }
 
         public BogusFixture(Faker faker)
         {
@@ -64,6 +64,9 @@ namespace FixtureBuilder.Bogus
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseConstructor(Func<Faker, object[]> args)
             => AddConstruction(f => f.UseConstructor(args(_faker)));
+
+        IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseCustomInstantiator(Func<Faker, T> factory)
+            => AddConstruction(_ => Fixture.New(factory(_faker)));
 
         #endregion
 

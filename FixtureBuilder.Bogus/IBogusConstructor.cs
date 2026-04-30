@@ -14,5 +14,7 @@ namespace FixtureBuilder.Bogus
         TReturn UseConstructor(params object[] args);
 
         TReturn UseAutoConstructor();
+
+        TReturn UseCustomInstantiator(Func<Faker, TReturn> factory);
     }
 }

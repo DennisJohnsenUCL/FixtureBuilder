@@ -76,5 +76,21 @@ namespace FixtureBuilder.Bogus.Tests
 
             Assert.That(result, Is.SameAs(expected));
         }
+
+        [Test]
+        public void UseCustomInstantiator_InvokesFactoryWithFaker()
+        {
+            var result = _sut.UseCustomInstantiator(f => new SimpleClass());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void UseCustomInstantiator_DoesNotDelegateToInnerConstructor()
+        {
+            _sut.UseCustomInstantiator(f => new SimpleClass());
+
+            _mockConstructor.VerifyNoOtherCalls();
+        }
     }
 }

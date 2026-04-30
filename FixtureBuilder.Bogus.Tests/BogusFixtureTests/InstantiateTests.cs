@@ -72,5 +72,15 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 
             Assert.That(result1.Child.Name, Is.EqualTo(result2.Child.Name));
         }
+
+        [Test]
+        public void Instantiate_WithCustomInstantiator_UsesFactory()
+        {
+            var result = Fixture.WithBogus<Parent>()
+                .Instantiate(x => x.Child, c => c.UseCustomInstantiator(f => new Child(f.Name.FirstName())))
+                .Build();
+
+            Assert.That(result.Child.Name, Is.Not.Empty);
+        }
     }
 }

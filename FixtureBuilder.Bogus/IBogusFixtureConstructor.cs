@@ -12,6 +12,8 @@ namespace FixtureBuilder.Bogus
 
         IBogusFixtureConfigurator<T> UseConstructor(Func<Faker, object[]> args);
 
+        IBogusFixtureConfigurator<T> UseCustomInstantiator(Func<Faker, T> factory);
+
         #endregion
 
         #region IFixtureConstructor
