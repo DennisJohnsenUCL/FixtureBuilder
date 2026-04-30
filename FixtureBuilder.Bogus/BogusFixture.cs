@@ -41,196 +41,122 @@ namespace FixtureBuilder.Bogus
                 }
                 fixtures.Add(fixture.Build());
             }
+
             return fixtures;
+        }
+
+        private BogusFixture<T> AddConstruction(Func<IFixtureConstructor<T>, IFixtureConfigurator<T>> func)
+        {
+            _constructionCommand = func;
+            return this;
+        }
+
+        private BogusFixture<T> AddConfiguration(Action<IFixtureConfigurator<T>> action)
+        {
+            _configurationCommands.Add(action);
+            return this;
         }
 
         #region Faker construction methods
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseConstructor(Func<Faker, object[]> args)
-        {
-            _constructionCommand = f => f.UseConstructor(args(_faker));
-            return this;
-        }
+            => AddConstruction(f => f.UseConstructor(args(_faker)));
 
         #endregion
 
         #region Faker configuration methods
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithField<TValue>(string fieldName, Func<Faker, TValue> value)
-        {
-            _configurationCommands.Add(f => f.WithField(fieldName, value(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.WithField(fieldName, value(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, string fieldName, Func<Faker, TValue> value)
-        {
-            _configurationCommands.Add(f => f.WithField(expr, fieldName, value(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.WithField(expr, fieldName, value(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, Func<Faker, TProp> value)
-        {
-            _configurationCommands.Add(f => f.WithBackingField(expr, value(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingField(expr, value(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, Func<Faker, TProp> value, string fieldName)
-        {
-            _configurationCommands.Add(f => f.WithBackingField(expr, value(_faker), fieldName));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingField(expr, value(_faker), fieldName));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, Func<Faker, object?> value)
-        {
-            _configurationCommands.Add(f => f.WithBackingFieldUntyped(expr, value(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingFieldUntyped(expr, value(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, Func<Faker, object?> value, string fieldName)
-        {
-            _configurationCommands.Add(f => f.WithBackingFieldUntyped(expr, value(_faker), fieldName));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingFieldUntyped(expr, value(_faker), fieldName));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithSetter<TProp>(Expression<Func<T, TProp>> expr, Func<Faker, TProp> value)
-        {
-            _configurationCommands.Add(f => f.WithSetter(expr, value(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.WithSetter(expr, value(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.With<TProp>(Expression<Func<T, TProp>> expr, Func<Faker, TProp> value)
-        {
-            _configurationCommands.Add(f => f.With(expr, value(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.With(expr, value(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Invoke(Func<Faker, Expression<Action<T>>> expr)
-        {
-            _configurationCommands.Add(f => f.Invoke(expr(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.Invoke(expr(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.InvokePrivate(string methodName, Func<Faker, object[]> arguments)
-        {
-            _configurationCommands.Add(f => f.InvokePrivate(methodName, arguments(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.InvokePrivate(methodName, arguments(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, string methodName, Func<Faker, object[]> arguments)
-        {
-            _configurationCommands.Add(f => f.InvokePrivate(expr, methodName, arguments(_faker)));
-            return this;
-        }
+            => AddConfiguration(f => f.InvokePrivate(expr, methodName, arguments(_faker)));
 
         #endregion
 
         #region Passthrough construction methods
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.CreateUninitialized()
-        {
-            _constructionCommand = f => f.CreateUninitialized();
-            return this;
-        }
+            => AddConstruction(f => f.CreateUninitialized());
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
-        {
-            _constructionCommand = f => f.CreateUninitialized(initializeMembers);
-            return this;
-        }
+            => AddConstruction(f => f.CreateUninitialized(initializeMembers));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseConstructor(params object[] args)
-        {
-            _constructionCommand = f => f.UseConstructor(args);
-            return this;
-        }
+            => AddConstruction(f => f.UseConstructor(args));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseAutoConstructor()
-        {
-            _constructionCommand = f => f.UseAutoConstructor();
-            return this;
-        }
+            => AddConstruction(f => f.UseAutoConstructor());
 
         #endregion
 
         #region Passthrough configuration methods
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
-        {
-            _configurationCommands.Add(f => f.Instantiate(expr));
-            return this;
-        }
+            => AddConfiguration(f => f.Instantiate(expr));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
-        {
-            _configurationCommands.Add(f => f.Instantiate(expr, func));
-            return this;
-        }
+            => AddConfiguration(f => f.Instantiate(expr, func));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Invoke(Expression<Action<T>> expr)
-        {
-            _configurationCommands.Add(f => f.Invoke(expr));
-            return this;
-        }
+            => AddConfiguration(f => f.Invoke(expr));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.InvokePrivate(string methodName, params object[] arguments)
-        {
-            _configurationCommands.Add(f => f.InvokePrivate(methodName, arguments));
-            return this;
-        }
+            => AddConfiguration(f => f.InvokePrivate(methodName, arguments));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, string methodName, params object[] arguments)
-        {
-            _configurationCommands.Add(f => f.InvokePrivate(expr, methodName, arguments));
-            return this;
-        }
+            => AddConfiguration(f => f.InvokePrivate(expr, methodName, arguments));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.With<TProp>(Expression<Func<T, TProp>> expr, TProp value)
-        {
-            _configurationCommands.Add(f => f.With(expr, value));
-            return this;
-        }
+            => AddConfiguration(f => f.With(expr, value));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value)
-        {
-            _configurationCommands.Add(f => f.WithBackingField(expr, value));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingField(expr, value));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName)
-        {
-            _configurationCommands.Add(f => f.WithBackingField(expr, value, fieldName));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingField(expr, value, fieldName));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value)
-        {
-            _configurationCommands.Add(f => f.WithBackingFieldUntyped(expr, value));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingFieldUntyped(expr, value));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName)
-        {
-            _configurationCommands.Add(f => f.WithBackingFieldUntyped(expr, value, fieldName));
-            return this;
-        }
+            => AddConfiguration(f => f.WithBackingFieldUntyped(expr, value, fieldName));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithField<TValue>(string fieldName, TValue value)
-        {
-            _configurationCommands.Add(f => f.WithField(fieldName, value));
-            return this;
-        }
+            => AddConfiguration(f => f.WithField(fieldName, value));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, string fieldName, TValue value)
-        {
-            _configurationCommands.Add(f => f.WithField(expr, fieldName, value));
-            return this;
-        }
+            => AddConfiguration(f => f.WithField(expr, fieldName, value));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value)
-        {
-            _configurationCommands.Add(f => f.WithSetter(expr, value));
-            return this;
-        }
+            => AddConfiguration(f => f.WithSetter(expr, value));
 
         #endregion
     }
