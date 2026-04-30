@@ -11,6 +11,9 @@ namespace FixtureBuilder.Bogus
         private Func<IFixtureConstructor<T>, IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
 
+        public Randomizer Random { get { return _faker.Random; } set { _faker.Random = value; } }
+        public string Locale { get { return _faker.Locale; } set { _faker.Locale = value; } }
+
         public BogusFixture(Faker faker)
         {
             ArgumentNullException.ThrowIfNull(faker);

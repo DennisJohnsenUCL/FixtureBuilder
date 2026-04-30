@@ -7,6 +7,9 @@ namespace FixtureBuilder.Bogus
     {
         #region IBogusFixtureConstructor
 
+        public Randomizer Random { get; set; }
+        public string Locale { get; set; }
+
         IBogusFixtureConfigurator<T> UseConstructor(Func<Faker, object[]> args);
 
         #endregion
