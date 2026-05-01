@@ -1,4 +1,4 @@
-name: Pack FixtureBuilder
+name: Publish FixtureBuilder
 on:
   workflow_dispatch:
 
