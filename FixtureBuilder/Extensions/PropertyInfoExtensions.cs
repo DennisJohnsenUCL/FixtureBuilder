@@ -12,7 +12,6 @@ namespace FixtureBuilder.Extensions
             /// <summary>
             /// Determines whether the property is static by checking if any of its accessors are static.
             /// </summary>
-            /// <param name="propertyInfo">The <see cref="PropertyInfo"/> instance to check.</param>
             /// <param name="nonPublic">
             /// <see langword="true"/> to include non-public accessors in the check;
             /// <see langword="false"/> to consider only public accessors. The default is <see langword="false"/>.

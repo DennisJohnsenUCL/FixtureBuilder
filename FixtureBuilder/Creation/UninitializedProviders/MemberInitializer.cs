@@ -9,7 +9,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// Iterates over an object's data members (properties and fields) and initializes any
     /// that are <see langword="null"/> by resolving values through an
     /// <see cref="IUninitializedProvider"/>. Members are discovered via reflection
-    /// using <see cref="DataMemberInfoExtensions.GetDataMembers"/> and filtered through an
+    /// using <see cref="Extensions.TypeExtensions.GetDataMembers"/> and filtered through an
     /// <see cref="IDataMemberSkipFilter"/> before initialization. If the skip filter indicates
     /// a member should be skipped, processing stops immediately for all remaining members.
     /// </summary>

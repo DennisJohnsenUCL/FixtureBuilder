@@ -3,6 +3,10 @@ using FixtureBuilder.FixtureFactories.WithMatching;
 
 namespace FixtureBuilder.FixtureFactories
 {
+    /// <summary>
+    /// Provides registration methods for options, type links, value providers, and value converters within a configuration scope.
+    /// </summary>
+    /// <typeparam name="TReturn">The return type for fluent chaining from inherited <see cref="IProviderBuilder{TReturn}"/> methods.</typeparam>
     public interface IConfigurationBuilder<TReturn> : IProviderBuilder<TReturn>
     {
         /// <summary>

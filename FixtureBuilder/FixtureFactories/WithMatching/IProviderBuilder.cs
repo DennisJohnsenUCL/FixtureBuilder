@@ -1,5 +1,9 @@
 ﻿namespace FixtureBuilder.FixtureFactories.WithMatching
 {
+    /// <summary>
+    /// Provides fluent methods for registering values and factory functions to be used during value resolution, scoped by member kind and name.
+    /// </summary>
+    /// <typeparam name="TReturn">The return type for fluent chaining.</typeparam>
     public interface IProviderBuilder<TReturn>
     {
         /// <summary>

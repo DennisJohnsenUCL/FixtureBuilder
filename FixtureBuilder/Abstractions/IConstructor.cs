@@ -5,6 +5,10 @@ using FixtureBuilder.Creation.UninitializedProviders;
 namespace FixtureBuilder
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
+    /// <summary>
+    /// Provides construction methods for creating an instance, returning <typeparamref name="TReturn"/> as the result.
+    /// </summary>
+    /// <typeparam name="TReturn">The return type of the construction methods.</typeparam>
     public interface IConstructor<TReturn>
     {
         /// <summary>

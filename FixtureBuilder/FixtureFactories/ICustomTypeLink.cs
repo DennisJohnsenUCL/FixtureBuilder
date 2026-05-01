@@ -1,5 +1,8 @@
 ﻿namespace FixtureBuilder.FixtureFactories
 {
+    /// <summary>
+    /// Defines a custom type substitution rule for the value resolution pipeline.
+    /// </summary>
     public interface ICustomTypeLink
     {
         /// <summary>
@@ -7,7 +10,7 @@
         /// </summary>
         /// <remarks>
         /// Invoked during the value resolution pipeline to substitute interfaces and abstract types with concrete implementations.
-        /// Return <c>null</c> if this link does not handle the given type.
+        /// Return <see langword="null"/>null if this link does not handle the given type.
         /// </remarks>
         Type? Link(Type target);
     }

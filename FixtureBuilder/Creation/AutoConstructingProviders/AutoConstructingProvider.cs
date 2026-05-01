@@ -13,7 +13,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// <para>
     /// The provider selects the simplest (fewest parameters) constructor available on the requested
     /// type, preferring public constructors over non-public ones. Each constructor parameter is
-    /// resolved recursively via <see cref="IFixtureContext.ResolveParameterValue"/>.
+    /// resolved recursively via <see cref="IFixtureContext.ValueProvider"/>.
     /// </para>
     /// <para>
     /// The following types cannot be auto-constructed and will throw an <see cref="InvalidOperationException"/>:

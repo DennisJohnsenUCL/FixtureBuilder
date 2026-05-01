@@ -72,6 +72,7 @@ namespace FixtureBuilder
             return ((IFixtureConstructor<T>)new Fixture<T>(_context)).Build();
         }
 
+        /// <inheritdoc/>
         public void SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);
@@ -80,29 +81,35 @@ namespace FixtureBuilder
 
         #region Add methods
 
+        /// <inheritdoc/>
         public void AddTypeLink<TIn, TOut>()
             => AddTypeLink(typeof(TIn), typeof(TOut));
 
+        /// <inheritdoc/>
         public void AddTypeLink(Type typeIn, Type typeOut)
             => AddTypeLink(new TypeLink(typeIn, typeOut));
 
+        /// <inheritdoc/>
         public void AddTypeLink(ICustomTypeLink typeLink)
         {
             var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
             AddTypeLink(adaptedTypeLink);
         }
 
+        /// <inheritdoc/>
         private void AddTypeLink(ITypeLink typeLink)
         {
             _context.TypeLink.AddTypeLink(typeLink);
         }
 
+        /// <inheritdoc/>
         public void AddProvider(ICustomProvider provider)
         {
             var adaptedProvider = new CustomProviderAdapter(provider);
             _context.ValueProvider.AddProvider(adaptedProvider);
         }
 
+        /// <inheritdoc/>
         public void AddConverter(ICustomConverter converter)
         {
             var adaptedConverter = new CustomConverterAdapter(converter);
@@ -113,39 +120,51 @@ namespace FixtureBuilder
 
         #region With methods
 
+        /// <inheritdoc/>
         public FixtureFactory With<T>(T value)
             => AddProvider(b => b.With(value));
 
+        /// <inheritdoc/>
         public FixtureFactory With<T>(Func<T> func)
             => AddProvider(b => b.With(func));
 
+        /// <inheritdoc/>
         public FixtureFactory With<T>(T value, string name)
             => AddProvider(b => b.With(value, name));
 
+        /// <inheritdoc/>
         public FixtureFactory With<T>(Func<T> func, string name)
             => AddProvider(b => b.With(func, name));
 
+        /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(T value)
             => AddProvider(b => b.WithParameter(value));
 
+        /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(Func<T> func)
             => AddProvider(b => b.WithParameter(func));
 
+        /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(T value, string name)
             => AddProvider(b => b.WithParameter(value, name));
 
+        /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(Func<T> func, string name)
             => AddProvider(b => b.WithParameter(func, name));
 
+        /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(T value)
             => AddProvider(b => b.WithPropertyOrField(value));
 
+        /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(Func<T> func)
             => AddProvider(b => b.WithPropertyOrField(func));
 
+        /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(T value, string name)
             => AddProvider(b => b.WithPropertyOrField(value, name));
 
+        /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(Func<T> func, string name)
             => AddProvider(b => b.WithPropertyOrField(func, name));
 
@@ -167,7 +186,6 @@ namespace FixtureBuilder
             builderAction(builder);
             return this;
         }
-
 
         private static IFixtureContext InitializeContext(FixtureOptions? options = null)
         {

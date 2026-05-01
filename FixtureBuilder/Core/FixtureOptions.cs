@@ -3,12 +3,24 @@ using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Core
 {
+    /// <summary>
+    /// Configuration options that control fixture construction and member resolution behavior.
+    /// </summary>
     public class FixtureOptions
     {
+        /// <summary>
+        /// Creates a new instance with default option values.
+        /// </summary>
         public FixtureOptions() { }
 
+        /// <summary>
+        /// Gets a new <see cref="FixtureOptions"/> instance with default values.
+        /// </summary>
         public static FixtureOptions Default => new();
 
+        /// <summary>
+        /// Creates a copy of this options instance.
+        /// </summary>
         public FixtureOptions Clone() => (FixtureOptions)MemberwiseClone();
 
         /// <summary>
@@ -95,7 +107,7 @@ namespace FixtureBuilder.Core
         /// </summary>
         /// <remarks>
         /// Default is <see langword="true" />
-        /// <br /><br />When <see cref="true"/>, the fixture can be configured without first explicitly calling one of the construction methods.
+        /// <br /><br />When <see langword="true"/>, the fixture can be configured without first explicitly calling one of the construction methods.
         /// </remarks>
         public bool AllowImplicitConstruction { get; set; } = true;
 

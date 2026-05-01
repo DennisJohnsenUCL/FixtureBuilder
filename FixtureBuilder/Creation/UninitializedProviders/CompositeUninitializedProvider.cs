@@ -8,7 +8,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// resolution pipeline for uninitialized fixture values. Attempts resolution in order:
     /// first via the <see cref="IFixtureContext"/>'s registered providers, then via
     /// <see cref="DefaultBclTypeProvider"/> for <c>System</c>-namespace types, and finally
-    /// via <see cref="IFixtureContext.ResolveUninitialized"/> for direct construction.
+    /// via <see cref="IFixtureContext.UninitializedProvider"/> for direct construction.
     /// </summary>
     internal class CompositeUninitializedProvider : IUninitializedProvider
     {

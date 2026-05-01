@@ -7,10 +7,6 @@ using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Core.FixtureContexts
 {
-    /// <summary>
-    /// An <see cref="IContextResolver"/> that defers creation of its components until first access,
-    /// using <see cref="Lazy{T}"/> to wrap the provided factory functions.
-    /// </summary>
     internal class LazyContext : ContextBase, IFixtureContext
     {
         public override FixtureOptions Options { protected get; set; }

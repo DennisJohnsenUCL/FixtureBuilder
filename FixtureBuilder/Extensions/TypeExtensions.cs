@@ -11,7 +11,6 @@ namespace FixtureBuilder.Extensions
             /// <summary>
             /// Attempts to retrieve a field from the specified type by name.
             /// </summary>
-            /// <param name="type">The type to search for the field.</param>
             /// <param name="fieldName">The name of the field to find.</param>
             /// <param name="fieldInfo">
             /// When this method returns, contains the <see cref="FieldInfo"/> for the specified field
@@ -30,7 +29,6 @@ namespace FixtureBuilder.Extensions
             /// Returns a sequence of <see cref="DataMemberInfo"/> instances representing all properties and fields
             /// of the specified type that match the given binding constraints.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to retrieve data members from.</param>
             /// <param name="bindingAttr">
             /// A bitwise combination of <see cref="BindingFlags"/> that specifies how the search for members is conducted.
             /// </param>
@@ -50,7 +48,6 @@ namespace FixtureBuilder.Extensions
             /// <summary>
             /// Attempts to retrieve the generic type definition of the specified type.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to retrieve the generic type definition from.</param>
             /// <param name="genericTypeDefinition">
             /// When this method returns <see langword="true"/>, contains the generic type definition of
             /// <paramref name="type"/>; otherwise, contains a <see langword="null"/> reference.
@@ -76,7 +73,6 @@ namespace FixtureBuilder.Extensions
             /// <summary>
             /// Returns the generic type definition of the specified type, or <see langword="null"/> if the type is not generic.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to retrieve the generic type definition from.</param>
             /// <returns>
             /// The generic type definition if <paramref name="type"/> is a generic type; otherwise, <see langword="null"/>.
             /// </returns>
@@ -92,7 +88,6 @@ namespace FixtureBuilder.Extensions
             /// Determines whether the specified type implements a given interface, supporting both
             /// closed and open generic interface definitions.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to check.</param>
             /// <param name="target">
             /// The interface type to check for. This can be a concrete interface (e.g., <see cref="IDisposable"/>),
             /// a closed generic interface (e.g., <c>IEnumerable&lt;string&gt;</c>), or an open generic type
@@ -124,7 +119,6 @@ namespace FixtureBuilder.Extensions
             /// <summary>
             /// Retrieves the element type of a type that implements <see cref="IEnumerable{T}"/>.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to extract the enumerable element type from.</param>
             /// <returns>
             /// The element type <c>T</c> if <paramref name="type"/> implements <see cref="IEnumerable{T}"/>;
             /// otherwise, <see langword="null"/>.
@@ -145,7 +139,6 @@ namespace FixtureBuilder.Extensions
             /// <see cref="IDictionary{TKey, TValue}"/>, <see cref="IReadOnlyDictionary{TKey, TValue}"/>,
             /// or <see cref="IImmutableDictionary{TKey, TValue}"/>.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to check.</param>
             /// <returns>
             /// <see langword="true"/> if <paramref name="type"/> is a dictionary type; otherwise, <see langword="false"/>.
             /// </returns>
@@ -172,7 +165,6 @@ namespace FixtureBuilder.Extensions
             /// <see cref="IEnumerable{T}"/> implementation for a <see cref="KeyValuePair{TKey, TValue}"/>
             /// element type.
             /// </summary>
-            /// <param name="type">The <see cref="Type"/> to extract dictionary key and value types from.</param>
             /// <returns>
             /// A tuple containing the key and value types of the dictionary. Returns
             /// <c>(null, null)</c> if <paramref name="type"/> is not a dictionary type.

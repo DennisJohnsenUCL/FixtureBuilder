@@ -6,6 +6,10 @@ using MemberLens.Attributes;
 namespace FixtureBuilder
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
+    /// <summary>
+    /// Provides configuration methods for setting properties, fields, and invoking methods on a fixture of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
     public interface IFixtureConfigurator<T> where T : class
     {
         /// <summary>
