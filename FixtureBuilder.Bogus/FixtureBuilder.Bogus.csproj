@@ -13,7 +13,11 @@
     <PackageReference Include="MemberLens.Attributes" Version="1.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
     <InternalsVisibleTo Include="FixtureBuilder.Bogus.Tests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
