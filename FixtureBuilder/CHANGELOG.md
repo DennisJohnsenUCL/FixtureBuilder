@@ -1,3 +1,7 @@
+#### 1.3.1
+
+- Fixed XML doc summaries not being included with the NuGet package.
+
 #### 1.3.0
 
 - Added .Build method to FactoryFactory to instantly output a test object with only pre-configuration through the factory.
