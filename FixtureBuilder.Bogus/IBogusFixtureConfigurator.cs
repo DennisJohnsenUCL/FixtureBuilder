@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Bogus;
+using FixtureBuilder.Core;
 using MemberLens.Attributes;
 
 namespace FixtureBuilder.Bogus
@@ -7,7 +8,7 @@ namespace FixtureBuilder.Bogus
     /// <summary>
     /// Provides configuration methods for a Bogus-integrated fixture of type <typeparamref name="T"/>.
     /// Each method accepts either a flat value (passthrough to FixtureBuilder) or a <see cref="Faker"/> lambda for data generation.
-    /// Configuration is deferred until <see cref="Build"/> or <see cref="Build(int)"/> is called.
+    /// Configuration is deferred until <see cref="Build()"/> or <see cref="Build(int)"/> is called.
     /// </summary>
     /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
     public interface IBogusFixtureConfigurator<T> where T : class

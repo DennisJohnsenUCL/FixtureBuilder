@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using FixtureBuilder.Core;
 using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Bogus
