@@ -7,7 +7,7 @@ namespace FixtureBuilder.FixtureFactories
     /// Provides registration methods for options, type links, value providers, and value converters within a configuration scope.
     /// </summary>
     /// <typeparam name="TReturn">The return type for fluent chaining from inherited <see cref="IProviderBuilder{TReturn}"/> methods.</typeparam>
-    public interface IConfigurationBuilder<TReturn> : IProviderBuilder<TReturn>
+    internal interface IConfigurationBuilder<TReturn> : IProviderBuilder<TReturn>
     {
         /// <summary>
         /// Sets the options for this configuration scope.

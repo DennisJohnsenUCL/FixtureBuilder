@@ -4,7 +4,7 @@
     /// Provides fluent methods for registering values and factory functions to be used during value resolution, scoped by member kind and name.
     /// </summary>
     /// <typeparam name="TReturn">The return type for fluent chaining.</typeparam>
-    public interface IProviderBuilder<TReturn>
+    internal interface IProviderBuilder<TReturn>
     {
         /// <summary>
         /// Registers a value to be used for all members and parameters of type <typeparamref name="T"/>.
