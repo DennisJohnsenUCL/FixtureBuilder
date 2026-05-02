@@ -146,5 +146,25 @@ namespace FixtureBuilder.Tests.Configuration
 
             Assert.Throws<InvalidOperationException>(() => _sut.CreateUninitialized());
         }
+
+        [Test]
+        public void UseCustomInstantiator_ReturnsFactoryResult()
+        {
+            var expected = new TestClass { Value = "custom" };
+
+            var result = _sut.UseCustomInstantiator(() => expected);
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_DoesNotCallAnyProvider()
+        {
+            _sut.UseCustomInstantiator(() => new TestClass());
+
+            _autoConstructingMock.VerifyNoOtherCalls();
+            _constructingMock.VerifyNoOtherCalls();
+            _uninitializedMock.VerifyNoOtherCalls();
+        }
     }
 }

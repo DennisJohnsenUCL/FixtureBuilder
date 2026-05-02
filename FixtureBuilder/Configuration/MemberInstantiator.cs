@@ -34,5 +34,10 @@ namespace FixtureBuilder.Configuration
                 ?? throw new InvalidOperationException("Failed to intantiate {typeof(T).Name} uninitialized.");
             return (T)instance;
         }
+
+        public T UseCustomInstantiator(Func<T> instantiator)
+        {
+            return instantiator();
+        }
     }
 }

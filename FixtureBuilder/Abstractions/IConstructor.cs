@@ -44,5 +44,12 @@ namespace FixtureBuilder
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="InvalidOperationException"/>
         TReturn UseAutoConstructor();
+
+        /// <summary>
+        /// Creates an instance using a caller-defined factory function.
+        /// </summary>
+        /// <param name="instantiator">A function that returns the fully constructed instance.</param>
+        /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
+        TReturn UseCustomInstantiator(Func<TReturn> instantiator);
     }
 }
