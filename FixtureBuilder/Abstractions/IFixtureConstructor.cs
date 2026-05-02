@@ -9,5 +9,8 @@ namespace FixtureBuilder
     /// configuration without explicitly choosing a construction method, using the <see cref="FixtureOptions.DefaultInstantiationMethod"/> instead.
     /// </summary>
     /// <typeparam name="T">The type of the object to construct and configure. Must be a reference type.</typeparam>
-    public interface IFixtureConstructor<T> : IConstructor<IFixtureConfigurator<T>>, IFixtureConfigurator<T> where T : class;
+    public interface IFixtureConstructor<T> : IConstructor<IFixtureConfigurator<T>>, IFixtureConfigurator<T> where T : class
+    {
+        IFixtureConfigurator<T> UseCustomInstantiator(Func<T> instantiator);
+    }
 }

@@ -88,6 +88,13 @@ namespace FixtureBuilder
             return this;
         }
 
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseCustomInstantiator(Func<T> instantiator)
+        {
+            _fixture = instantiator();
+
+            return this;
+        }
+
         IFixtureConfigurator<TTarget> IFixtureConfigurator<T>.CastTo<TTarget>()
         {
             _fixture ??= InstantiateFixture();
