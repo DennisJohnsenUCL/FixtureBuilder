@@ -1,3 +1,10 @@
+#### 1.4.0
+
+- Added construction method UseCustomInstantiator
+  - This method will construct the fixture object using any user-provided constructor, factory method, or factory class.
+- Added UseCustomInstantiator method to IConstructor, exposed via Fixture .Instantiate method to instantiate members and nested members.
+  - Accepts any user-provided constructor, factory method, or factory class.
+
 #### 1.3.1
 
 - Fixed XML doc summaries not being included with the NuGet package.

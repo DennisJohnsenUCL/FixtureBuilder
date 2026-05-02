@@ -43,7 +43,9 @@ var fixture = new Fixture<User>()
 
 - `UseConstructor(params object[] arguments)`: Instantiates with specific constructor arguments.
 
-- `UseAutoConstructor()`: Instantiates the object by automatically invoking its simplest constructor, recursively building dependencies
+- `UseAutoConstructor()`: Instantiates the object by automatically invoking its simplest constructor, recursively building dependencies.
+
+- `UseCustomInstantiator(Func<T> instantiator)`: Instantiates the object using a user-provided constructor, factory method, or factory class. 
 
 ### Configuration
 - `WithField(string fieldName, object value)`: Sets a field value directly.
