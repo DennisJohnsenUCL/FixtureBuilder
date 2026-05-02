@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a request to create an object of a specific type, containing metadata about the creation context.
     /// </summary>
-    public class FixtureRequest
+    public sealed class FixtureRequest
     {
         /// <summary>
         /// Gets or sets the type of the object requested to be created.

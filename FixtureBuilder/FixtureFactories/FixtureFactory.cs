@@ -15,7 +15,7 @@ namespace FixtureBuilder
     /// converters, and default values — and produce consistently configured fixtures from it.
     /// Use <see cref="WhenBuilding{TRoot}"/> to scope registrations to a specific fixture type.
     /// </summary>
-    public class FixtureFactory : IConfigurationBuilder<FixtureFactory>
+    public sealed class FixtureFactory : IConfigurationBuilder<FixtureFactory>
     {
         private readonly IFixtureContext _context;
         private readonly MatchingProviderBuilder _providerBuilder;

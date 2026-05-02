@@ -6,7 +6,7 @@ namespace FixtureBuilder.Core
     /// <summary>
     /// Configuration options that control fixture construction and member resolution behavior.
     /// </summary>
-    public class FixtureOptions
+    public sealed class FixtureOptions
     {
         /// <summary>
         /// Creates a new instance with default option values.

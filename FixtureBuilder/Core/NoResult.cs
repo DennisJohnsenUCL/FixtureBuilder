@@ -6,5 +6,5 @@
     /// Evaluating pipeline components check for this object to delegate responsibility to the next capable component.
     /// You must return an object of this type if constructing an ICustomProvider or ICustomConverter rather than null when your provider does not handle the incoming request.
     /// </summary>
-    public class NoResult;
+    public sealed class NoResult;
 }
