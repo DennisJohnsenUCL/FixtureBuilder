@@ -53,10 +53,10 @@ namespace FixtureBuilder
             _fixture = instance;
         }
 
-        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.CreateUninitialized()
+        IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized()
             => ((IFixtureConstructor<T>)this).CreateUninitialized(_context.OptionsFor(typeof(T)).DefaultInitializeMembers);
 
-        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.CreateUninitialized(InitializeMembers initializeMembers)
+        IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
         {
             var request = new FixtureRequest(typeof(T));
             var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
@@ -68,7 +68,7 @@ namespace FixtureBuilder
             return this;
         }
 
-        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseConstructor(params object[] arguments)
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] arguments)
         {
             var request = new FixtureRequest(typeof(T));
             var instance = _context.ConstructingProvider.ResolveWithArguments(request, arguments);
@@ -78,7 +78,7 @@ namespace FixtureBuilder
             return this;
         }
 
-        IFixtureConfigurator<T> IConstructor<IFixtureConfigurator<T>>.UseAutoConstructor()
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseAutoConstructor()
         {
             var request = new FixtureRequest(typeof(T));
             var instance = _context.AutoConstructingProvider.AutoResolve(request, _context);
