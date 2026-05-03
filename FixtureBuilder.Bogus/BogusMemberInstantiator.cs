@@ -16,34 +16,33 @@ namespace FixtureBuilder.Bogus
             _faker = faker;
         }
 
-        public T CreateUninitialized()
-        {
-            return _constructor.CreateUninitialized();
-        }
-
-        public T CreateUninitialized(InitializeMembers initializeMembers)
-        {
-            return _constructor.CreateUninitialized(initializeMembers);
-        }
-
-        public T UseAutoConstructor()
-        {
-            return _constructor.UseAutoConstructor();
-        }
+        #region Faker methods
 
         public T UseConstructor(Func<Faker, object[]> args)
-        {
-            return _constructor.UseConstructor(args(_faker));
-        }
-
-        public T UseConstructor(params object[] args)
-        {
-            return _constructor.UseConstructor(args);
-        }
+            => _constructor.UseConstructor(args(_faker));
 
         public T UseCustomInstantiator(Func<Faker, T> factory)
-        {
-            return factory(_faker);
-        }
+            => factory(_faker);
+
+        #endregion
+
+        #region Passthrough methods
+
+        public T CreateUninitialized()
+            => _constructor.CreateUninitialized();
+
+        public T CreateUninitialized(InitializeMembers initializeMembers)
+            => _constructor.CreateUninitialized(initializeMembers);
+
+        public T UseAutoConstructor()
+            => _constructor.UseAutoConstructor();
+
+        public T UseConstructor(params object[] args)
+            => _constructor.UseConstructor(args);
+
+        public T UseCustomInstantiator(Func<T> instantiator)
+            => _constructor.UseCustomInstantiator(instantiator);
+
+        #endregion
     }
 }

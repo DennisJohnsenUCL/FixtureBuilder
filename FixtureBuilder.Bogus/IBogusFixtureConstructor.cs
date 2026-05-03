@@ -76,6 +76,8 @@ namespace FixtureBuilder.Bogus
         /// <exception cref="InvalidOperationException"/>
         IBogusFixtureConfigurator<T> UseAutoConstructor();
 
+        IBogusFixtureConfigurator<T> UseCustomInstantiator(Func<T> instantiator);
+
         #endregion
     }
 }

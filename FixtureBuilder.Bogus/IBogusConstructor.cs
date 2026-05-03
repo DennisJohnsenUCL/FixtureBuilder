@@ -11,6 +11,8 @@ namespace FixtureBuilder.Bogus
     /// <typeparam name="TReturn">The type of the member to instantiate.</typeparam>
     public interface IBogusConstructor<TReturn>
     {
+        #region IBogusConstructor
+
         /// <summary>
         /// Creates an instance using a constructor whose arguments are resolved via a <see cref="Faker"/> lambda.
         /// </summary>
@@ -18,6 +20,17 @@ namespace FixtureBuilder.Bogus
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="MissingMethodException"/>
         TReturn UseConstructor(Func<Faker, object[]> args);
+
+        /// <summary>
+        /// Creates an instance using a caller-defined factory that receives a <see cref="Faker"/> for data generation.
+        /// </summary>
+        /// <param name="factory">A function that receives a <see cref="Faker"/> and returns the fully constructed instance of <typeparamref name="TReturn"/>.</param>
+        /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
+        TReturn UseCustomInstantiator(Func<Faker, TReturn> factory);
+
+        #endregion
+
+        #region IConstructor
 
         /// <summary>
         /// Creates an uninitialized instance without invoking a constructor, using the <see cref="FixtureOptions.DefaultInitializeMembers"/> option.
@@ -49,11 +62,8 @@ namespace FixtureBuilder.Bogus
         /// <exception cref="InvalidOperationException"/>
         TReturn UseAutoConstructor();
 
-        /// <summary>
-        /// Creates an instance using a caller-defined factory that receives a <see cref="Faker"/> for data generation.
-        /// </summary>
-        /// <param name="factory">A function that receives a <see cref="Faker"/> and returns the fully constructed instance of <typeparamref name="TReturn"/>.</param>
-        /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
-        TReturn UseCustomInstantiator(Func<Faker, TReturn> factory);
+        TReturn UseCustomInstantiator(Func<TReturn> Instantiator);
+
+        #endregion
     }
 }

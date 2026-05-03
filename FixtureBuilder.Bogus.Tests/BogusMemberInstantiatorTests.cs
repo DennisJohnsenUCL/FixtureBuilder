@@ -92,5 +92,16 @@ namespace FixtureBuilder.Bogus.Tests
 
             _mockConstructor.VerifyNoOtherCalls();
         }
+
+        [Test]
+        public void UseCustomInstantiator_Passthrough_DelegatesToInnerConstructor()
+        {
+            var expected = new SimpleClass();
+            _mockConstructor.Setup(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>())).Returns(expected);
+
+            var result = _sut.UseCustomInstantiator(() => new SimpleClass());
+
+            Assert.That(result, Is.SameAs(expected));
+        }
     }
 }

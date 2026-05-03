@@ -70,5 +70,30 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 
             Assert.That(result.Name, Is.EqualTo("Bob"));
         }
+
+        [Test]
+        public void UseCustomInstantiator_ReturnsInstance()
+        {
+            var result = Fixture.WithBogus<SimpleClass>()
+                .UseCustomInstantiator(() => new SimpleClass { Name = "Custom" })
+                .Build();
+
+            Assert.That(result.Name, Is.EqualTo("Custom"));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_FollowedByConfiguration_AppliesBoth()
+        {
+            var result = Fixture.WithBogus<SimpleClass>()
+                .UseCustomInstantiator(() => new SimpleClass { Name = "Custom" })
+                .With(x => x.Value, 99)
+                .Build();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Name, Is.EqualTo("Custom"));
+                Assert.That(result.Value, Is.EqualTo(99));
+            }
+        }
     }
 }

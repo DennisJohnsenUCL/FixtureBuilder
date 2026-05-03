@@ -134,6 +134,9 @@ namespace FixtureBuilder.Bogus
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseAutoConstructor()
             => AddConstruction(f => f.UseAutoConstructor());
 
+        IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseCustomInstantiator(Func<T> instantiator)
+            => AddConstruction(f => f.UseCustomInstantiator(instantiator));
+
         #endregion
 
         #region Passthrough configuration methods
