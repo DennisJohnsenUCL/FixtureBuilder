@@ -8,7 +8,7 @@ namespace FixtureBuilder.Bogus
     {
         private readonly Faker _faker;
 
-        private Func<IFixtureConstructor<T>, IFixtureConfigurator<T>>? _constructionCommand = null;
+        private Func<IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
 
         public Randomizer Random { get => _faker.Random; set { _faker.Random = value; } }
@@ -32,25 +32,30 @@ namespace FixtureBuilder.Bogus
             var fixtures = new List<T>();
             for (int i = 0; i < count; i++)
             {
-                var fixtureConstructor = Fixture.New<T>();
-
-                IFixtureConfigurator<T> fixture = _constructionCommand != null
-                    ? _constructionCommand(fixtureConstructor)
-                    : fixtureConstructor;
-
-                foreach (var command in _configurationCommands)
-                {
-                    command(fixture);
-                }
+                var fixture = BuildConfiguration();
                 fixtures.Add(fixture.Build());
             }
 
             return fixtures;
         }
 
+        private IFixtureConfigurator<T> BuildConfiguration()
+        {
+            IFixtureConfigurator<T> fixture = _constructionCommand != null
+                ? _constructionCommand()
+                : Fixture.New<T>();
+
+            foreach (var command in _configurationCommands)
+            {
+                command(fixture);
+            }
+
+            return fixture;
+        }
+
         private BogusFixture<T> AddConstruction(Func<IFixtureConstructor<T>, IFixtureConfigurator<T>> func)
         {
-            _constructionCommand = func;
+            _constructionCommand = () => func(Fixture.New<T>());
             return this;
         }
 
@@ -140,6 +145,20 @@ namespace FixtureBuilder.Bogus
         #endregion
 
         #region Passthrough configuration methods
+
+        IBogusFixtureConfigurator<TTarget> IBogusFixtureConfigurator<T>.CastTo<TTarget>()
+        {
+            var newBogusFixture = new BogusFixture<TTarget>(_faker)
+            {
+                _constructionCommand = () =>
+                {
+                    var fixture = BuildConfiguration();
+                    return fixture.CastTo<TTarget>();
+                }
+            };
+
+            return newBogusFixture;
+        }
 
         IBogusFixtureConfigurator<T> IBogusFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
             => AddConfiguration(f => f.Instantiate(expr));

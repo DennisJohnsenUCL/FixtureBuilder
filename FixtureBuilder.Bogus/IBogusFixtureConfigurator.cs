@@ -162,6 +162,14 @@ namespace FixtureBuilder.Bogus
         #region IFixtureConfigurator
 
         /// <summary>
+        /// Casts the current fixture to the specified target type. All prior construction and configuration is preserved and replayed when building the cast fixture.
+        /// </summary>
+        /// <typeparam name="TTarget">The type to which the fixture should be cast.</typeparam>
+        /// <returns>An <see cref="IBogusFixtureConfigurator{TTarget}"/> for further configuration.</returns>
+        /// <exception cref="InvalidCastException"/>
+        IBogusFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;
+
+        /// <summary>
         /// Instantiates the specified property or field using the default instantiation method and assigns it to the fixture.
         /// </summary>
         /// <param name="expr">An expression identifying the property or field to instantiate. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
