@@ -22,7 +22,7 @@
 		<Copyright>Copyright © 2026 Dennis Johnsen</Copyright>
 		<RepositoryUrl>https://github.com/DennisJohnsenUCL/FixtureBuilder</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>testing;unit-testing;test-helpers;object-builder;reflection</PackageTags>
+		<PackageTags>testing;unit-testing;test-helpers;object-builder;reflection;bogus;faker;test-data;data-generation</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
