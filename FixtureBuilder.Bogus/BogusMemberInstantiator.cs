@@ -22,7 +22,7 @@ namespace FixtureBuilder.Bogus
             => _constructor.UseConstructor(args(_faker));
 
         public T UseCustomInstantiator(Func<Faker, T> factory)
-            => factory(_faker);
+            => _constructor.UseCustomInstantiator(() => factory(_faker));
 
         #endregion
 

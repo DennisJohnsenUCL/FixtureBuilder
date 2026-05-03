@@ -76,6 +76,11 @@ namespace FixtureBuilder.Bogus
         /// <exception cref="InvalidOperationException"/>
         IBogusFixtureConfigurator<T> UseAutoConstructor();
 
+        /// <summary>
+        /// Instantiates the fixture using a caller-defined factory function.
+        /// </summary>
+        /// <param name="instantiator">A function that returns the fully constructed instance of <typeparamref name="T"/>.</param>
+        /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for further configuration.</returns>
         IBogusFixtureConfigurator<T> UseCustomInstantiator(Func<T> instantiator);
 
         #endregion

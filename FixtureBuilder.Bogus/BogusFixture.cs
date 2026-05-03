@@ -66,7 +66,7 @@ namespace FixtureBuilder.Bogus
             => AddConstruction(f => f.UseConstructor(args(_faker)));
 
         IBogusFixtureConfigurator<T> IBogusFixtureConstructor<T>.UseCustomInstantiator(Func<Faker, T> factory)
-            => AddConstruction(_ => Fixture.New(factory(_faker)));
+            => AddConstruction(f => f.UseCustomInstantiator(() => factory(_faker)));
 
         #endregion
 

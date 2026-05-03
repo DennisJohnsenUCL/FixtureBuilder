@@ -78,19 +78,24 @@ namespace FixtureBuilder.Bogus.Tests
         }
 
         [Test]
-        public void UseCustomInstantiator_InvokesFactoryWithFaker()
+        public void UseCustomInstantiator_WithFaker_DelegatesToInnerConstructor()
         {
+            var expected = new SimpleClass();
+            _mockConstructor.Setup(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>())).Returns(expected);
+
             var result = _sut.UseCustomInstantiator(f => new SimpleClass());
 
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.SameAs(expected));
         }
 
         [Test]
-        public void UseCustomInstantiator_DoesNotDelegateToInnerConstructor()
+        public void UseCustomInstantiator_WithFaker_PassesFuncToInnerConstructor()
         {
+            _mockConstructor.Setup(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>())).Returns(new SimpleClass());
+
             _sut.UseCustomInstantiator(f => new SimpleClass());
 
-            _mockConstructor.VerifyNoOtherCalls();
+            _mockConstructor.Verify(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>()), Times.Once);
         }
 
         [Test]

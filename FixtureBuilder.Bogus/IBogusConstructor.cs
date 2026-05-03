@@ -62,7 +62,12 @@ namespace FixtureBuilder.Bogus
         /// <exception cref="InvalidOperationException"/>
         TReturn UseAutoConstructor();
 
-        TReturn UseCustomInstantiator(Func<TReturn> Instantiator);
+        /// <summary>
+        /// Creates an instance using a caller-defined factory function.
+        /// </summary>
+        /// <param name="instantiator">A function that returns the fully constructed instance of <typeparamref name="TReturn"/>.</param>
+        /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
+        TReturn UseCustomInstantiator(Func<TReturn> instantiator);
 
         #endregion
     }
