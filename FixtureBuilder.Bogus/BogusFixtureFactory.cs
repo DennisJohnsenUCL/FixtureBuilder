@@ -21,5 +21,10 @@ namespace FixtureBuilder.Bogus
         {
             return new BogusFixture<T>(_faker, _factory);
         }
+
+        public T Build<T>() where T : class
+        {
+            return ((IBogusFixtureConstructor<T>)new BogusFixture<T>(_faker, _factory)).Build();
+        }
     }
 }
