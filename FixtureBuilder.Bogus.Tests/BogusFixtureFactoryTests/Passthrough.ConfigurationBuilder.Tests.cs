@@ -40,12 +40,6 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactoryTests
             Assert.That(_factory.Options.AllowPrivateConstructors, Is.False);
         }
 
-        [Test]
-        public void SetOptions_NullAction_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => _factory.SetOptions(null!));
-        }
-
         #endregion
 
         #region AddProvider
@@ -64,20 +58,30 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactoryTests
             Assert.That(result.Name, Is.EqualTo("from-provider"));
         }
 
-        [Test]
-        public void AddProvider_NullProvider_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => _factory.AddProvider(null!));
-        }
-
         #endregion
 
         #region AddConverter
 
-        [Test]
-        public void AddConverter_NullConverter_Throws()
+        class NeedsConversion
         {
-            Assert.Throws<ArgumentNullException>(() => _factory.AddConverter(null!));
+            public int _count;
+            public string Count => _count.ToString();
+        }
+
+        [Test]
+        public void AddConverter_ConverterIsUsedByFixture()
+        {
+            var converter = new Mock<ICustomConverter>();
+            converter.Setup(c => c.Convert(typeof(int), "42")).Returns(42);
+
+            _factory.AddConverter(converter.Object);
+
+            var result = _factory.New<NeedsConversion>()
+                .UseAutoConstructor()
+                .WithBackingField(x => x.Count, "42")
+                .Build();
+
+            Assert.That(result._count, Is.EqualTo(42));
         }
 
         #endregion

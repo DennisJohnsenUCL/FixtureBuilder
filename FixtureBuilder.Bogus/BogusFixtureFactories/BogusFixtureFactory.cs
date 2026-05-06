@@ -56,6 +56,52 @@ namespace FixtureBuilder.Bogus
 
         #endregion
 
+        #region Passthrough provider methods
+
+        private BogusFixtureFactory AddWith(Action<FixtureFactory> action)
+        {
+            action(_factory);
+            return this;
+        }
+
+        public BogusFixtureFactory With<T>(T value)
+            => AddWith(f => f.With(value));
+
+        public BogusFixtureFactory With<T>(Func<T> func)
+            => AddWith(f => f.With(func));
+
+        public BogusFixtureFactory With<T>(T value, string name)
+            => AddWith(f => f.With(value, name));
+
+        public BogusFixtureFactory With<T>(Func<T> func, string name)
+            => AddWith(f => f.With(func, name));
+
+        public BogusFixtureFactory WithParameter<T>(T value)
+            => AddWith(f => f.WithParameter(value));
+
+        public BogusFixtureFactory WithParameter<T>(Func<T> func)
+            => AddWith(f => f.WithParameter(func));
+
+        public BogusFixtureFactory WithParameter<T>(T value, string name)
+            => AddWith(f => f.WithParameter(value, name));
+
+        public BogusFixtureFactory WithParameter<T>(Func<T> func, string name)
+            => AddWith(f => f.WithParameter(func, name));
+
+        public BogusFixtureFactory WithPropertyOrField<T>(T value)
+            => AddWith(f => f.WithPropertyOrField(value));
+
+        public BogusFixtureFactory WithPropertyOrField<T>(Func<T> func)
+            => AddWith(f => f.WithPropertyOrField(func));
+
+        public BogusFixtureFactory WithPropertyOrField<T>(T value, string name)
+            => AddWith(f => f.WithPropertyOrField(value, name));
+
+        public BogusFixtureFactory WithPropertyOrField<T>(Func<T> func, string name)
+            => AddWith(f => f.WithPropertyOrField(func, name));
+
+        #endregion
+
         //TODO: WhenBuilding
     }
 }
