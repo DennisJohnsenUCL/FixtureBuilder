@@ -1,20 +1,22 @@
-﻿namespace FixtureBuilder.Bogus.BogusFixtureFactories
+﻿using Bogus;
+
+namespace FixtureBuilder.Bogus.BogusFixtureFactories
 {
     internal interface IBogusProviderBuilder<TReturn>
     {
         #region IBogusProviderBuilder
 
-        //TReturn With<T>(Func<Faker, T> func);
+        TReturn With<T>(Func<Faker, T> func);
 
-        //TReturn With<T>(Func<Faker, T> func, string name);
+        TReturn With<T>(Func<Faker, T> func, string name);
 
-        //TReturn WithParameter<T>(Func<Faker, T> func);
+        TReturn WithParameter<T>(Func<Faker, T> func);
 
-        //TReturn WithParameter<T>(Func<Faker, T> func, string name);
+        TReturn WithParameter<T>(Func<Faker, T> func, string name);
 
-        //TReturn WithPropertyOrField<T>(Func<Faker, T> func);
+        TReturn WithPropertyOrField<T>(Func<Faker, T> func);
 
-        //TReturn WithPropertyOrField<T>(Func<Faker, T> func, string name);
+        TReturn WithPropertyOrField<T>(Func<Faker, T> func, string name);
 
         #endregion
 

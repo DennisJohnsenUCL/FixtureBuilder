@@ -32,6 +32,34 @@ namespace FixtureBuilder.Bogus
             return ((IBogusFixtureConstructor<T>)new BogusFixture<T>(_faker, _factory)).Build();
         }
 
+        #region Faker configuration methods
+
+
+
+        #endregion
+
+        #region Faker provider methods
+
+        public BogusFixtureFactory With<T>(Func<Faker, T> func)
+            => AddWith(f => f.With(() => func(_faker)));
+
+        public BogusFixtureFactory With<T>(Func<Faker, T> func, string name)
+            => AddWith(f => f.With(() => func(_faker), name));
+
+        public BogusFixtureFactory WithParameter<T>(Func<Faker, T> func)
+            => AddWith(f => f.WithParameter(() => func(_faker)));
+
+        public BogusFixtureFactory WithParameter<T>(Func<Faker, T> func, string name)
+            => AddWith(f => f.WithParameter(() => func(_faker), name));
+
+        public BogusFixtureFactory WithPropertyOrField<T>(Func<Faker, T> func)
+            => AddWith(f => f.WithPropertyOrField(() => func(_faker)));
+
+        public BogusFixtureFactory WithPropertyOrField<T>(Func<Faker, T> func, string name)
+            => AddWith(f => f.WithPropertyOrField(() => func(_faker), name));
+
+        #endregion
+
         #region Passthrough configuration methods
 
         public FixtureOptions Options { get => _factory.Options; set { _factory.Options = value; } }
