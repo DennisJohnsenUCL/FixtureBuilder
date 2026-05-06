@@ -34,7 +34,11 @@ namespace FixtureBuilder.Bogus
 
         #region Faker configuration methods
 
-
+        public void AddBogusProvider(IBogusCustomProvider provider)
+        {
+            var adaptedProvider = new BogusCustomProviderAdapter(provider, _faker);
+            _factory.AddProvider(adaptedProvider);
+        }
 
         #endregion
 

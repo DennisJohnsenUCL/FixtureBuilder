@@ -36,7 +36,7 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactoryTests
         [Test]
         public void With_Faker_ProducesUniqueValues()
         {
-            _factory.With<string>(f => f.Name.FirstName());
+            _factory.With(f => f.Name.FirstName());
 
             var result1 = _factory.Build<ConstructorClass>();
             var result2 = _factory.Build<ConstructorClass>();

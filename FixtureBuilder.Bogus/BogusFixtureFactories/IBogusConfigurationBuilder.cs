@@ -7,7 +7,7 @@ namespace FixtureBuilder.Bogus.BogusFixtureFactories
     {
         #region IBogusConfigurationBuilder
 
-        //void AddProvider(IBogusCustomProvider provider);
+        void AddBogusProvider(IBogusCustomProvider provider);
 
         #endregion
 
