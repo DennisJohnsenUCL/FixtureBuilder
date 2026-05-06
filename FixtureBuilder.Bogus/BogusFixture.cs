@@ -7,6 +7,7 @@ namespace FixtureBuilder.Bogus
     internal class BogusFixture<T> : IBogusFixtureConstructor<T>, IBogusFixtureConfigurator<T> where T : class
     {
         private readonly Faker _faker;
+        private readonly FixtureFactory? _factory = null;
 
         private Func<IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
@@ -18,6 +19,12 @@ namespace FixtureBuilder.Bogus
         {
             ArgumentNullException.ThrowIfNull(faker);
             _faker = faker;
+        }
+
+        public BogusFixture(Faker faker, FixtureFactory factory) : this(faker)
+        {
+            ArgumentNullException.ThrowIfNull(factory);
+            _factory = factory;
         }
 
         T IBogusFixtureConfigurator<T>.Build()
@@ -43,7 +50,7 @@ namespace FixtureBuilder.Bogus
         {
             IFixtureConfigurator<T> fixture = _constructionCommand != null
                 ? _constructionCommand()
-                : Fixture.New<T>();
+                : GetFixture();
 
             foreach (var command in _configurationCommands)
             {
@@ -55,7 +62,7 @@ namespace FixtureBuilder.Bogus
 
         private BogusFixture<T> AddConstruction(Func<IFixtureConstructor<T>, IFixtureConfigurator<T>> func)
         {
-            _constructionCommand = () => func(Fixture.New<T>());
+            _constructionCommand = () => func(GetFixture());
             return this;
         }
 
@@ -63,6 +70,13 @@ namespace FixtureBuilder.Bogus
         {
             _configurationCommands.Add(action);
             return this;
+        }
+
+        private IFixtureConstructor<T> GetFixture()
+        {
+            return _factory == null
+                ? Fixture.New<T>()
+                : _factory.New<T>();
         }
 
         #region Faker construction methods

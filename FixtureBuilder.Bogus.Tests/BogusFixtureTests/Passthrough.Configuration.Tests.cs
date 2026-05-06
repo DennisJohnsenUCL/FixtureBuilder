@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
-    internal class PassthroughConfigurationTests
+    internal sealed class PassthroughConfigurationTests
     {
         private class SimpleClass
         {

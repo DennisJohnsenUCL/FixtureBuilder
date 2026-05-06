@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
-    public class PassthroughConstructionTests
+    internal sealed class PassthroughConstructionTests
     {
         private class SimpleClass
         {

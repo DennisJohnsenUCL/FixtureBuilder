@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
-    public class BogusFixtureCustomInstantiatorTests
+    internal sealed class BogusFixtureCustomInstantiatorTests
     {
         private class Person(string name, int age)
         {

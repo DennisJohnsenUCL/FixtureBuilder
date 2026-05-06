@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
-    public class CastToTests
+    internal sealed class CastToTests
     {
         private interface IAnimal
         {

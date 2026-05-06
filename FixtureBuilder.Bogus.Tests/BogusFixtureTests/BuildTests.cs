@@ -1,6 +1,6 @@
 ﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
-    public class BogusFixtureBuildTests
+    internal sealed class BogusFixtureBuildTests
     {
         private class SimpleClass
         {

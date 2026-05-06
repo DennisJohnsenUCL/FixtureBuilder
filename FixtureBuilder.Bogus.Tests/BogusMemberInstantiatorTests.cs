@@ -4,7 +4,7 @@ using Moq;
 
 namespace FixtureBuilder.Bogus.Tests
 {
-    public class BogusMemberInstantiatorTests
+    internal sealed class BogusMemberInstantiatorTests
     {
         public class SimpleClass;
 
