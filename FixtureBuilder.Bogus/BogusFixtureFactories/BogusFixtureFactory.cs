@@ -1,10 +1,11 @@
 ﻿using Bogus;
+using FixtureBuilder.Bogus.BogusFixtureFactories;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
-    public class BogusFixtureFactory
+    public class BogusFixtureFactory : IBogusConfigurationBuilder, IBogusProviderBuilder<BogusFixtureFactory>
     {
         private readonly Faker _faker;
         private readonly FixtureFactory _factory;
@@ -28,5 +29,7 @@ namespace FixtureBuilder.Bogus
         {
             return ((IBogusFixtureConstructor<T>)new BogusFixture<T>(_faker, _factory)).Build();
         }
+
+        //TODO: WhenBuilding
     }
 }
