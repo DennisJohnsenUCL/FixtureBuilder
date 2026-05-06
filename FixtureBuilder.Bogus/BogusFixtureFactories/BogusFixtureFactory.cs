@@ -1,5 +1,7 @@
 ﻿using Bogus;
 using FixtureBuilder.Bogus.BogusFixtureFactories;
+using FixtureBuilder.Core;
+using FixtureBuilder.FixtureFactories;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus
@@ -29,6 +31,30 @@ namespace FixtureBuilder.Bogus
         {
             return ((IBogusFixtureConstructor<T>)new BogusFixture<T>(_faker, _factory)).Build();
         }
+
+        #region Passthrough configuration methods
+
+        public FixtureOptions Options { get => _factory.Options; set { _factory.Options = value; } }
+
+        public void SetOptions(Action<FixtureOptions> optionsAction)
+            => _factory.SetOptions(optionsAction);
+
+        public void AddProvider(ICustomProvider provider)
+            => _factory.AddProvider(provider);
+
+        public void AddConverter(ICustomConverter converter)
+            => _factory.AddConverter(converter);
+
+        public void AddTypeLink<TIn, TOut>()
+            => _factory.AddTypeLink<TIn, TOut>();
+
+        public void AddTypeLink(Type typeIn, Type typeOut)
+            => _factory.AddTypeLink(typeIn, typeOut);
+
+        public void AddTypeLink(ICustomTypeLink typeLink)
+            => _factory.AddTypeLink(typeLink);
+
+        #endregion
 
         //TODO: WhenBuilding
     }

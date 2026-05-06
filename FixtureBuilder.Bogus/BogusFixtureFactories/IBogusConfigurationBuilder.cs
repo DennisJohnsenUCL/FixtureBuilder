@@ -1,4 +1,7 @@
-﻿namespace FixtureBuilder.Bogus.BogusFixtureFactories
+﻿using FixtureBuilder.Core;
+using FixtureBuilder.FixtureFactories;
+
+namespace FixtureBuilder.Bogus.BogusFixtureFactories
 {
     internal interface IBogusConfigurationBuilder
     {
@@ -10,19 +13,19 @@
 
         #region IConfigurationBuilder
 
-        //FixtureOptions Options { set; }
+        FixtureOptions Options { set; }
 
-        //void SetOptions(Action<FixtureOptions> optionsAction);
+        void SetOptions(Action<FixtureOptions> optionsAction);
 
-        //void AddProvider(ICustomProvider provider);
+        void AddProvider(ICustomProvider provider);
 
-        //void AddConverter(ICustomConverter converter);
+        void AddConverter(ICustomConverter converter);
 
-        //void AddTypeLink<TIn, TOut>();
+        void AddTypeLink<TIn, TOut>();
 
-        //void AddTypeLink(Type typeIn, Type typeOut);
+        void AddTypeLink(Type typeIn, Type typeOut);
 
-        //void AddTypeLink(ICustomTypeLink typeLink);
+        void AddTypeLink(ICustomTypeLink typeLink);
 
         #endregion
     }
