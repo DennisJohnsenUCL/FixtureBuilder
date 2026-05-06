@@ -3,11 +3,11 @@ using FixtureBuilder.FixtureFactories;
 
 namespace FixtureBuilder.Bogus.BogusFixtureFactories
 {
-    internal interface IBogusConfigurationBuilder
+    internal interface IBogusConfigurationBuilder<TReturn>
     {
         #region IBogusConfigurationBuilder
 
-        void AddBogusProvider(IBogusCustomProvider provider);
+        TReturn AddBogusProvider(IBogusCustomProvider provider);
 
         #endregion
 
@@ -15,17 +15,17 @@ namespace FixtureBuilder.Bogus.BogusFixtureFactories
 
         FixtureOptions Options { set; }
 
-        void SetOptions(Action<FixtureOptions> optionsAction);
+        TReturn SetOptions(Action<FixtureOptions> optionsAction);
 
-        void AddProvider(ICustomProvider provider);
+        TReturn AddProvider(ICustomProvider provider);
 
-        void AddConverter(ICustomConverter converter);
+        TReturn AddConverter(ICustomConverter converter);
 
-        void AddTypeLink<TIn, TOut>();
+        TReturn AddTypeLink<TIn, TOut>();
 
-        void AddTypeLink(Type typeIn, Type typeOut);
+        TReturn AddTypeLink(Type typeIn, Type typeOut);
 
-        void AddTypeLink(ICustomTypeLink typeLink);
+        TReturn AddTypeLink(ICustomTypeLink typeLink);
 
         #endregion
     }
