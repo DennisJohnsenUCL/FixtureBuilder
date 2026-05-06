@@ -2,22 +2,20 @@
 {
     internal sealed class FixtureFactoryExtensionsTests
     {
-        //TODO: Use .Locale to test against
         [Test]
-        public void WithBogus_ReturnsBogusFixtureFactory()
+        public void WithBogus_DefaultLocale_IsEnglish()
         {
             var factory = FixtureFactory.WithBogus();
 
-            Assert.That(factory, Is.InstanceOf<BogusFixtureFactory>());
+            Assert.That(factory.Locale, Is.EqualTo("en"));
         }
 
-        //TODO: Use .Locale to test against
         [Test]
-        public void WithBogus_WithLocale_ReturnsBogusFixtureFactory()
+        public void WithBogus_WithLocale_UsesLocale()
         {
-            var factory = FixtureFactory.WithBogus("fr");
+            var factory = FixtureFactory.WithBogus("de");
 
-            Assert.That(factory, Is.InstanceOf<BogusFixtureFactory>());
+            Assert.That(factory.Locale, Is.EqualTo("de"));
         }
     }
 

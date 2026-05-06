@@ -7,6 +7,9 @@ namespace FixtureBuilder.Bogus
         private readonly Faker _faker;
         private readonly FixtureFactory _factory;
 
+        public Randomizer Random { get => _faker.Random; set { _faker.Random = value; } }
+        public string Locale { get => _faker.Locale; set { _faker.Locale = value; } }
+
         internal BogusFixtureFactory(Faker faker)
         {
             ArgumentNullException.ThrowIfNull(faker);

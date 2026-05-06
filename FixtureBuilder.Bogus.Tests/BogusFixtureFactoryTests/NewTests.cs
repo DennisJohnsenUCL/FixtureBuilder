@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactoryTests
+﻿using Bogus;
+
+namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactoryTests
 {
     internal sealed class NewTests
     {
@@ -39,6 +41,28 @@
                 Assert.That(result1.Name, Is.EqualTo("First"));
                 Assert.That(result2.Name, Is.EqualTo("Second"));
             }
+        }
+
+        [Test]
+        public void New_SharesLocaleWithFactory()
+        {
+            var factory = FixtureFactory.WithBogus("de");
+
+            var constructor = factory.New<SimpleClass>();
+
+            Assert.That(constructor.Locale, Is.EqualTo(factory.Locale));
+        }
+
+        [Test]
+        public void New_SharesRandomWithFactory()
+        {
+            var factory = FixtureFactory.WithBogus();
+            var randomizer = new Randomizer(42);
+            factory.Random = randomizer;
+
+            var constructor = factory.New<SimpleClass>();
+
+            Assert.That(constructor.Random, Is.SameAs(factory.Random));
         }
     }
 }
