@@ -2,7 +2,7 @@
 using FixtureBuilder.Bogus.BogusFixtureFactories;
 using Moq;
 
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactoryTests
+namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories
 {
     internal sealed class BogusCustomProviderAdapterTests
     {
