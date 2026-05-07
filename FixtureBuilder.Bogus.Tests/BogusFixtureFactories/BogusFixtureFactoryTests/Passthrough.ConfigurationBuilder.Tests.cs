@@ -1,4 +1,6 @@
-﻿using FixtureBuilder.Core;
+﻿#pragma warning disable CS0649
+
+using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories;
 using Moq;
 

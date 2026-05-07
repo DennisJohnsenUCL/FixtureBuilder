@@ -135,6 +135,14 @@ namespace FixtureBuilder.Bogus
 
         #endregion
 
-        //TODO: WhenBuilding
+        public BogusFixtureFactory WhenBuilding<TRoot>(Action<BogusRootConfigurationBuilder<TRoot>> builderAction)
+        {
+            _factory.WhenBuilding<TRoot>(inner =>
+            {
+                var bogusBuilder = new BogusRootConfigurationBuilder<TRoot>(inner, _faker);
+                builderAction(bogusBuilder);
+            });
+            return this;
+        }
     }
 }
