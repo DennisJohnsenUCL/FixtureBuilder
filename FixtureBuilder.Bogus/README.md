@@ -106,21 +106,79 @@ The returned collection is stable — re-enumerating it returns the same instanc
 
 ## Locale and Seed
 
-Set the locale via the `WithBogus` overload, and the seed via the `Random` property:
+Set the locale via the `WithBogus` overload, and the seed via the `Random` property. These are available on both `IBogusFixtureConstructor<T>` and `BogusFixtureFactory`.
 
 ```csharp
-// German locale
+// German locale — single fixture
 var bogus = Fixture.WithBogus<User>("de");
+
+// German locale — factory
+var factory = FixtureFactory.WithBogus("de");
 
 // Deterministic seed for repeatable test data
 bogus.Random = new Randomizer(42);
-
-var user = bogus
-    .With(u => u.Name, f => f.Name.FirstName())
-    .Build();
 ```
 
-Both `Locale` and `Random` are available on `IBogusFixtureConstructor<T>` before a construction method is called.
+
+## BogusFixtureFactory
+
+`BogusFixtureFactory` is the Bogus-integrated counterpart to `FixtureFactory`. It wraps an inner `FixtureFactory`, adding Faker-accepting overloads to the registration methods. Create one via the `FixtureFactory.WithBogus()` extension method.
+
+### Basic Usage
+
+```csharp
+var factory = FixtureFactory.WithBogus();
+var user = factory.New<User>().UseAutoConstructor().Build();
+```
+
+### Pre-Configured Values
+
+All `With`, `WithParameter`, and `WithPropertyOrField` methods have Faker overloads alongside the standard value and func overloads:
+
+```csharp
+var factory = FixtureFactory.WithBogus()
+    .With<string>(f => f.Name.FirstName())
+    .With<string>(f => f.Name.FirstName(), "name")
+    .WithParameter<int>(f => f.Random.Int(18, 65))
+    .WithPropertyOrField<string>(f => f.Internet.Email(), "Email");
+
+var user = factory.New<User>().UseAutoConstructor().Build();
+```
+
+### Scoped Configuration
+
+Use `WhenBuilding` to scope registrations to a specific type, with full access to Faker overloads inside the builder:
+
+```csharp
+var factory = FixtureFactory.WithBogus()
+    .WhenBuilding<User>(b => b
+        .With<string>(f => f.Name.FirstName(), "name")
+        .WithParameter<int>(f => f.Random.Int(18, 65), "age"))
+    .WhenBuilding<Company>(b => b
+        .With<string>(f => f.Company.CompanyName(), "name"));
+
+var user = factory.New<User>().UseAutoConstructor().Build();
+var company = factory.New<Company>().UseAutoConstructor().Build();
+```
+
+### Options
+
+Configure options the same way as `FixtureFactory`:
+
+```csharp
+factory.Options = new FixtureOptions { AllowPrivateConstructors = true };
+factory.SetOptions(o => o.AllowPrivateConstructors = true);
+```
+
+### Extensibility
+
+In addition to the standard `AddProvider`, `AddConverter`, and `AddTypeLink` methods, `BogusFixtureFactory` adds `AddBogusProvider` for registering providers that receive a Faker instance:
+
+```csharp
+factory.AddBogusProvider(myBogusProvider);
+```
+
+Custom Bogus providers implement `IBogusCustomProvider`. Standard `ICustomProvider`, `ICustomConverter`, and `ICustomTypeLink` registrations are also available.
 
 
 ## MemberLens
