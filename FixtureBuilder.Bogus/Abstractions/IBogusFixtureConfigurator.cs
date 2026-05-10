@@ -3,7 +3,9 @@ using Bogus;
 using FixtureBuilder.Core;
 using MemberLens.Attributes;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Provides configuration methods for a Bogus-integrated fixture of type <typeparamref name="T"/>.
