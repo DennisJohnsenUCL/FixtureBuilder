@@ -45,6 +45,18 @@ namespace FixtureBuilder.Bogus
         }
 
         /// <summary>
+        /// Creates a new Bogus-integrated fixture configurator for type <typeparamref name="T"/> using an existing instance.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
+        /// <param name="instance">The instance to be used for configuration. Cannot be <see langword="null"/>.</param>
+        /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for configuring the specified object.</returns>
+        public IBogusFixtureConfigurator<T> New<T>(T instance) where T : class
+        {
+            ArgumentNullException.ThrowIfNull(instance);
+            return new BogusFixture<T>(_faker, _factory, instance);
+        }
+
+        /// <summary>
         /// Creates and returns an instance of <typeparamref name="T"/> using the <see cref="FixtureOptions.DefaultInstantiationMethod"/> with no additional configuration.
         /// </summary>
         /// <typeparam name="T">The type of the object to build. Must be a reference type.</typeparam>

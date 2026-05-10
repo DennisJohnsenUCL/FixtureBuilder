@@ -16,6 +16,16 @@ namespace FixtureBuilder.Bogus
         #region IBogusFixtureConfigurator
 
         /// <summary>
+        /// Gets or sets the randomizer used for data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
+        /// </summary>
+        public Randomizer Random { get; set; }
+
+        /// <summary>
+        /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
+        /// </summary>
+        public string Locale { get; set; }
+
+        /// <summary>
         /// Instantiates the specified property or field using a caller-defined instantiation strategy with access to a <see cref="Faker"/>-integrated constructor.
         /// </summary>
         /// <param name="expr">An expression identifying the property or field to instantiate. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>

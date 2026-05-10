@@ -8,6 +8,7 @@ namespace FixtureBuilder.Bogus
     {
         private readonly Faker _faker;
         private readonly FixtureFactory? _factory = null;
+        private readonly T? _instance = null;
 
         private Func<IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
@@ -27,6 +28,17 @@ namespace FixtureBuilder.Bogus
             _factory = factory;
         }
 
+        public BogusFixture(Faker faker, T instance) : this(faker)
+        {
+            ArgumentNullException.ThrowIfNull(instance);
+            _instance = instance;
+        }
+
+        public BogusFixture(Faker faker, FixtureFactory factory, T instance) : this(faker, factory)
+        {
+            _instance = instance;
+        }
+
         T IBogusFixtureConfigurator<T>.Build()
         {
             return ((IBogusFixtureConfigurator<T>)this).Build(1).First();
@@ -34,6 +46,7 @@ namespace FixtureBuilder.Bogus
 
         IEnumerable<T> IBogusFixtureConfigurator<T>.Build(int count)
         {
+            if (_instance != null && count != 1) throw new InvalidOperationException($"Cannot build multiple Fixtures when given an instance to build from as this would require several copies of the initial object.");
             if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count), count, "Can only build positive numbers of objects.");
 
             var fixtures = new List<T>();
@@ -50,7 +63,7 @@ namespace FixtureBuilder.Bogus
         {
             IFixtureConfigurator<T> fixture = _constructionCommand != null
                 ? _constructionCommand()
-                : GetFixture();
+                : GetFixtureConfigurator();
 
             foreach (var command in _configurationCommands)
             {
@@ -62,7 +75,7 @@ namespace FixtureBuilder.Bogus
 
         private BogusFixture<T> AddConstruction(Func<IFixtureConstructor<T>, IFixtureConfigurator<T>> func)
         {
-            _constructionCommand = () => func(GetFixture());
+            _constructionCommand = () => func(GetFixtureConstructor());
             return this;
         }
 
@@ -72,11 +85,23 @@ namespace FixtureBuilder.Bogus
             return this;
         }
 
-        private IFixtureConstructor<T> GetFixture()
+        private IFixtureConstructor<T> GetFixtureConstructor()
         {
             return _factory == null
                 ? Fixture.New<T>()
                 : _factory.New<T>();
+        }
+
+        private IFixtureConfigurator<T> GetFixtureConfigurator()
+        {
+            if (_instance != null)
+            {
+                return _factory == null
+                    ? Fixture.New(_instance)
+                    : _factory.New(_instance);
+            }
+
+            return GetFixtureConstructor();
         }
 
         #region Faker construction methods

@@ -14,16 +14,6 @@ namespace FixtureBuilder.Bogus
         #region IBogusFixtureConstructor
 
         /// <summary>
-        /// Gets or sets the randomizer used for data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
-        /// </summary>
-        public Randomizer Random { get; set; }
-
-        /// <summary>
-        /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
-        /// </summary>
-        public string Locale { get; set; }
-
-        /// <summary>
         /// Creates an instance using a constructor whose arguments are resolved via a <see cref="Faker"/> lambda.
         /// </summary>
         /// <param name="args">A function that receives a <see cref="Faker"/> and returns the arguments to pass to the constructor.</param>
