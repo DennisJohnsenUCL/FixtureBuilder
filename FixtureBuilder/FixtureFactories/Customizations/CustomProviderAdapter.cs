@@ -2,7 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
-namespace FixtureBuilder.FixtureFactories
+namespace FixtureBuilder.FixtureFactories.Customizations
 {
     internal class CustomProviderAdapter : IValueProvider
     {

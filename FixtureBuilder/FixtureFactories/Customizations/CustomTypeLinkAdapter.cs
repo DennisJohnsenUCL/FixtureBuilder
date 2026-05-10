@@ -1,7 +1,7 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
 
-namespace FixtureBuilder.FixtureFactories
+namespace FixtureBuilder.FixtureFactories.Customizations
 {
     internal class CustomTypeLinkAdapter : ITypeLink
     {

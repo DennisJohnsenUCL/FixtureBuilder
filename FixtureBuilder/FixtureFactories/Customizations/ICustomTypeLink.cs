@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.FixtureFactories
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace FixtureBuilder.FixtureFactories
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Defines a custom type substitution rule for the value resolution pipeline.
