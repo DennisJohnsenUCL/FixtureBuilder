@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  pack:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       checks: write
