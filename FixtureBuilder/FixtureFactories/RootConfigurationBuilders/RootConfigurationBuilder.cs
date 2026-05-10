@@ -10,7 +10,7 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
     /// Configures options, value providers, converters, type links, and value registrations scoped to fixtures of type <typeparamref name="TRoot"/>. Obtained via <see cref="FixtureFactory.WhenBuilding{TRoot}"/>.
     /// </summary>
     /// <typeparam name="TRoot">The fixture type this configuration applies to.</typeparam>
-    public sealed class RootConfigurationBuilder<TRoot> : IConfigurationBuilder<RootConfigurationBuilder<TRoot>>
+    public sealed class RootConfigurationBuilder<TRoot> : IConfigurationBuilder<RootConfigurationBuilder<TRoot>>, IProviderBuilder<RootConfigurationBuilder<TRoot>>
     {
         private readonly IFixtureContext _context;
 
@@ -26,48 +26,52 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
         }
 
         /// <inheritdoc />
-        public void SetOptions(Action<FixtureOptions> optionsAction)
+        public RootConfigurationBuilder<TRoot> SetOptions(Action<FixtureOptions> optionsAction)
         {
             var options = _context.GetBaseOptions().Clone();
             optionsAction(options);
             _context.AddRootOptions(typeof(TRoot), options);
+            return this;
         }
 
         /// <inheritdoc />
-        public void AddProvider(ICustomProvider provider)
+        public RootConfigurationBuilder<TRoot> AddProvider(ICustomProvider provider)
         {
             var adaptedProvider = new CustomProviderAdapter(provider);
             var decoratedRootProvider = new RootProviderDecorator(adaptedProvider, typeof(TRoot));
             _context.ValueProvider.AddProvider(decoratedRootProvider);
+            return this;
         }
 
         /// <inheritdoc />
-        public void AddConverter(ICustomConverter converter)
+        public RootConfigurationBuilder<TRoot> AddConverter(ICustomConverter converter)
         {
             var adaptedConverter = new CustomConverterAdapter(converter);
             var decoratedRootConverter = new RootConverterDecorator(adaptedConverter, typeof(TRoot));
             _context.Converter.Composite.AddConverter(decoratedRootConverter);
+            return this;
         }
 
         /// <inheritdoc />
-        public void AddTypeLink<TIn, TOut>()
+        public RootConfigurationBuilder<TRoot> AddTypeLink<TIn, TOut>()
             => AddTypeLink(typeof(TIn), typeof(TOut));
 
         /// <inheritdoc />
-        public void AddTypeLink(Type typeIn, Type typeOut)
+        public RootConfigurationBuilder<TRoot> AddTypeLink(Type typeIn, Type typeOut)
             => AddTypeLink(new TypeLink(typeIn, typeOut));
 
         /// <inheritdoc />
-        public void AddTypeLink(ICustomTypeLink typeLink)
+        public RootConfigurationBuilder<TRoot> AddTypeLink(ICustomTypeLink typeLink)
         {
             var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
-            AddTypeLink(adaptedTypeLink);
+            return AddTypeLink(adaptedTypeLink);
         }
 
-        private void AddTypeLink(ITypeLink typeLink)
+        private RootConfigurationBuilder<TRoot> AddTypeLink(ITypeLink typeLink)
         {
             var rootTypeLink = new RootTypeLinkDecorator(typeLink, typeof(TRoot));
             _context.TypeLink.AddTypeLink(rootTypeLink);
+            return this;
         }
 
         private RootConfigurationBuilder<TRoot> Add(MatchingProvider provider)

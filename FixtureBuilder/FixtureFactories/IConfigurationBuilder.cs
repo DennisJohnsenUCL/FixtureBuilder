@@ -7,7 +7,7 @@ namespace FixtureBuilder.FixtureFactories
     /// Provides registration methods for options, type links, value providers, and value converters within a configuration scope.
     /// </summary>
     /// <typeparam name="TReturn">The return type for fluent chaining from inherited <see cref="IProviderBuilder{TReturn}"/> methods.</typeparam>
-    internal interface IConfigurationBuilder<TReturn> : IProviderBuilder<TReturn>
+    internal interface IConfigurationBuilder<TReturn>
     {
         /// <summary>
         /// Sets the options for this configuration scope.
@@ -17,7 +17,7 @@ namespace FixtureBuilder.FixtureFactories
         /// <summary>
         /// Configures the options for this configuration scope via a mutating action.
         /// </summary>
-        void SetOptions(Action<FixtureOptions> optionsAction);
+        TReturn SetOptions(Action<FixtureOptions> optionsAction);
 
         /// <summary>
         /// Registers a custom provider for value resolution.
@@ -25,7 +25,7 @@ namespace FixtureBuilder.FixtureFactories
         /// <remarks>
         /// The provider must return <c>new NoResult()</c> for requests it does not handle. A <c>null</c> return is treated as an explicit null assignment.
         /// </remarks>
-        void AddProvider(ICustomProvider provider);
+        TReturn AddProvider(ICustomProvider provider);
 
         /// <summary>
         /// Registers a custom converter for backing field assignment when the field type differs from the property type.
@@ -33,21 +33,21 @@ namespace FixtureBuilder.FixtureFactories
         /// <remarks>
         /// The converter must return <c>new NoResult()</c> for conversions it does not handle. A <c>null</c> return is treated as an explicit null assignment.
         /// </remarks>
-        void AddConverter(ICustomConverter converter);
+        TReturn AddConverter(ICustomConverter converter);
 
         /// <summary>
         /// Registers a type link that substitutes <typeparamref name="TIn"/> with <typeparamref name="TOut"/> during value resolution.
         /// </summary>
-        void AddTypeLink<TIn, TOut>();
+        TReturn AddTypeLink<TIn, TOut>();
 
         /// <summary>
         /// Registers a type link that substitutes <paramref name="typeIn"/> with <paramref name="typeOut"/> during value resolution.
         /// </summary>
-        void AddTypeLink(Type typeIn, Type typeOut);
+        TReturn AddTypeLink(Type typeIn, Type typeOut);
 
         /// <summary>
         /// Registers a custom type link for type substitution during value resolution.
         /// </summary>
-        void AddTypeLink(ICustomTypeLink typeLink);
+        TReturn AddTypeLink(ICustomTypeLink typeLink);
     }
 }

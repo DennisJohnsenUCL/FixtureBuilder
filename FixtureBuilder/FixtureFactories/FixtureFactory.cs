@@ -15,7 +15,7 @@ namespace FixtureBuilder
     /// converters, and default values — and produce consistently configured fixtures from it.
     /// Use <see cref="WhenBuilding{TRoot}"/> to scope registrations to a specific fixture type.
     /// </summary>
-    public sealed class FixtureFactory : IConfigurationBuilder<FixtureFactory>
+    public sealed class FixtureFactory : IConfigurationBuilder<FixtureFactory>, IProviderBuilder<FixtureFactory>
     {
         private readonly IFixtureContext _context;
         private readonly MatchingProviderBuilder _providerBuilder;
@@ -73,47 +73,51 @@ namespace FixtureBuilder
         }
 
         /// <inheritdoc/>
-        public void SetOptions(Action<FixtureOptions> action)
+        public FixtureFactory SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);
             _context.SetOptions(action);
+            return this;
         }
 
         #region Add methods
 
         /// <inheritdoc/>
-        public void AddTypeLink<TIn, TOut>()
+        public FixtureFactory AddTypeLink<TIn, TOut>()
             => AddTypeLink(typeof(TIn), typeof(TOut));
 
         /// <inheritdoc/>
-        public void AddTypeLink(Type typeIn, Type typeOut)
+        public FixtureFactory AddTypeLink(Type typeIn, Type typeOut)
             => AddTypeLink(new TypeLink(typeIn, typeOut));
 
         /// <inheritdoc/>
-        public void AddTypeLink(ICustomTypeLink typeLink)
+        public FixtureFactory AddTypeLink(ICustomTypeLink typeLink)
         {
             var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
-            AddTypeLink(adaptedTypeLink);
+            return AddTypeLink(adaptedTypeLink);
         }
 
         /// <inheritdoc/>
-        private void AddTypeLink(ITypeLink typeLink)
+        private FixtureFactory AddTypeLink(ITypeLink typeLink)
         {
             _context.TypeLink.AddTypeLink(typeLink);
+            return this;
         }
 
         /// <inheritdoc/>
-        public void AddProvider(ICustomProvider provider)
+        public FixtureFactory AddProvider(ICustomProvider provider)
         {
             var adaptedProvider = new CustomProviderAdapter(provider);
             _context.ValueProvider.AddProvider(adaptedProvider);
+            return this;
         }
 
         /// <inheritdoc/>
-        public void AddConverter(ICustomConverter converter)
+        public FixtureFactory AddConverter(ICustomConverter converter)
         {
             var adaptedConverter = new CustomConverterAdapter(converter);
             _context.Converter.Composite.AddConverter(adaptedConverter);
+            return this;
         }
 
         #endregion
