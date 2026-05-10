@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using FixtureBuilder.Core;
 
-namespace FixtureBuilder.Bogus.BogusFixtureFactories
+namespace FixtureBuilder.Bogus.BogusFixtureFactories.Customizations
 {
     internal class BogusCustomProviderAdapter : ICustomProvider
     {

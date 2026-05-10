@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using FixtureBuilder.Bogus.BogusFixtureFactories;
+using FixtureBuilder.Bogus.BogusFixtureFactories.Customizations;
 using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories;
 
