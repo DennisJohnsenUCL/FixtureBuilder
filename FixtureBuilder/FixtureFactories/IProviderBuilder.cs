@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.FixtureFactories.WithMatching
+﻿namespace FixtureBuilder.FixtureFactories
 {
     /// <summary>
     /// Provides fluent methods for registering values and factory functions to be used during value resolution, scoped by member kind and name.

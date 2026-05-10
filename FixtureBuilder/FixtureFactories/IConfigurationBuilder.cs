@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories.WithMatching;
 
 namespace FixtureBuilder.FixtureFactories
 {
