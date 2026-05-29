@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Creation.UninitializedProviders
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace FixtureBuilder
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Specifies the configuration for automatically initializing uninitialized members of a created fixture when calling .CreateUninitialized.
