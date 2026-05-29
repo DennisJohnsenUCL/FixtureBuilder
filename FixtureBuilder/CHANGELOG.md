@@ -1,3 +1,13 @@
+#### 2.0.0
+
+- Added new FixtureOption DefaultInstantiationMethod which, if set, will override other InstantiationMethod options (fixture, chain, .Instantiate)
+  - Old DefaultInstantiationMethod option has been renamed to DefaultFixtureInstantiationMethod.
+- RootConfigurationBuilder methods now always return the builder so method calls inside .WhenBuilding() lambda can be chained.
+- Breaking change: Moved ICustomTypeLink to FixtureBuilder.Core namespace.
+- Breaking change: Moved InstantiationMethod enum to FixtureBuilder.Core namespace.
+- Breaking change: Moved InitializeMembers to FixtureBuilder namespace.
+- Moved RootConfigurationBuilder to FixtureBuilder namespace.
+
 #### 1.4.0
 
 - Added construction method UseCustomInstantiator
