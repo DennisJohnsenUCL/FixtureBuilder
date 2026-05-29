@@ -1,11 +1,15 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories;
 using FixtureBuilder.FixtureFactories.Customizations;
+using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 
-namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace FixtureBuilder
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Configures options, value providers, converters, type links, and value registrations scoped to fixtures of type <typeparamref name="TRoot"/>. Obtained via <see cref="FixtureFactory.WhenBuilding{TRoot}"/>.
