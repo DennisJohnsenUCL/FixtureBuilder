@@ -1,3 +1,10 @@
+#### 1.2.0
+
+- Updated FixtureBuilder to 2.0.0.
+- Added Fixture.WithBogus\<T>(T instance) method.
+  - This method takes an object and configures it using the IBogusFixtureConfigurator.
+  - An exception will be thrown if .Build(int count) is called with any count other than 1.
+
 #### 1.1.0
 
 - Added BogusFixtureFactory with methods like .New<>() and .Build() to produce BogusFixture instances. Features include:
