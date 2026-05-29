@@ -9,8 +9,6 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class ResolveDataMemberInstanceTests
     {
-        private readonly ExpressionResolver _sut = new(typeof(object));
-
         private class Root
         {
             public Child Child { get; set; } = null!;
@@ -21,22 +19,27 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             public int Value { get; set; }
         }
 
+        private static ExpressionResolver CreateSut(IFixtureContext context, Type? rootType = null) =>
+            new(rootType ?? typeof(object), context);
+
         [Test]
         public void NullRoot_ThrowsArgumentException()
         {
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
             Assert.Throws<ArgumentException>(
-                () => _sut.ResolveDataMemberInstance<Root, int>(null!, expr, Mock.Of<IFixtureContext>()));
+                () => sut.ResolveDataMemberInstance<Root, int>(null!, expr));
         }
 
         [Test]
         public void ReturnedInstanceIsFinalMemberValue()
         {
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
             var root = new Root { Child = new Child { Value = 42 } };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
-            var (instance, dataMember) = _sut.ResolveDataMemberInstance(root, expr, Mock.Of<IFixtureContext>());
+            var (instance, dataMember) = sut.ResolveDataMemberInstance(root, expr);
 
             using (Assert.EnterMultipleScope())
             {
@@ -58,8 +61,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedChild);
+            var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = _sut.ResolveDataMemberInstance(root, expr, context.Object);
+            var (instance, dataMember) = sut.ResolveDataMemberInstance(root, expr);
 
             using (Assert.EnterMultipleScope())
             {

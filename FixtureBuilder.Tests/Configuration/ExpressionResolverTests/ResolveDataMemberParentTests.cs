@@ -7,8 +7,6 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class ResolveDataMemberParentTests
     {
-        private readonly ExpressionResolver _sut = new(typeof(object));
-
         private class Root
         {
             public Child Child { get; set; } = null!;
@@ -19,22 +17,27 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             public int Value { get; set; }
         }
 
+        private static ExpressionResolver CreateSut(IFixtureContext context, Type? rootType = null) =>
+            new(rootType ?? typeof(object), context);
+
         [Test]
         public void NullRoot_ThrowsArgumentException()
         {
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
             Assert.Throws<ArgumentException>(
-                () => _sut.ResolveDataMemberParent<Root, int>(null!, expr, Mock.Of<IFixtureContext>()));
+                () => sut.ResolveDataMemberParent<Root, int>(null!, expr));
         }
 
         [Test]
         public void DoesNotInitializeFinalMember()
         {
+            var sut = CreateSut(new Mock<IFixtureContext>().Object);
             var root = new Root { Child = new Child() };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
-            var (instance, dataMember) = _sut.ResolveDataMemberParent(root, expr, new Mock<IFixtureContext>().Object);
+            var (instance, dataMember) = sut.ResolveDataMemberParent(root, expr);
 
             using (Assert.EnterMultipleScope())
             {

@@ -2,6 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
+using FixtureBuilder.FixtureFactories.Customizations;
 using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 

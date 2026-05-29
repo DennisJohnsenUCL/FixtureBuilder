@@ -1,6 +1,7 @@
 ﻿using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.FixtureFactories.Customizations;
 using FixtureBuilder.FixtureFactories.WithMatching;
 using FixtureBuilder.FixtureFactories.WithMatching.WithRules;
 

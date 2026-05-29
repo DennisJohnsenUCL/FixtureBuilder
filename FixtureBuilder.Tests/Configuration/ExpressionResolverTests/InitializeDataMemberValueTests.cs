@@ -10,8 +10,6 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class InitializeDataMemberValueTests
     {
-        private readonly ExpressionResolver _sut = new(typeof(object));
-
         private class Parent
         {
             public Child Child { get; set; } = null!;
@@ -50,14 +48,18 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(result!);
         }
 
+        private static ExpressionResolver CreateSut(IFixtureContext context, Type? rootType = null) =>
+            new(rootType ?? typeof(object), context);
+
         // --- Already set ---
 
         [Test]
         public void PropertyAlreadySet_ReturnsExistingValue()
         {
             var parent = new Parent();
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
 
-            var result = _sut.InitializeDataMemberValue(parent, Property(nameof(Parent.PrePopulated)), Mock.Of<IFixtureContext>());
+            var result = sut.InitializeDataMemberValue(parent, Property(nameof(Parent.PrePopulated)));
 
             Assert.That(result, Is.SameAs(parent.PrePopulated));
         }
@@ -66,8 +68,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         public void FieldAlreadySet_ReturnsExistingValue()
         {
             var parent = new Parent();
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
 
-            var result = _sut.InitializeDataMemberValue(parent, Field(nameof(Parent.PrePopulatedField)), Mock.Of<IFixtureContext>());
+            var result = sut.InitializeDataMemberValue(parent, Field(nameof(Parent.PrePopulatedField)));
 
             Assert.That(result, Is.SameAs(parent.PrePopulatedField));
         }
@@ -76,8 +79,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         public void PropertyAlreadySet_DoesNotCallContext()
         {
             var context = new Mock<IFixtureContext>();
+            var sut = CreateSut(context.Object);
 
-            _sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.PrePopulated)), context.Object);
+            sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.PrePopulated)));
 
             context.VerifyNoOtherCalls();
         }
@@ -86,8 +90,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         public void FieldAlreadySet_DoesNotCallContext()
         {
             var context = new Mock<IFixtureContext>();
+            var sut = CreateSut(context.Object);
 
-            _sut.InitializeDataMemberValue(new Parent(), Field(nameof(Parent.PrePopulatedField)), context.Object);
+            sut.InitializeDataMemberValue(new Parent(), Field(nameof(Parent.PrePopulatedField)));
 
             context.VerifyNoOtherCalls();
         }
@@ -101,8 +106,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var resolved = new Child { Age = 10 };
             var context = MockContext();
             SetupProvide(context, resolved);
+            var sut = CreateSut(context.Object);
 
-            var result = _sut.InitializeDataMemberValue(parent, Property(nameof(Parent.Child)), context.Object);
+            var result = sut.InitializeDataMemberValue(parent, Property(nameof(Parent.Child)));
 
             using (Assert.EnterMultipleScope())
             {
@@ -118,8 +124,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var resolved = new Child { Age = 20 };
             var context = MockContext();
             SetupProvide(context, resolved);
+            var sut = CreateSut(context.Object);
 
-            var result = _sut.InitializeDataMemberValue(parent, Field(nameof(Parent.ChildField)), context.Object);
+            var result = sut.InitializeDataMemberValue(parent, Field(nameof(Parent.ChildField)));
 
             using (Assert.EnterMultipleScope())
             {
@@ -134,18 +141,20 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         public void NullWritableProperty_MemberInstantiationNotAllowed_ThrowsException()
         {
             var context = MockContext(allowInstantiate: false);
+            var sut = CreateSut(context.Object);
 
             Assert.Throws<InvalidOperationException>(
-                () => _sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child)), context.Object));
+                () => sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child))));
         }
 
         [Test]
         public void NullWritableField_MemberInstantiationNotAllowed_ThrowsException()
         {
             var context = MockContext(allowInstantiate: false);
+            var sut = CreateSut(context.Object);
 
             Assert.Throws<InvalidOperationException>(
-                () => _sut.InitializeDataMemberValue(new Parent(), Field(nameof(Parent.ChildField)), context.Object));
+                () => sut.InitializeDataMemberValue(new Parent(), Field(nameof(Parent.ChildField))));
         }
 
         // --- Invalid property accessors ---
@@ -153,15 +162,19 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         [Test]
         public void NullReadOnlyProperty_ThrowsInvalidOperationException()
         {
+            var sut = CreateSut(MockContext().Object);
+
             Assert.Throws<InvalidOperationException>(
-                () => _sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.ReadOnly)), MockContext().Object));
+                () => sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.ReadOnly))));
         }
 
         [Test]
         public void WriteOnlyProperty_ThrowsInvalidOperationException()
         {
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
             Assert.Throws<InvalidOperationException>(
-                () => _sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.WriteOnly)), Mock.Of<IFixtureContext>()));
+                () => sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.WriteOnly))));
         }
 
         // --- Provider returns null ---
@@ -171,9 +184,10 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         {
             var context = MockContext();
             SetupProvide(context, null);
+            var sut = CreateSut(context.Object);
 
             Assert.Throws<InvalidOperationException>(
-                () => _sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child)), context.Object));
+                () => sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child))));
         }
 
         [Test]
@@ -181,9 +195,10 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         {
             var context = MockContext();
             SetupProvide(context, null);
+            var sut = CreateSut(context.Object);
 
             Assert.Throws<InvalidOperationException>(
-                () => _sut.InitializeDataMemberValue(new Parent(), Field(nameof(Parent.ChildField)), context.Object));
+                () => sut.InitializeDataMemberValue(new Parent(), Field(nameof(Parent.ChildField))));
         }
 
         // --- Root type ---
@@ -191,11 +206,11 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         [Test]
         public void NullWritableProperty_PassesRootTypeToFixtureRequest()
         {
-            var sut = new ExpressionResolver(typeof(Parent));
             var context = MockContext();
             SetupProvide(context, new Child());
+            var sut = CreateSut(context.Object, rootType: typeof(Parent));
 
-            sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child)), context.Object);
+            sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child)));
 
             context.Verify(c => c.ProvideWithStrategy(
                 It.Is<FixtureRequest>(r => r.RootType == typeof(Parent)),

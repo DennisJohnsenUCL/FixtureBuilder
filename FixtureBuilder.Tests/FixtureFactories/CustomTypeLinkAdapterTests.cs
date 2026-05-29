@@ -1,5 +1,6 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.FixtureFactories;
+using FixtureBuilder.FixtureFactories.Customizations;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories

@@ -11,8 +11,6 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 {
     internal sealed class ResolveMethodParentTests
     {
-        private readonly ExpressionResolver _sut = new(typeof(object));
-
         private class Root
         {
             public Child Child { get; set; } = null!;
@@ -25,13 +23,17 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             public void DoWork() { }
         }
 
+        private static ExpressionResolver CreateSut(IFixtureContext context, Type? rootType = null) =>
+            new(rootType ?? typeof(object), context);
+
         [Test]
         public void NullRoot_ThrowsArgumentException()
         {
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
             Expression<Action<Root>> expr = x => x.RootMethod();
 
             Assert.Throws<ArgumentException>(
-                () => _sut.ResolveMethodParent<Root>(null!, expr, Mock.Of<IFixtureContext>()));
+                () => sut.ResolveMethodParent<Root>(null!, expr));
         }
 
         [Test]
@@ -39,8 +41,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         {
             Expression<Action<Root>> expr = x => x.RootMethod();
             var context = new Mock<IFixtureContext>();
+            var sut = CreateSut(context.Object);
 
-            _sut.ResolveMethodParent(new Root(), expr, context.Object);
+            sut.ResolveMethodParent(new Root(), expr);
 
             context.VerifyNoOtherCalls();
         }
@@ -58,8 +61,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                     It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(resolvedChild);
+            var sut = CreateSut(context.Object);
 
-            _sut.ResolveMethodParent(root, expr, context.Object);
+            sut.ResolveMethodParent(root, expr);
 
             Assert.That(root.Child, Is.SameAs(resolvedChild));
         }
@@ -71,8 +75,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var root = new Root { Child = existingChild };
             Expression<Action<Root>> expr = x => x.Child.DoWork();
             var context = new Mock<IFixtureContext>();
+            var sut = CreateSut(context.Object);
 
-            _sut.ResolveMethodParent(root, expr, context.Object);
+            sut.ResolveMethodParent(root, expr);
 
             Assert.That(root.Child, Is.SameAs(existingChild));
             context.VerifyNoOtherCalls();
