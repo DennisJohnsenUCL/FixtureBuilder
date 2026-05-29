@@ -3,7 +3,6 @@ using System.Reflection;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
 using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder
@@ -277,7 +276,7 @@ namespace FixtureBuilder
 
             var request = new FixtureRequest(typeof(T));
 
-            return (T)_context.InstantiateWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultInstantiationMethod, _context.OptionsFor(typeof(T)).DefaultInitializeMembers);
+            return (T)_context.InstantiateWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultFixtureInstantiationMethod, _context.OptionsFor(typeof(T)).DefaultInitializeMembers);
         }
 
         private static IFixtureContext InitializeContext()

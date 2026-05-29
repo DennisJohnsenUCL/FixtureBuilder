@@ -1,7 +1,4 @@
-﻿using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
-
-namespace FixtureBuilder.Core
+﻿namespace FixtureBuilder.Core
 {
     /// <summary>
     /// Configuration options that control fixture construction and member resolution behavior.
@@ -84,13 +81,24 @@ namespace FixtureBuilder.Core
         public bool AllowInstantiateNestedMembers { get; set; } = true;
 
         /// <summary>
+        /// When set, overrides <see cref="DefaultFixtureInstantiationMethod"/>,
+        /// <see cref="NestedMemberInstantiationMethod"/>, and <see cref="DefaultInstantiateInstantiationMethod"/>.
+        /// </summary>
+        /// <remarks>
+        /// Default is <see langword="null" />
+        /// <br /><br />When <see langword="null"/>, each instantiation method property uses its own default value.
+        /// When set, all three properties return this value instead.
+        /// </remarks>
+        public InstantiationMethod? DefaultInstantiationMethod { get; set; } = null;
+
+        /// <summary>
         /// Which instantiation method will be used to instantiate the fixture if none is explicitly chosen.
         /// </summary>
         /// <remarks>
         /// Default is <see cref="InstantiationMethod.UseAutoConstructor" />
         /// <br /><br />This is triggered when the construction stage is skipped (<c>Fixture.New&lt;T&gt;().WithSetter(..)</c>).
         /// </remarks>
-        public InstantiationMethod DefaultInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
+        public InstantiationMethod DefaultFixtureInstantiationMethod { get => DefaultInstantiationMethod ?? field; set; } = InstantiationMethod.UseAutoConstructor;
 
         /// <summary>
         /// Which instantiation method will be used to instantiate nested members when traversing a member chain.
@@ -100,7 +108,7 @@ namespace FixtureBuilder.Core
         /// <br /><br />This is triggered when a null member is encountered when traversing a member chain (<c>x => x.Child.GrandChild</c>).
         /// <br />This option only applies when <see cref="AllowInstantiateNestedMembers"/> is set to true, otherwise an exception will be thrown.
         /// </remarks>
-        public InstantiationMethod NestedMemberInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
+        public InstantiationMethod NestedMemberInstantiationMethod { get => DefaultInstantiationMethod ?? field; set; } = InstantiationMethod.UseAutoConstructor;
 
         /// <summary>
         /// Whether the construction stage can be skipped, instead using the <see cref="DefaultInstantiationMethod"/>
@@ -118,7 +126,7 @@ namespace FixtureBuilder.Core
         /// Default is <see cref="InstantiationMethod.UseAutoConstructor" />
         /// <br /><br />This is triggered when Instantiate is called without specifying an explicit instantiation method. (<c>fixture.Instantiate(x => x.Name)</c>).
         /// </remarks>
-        public InstantiationMethod DefaultInstantiateInstantiationMethod { get; set; } = InstantiationMethod.UseAutoConstructor;
+        public InstantiationMethod DefaultInstantiateInstantiationMethod { get => DefaultInstantiationMethod ?? field; set; } = InstantiationMethod.UseAutoConstructor;
 
         /// <summary>
         /// Whether UseAutoConstructor and CreateUninitialized will attempt to resolve circular dependencies.
