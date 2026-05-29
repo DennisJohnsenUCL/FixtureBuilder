@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Core.FixtureContexts
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace FixtureBuilder.Core
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Specifies the strategy to use when instantiating objects, such as fixtures, members, or instances created along an expression path.
