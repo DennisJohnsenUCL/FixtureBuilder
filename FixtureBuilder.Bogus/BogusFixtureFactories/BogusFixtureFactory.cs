@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using FixtureBuilder.Bogus.BogusFixtureFactories;
+using FixtureBuilder.Bogus.BogusFixtureFactories.Customizations;
 using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus
@@ -42,6 +42,18 @@ namespace FixtureBuilder.Bogus
         public IBogusFixtureConstructor<T> New<T>() where T : class
         {
             return new BogusFixture<T>(_faker, _factory);
+        }
+
+        /// <summary>
+        /// Creates a new Bogus-integrated fixture configurator for type <typeparamref name="T"/> using an existing instance.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
+        /// <param name="instance">The instance to be used for configuration. Cannot be <see langword="null"/>.</param>
+        /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for configuring the specified object.</returns>
+        public IBogusFixtureConfigurator<T> New<T>(T instance) where T : class
+        {
+            ArgumentNullException.ThrowIfNull(instance);
+            return new BogusFixture<T>(_faker, _factory, instance);
         }
 
         /// <summary>

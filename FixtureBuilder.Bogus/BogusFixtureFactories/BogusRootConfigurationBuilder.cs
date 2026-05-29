@@ -1,8 +1,7 @@
 ﻿using Bogus;
 using FixtureBuilder.Bogus.BogusFixtureFactories;
+using FixtureBuilder.Bogus.BogusFixtureFactories.Customizations;
 using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories;
-using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus

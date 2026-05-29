@@ -3,7 +3,9 @@ using Bogus;
 using FixtureBuilder.Core;
 using MemberLens.Attributes;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Provides configuration methods for a Bogus-integrated fixture of type <typeparamref name="T"/>.
@@ -14,6 +16,16 @@ namespace FixtureBuilder.Bogus
     public interface IBogusFixtureConfigurator<T> where T : class
     {
         #region IBogusFixtureConfigurator
+
+        /// <summary>
+        /// Gets or sets the randomizer used for data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
+        /// </summary>
+        public Randomizer Random { get; set; }
+
+        /// <summary>
+        /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
+        /// </summary>
+        public string Locale { get; set; }
 
         /// <summary>
         /// Instantiates the specified property or field using a caller-defined instantiation strategy with access to a <see cref="Faker"/>-integrated constructor.

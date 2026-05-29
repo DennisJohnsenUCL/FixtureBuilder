@@ -30,6 +30,30 @@ namespace FixtureBuilder.Bogus
                 var faker = new Faker(locale);
                 return new BogusFixture<T>(faker);
             }
+
+            /// <summary>
+            /// Creates a new Bogus-integrated fixture configurator for the specified instance using the default locale ("en").
+            /// </summary>
+            /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
+            /// <param name="instance">The instance to be used for configuration. Cannot be <see langword="null"/>.</param>
+            /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for configuring the specified object.</returns>
+            public static IBogusFixtureConfigurator<T> WithBogus<T>(T instance) where T : class
+            {
+                return WithBogus<T>(instance, "en");
+            }
+
+            /// <summary>
+            /// Creates a new Bogus-integrated fixture configurator for the specified instance using the given locale.
+            /// </summary>
+            /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
+            /// <param name="instance">The instance to be used for configuration. Cannot be <see langword="null"/>.</param>
+            /// <param name="locale">The locale to use for data generation (e.g. "en", "de", "fr").</param>
+            /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for configuring the specified object.</returns>
+            public static IBogusFixtureConfigurator<T> WithBogus<T>(T instance, string locale) where T : class
+            {
+                var faker = new Faker(locale);
+                return new BogusFixture<T>(faker, instance);
+            }
         }
     }
 }

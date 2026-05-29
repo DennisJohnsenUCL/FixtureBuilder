@@ -2,7 +2,9 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Creation.UninitializedProviders;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder.Bogus
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Provides construction methods for creating a Bogus-integrated fixture of type <typeparamref name="T"/>.
@@ -12,16 +14,6 @@ namespace FixtureBuilder.Bogus
     public interface IBogusFixtureConstructor<T> : IBogusFixtureConfigurator<T> where T : class
     {
         #region IBogusFixtureConstructor
-
-        /// <summary>
-        /// Gets or sets the randomizer used for data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
-        /// </summary>
-        public Randomizer Random { get; set; }
-
-        /// <summary>
-        /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
-        /// </summary>
-        public string Locale { get; set; }
 
         /// <summary>
         /// Creates an instance using a constructor whose arguments are resolved via a <see cref="Faker"/> lambda.

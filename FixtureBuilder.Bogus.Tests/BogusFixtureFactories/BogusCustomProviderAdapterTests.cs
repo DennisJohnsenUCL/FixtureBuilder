@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using FixtureBuilder.Bogus.BogusFixtureFactories;
+using FixtureBuilder.Bogus.BogusFixtureFactories.Customizations;
 using Moq;
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories

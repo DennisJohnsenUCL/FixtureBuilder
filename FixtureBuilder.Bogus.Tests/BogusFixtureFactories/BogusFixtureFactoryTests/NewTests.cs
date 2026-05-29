@@ -64,5 +64,32 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTe
 
             Assert.That(constructor.Random, Is.SameAs(factory.Random));
         }
+
+        [Test]
+        public void New_WithInstance_BuildReturnsSameInstance()
+        {
+            var instance = new SimpleClass();
+
+            var result = _factory.New(instance).Build();
+
+            Assert.That(result, Is.SameAs(instance));
+        }
+
+        [Test]
+        public void New_WithInstance_UsesFactoryLocale()
+        {
+            var factory = FixtureFactory.WithBogus("de");
+            var instance = new SimpleClass();
+
+            var configurator = factory.New(instance);
+
+            Assert.That(configurator.Locale, Is.EqualTo("de"));
+        }
+
+        [Test]
+        public void New_WithInstance_Null_Throws()
+        {
+            Assert.Throws<ArgumentNullException>(() => _factory.New<SimpleClass>(null!));
+        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿#pragma warning disable CS0649
 
-using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
+using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfigurationBuilderTests
 {
