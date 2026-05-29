@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Bogus;
-using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Bogus
 {

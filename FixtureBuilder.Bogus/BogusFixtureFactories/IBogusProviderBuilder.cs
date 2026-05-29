@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using FixtureBuilder.FixtureFactories.WithMatching;
+using FixtureBuilder.FixtureFactories;
 
 namespace FixtureBuilder.Bogus.BogusFixtureFactories
 {
