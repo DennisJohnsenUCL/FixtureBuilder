@@ -57,42 +57,28 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
         {
-            var request = new FixtureRequest(typeof(T));
-            var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
-            if (instance is NoResult || instance == null)
-                throw new InvalidOperationException($"Failed to intantiate {typeof(T).Name} uninitialized.");
-
-            _fixture = (T)instance;
+            _fixture = CreateInstantiator().CreateUninitialized(initializeMembers);
 
             return this;
         }
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] arguments)
         {
-            var request = new FixtureRequest(typeof(T));
-            var instance = _context.ConstructingProvider.ResolveWithArguments(request, arguments);
-
-            _fixture = (T)instance;
+            _fixture = CreateInstantiator().UseConstructor(arguments);
 
             return this;
         }
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseAutoConstructor()
         {
-            var request = new FixtureRequest(typeof(T));
-            var instance = _context.AutoConstructingProvider.AutoResolve(request, _context);
-
-            _fixture = (T)instance;
+            _fixture = CreateInstantiator().UseAutoConstructor();
 
             return this;
         }
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseCustomInstantiator(Func<T> instantiator)
         {
-            var instance = instantiator() ?? throw new InvalidOperationException(
-                $"Custom instantiator for {typeof(T).Name} returned null. Custom instantiators must always return a valid instance.");
-
-            _fixture = instance;
+            _fixture = CreateInstantiator().UseCustomInstantiator(instantiator);
 
             return this;
         }
@@ -290,6 +276,11 @@ namespace FixtureBuilder
         private ExpressionResolver InitializeExpressionResolver()
         {
             return new ExpressionResolver(typeof(T), _context);
+        }
+
+        private MemberInstantiator<T> CreateInstantiator()
+        {
+            return new MemberInstantiator<T>(new FixtureRequest(typeof(T)), _context);
         }
     }
 }
