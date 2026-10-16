@@ -104,7 +104,7 @@ namespace FixtureBuilder
             if (_fixture is not TTarget target)
                 throw new InvalidCastException($"Cannot cast {typeof(T).Name} to {typeof(TTarget).Name}.");
 
-            return new Fixture<TTarget>(target);
+            return new Fixture<TTarget>(target, _context);
         }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
