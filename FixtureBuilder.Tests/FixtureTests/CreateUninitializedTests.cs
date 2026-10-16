@@ -211,4 +211,30 @@ internal class CreateUninitializedTests
 
         Assert.That(result.Inner.Outer.Tag, Is.EqualTo("Tag"));
     }
+
+    class HashedOuter
+    {
+        public HashedMiddle Middle { get; set; } = null!;
+        public string Id { get; set; } = null!;
+        public override int GetHashCode() => Id.GetHashCode();
+    }
+    class HashedMiddle
+    {
+        public HashedOuter Outer { get; set; } = null!;
+        public HashedInner Inner { get; set; } = null!;
+    }
+    class HashedInner
+    {
+        public HashedMiddle Middle { get; set; } = null!;
+    }
+
+    [Test]
+    public void CircularDependency_WithAllowResolve_GetHashCodeOverride_DoesNotThrow()
+    {
+        var fixture = Fixture.New<HashedOuter>();
+
+        TestHelper.SetOption(fixture, o => o.AllowResolveCircularDependencies = true);
+
+        Assert.DoesNotThrow(() => fixture.CreateUninitialized(InitializeMembers.NonNullables));
+    }
 }
