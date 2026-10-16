@@ -148,6 +148,16 @@ namespace FixtureBuilder.Tests.Configuration
         }
 
         [Test]
+        public void CreateUninitialized_NoResult_Throws()
+        {
+            _uninitializedMock
+                .Setup(c => c.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), _contextMock.Object))
+                .Returns(new NoResult());
+
+            Assert.Throws<InvalidOperationException>(() => _sut.CreateUninitialized());
+        }
+
+        [Test]
         public void UseCustomInstantiator_ReturnsFactoryResult()
         {
             var expected = new TestClass { Value = "custom" };

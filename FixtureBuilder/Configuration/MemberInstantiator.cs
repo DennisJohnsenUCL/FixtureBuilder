@@ -29,8 +29,11 @@ namespace FixtureBuilder.Configuration
 
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
-            var instance = _context.UninitializedProvider.ResolveUninitialized(_request, initializeMembers, _context)
-                ?? throw new InvalidOperationException($"Failed to intantiate {typeof(T).Name} uninitialized.");
+            var instance = _context.UninitializedProvider.ResolveUninitialized(_request, initializeMembers, _context);
+
+            if (instance is NoResult || instance == null)
+                throw new InvalidOperationException($"Failed to instantiate {typeof(T).Name} uninitialized.");
+
             return (T)instance;
         }
 
