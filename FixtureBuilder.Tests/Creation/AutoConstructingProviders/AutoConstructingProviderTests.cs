@@ -507,6 +507,55 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             Assert.That(result.B.A.Name, Is.EqualTo("test-value"));
         }
 
+        public class TwinRoot(TwinA first, TwinA second) { public TwinA First => first; public TwinA Second => second; }
+        public class TwinA(TwinB b) { public TwinB B => b; }
+        public class TwinB(TwinA a) { public TwinA A => a; }
+
+        [Test]
+        public void AutoResolve_SiblingsCyclingToSameType_EachShellMirrorsItsOwnInstance()
+        {
+            var request = new FixtureRequest(typeof(TwinRoot));
+            var options = new FixtureOptions { AllowResolveCircularDependencies = true };
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<FixtureRequest>())).Returns((FixtureRequest r) => r.Type);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var result = (TwinRoot)_sut.AutoResolve(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.First.B.A.B, Is.SameAs(result.First.B));
+                Assert.That(result.Second.B.A.B, Is.SameAs(result.Second.B));
+            }
+        }
+
+        public class HashedP(HashedQ q, string id) { public HashedQ Q => q; public string Id => id; public override int GetHashCode() => Id.GetHashCode(); }
+        public class HashedQ(HashedP p, HashedR r) { public HashedP P => p; public HashedR R => r; }
+        public class HashedR(HashedQ q) { public HashedQ Q => q; }
+
+        [Test]
+        public void AutoResolve_CircularDependencyWithGetHashCodeOverride_DoesNotThrow()
+        {
+            var request = new FixtureRequest(typeof(HashedP));
+            var options = new FixtureOptions { AllowResolveCircularDependencies = true };
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<FixtureRequest>())).Returns((FixtureRequest r) => r.Type);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns("test-value");
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type != typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            Assert.DoesNotThrow(() => _sut.AutoResolve(request, _contextMock.Object));
+        }
+
         #endregion
 
         [Test]

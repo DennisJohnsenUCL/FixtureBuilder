@@ -6,7 +6,7 @@ namespace FixtureBuilder.Creation
     internal class RecursiveResolveContext
     {
         private readonly HashSet<Type> _types;
-        private List<(Type Type, object Shell)> _shells;
+        private readonly List<(Type Type, object Shell)> _shells;
 
         public RecursiveResolveContext()
         {
@@ -43,8 +43,9 @@ namespace FixtureBuilder.Creation
 
         public void Copy(Type type, object obj)
         {
-            var shells = _shells.Where(x => x.Type == type);
-            if (!shells.Any()) return;
+            var shells = _shells.Where(x => x.Type == type).ToList();
+            if (shells.Count == 0) return;
+            _shells.RemoveAll(x => x.Type == type);
 
             var currentType = obj.GetType();
 
@@ -66,8 +67,6 @@ namespace FixtureBuilder.Creation
 
                 currentType = currentType.BaseType;
             }
-
-            _shells = [.. _shells.Except(shells)];
         }
     }
 }
