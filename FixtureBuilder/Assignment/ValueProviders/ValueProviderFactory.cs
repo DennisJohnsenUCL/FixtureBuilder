@@ -11,6 +11,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
                 new NullableParameterProvider(),
                 new StringProvider(),
                 new EnumProvider(),
+                new GuidProvider(),
                 new DateTimeProvider(),
                 new TimeSpanProvider(),
                 new PrimitiveNumberProvider(),
