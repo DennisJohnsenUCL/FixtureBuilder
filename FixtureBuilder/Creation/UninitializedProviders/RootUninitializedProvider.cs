@@ -46,7 +46,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
             if (instance is not NoResult && instance != null && initializeMembers != InitializeMembers.None)
             {
-                _memberInitializer.InitializeMembers(instance, initializeMembers, request.RootType, context, recursiveResolveContext.Branch());
+                _memberInitializer.InitializeMembers(instance, initializeMembers, request.RootType, context, recursiveResolveContext);
                 recursiveResolveContext.Copy(request.Type, instance!);
             }
 
