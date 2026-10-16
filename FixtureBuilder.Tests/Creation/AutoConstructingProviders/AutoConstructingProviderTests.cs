@@ -480,6 +480,33 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             }
         }
 
+        public class ShellBase(string name) { private readonly string _name = name; public string Name => _name; }
+        public class DerivedA(DerivedB b, string name) : ShellBase(name) { public DerivedB B => b; }
+        public class DerivedB(DerivedA a) { public DerivedA A => a; }
+
+        [Test]
+        public void AutoResolve_CircularDependencyWithBaseClass_ShellReceivesBaseClassPrivateFields()
+        {
+            var request = new FixtureRequest(typeof(DerivedA));
+            var options = new FixtureOptions { AllowResolveCircularDependencies = true };
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<FixtureRequest>())).Returns((FixtureRequest r) => r.Type);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns("test-value");
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(
+                    It.Is<FixtureRequest>(r => r.Type != typeof(string)),
+                    It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+
+            var result = (DerivedA)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.B.A.Name, Is.EqualTo("test-value"));
+        }
+
         #endregion
 
         [Test]
