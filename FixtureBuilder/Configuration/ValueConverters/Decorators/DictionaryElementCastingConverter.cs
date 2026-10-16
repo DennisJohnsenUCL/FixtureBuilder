@@ -38,27 +38,24 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
 
         private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values, Type rootType, IFixtureContext context)
         {
-            var enumerator = values.GetEnumerator();
-            if (enumerator.MoveNext())
+            var dict = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
+            Func<object, (object Key, object Value)>? getter = null;
+
+            foreach (var item in values)
             {
-                var dict = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(fieldKeyType, fieldValueType))!;
-                var getter = MakeKeyValueGetter(enumerator.Current.GetType());
-                do
+                getter ??= MakeKeyValueGetter(item.GetType());
+                var (key, value) = getter(item);
+
+                key = ConvertElement(key, fieldKeyType, rootType, context);
+                value = ConvertElement(value, fieldValueType, rootType, context);
+
+                try
                 {
-                    var (key, value) = getter(enumerator.Current);
-
-                    key = ConvertElement(key, fieldKeyType, rootType, context);
-                    value = ConvertElement(value, fieldValueType, rootType, context);
-
-                    try
-                    {
-                        dict.Add(key!, value);
-                    }
-                    catch (ArgumentException ex) { throw new InvalidCastException(ex.Message); }
-                } while (enumerator.MoveNext());
-                values = dict;
+                    dict.Add(key!, value);
+                }
+                catch (ArgumentException ex) { throw new InvalidCastException(ex.Message); }
             }
-            return values;
+            return dict;
         }
 
         private static object? ConvertElement(object? item, Type targetType, Type rootType, IFixtureContext context)

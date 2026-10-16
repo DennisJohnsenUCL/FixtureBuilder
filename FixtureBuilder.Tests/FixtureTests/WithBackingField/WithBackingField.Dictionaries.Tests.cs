@@ -44,6 +44,19 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
         }
 
+        [Test]
+        public void DictionaryField_ObjectGenericParameters_EmptySource_SetsField()
+        {
+            var fieldName = "_dictionary";
+            var dictionary = new List<KeyValuePair<int, string>>();
+            var fixture = TestHelper.MakeFixture<DictionaryObjectClass>();
+
+            fixture.WithBackingField(c => c.Dictionary, dictionary, fieldName);
+
+            var field = TestHelper.GetFixture(fixture);
+            Assert.That(field.Dictionary, Is.Empty);
+        }
+
         class ImmutableDictionaryClass
         {
             private readonly ImmutableDictionary<int, string> _immutableDictionary = null!;
