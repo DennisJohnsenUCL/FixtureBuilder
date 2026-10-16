@@ -35,7 +35,6 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 return recursiveResolveContext.AddShell(request.Type);
             }
 
-
             if (request.Type.IsInterface || request.Type.IsAbstract) return null;
 
             object? instance = new NoResult();

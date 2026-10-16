@@ -3,6 +3,15 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
+namespace SystemUnderTest
+{
+    public class Invoice
+    {
+        public bool ConstructorWasCalled { get; } = true;
+        public string Number { get; set; } = null!;
+    }
+}
+
 namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal sealed class DefaultBclTypeProviderTests
@@ -112,6 +121,20 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void Resolve_UserDefinedClass_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(FixtureRequest));
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        class InvoiceHolder
+        {
+            public SystemUnderTest.Invoice Invoice { get; set; } = null!;
+        }
+        [Test]
+        public void RequestOfTypeInNamespaceStartingWithSystem_ReturnsNoResult()
+        {
+            var request = new FixtureRequest(typeof(SystemUnderTest.Invoice));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

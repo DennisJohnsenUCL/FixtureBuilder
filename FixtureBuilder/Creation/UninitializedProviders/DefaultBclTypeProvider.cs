@@ -16,7 +16,9 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     {
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            if (request.Type.Namespace?.StartsWith("System") == true)
+            var ns = request.Type.Namespace;
+
+            if (ns == "System" || ns?.StartsWith("System.") == true)
             {
                 try
                 {
