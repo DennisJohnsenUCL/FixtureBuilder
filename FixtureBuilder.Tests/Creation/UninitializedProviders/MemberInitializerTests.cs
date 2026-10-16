@@ -90,7 +90,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(false);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Returns(expectedValue);
 
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
@@ -131,13 +131,13 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(() => skipCount++ == 0);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Returns("resolved");
 
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             _uninitializedProvider.Verify(
-                p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext),
+                p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()),
                 Times.AtLeastOnce);
         }
 
@@ -154,7 +154,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(false);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Returns(expectedValue);
 
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
@@ -199,7 +199,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(false);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Returns(() => $"value{++callCount}");
 
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
@@ -224,7 +224,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(false);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Callback<FixtureRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((req, _, _, _) => capturedRequest = req)
                 .Returns("value");
 
@@ -250,7 +250,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(false);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Returns(42);
 
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
@@ -276,7 +276,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
                 .Returns(false);
 
             _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, _recursiveResolveContext))
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
                 .Callback<FixtureRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((req, _, _, _) => capturedRequest = req)
                 .Returns("value");
 

@@ -149,6 +149,31 @@ internal class CreateUninitializedTests
         }
     }
 
+    class Address
+    {
+        public string Street { get; set; } = null!;
+    }
+    class Order
+    {
+        public Address Billing { get; set; } = null!;
+        public Address Shipping { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_SiblingMembersOfSameType_InitializesBoth()
+    {
+        var fixture = Fixture.New<Order>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Billing.Street, Is.EqualTo("Street"));
+            Assert.That(result.Shipping.Street, Is.EqualTo("Street"));
+        }
+    }
+
     class OuterAndInner
     {
         public Middle Middle { get; set; } = null!;

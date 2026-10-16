@@ -47,7 +47,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                     if (dataMember.IsFieldInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Field, rootType, dataMember.Name);
                     if (request == null) return;
 
-                    value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext);
+                    value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
 
                     if (value is NoResult)
                     {
