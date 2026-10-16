@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
@@ -125,8 +126,8 @@ namespace FixtureBuilder.Configuration
         /// </returns>
         internal static string[] GetCommonFieldNames(string propName) =>
             [$"<{propName}>k__BackingField",
-            $"_{char.ToLower(propName[0]) + propName[1..]}",
-            $"{char.ToLower(propName[0]) + propName[1..]}",
+            $"_{char.ToLower(propName[0], CultureInfo.InvariantCulture) + propName[1..]}",
+            $"{char.ToLower(propName[0], CultureInfo.InvariantCulture) + propName[1..]}",
             $"_{propName}"];
     }
 }
