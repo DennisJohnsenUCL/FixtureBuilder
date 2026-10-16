@@ -85,5 +85,29 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
                 Assert.That(capturedInitMembers, Is.EqualTo(InitializeMembers.All));
             }
         }
+
+        [Test]
+        public void InstantiateWithStrategy_CreateUninitialized_NullResult_Throws()
+        {
+            var request = new FixtureRequest(typeof(string));
+            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
+                .Returns((object?)null);
+            var context = CreateContext();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                context.InstantiateWithStrategy(request, InstantiationMethod.CreateUninitialized, InitializeMembers.None));
+        }
+
+        [Test]
+        public void InstantiateWithStrategy_CreateUninitialized_NoResult_Throws()
+        {
+            var request = new FixtureRequest(typeof(string));
+            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
+                .Returns(new NoResult());
+            var context = CreateContext();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                context.InstantiateWithStrategy(request, InstantiationMethod.CreateUninitialized, InitializeMembers.None));
+        }
     }
 }
