@@ -28,6 +28,12 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                     return RuntimeHelpers.GetUninitializedObject(type);
                 }
 
+                if (value is not null
+                    && Nullable.GetUnderlyingType(type) is { IsEnum: true } enumType)
+                {
+                    return Enum.ToObject(enumType, value);
+                }
+
                 return value;
             }
 

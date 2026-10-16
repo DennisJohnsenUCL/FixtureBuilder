@@ -30,7 +30,13 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             internal static void WithStringDefault(string value = "hello") { }
             internal static void WithDefaultStruct(CancellationToken value = default) { }
             internal static void WithNullableNullDefault(int? value = null) { }
+            internal static void WithNullableEnumDefault(DayOfWeek? value = DayOfWeek.Friday) { }
+            internal static void WithNullableByteEnumDefault(ByteEnum? value = ByteEnum.Second) { }
+            internal static void WithNullableFlagsEnumDefault(BindingFlags? value = BindingFlags.Public | BindingFlags.Instance) { }
+            internal static void WithNullableEnumNullDefault(DayOfWeek? value = null) { }
         }
+
+        internal enum ByteEnum : byte { First, Second }
 
         [SetUp]
         public void SetUp()
@@ -134,6 +140,22 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
+        }
+
+        [TestCase(nameof(SampleMethods.WithNullableEnumDefault), DayOfWeek.Friday, TestName = "Resolve_NullableEnumParameterWithDefault_OptionEnabled_ReturnsEnumValue")]
+        [TestCase(nameof(SampleMethods.WithNullableByteEnumDefault), ByteEnum.Second, TestName = "Resolve_NullableByteEnumParameterWithDefault_OptionEnabled_ReturnsEnumValue")]
+        [TestCase(nameof(SampleMethods.WithNullableFlagsEnumDefault), BindingFlags.Public | BindingFlags.Instance, TestName = "Resolve_NullableFlagsEnumParameterWithCombinedDefault_OptionEnabled_ReturnsEnumValue")]
+        [TestCase(nameof(SampleMethods.WithNullableEnumNullDefault), null, TestName = "Resolve_NullableEnumParameterWithNullDefault_OptionEnabled_ReturnsNull")]
+        public void Resolve_NullableEnumParameterWithDefault_OptionEnabled_ReturnsTypedDefault(string methodName, object? expected)
+        {
+            var paramInfo = GetParameterInfo(methodName, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
