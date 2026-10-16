@@ -231,6 +231,25 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         }
 
         [Test]
+        public void Convert_EmptyDictionaryValue_DifferentElementTypes_CastsToTargetType()
+        {
+            var targetType = new FixtureRequest(typeof(Dictionary<object, object>));
+            var value = new SortedDictionary<string, int>();
+            var context = new Mock<IFixtureContext>().Object;
+
+            IEnumerable? capturedEnumerable = null;
+            var innerMock = new Mock<IValueConverter>();
+            innerMock.Setup(x => x.Convert(targetType, It.IsAny<IEnumerable>(), context))
+                .Callback<FixtureRequest, object, IFixtureContext>((_, v, _) => capturedEnumerable = v as IEnumerable);
+
+            var converter = new DictionaryElementCastingConverter(innerMock.Object);
+
+            converter.Convert(targetType, value, context);
+
+            Assert.That(capturedEnumerable, Is.InstanceOf<Dictionary<object, object>>().And.Empty);
+        }
+
+        [Test]
         public void Convert_CannotCastElements_ThrowsException()
         {
             var targetType = new FixtureRequest(typeof(Dictionary<string, long>));
