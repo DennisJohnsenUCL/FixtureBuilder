@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Configuration
 {
@@ -31,7 +30,7 @@ namespace FixtureBuilder.Configuration
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
             var instance = _context.UninitializedProvider.ResolveUninitialized(_request, initializeMembers, _context)
-                ?? throw new InvalidOperationException("Failed to intantiate {typeof(T).Name} uninitialized.");
+                ?? throw new InvalidOperationException($"Failed to intantiate {typeof(T).Name} uninitialized.");
             return (T)instance;
         }
 
