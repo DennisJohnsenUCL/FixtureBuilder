@@ -31,6 +31,13 @@ namespace FixtureBuilder.Tests
                 .GetValue(fixture)!;
         }
 
+        internal static IFixtureContext GetContext<T>(IFixtureConfigurator<T> fixture) where T : class
+        {
+            return (IFixtureContext)fixture
+                .GetType().GetField("_context", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(fixture)!;
+        }
+
         internal static void SetContext<T>(IFixtureConstructor<T> fixture, IFixtureContext context) where T : class
         {
             fixture

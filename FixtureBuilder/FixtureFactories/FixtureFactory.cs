@@ -3,7 +3,6 @@ using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.FixtureFactories;
 using FixtureBuilder.FixtureFactories.Customizations;
-using FixtureBuilder.FixtureFactories.RootConfigurationBuilders;
 using FixtureBuilder.FixtureFactories.WithMatching;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -59,7 +58,7 @@ namespace FixtureBuilder
         /// <summary>
         /// Creates a new fixture configurator for type <typeparamref name="T"/> using an existing instance.
         /// </summary>
-        public IFixtureConstructor<T> New<T>(T instance) where T : class
+        public IFixtureConfigurator<T> New<T>(T instance) where T : class
         {
             ArgumentNullException.ThrowIfNull(instance);
             return new Fixture<T>(instance, _context);
