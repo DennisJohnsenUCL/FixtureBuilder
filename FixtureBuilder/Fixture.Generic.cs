@@ -89,7 +89,10 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseCustomInstantiator(Func<T> instantiator)
         {
-            _fixture = instantiator();
+            var instance = instantiator() ?? throw new InvalidOperationException(
+                $"Custom instantiator for {typeof(T).Name} returned null. Custom instantiators must always return a valid instance.");
+
+            _fixture = instance;
 
             return this;
         }

@@ -166,5 +166,13 @@ namespace FixtureBuilder.Tests.Configuration
             _constructingMock.VerifyNoOtherCalls();
             _uninitializedMock.VerifyNoOtherCalls();
         }
+
+        [Test]
+        public void UseCustomInstantiator_ResultNull_ThrowsException()
+        {
+            var expected = new TestClass { Value = "custom" };
+
+            Assert.Throws<InvalidOperationException>(() => _sut.UseCustomInstantiator(() => null!));
+        }
     }
 }

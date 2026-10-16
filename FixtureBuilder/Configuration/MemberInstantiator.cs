@@ -36,7 +36,10 @@ namespace FixtureBuilder.Configuration
 
         public T UseCustomInstantiator(Func<T> instantiator)
         {
-            return instantiator();
+            var instance = instantiator() ?? throw new InvalidOperationException(
+                $"Custom instantiator for {typeof(T).Name} returned null. Custom instantiators must always return a valid instance.");
+
+            return instance;
         }
     }
 }

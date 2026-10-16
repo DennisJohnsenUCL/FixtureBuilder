@@ -77,5 +77,12 @@
 
             Assert.That(first, Is.SameAs(second));
         }
+
+        [Test]
+        public void ThrowsExceptionForNullReturningInstantiators()
+        {
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<SimpleClass>()
+                .UseCustomInstantiator(() => null!));
+        }
     }
 }
