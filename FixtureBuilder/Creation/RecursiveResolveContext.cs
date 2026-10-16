@@ -46,14 +46,27 @@ namespace FixtureBuilder.Creation
             var shells = _shells.Where(x => x.Type == type);
             if (!shells.Any()) return;
 
-            foreach (var field in obj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            var currentType = obj.GetType();
+
+            while (currentType != null && currentType != typeof(object))
             {
-                var value = field.GetValue(obj);
-                foreach (var shell in shells)
+                foreach (var field in currentType.GetFields(
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic |
+                    BindingFlags.DeclaredOnly))
                 {
-                    field.SetValue(shell.Shell, value);
+                    var value = field.GetValue(obj);
+
+                    foreach (var shell in shells)
+                    {
+                        field.SetValue(shell.Shell, value);
+                    }
                 }
+
+                currentType = currentType.BaseType;
             }
+
             _shells = [.. _shells.Except(shells)];
         }
     }

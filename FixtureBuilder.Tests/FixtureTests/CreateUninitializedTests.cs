@@ -185,4 +185,30 @@ internal class CreateUninitializedTests
             Assert.That(result.Middle.OuterAndInner.Name, Is.EqualTo("Name"));
         }
     }
+
+    class TaggedBase
+    {
+        private string _tag = null!;
+        public string Tag { get => _tag; set => _tag = value; }
+    }
+    class DerivedOuter : TaggedBase
+    {
+        public DerivedInner Inner { get; set; } = null!;
+    }
+    class DerivedInner
+    {
+        public DerivedOuter Outer { get; set; } = null!;
+    }
+
+    [Test]
+    public void CircularDependency_WithAllowResolve_ShellReceivesBaseClassPrivateFields()
+    {
+        var fixture = Fixture.New<DerivedOuter>();
+
+        TestHelper.SetOption(fixture, o => o.AllowResolveCircularDependencies = true);
+        fixture.CreateUninitialized(InitializeMembers.NonNullables);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Inner.Outer.Tag, Is.EqualTo("Tag"));
+    }
 }
