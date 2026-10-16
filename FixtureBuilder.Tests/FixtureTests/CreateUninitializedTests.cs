@@ -149,6 +149,38 @@ internal class CreateUninitializedTests
         }
     }
 
+    interface IDependency;
+    class WithInterfaceMember
+    {
+        public IDependency Dependency { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_AllowSkipUninitializableMembersFalse_InterfaceMember_ThrowsInvalidOperationException()
+    {
+        var fixture = Fixture.New<WithInterfaceMember>();
+
+        TestHelper.SetOption(fixture, o => o.AllowSkipUninitializableMembers = false);
+
+        Assert.Throws<InvalidOperationException>(() => fixture.CreateUninitialized(InitializeMembers.All));
+    }
+
+    abstract class AbstractDependency;
+    class WithAbstractMember
+    {
+        public AbstractDependency Dependency { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_AllowSkipUninitializableMembersFalse_AbstractMember_ThrowsInvalidOperationException()
+    {
+        var fixture = Fixture.New<WithAbstractMember>();
+
+        TestHelper.SetOption(fixture, o => o.AllowSkipUninitializableMembers = false);
+
+        Assert.Throws<InvalidOperationException>(() => fixture.CreateUninitialized(InitializeMembers.All));
+    }
+
     class Address
     {
         public string Street { get; set; } = null!;

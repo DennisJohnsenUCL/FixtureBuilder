@@ -27,6 +27,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             }
         }
 
+        public interface ISimpleInterface { }
+
+        public abstract class AbstractClass { }
+
         [SetUp]
         public void SetUp()
         {
@@ -122,6 +126,28 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ReturnsNoResult()
         {
             var request = new FixtureRequest(typeof(string), this, _rootType, null);
+            var context = Mock.Of<IFixtureContext>();
+
+            var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void ResolveUninitialized_InterfaceType_ReturnsNoResult()
+        {
+            var request = new FixtureRequest(typeof(ISimpleInterface), this, _rootType, null);
+            var context = Mock.Of<IFixtureContext>();
+
+            var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void ResolveUninitialized_AbstractType_ReturnsNoResult()
+        {
+            var request = new FixtureRequest(typeof(AbstractClass), this, _rootType, null);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);

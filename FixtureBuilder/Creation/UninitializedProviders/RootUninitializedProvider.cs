@@ -7,9 +7,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// <summary>
     /// Creates uninitialized instances of requested types using
     /// <see cref="RuntimeHelpers.GetUninitializedObject"/> and optionally initializes their
-    /// members via an <see cref="IMemberInitializer"/>. Throws an
-    /// <see cref="InvalidOperationException"/> wrapping the original exception if the type
-    /// cannot be created uninitialized.
+    /// members via an <see cref="IMemberInitializer"/>. Returns <see cref="NoResult"/> if the
+    /// type is an interface, abstract, or cannot be created uninitialized.
     /// </summary>
     internal class RootUninitializedProvider : IUninitializedProvider
     {
@@ -35,7 +34,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 return recursiveResolveContext.AddShell(request.Type);
             }
 
-            if (request.Type.IsInterface || request.Type.IsAbstract) return null;
+            if (request.Type.IsInterface || request.Type.IsAbstract) return new NoResult();
 
             object? instance = new NoResult();
             try
@@ -44,10 +43,10 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             }
             catch (Exception) { }
 
-            if (instance is not NoResult && instance != null && initializeMembers != InitializeMembers.None)
+            if (instance is not NoResult && initializeMembers != InitializeMembers.None)
             {
                 _memberInitializer.InitializeMembers(instance, initializeMembers, request.RootType, context, recursiveResolveContext);
-                recursiveResolveContext.Copy(request.Type, instance!);
+                recursiveResolveContext.Copy(request.Type, instance);
             }
 
             return instance;
