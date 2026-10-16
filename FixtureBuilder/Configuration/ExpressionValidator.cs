@@ -35,7 +35,10 @@ namespace FixtureBuilder.Configuration
         public static void ValidatePropertyWriteable<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (!IsPropertyWritable(expr))
-                throw new InvalidOperationException($"{typeof(TProp).Name} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
+            {
+                var propertyName = ((PropertyInfo)((MemberExpression)expr.Body).Member).Name;
+                throw new InvalidOperationException($"{propertyName} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
+            }
         }
 
         /// <summary>
