@@ -17,6 +17,8 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Flags]
         private enum Permissions { None = 0, Read = 1, Write = 2, Execute = 4 }
 
+        private enum Empty { }
+
         [SetUp]
         public void SetUp()
         {
@@ -72,6 +74,21 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<Permissions>());
                 Assert.That(result, Is.EqualTo(Permissions.None));
+            }
+        }
+
+        [Test]
+        public void Resolve_EnumWithoutMembers_ReturnsZeroValue()
+        {
+            var request = new FixtureRequest(typeof(Empty));
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result, Is.TypeOf<Empty>());
+                Assert.That(result, Is.EqualTo(default(Empty)));
             }
         }
 

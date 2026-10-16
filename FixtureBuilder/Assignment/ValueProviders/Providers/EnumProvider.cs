@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.Assignment.ValueProviders;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Assignment.ValueProviders.Providers
@@ -8,8 +7,8 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// Provides fixture instances for enumeration types.
     /// </summary>
     /// <remarks>
-    /// Returns the first defined value of the requested enum type.
-    /// Returns <see langword="null"/> for all non-enum types.
+    /// Returns the first defined value of the requested enum type, or 0 if the enum has no members.
+    /// Returns <see cref="NoResult"/> for all non-enum types.
     /// </remarks>
     internal class EnumProvider : IValueProvider
     {
@@ -17,7 +16,11 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
         {
             if (request.Type.IsEnum)
             {
-                return Enum.GetValues(request.Type).GetValue(0);
+                var values = Enum.GetValues(request.Type);
+
+                return values.Length > 0
+                    ? values.GetValue(0)
+                    : Enum.ToObject(request.Type, 0);
             }
 
             return new NoResult();
