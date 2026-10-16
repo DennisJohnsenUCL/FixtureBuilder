@@ -65,8 +65,9 @@ namespace FixtureBuilder.Core.FixtureContexts
 
                 InstantiationMethod.UseDefaultConstructor => ConstructingProvider.ResolveWithArguments(request),
 
-                InstantiationMethod.CreateUninitialized => UninitializedProvider.ResolveUninitialized(request, initializeMembers, this)
-                    ?? throw new InvalidOperationException($"Failed to instantiate {request.Type.Name} uninitialized."),
+                InstantiationMethod.CreateUninitialized => UninitializedProvider.ResolveUninitialized(request, initializeMembers, this) is { } instance and not NoResult
+                    ? instance
+                    : throw new InvalidOperationException($"Failed to instantiate {request.Type.Name} uninitialized."),
 
                 _ => throw new InvalidOperationException($"Invalid instantiation method: {instantiationMethod}.")
             };
