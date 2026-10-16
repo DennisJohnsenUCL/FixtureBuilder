@@ -59,6 +59,25 @@
             Assert.That(field.InheritedFieldGetter, Is.EqualTo(_text));
         }
 
+        class PrivateFieldBase
+        {
+            private readonly string _baseText = null!;
+            public string BaseText => _baseText;
+        }
+        class PrivateFieldChild : PrivateFieldBase;
+        class PrivateFieldGrandchild : PrivateFieldChild;
+        [Test]
+        public void InheritedPrivateField_SetsField()
+        {
+            var fieldName = "_baseText";
+            var fixture = TestHelper.MakeFixture<PrivateFieldGrandchild>();
+
+            fixture.WithField(fieldName, _text);
+
+            var field = TestHelper.GetFixture(fixture);
+            Assert.That(field.BaseText, Is.EqualTo(_text));
+        }
+
         record FieldRecord
         {
             private readonly string _text = null!;

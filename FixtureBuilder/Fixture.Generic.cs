@@ -136,7 +136,16 @@ namespace FixtureBuilder
 
         private Fixture<T> WithFieldInternal(string fieldName, Type dataMemberType, object? value, object instance)
         {
-            if (!dataMemberType.TryGetField(fieldName, out var fieldInfo))
+            var type = dataMemberType;
+            FieldInfo? fieldInfo = null;
+
+            while (type != null && type != typeof(object))
+            {
+                if (type.TryGetField(fieldName, out fieldInfo)) break;
+                type = type.BaseType;
+            }
+
+            if (fieldInfo is null)
                 throw new InvalidOperationException($"Field '{fieldName}' not found on {dataMemberType.Name}.");
 
             FieldHelper.SetFieldValue(fieldInfo, instance, value);

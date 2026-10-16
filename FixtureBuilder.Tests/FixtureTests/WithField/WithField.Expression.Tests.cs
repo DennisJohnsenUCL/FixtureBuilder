@@ -24,6 +24,8 @@
         {
             protected readonly string _inheritedField = null!;
             public string GetInheritedField => _inheritedField;
+            private readonly string _privateInheritedField = null!;
+            public string GetPrivateInheritedField => _privateInheritedField;
         }
 
         [Test]
@@ -48,6 +50,18 @@
 
             var field = TestHelper.GetFixture(fixture);
             Assert.That(field.NestedClass.TwiceNestedClass.GetInheritedField, Is.EqualTo(_text));
+        }
+
+        [Test]
+        public void InheritedPrivateField_SetsField()
+        {
+            var fieldName = "_privateInheritedField";
+            var fixture = TestHelper.MakeFixture<BaseClass>();
+
+            fixture.WithField(c => c.NestedClass.TwiceNestedClass, fieldName, _text);
+
+            var field = TestHelper.GetFixture(fixture);
+            Assert.That(field.NestedClass.TwiceNestedClass.GetPrivateInheritedField, Is.EqualTo(_text));
         }
 
         [Test]
