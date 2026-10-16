@@ -28,6 +28,8 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             internal static void WithoutDefault(int value) { }
             internal static void WithNullDefault(string? value = null) { }
             internal static void WithStringDefault(string value = "hello") { }
+            internal static void WithDefaultStruct(CancellationToken value = default) { }
+            internal static void WithNullableNullDefault(int? value = null) { }
         }
 
         [SetUp]
@@ -106,6 +108,32 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.EqualTo("hello"));
+        }
+
+        [Test]
+        public void Resolve_StructParameterWithDefaultLiteral_OptionEnabled_ReturnsDefaultStruct()
+        {
+            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefaultStruct), "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.EqualTo(default(CancellationToken)));
+        }
+
+        [Test]
+        public void Resolve_NullableParameterWithNullDefault_OptionEnabled_ReturnsNull()
+        {
+            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithNullableNullDefault), "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.Null);
         }
 
         [Test]

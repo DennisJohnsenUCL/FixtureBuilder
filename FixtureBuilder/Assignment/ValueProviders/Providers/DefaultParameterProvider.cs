@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
@@ -17,7 +18,17 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 && paramInfo.HasDefaultValue
                 && context.OptionsFor(request.RootType).PreferDefaultParameterValues)
             {
-                return paramInfo.DefaultValue;
+                var type = paramInfo.ParameterType;
+                var value = paramInfo.DefaultValue;
+
+                if (value is null
+                    && type.IsValueType
+                    && Nullable.GetUnderlyingType(type) is null)
+                {
+                    return RuntimeHelpers.GetUninitializedObject(type);
+                }
+
+                return value;
             }
 
             return new NoResult();
