@@ -29,6 +29,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.ConverterBuilders
         public CompositeConverterBuilder AddEnumerableStrategies()
         {
             _converters = _converters.Concat([new MutableGenericCollectionConverter(),
+                new CollectionConverter(),
                 new ImmutableCollectionConverter(),
                 new FrozenSetConverter(),
                 new ArrayConverter(),

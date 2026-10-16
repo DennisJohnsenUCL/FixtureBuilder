@@ -3,7 +3,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -32,8 +31,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(List<string>), TestName = "Convert_TargetList_Converts")]
         [TestCase(typeof(Queue<string>), TestName = "Convert_TargetQueue_Converts")]
         [TestCase(typeof(SortedSet<string>), TestName = "Convert_TargetSortedSet_Converts")]
-        [TestCase(typeof(ReadOnlyCollection<string>), TestName = "Convert_TargetReadOnlyCollection_Converts")]
-        [TestCase(typeof(Collection<string>), TestName = "Convert_TargetCollection_Converts")]
         [TestCase(typeof(HashSet<string>), TestName = "Convert_TargetHashSet_Converts")]
         [TestCase(typeof(LinkedList<string>), TestName = "Convert_TargetLinkedList_Converts")]
         public void Convert_OrderPreservingTarget_Converts(Type target)
