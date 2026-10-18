@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Configuration;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Creation.UninitializedProviders
 {
@@ -39,10 +41,19 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
         private static bool IsInaccessibleProperty(DataMemberInfo dataMember)
         {
-            return dataMember.IsPropertyInfo
-                && (!dataMember.Property.CanRead
-                    || !dataMember.Property.CanWrite
-                    || dataMember.Property.GetIndexParameters().Length > 0);
+            if (!dataMember.IsPropertyInfo) return false;
+
+            var isInaccessible = false;
+
+            if (!dataMember.Property.CanRead) isInaccessible = true;
+            if (dataMember.Property.GetIndexParameters().Length > 0) isInaccessible = true;
+            if (!dataMember.Property.CanWrite
+                            && !dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), out _))
+            {
+                isInaccessible = true;
+            }
+
+            return isInaccessible;
         }
 
         private static bool IsCompilerGeneratedField(DataMemberInfo dataMember)

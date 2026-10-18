@@ -116,6 +116,11 @@ namespace FixtureBuilder.Configuration
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
         }
 
+        internal static string GetAutoBackingFieldName(PropertyInfo propertyInfo)
+        {
+            return $"<{propertyInfo.Name}>k__BackingField";
+        }
+
         /// <summary>
         /// Generates an array of common backing field name conventions for a given property name.
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
@@ -42,10 +43,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
                 if (Equals(value, defaultValue))
                 {
-                    FixtureRequest? request = null;
-                    if (dataMember.IsPropertyInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Property, rootType, dataMember.Name);
-                    if (dataMember.IsFieldInfo) request = new FixtureRequest(dataMember.DataMemberType, dataMember.Field, rootType, dataMember.Name);
-                    if (request == null) return;
+                    MemberInfo requestSource = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
+                    var request = new FixtureRequest(dataMember.DataMemberType, requestSource, rootType, dataMember.Name);
 
                     value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
 
@@ -55,7 +54,17 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                             ? Activator.CreateInstance(dataMember.DataMemberType)
                             : null;
                     }
-                    dataMember.SetValue(instance, value);
+
+                    if (dataMember.IsPropertyInfo
+                        && !dataMember.Property.CanWrite
+                        && dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), out var backingField))
+                    {
+                        backingField.SetValue(instance, value);
+                    }
+                    else
+                    {
+                        dataMember.SetValue(instance, value);
+                    }
                 }
             }
         }

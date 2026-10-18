@@ -44,6 +44,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             public int? NullableInt { get; set; }
             public string ReadOnly { get; } = null!;
 #pragma warning disable CA1822 // Mark members as static
+            public string ReadOnlyWithoutBackingField => "";
             public string WriteOnly { set { } }
 #pragma warning restore CA1822 // Mark members as static
             public string this[int index] { get => ""; set { } }
@@ -164,9 +165,19 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         #region Inaccessible properties
 
         [Test]
-        public void ShouldSkip_ReadOnlyProperty_ReturnsTrue()
+        public void ShouldSkip_ReadOnlyAutoProperty_ReturnsFalse()
         {
             var member = PropertyMember<StandardClass>(nameof(StandardClass.ReadOnly));
+
+            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void ShouldSkip_ReadOnlyPropertyWithoutBackingField_ReturnsTrue()
+        {
+            var member = PropertyMember<StandardClass>(nameof(StandardClass.ReadOnlyWithoutBackingField));
 
             var result = _sut.ShouldSkip(member, InitializeMembers.All);
 

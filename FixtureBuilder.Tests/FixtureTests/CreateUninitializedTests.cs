@@ -206,6 +206,29 @@ internal class CreateUninitializedTests
         }
     }
 
+    class ImmutableCustomer
+    {
+        public string Name { get; } = null!;
+        public Address Address { get; } = null!;
+        public string Note { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_GetOnlyAutoProperties_AreInitializedThroughBackingFields()
+    {
+        var fixture = Fixture.New<ImmutableCustomer>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Name, Is.EqualTo("Name"));
+            Assert.That(result.Address.Street, Is.EqualTo("Street"));
+            Assert.That(result.Note, Is.EqualTo("Note"));
+        }
+    }
+
     class InvoiceHolder
     {
         public SystemUnderTest.Invoice Invoice { get; set; } = null!;
