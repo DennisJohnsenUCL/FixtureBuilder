@@ -206,6 +206,26 @@ internal class CreateUninitializedTests
         }
     }
 
+    class InvoiceHolder
+    {
+        public SystemUnderTest.Invoice Invoice { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_MemberTypeInNamespaceStartingWithSystem_IsCreatedUninitializedWithMembers()
+    {
+        var fixture = Fixture.New<InvoiceHolder>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Invoice.ConstructorWasCalled, Is.False);
+            Assert.That(result.Invoice.Number, Is.EqualTo("Number"));
+        }
+    }
+
     class OuterAndInner
     {
         public Middle Middle { get; set; } = null!;

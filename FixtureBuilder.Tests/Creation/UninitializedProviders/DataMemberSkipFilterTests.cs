@@ -4,6 +4,22 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Creation.UninitializedProviders;
 
+namespace Microsoft.Contoso
+{
+    public class Widget
+    {
+        public string Name { get; set; } = "";
+    }
+}
+
+namespace MicrosoftGraphClient
+{
+    public class GraphUser
+    {
+        public string Name { get; set; } = "";
+    }
+}
+
 namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal sealed class DataMemberSkipFilterTests
@@ -62,11 +78,51 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromSystemNamespace_ReturnsTrue()
         {
-            var member = PropertyMember<Exception>(nameof(Exception.Message));
+            var member = PropertyMember<Exception>(nameof(Exception.Source));
 
             var result = _sut.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void ShouldSkip_PropertyFromSystemChildNamespace_ReturnsTrue()
+        {
+            var member = PropertyMember<List<int>>(nameof(List<int>.Capacity));
+
+            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void ShouldSkip_PropertyFromMicrosoftChildNamespace_ReturnsTrue()
+        {
+            var member = PropertyMember<Microsoft.Contoso.Widget>(nameof(Microsoft.Contoso.Widget.Name));
+
+            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void ShouldSkip_PropertyFromNamespaceStartingWithSystem_ReturnsFalse()
+        {
+            var member = PropertyMember<SystemUnderTest.Invoice>(nameof(SystemUnderTest.Invoice.Number));
+
+            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void ShouldSkip_PropertyFromNamespaceStartingWithMicrosoft_ReturnsFalse()
+        {
+            var member = PropertyMember<MicrosoftGraphClient.GraphUser>(nameof(MicrosoftGraphClient.GraphUser.Name));
+
+            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.False);
         }
 
         [Test]
