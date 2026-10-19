@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
@@ -21,7 +22,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// <list type="bullet">
     ///   <item><description>Interfaces</description></item>
     ///   <item><description>Abstract classes</description></item>
-    ///   <item><description>Types with no discoverable constructors</description></item>
+    ///   <item><description>Types with no discoverable constructors, except value types that declare none, which get a zeroed instance</description></item>
     /// </list>
     /// </remarks>
     internal class AutoConstructingProvider : IAutoConstructingProvider
@@ -44,6 +45,17 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
 
             var constructor = GetConstructorInfo(request, context);
+            if (constructor is null)
+            {
+                if (request.Type.IsValueType
+                    && request.Type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .Length == 0)
+                {
+                    return RuntimeHelpers.GetUninitializedObject(request.Type);
+                }
+                throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");
+            }
+
             var parameters = constructor.GetParameters();
             var parameterValues = GetParameterValues(parameters, request.RootType, context, recursiveResolveContext);
 
@@ -73,7 +85,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             });
         }
 
-        private static ConstructorInfo GetConstructorInfo(FixtureRequest request, IFixtureContext context)
+        private static ConstructorInfo? GetConstructorInfo(FixtureRequest request, IFixtureContext context)
         {
             var options = context.OptionsFor(request.RootType);
             ConstructorInfo? ctor;
@@ -90,7 +102,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                     ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.NonPublic);
             }
 
-            return ctor ?? throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");
+            return ctor;
         }
 
         private static ConstructorInfo? GetSimplestConstructor(Type type, BindingFlags bindingAttr)

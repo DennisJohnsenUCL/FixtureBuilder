@@ -250,6 +250,22 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             Assert.That(result.PrivateCtor, Is.True);
         }
 
+        public struct NoCtorStruct
+        {
+            public int X { get; set; }
+        }
+        [Test]
+        public void AutoResolve_StructWithoutConstructors_DoNotAllowPrivate_ReturnsZeroedStruct()
+        {
+            var request = new FixtureRequest(typeof(NoCtorStruct));
+            var options = new FixtureOptions { AllowPrivateConstructors = false };
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+
+            var result = (NoCtorStruct)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.X, Is.Zero);
+        }
+
         #region NoResult fallback and recursive resolution tests
 
         public class Inner
