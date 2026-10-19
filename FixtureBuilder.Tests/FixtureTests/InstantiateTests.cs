@@ -126,6 +126,41 @@ namespace FixtureBuilder.Tests.FixtureTests
             Assert.That(result.Nested.Value, Is.Null);
         }
 
+        interface IInner;
+        class LinkedInner : IInner;
+        class OuterWithInterface
+        {
+            public IInner Nested { get; set; } = null!;
+        }
+
+        [Test]
+        public void Instantiate_UseAutoConstructor_AppliesTypeLink()
+        {
+            var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());
+
+            var result = fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor()).Build();
+
+            Assert.That(result.Nested, Is.TypeOf<LinkedInner>());
+        }
+
+        [Test]
+        public void Instantiate_UseConstructor_DoesNotApplyTypeLink()
+        {
+            var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());
+
+            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(o => o.Nested, m => m.UseConstructor()));
+        }
+
+        [Test]
+        public void Instantiate_CreateUninitialized_AppliesTypeLink()
+        {
+            var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());
+
+            var result = fixture.Instantiate(o => o.Nested, m => m.CreateUninitialized()).Build();
+
+            Assert.That(result.Nested, Is.TypeOf<LinkedInner>());
+        }
+
         [Test]
         public void Instantiate_WithFunc_ReadOnlyProperty_SetsBackingField()
         {

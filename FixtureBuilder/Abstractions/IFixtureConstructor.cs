@@ -32,7 +32,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="args">The arguments to pass to the constructor. Must match the constructor's parameter types and order.</param>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> for further configuration.</returns>
-        /// <exception cref="MissingMethodException"/>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> UseConstructor(params object[] args);
 
         /// <summary>

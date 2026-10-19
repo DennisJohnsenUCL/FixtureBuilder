@@ -42,6 +42,10 @@ namespace FixtureBuilder.Tests.Configuration
         public void UseAutoConstructor_CallsAutoResolve()
         {
             var expected = new TestClass();
+            _contextMock
+                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Returns(typeof(TestClass));
+
             _autoConstructingMock
                 .Setup(c => c.AutoResolve(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass)), _contextMock.Object))
                 .Returns(expected);
@@ -94,9 +98,69 @@ namespace FixtureBuilder.Tests.Configuration
         public void CreateUninitialized_CallsResolveUninitialized()
         {
             var expected = new TestClass();
+            _contextMock
+                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Returns(typeof(TestClass));
+
             _uninitializedMock
                 .Setup(c => c.ResolveUninitialized(
                     It.Is<FixtureRequest>(r => r.Type == typeof(TestClass)),
+                    InitializeMembers.None,
+                    _contextMock.Object))
+                .Returns(expected);
+
+            var result = _sut.CreateUninitialized();
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        class LinkedTestClass : TestClass;
+
+        [Test]
+        public void UseAutoConstructor_UsesLinkedType()
+        {
+            var expected = new LinkedTestClass();
+            _contextMock
+                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Returns(typeof(LinkedTestClass));
+
+            _autoConstructingMock
+                .Setup(c => c.AutoResolve(It.Is<FixtureRequest>(r => r.Type == typeof(LinkedTestClass)), _contextMock.Object))
+                .Returns(expected);
+
+            var result = _sut.UseAutoConstructor();
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void UseConstructor_DoesNotLinkType()
+        {
+            var expected = new TestClass();
+            _contextMock
+                .Setup(c => c.UnwrapAndLink(It.IsAny<FixtureRequest>()))
+                .Returns(typeof(LinkedTestClass));
+
+            _constructingMock
+                .Setup(c => c.ResolveWithArguments(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass)), It.IsAny<object?[]>()))
+                .Returns(expected);
+
+            var result = _sut.UseConstructor();
+
+            Assert.That(result, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void CreateUninitialized_UsesLinkedType()
+        {
+            var expected = new LinkedTestClass();
+            _contextMock
+                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Returns(typeof(LinkedTestClass));
+
+            _uninitializedMock
+                .Setup(c => c.ResolveUninitialized(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(LinkedTestClass)),
                     InitializeMembers.None,
                     _contextMock.Object))
                 .Returns(expected);

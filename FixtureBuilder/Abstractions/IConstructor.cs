@@ -31,7 +31,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="args">The arguments to pass to the constructor. Must match the constructor's parameter types and order.</param>
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
-        /// <exception cref="MissingMethodException"/>
+        /// <exception cref="InvalidOperationException"/>
         TReturn UseConstructor(params object[] args);
 
         /// <summary>
