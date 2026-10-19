@@ -229,6 +229,23 @@ internal class CreateUninitializedTests
         }
     }
 
+    class AddressView
+    {
+        private readonly Address _address = null!;
+        public string Street { get => _address.Street; set => _address.Street = value; }
+    }
+
+    [Test]
+    public void CreateUninitialized_PropertyGetterReadingUninitializedField_InitializesField()
+    {
+        var fixture = Fixture.New<AddressView>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Street, Is.EqualTo("Street"));
+    }
+
     class InvoiceHolder
     {
         public SystemUnderTest.Invoice Invoice { get; set; } = null!;

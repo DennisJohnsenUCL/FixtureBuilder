@@ -8,11 +8,11 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 {
     /// <summary>
     /// Iterates over an object's data members (properties and fields) and initializes any
-    /// that are <see langword="null"/> by resolving values through an
+    /// that hold their default value by resolving values through an
     /// <see cref="IUninitializedProvider"/>. Members are discovered via reflection
     /// using <see cref="Extensions.TypeExtensions.GetDataMembers"/> and filtered through an
-    /// <see cref="IDataMemberSkipFilter"/> before initialization. If the skip filter indicates
-    /// a member should be skipped, processing stops immediately for all remaining members.
+    /// <see cref="IDataMemberSkipFilter"/> before initialization. Members the skip filter rejects,
+    /// and properties whose getter throws, are left unchanged; the remaining members are still processed.
     /// </summary>
     internal class MemberInitializer : IMemberInitializer
     {
@@ -35,7 +35,12 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             {
                 if (_skipFilter.ShouldSkip(dataMember, initializeMembers)) continue;
 
-                var value = dataMember.GetValue(instance);
+                object? value;
+                try
+                {
+                    value = dataMember.GetValue(instance);
+                }
+                catch { continue; }
 
                 var defaultValue = dataMember.DataMemberType.IsValueType
                     ? Activator.CreateInstance(dataMember.DataMemberType)
