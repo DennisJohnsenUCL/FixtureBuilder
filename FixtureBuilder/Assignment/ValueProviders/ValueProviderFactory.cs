@@ -17,7 +17,8 @@ namespace FixtureBuilder.Assignment.ValueProviders
                 new PrimitiveNumberProvider(),
                 new ArrayProvider(),
                 new ConstructibleEnumerableProvider(),
-                new ImmutableFrozenEnumerableProvider()]);
+                new ImmutableFrozenEnumerableProvider(),
+                new BoolProvider()]);
 
             return provider;
         }

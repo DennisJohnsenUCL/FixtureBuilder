@@ -261,7 +261,7 @@ internal class CreateUninitializedTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Invoice.ConstructorWasCalled, Is.False);
+            Assert.That(result.Invoice.CreatedBy, Is.Not.EqualTo("constructor"));
             Assert.That(result.Invoice.Number, Is.EqualTo("Number"));
         }
     }

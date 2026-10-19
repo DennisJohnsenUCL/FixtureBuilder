@@ -7,7 +7,7 @@ namespace SystemUnderTest
 {
     public class Invoice
     {
-        public bool ConstructorWasCalled { get; } = true;
+        public string CreatedBy { get; } = "constructor";
         public string Number { get; set; } = null!;
     }
 }
