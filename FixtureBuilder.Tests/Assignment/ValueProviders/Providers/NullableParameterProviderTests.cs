@@ -1,5 +1,6 @@
 ﻿#pragma warning disable IDE0060
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
@@ -28,6 +29,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             internal static void NonNullableString(string value) { }
             internal static void NullableInt(int? value) { }
             internal static void NonNullableInt(int value) { }
+            internal static void AllowNullString([AllowNull] string value) { }
         }
 
         [SetUp]
@@ -116,6 +118,19 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void Resolve_AllowNullParameter_OptionEnabled_ReturnsNull()
+        {
+            var paramInfo = GetParameterInfo(nameof(SampleMethods.AllowNullString), "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.Null);
         }
     }
 }

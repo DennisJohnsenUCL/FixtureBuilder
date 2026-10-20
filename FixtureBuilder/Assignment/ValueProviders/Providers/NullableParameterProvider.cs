@@ -15,7 +15,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
         {
             if (request.RequestSource is ParameterInfo paramInfo
                 && context.OptionsFor(request.RootType).PreferNullParameterValues
-                && new NullabilityInfoContext().Create(paramInfo).ReadState == NullabilityState.Nullable)
+                && new NullabilityInfoContext().Create(paramInfo).WriteState == NullabilityState.Nullable)
             {
                 return null;
             }
