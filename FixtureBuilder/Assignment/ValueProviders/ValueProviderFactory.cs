@@ -18,7 +18,8 @@ namespace FixtureBuilder.Assignment.ValueProviders
                 new ArrayProvider(),
                 new ConstructibleEnumerableProvider(),
                 new ImmutableFrozenEnumerableProvider(),
-                new BoolProvider()]);
+                new BoolProvider(),
+                new CharProvider()]);
 
             return provider;
         }
