@@ -19,7 +19,10 @@ namespace FixtureBuilder.Assignment.ValueProviders
                 new ConstructibleEnumerableProvider(),
                 new ImmutableFrozenEnumerableProvider(),
                 new BoolProvider(),
-                new CharProvider()]);
+                new CharProvider(),
+                new DelegateProvider(),
+                new TaskProvider(),
+                new TaskGenericProvider()]);
 
             return provider;
         }

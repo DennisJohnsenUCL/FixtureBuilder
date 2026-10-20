@@ -277,5 +277,44 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.That(result.Category.Parent, Is.Null);
         }
+
+        class WithAsyncParameters(Task task, Task<int> taskOfInt, ValueTask valueTask, ValueTask<int> valueTaskOfInt)
+        {
+            public Task Task { get; } = task;
+            public Task<int> TaskOfInt { get; } = taskOfInt;
+            public ValueTask ValueTask { get; } = valueTask;
+            public ValueTask<int> ValueTaskOfInt { get; } = valueTaskOfInt;
+        }
+        [Test]
+        public void AsyncParameters_AreCompleted()
+        {
+            var fixture = Fixture.New<WithAsyncParameters>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Task.IsCompletedSuccessfully, Is.True);
+                Assert.That(result.TaskOfInt.IsCompletedSuccessfully, Is.True);
+                Assert.That(result.ValueTask.IsCompletedSuccessfully, Is.True);
+                Assert.That(result.ValueTaskOfInt.IsCompletedSuccessfully, Is.True);
+            }
+        }
+
+        class WithDelegate(Func<string, int> parse)
+        {
+            public Func<string, int> Parse { get; } = parse;
+        }
+        [Test]
+        public void DelegateParameter_ReturnsDefault()
+        {
+            var fixture = Fixture.New<WithDelegate>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Parse("text"), Is.Zero);
+        }
     }
 }
