@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.FixtureTests
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class UseAutoConstructorTests
     {
@@ -190,6 +192,90 @@
         public void CircularDependency_ThrowsException()
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<OuterAndInner>().UseAutoConstructor());
+        }
+
+        class SelfParameterWithAlternative
+        {
+            public bool UsedSelfParameterConstructor { get; }
+
+            public SelfParameterWithAlternative(int first, int second) { }
+            public SelfParameterWithAlternative(SelfParameterWithAlternative? parent = null) { UsedSelfParameterConstructor = true; }
+        }
+        [Test]
+        public void SelfParameterConstructor_IsChosenAfterOtherConstructors()
+        {
+            var fixture = Fixture.New<SelfParameterWithAlternative>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.UsedSelfParameterConstructor, Is.False);
+        }
+
+        class Category(string name, Category? parent)
+        {
+            public string Name { get; } = name;
+            public Category? Parent { get; } = parent;
+        }
+        [Test]
+        public void NullableSelfParameter_ResolvesToNull()
+        {
+            var fixture = Fixture.New<Category>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Name, Is.Not.Null.And.Not.Empty);
+                Assert.That(result.Parent, Is.Null);
+            }
+        }
+
+        [Test]
+        public void NullableSelfParameter_NullsNotPreferred_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<Category>();
+            TestHelper.SetOption(fixture, o => o.PreferNullParameterValues = false);
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseAutoConstructor());
+
+            Assert.That(ex!.Message, Does.Contain("Failed to find a constructor for Category"));
+        }
+
+        class CategoryWithDefault(string name, CategoryWithDefault? parent = null)
+        {
+            public string Name { get; } = name;
+            public CategoryWithDefault? Parent { get; } = parent;
+        }
+        [Test]
+        public void SelfParameterWithDefault_NullsNotPreferred_ResolvesToDefault()
+        {
+            var fixture = Fixture.New<CategoryWithDefault>();
+            TestHelper.SetOption(fixture, o => o.PreferNullParameterValues = false);
+
+            fixture.UseAutoConstructor();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Parent, Is.Null);
+        }
+
+        class Order(Category category)
+        {
+            public Category Category { get; } = category;
+        }
+        [Test]
+        public void NullableSelfParameter_NestedType_UsesRootOptions()
+        {
+            var factory = new FixtureFactory(new FixtureOptions { PreferNullParameterValues = false })
+                .WhenBuilding<Order>(b => b.SetOptions(o => o.PreferNullParameterValues = true));
+
+            var fixture = factory.New<Order>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Category.Parent, Is.Null);
         }
     }
 }

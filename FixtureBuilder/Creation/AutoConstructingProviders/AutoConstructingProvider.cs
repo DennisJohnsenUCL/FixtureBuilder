@@ -13,8 +13,9 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// <remarks>
     /// <para>
     /// The provider selects the simplest (fewest parameters) constructor available on the requested
-    /// type, preferring public constructors over non-public ones. Each constructor parameter is
-    /// resolved recursively via <see cref="IFixtureContext.ValueProvider"/>.
+    /// type, preferring public constructors over non-public ones. Constructors with a parameter of the
+    /// requested type are tried last, and skipped unless that parameter resolves to null or its default value.
+    /// Each constructor parameter is resolved recursively via <see cref="IFixtureContext.ValueProvider"/>.
     /// </para>
     /// <para>
     /// The following types cannot be auto-constructed and will throw an <see cref="InvalidOperationException"/>:
@@ -87,29 +88,42 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
 
         private static ConstructorInfo? GetConstructorInfo(FixtureRequest request, IFixtureContext context)
         {
+            var type = request.Type;
             var options = context.OptionsFor(request.RootType);
             ConstructorInfo? ctor;
 
             if (options.PreferSimplestConstructor && options.AllowPrivateConstructors)
             {
-                ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                ctor = GetSimplestConstructor(type, options, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             }
             else
             {
-                ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.Public);
+                ctor = GetSimplestConstructor(type, options, BindingFlags.Instance | BindingFlags.Public);
 
                 if (ctor == null && options.AllowPrivateConstructors)
-                    ctor = GetSimplestConstructor(request.Type, BindingFlags.Instance | BindingFlags.NonPublic);
+                    ctor = GetSimplestConstructor(type, options, BindingFlags.Instance | BindingFlags.NonPublic);
             }
 
             return ctor;
         }
 
-        private static ConstructorInfo? GetSimplestConstructor(Type type, BindingFlags bindingAttr)
+        private static ConstructorInfo? GetSimplestConstructor(Type type, FixtureOptions options, BindingFlags bindingAttr)
         {
+            var nullsPreferred = options.PreferNullParameterValues;
+            var defaultPreferred = options.PreferDefaultParameterValues;
+
             return type
                 .GetConstructors(bindingAttr)
-                .OrderBy(c => c.GetParameters().Length)
+                .Where(c => c.GetParameters().All(p =>
+                {
+                    if (ContextBase.Unwrap(p.ParameterType) != type) return true;
+                    var isNullAndNullsPreferred = nullsPreferred && new NullabilityInfoContext().Create(p).WriteState == NullabilityState.Nullable;
+                    var hasDefaultAndDefaultPreferred = defaultPreferred && p.HasDefaultValue;
+
+                    return isNullAndNullsPreferred || hasDefaultAndDefaultPreferred;
+                }))
+                .OrderBy(c => c.GetParameters().Any(p => ContextBase.Unwrap(p.ParameterType) == type))
+                .ThenBy(c => c.GetParameters().Length)
                 .FirstOrDefault();
         }
     }

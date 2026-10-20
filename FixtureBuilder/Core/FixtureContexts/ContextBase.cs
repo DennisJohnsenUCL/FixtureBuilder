@@ -39,16 +39,16 @@ namespace FixtureBuilder.Core.FixtureContexts
             else return Options;
         }
 
-        public static Type Unwrap(FixtureRequest request)
+        public static Type Unwrap(Type type)
         {
-            var type = request.Type.IsByRef ? request.Type.GetElementType()! : request.Type;
+            type = type.IsByRef ? type.GetElementType()! : type;
             type = Nullable.GetUnderlyingType(type) ?? type;
             return type;
         }
 
         public Type UnwrapAndLink(FixtureRequest request)
         {
-            request.Type = Unwrap(request);
+            request.Type = Unwrap(request.Type);
             return TypeLink.Link(request) ?? request.Type;
         }
 

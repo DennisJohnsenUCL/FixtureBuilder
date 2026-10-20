@@ -40,6 +40,8 @@ namespace FixtureBuilder
         /// <remarks>
         /// Selects the simplest available constructor and resolves each parameter through the fixture's resolution pipeline.
         /// Uses the <see cref="FixtureOptions.PreferSimplestConstructor"/> and <see cref="FixtureOptions.AllowPrivateConstructors"/> options.
+        /// Constructors with a parameter of the type being built are tried last, and skipped unless that parameter is nullable and
+        /// <see cref="FixtureOptions.PreferNullParameterValues"/> is enabled, or has a default value and <see cref="FixtureOptions.PreferDefaultParameterValues"/> is enabled.
         /// </remarks>
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="InvalidOperationException"/>
