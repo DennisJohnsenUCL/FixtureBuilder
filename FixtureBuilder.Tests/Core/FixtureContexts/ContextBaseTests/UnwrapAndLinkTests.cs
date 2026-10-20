@@ -91,5 +91,17 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             _typeLinkMock.Verify(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int))), Times.Once);
             _typeLinkMock.Verify(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int?))), Times.Never);
         }
+
+        [Test]
+        public void UnwrapAndLink_ByRefType_UnwrapsThenLinks()
+        {
+            var request = new FixtureRequest(typeof(IDisposable).MakeByRefType());
+            _typeLinkMock.Setup(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(IDisposable)))).Returns(typeof(MemoryStream));
+            var context = CreateContext();
+
+            var result = context.UnwrapAndLink(request);
+
+            Assert.That(result, Is.EqualTo(typeof(MemoryStream)));
+        }
     }
 }
