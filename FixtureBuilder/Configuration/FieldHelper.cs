@@ -69,45 +69,77 @@ namespace FixtureBuilder.Configuration
         }
 
         /// <summary>
-        /// Attempts to locate the backing field for a property, searching both the specified parent type
-        /// and the property's declaring type.
+        /// Attempts to locate the backing field for a property. The type hierarchy of <paramref name="propertyParentType"/>
+        /// is walked to the most derived type declaring or overriding the property, and the field is searched for on that
+        /// type and its base types. A property declared on an interface is first resolved to the class property implementing it.
         /// </summary>
-        /// <param name="propertyParentType">The concrete type to search first for the backing field.</param>
+        /// <param name="propertyParentType">The runtime type of the instance that owns the property.</param>
         /// <param name="property">The property whose backing field to locate.</param>
         /// <param name="fieldName">
-        /// An explicit field name to search for. If <see langword="null"/>, common naming conventions
-        /// and compiler-generated backing field names are used as candidates.
+        /// An explicit field name to search for. If <see langword="null"/>, the compiler-generated backing field name
+        /// and common naming conventions are used as candidates.
         /// </param>
         /// <param name="backingField">
         /// When this method returns, contains the <see cref="FieldInfo"/> for the backing field
         /// if found; otherwise, <see langword="null"/>.
         /// </param>
         /// <returns>
-        /// <see langword="true"/> if a backing field was found on either the parent type or the
-        /// declaring type; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if a backing field was found; otherwise, <see langword="false"/>, including when
+        /// <paramref name="propertyParentType"/> does not declare, inherit or implement the property.
         /// </returns>
         public static bool TryGetPropertyBackingField(Type propertyParentType, PropertyInfo property, string? fieldName, out FieldInfo backingField)
         {
-            var declaringType = property.DeclaringType;
-            string[] fieldNames;
+            backingField = null!;
 
-            if (fieldName == null)
+            var commonFieldNames = GetCommonFieldNames(property.Name);
+
+            if (property.DeclaringType is { IsInterface: true })
             {
-                fieldNames = GetCommonFieldNames(property.Name);
-
-                if (declaringType != null && declaringType.IsInterface)
-                {
-                    var explicitFieldName = $"<{declaringType.FullName}.{property.Name}>k__BackingField";
-                    fieldNames = [explicitFieldName, .. fieldNames];
-                }
+                if (GetPropertyImplementation(propertyParentType, property) is not { } implementation) return false;
+                property = implementation;
             }
-            else fieldNames = [fieldName];
 
-            if (TryGetField(propertyParentType, fieldNames, out backingField)) { }
-            else if (declaringType != null && TryGetField(declaringType, fieldNames, out backingField)) { }
-            else return false;
+            string[] fieldNames = fieldName is not null ? [fieldName] : [GetAutoBackingFieldName(property), .. commonFieldNames];
+            var getMethod = property.GetMethod?.GetBaseDefinition();
 
-            return true;
+            var currentType = propertyParentType;
+            while (currentType != null && currentType != typeof(object))
+            {
+                if (currentType.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) is { } declaringProperty
+                    && getMethod == declaringProperty.GetMethod?.GetBaseDefinition())
+                {
+                    break;
+                }
+                currentType = currentType.BaseType;
+            }
+
+            if (currentType == null || currentType == typeof(object)) return false;
+
+            while (currentType != null && currentType != typeof(object))
+            {
+                if (TryGetField(currentType, fieldNames, out var fieldInfo))
+                {
+                    backingField = fieldInfo;
+                    return true;
+                }
+                currentType = currentType.BaseType;
+            }
+
+            return false;
+        }
+
+        private static PropertyInfo? GetPropertyImplementation(Type propertyParentType, PropertyInfo interfaceProperty)
+        {
+            var iface = interfaceProperty.DeclaringType!;
+            if (!iface.IsAssignableFrom(propertyParentType)) return null;
+
+            var ifaceMap = propertyParentType.GetInterfaceMap(iface);
+            var getterIndex = Array.FindIndex(ifaceMap.InterfaceMethods, m => m.HasSameMetadataDefinitionAs(interfaceProperty.GetMethod!));
+            var target = ifaceMap.TargetMethods[getterIndex];
+
+            return target.DeclaringType?
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                .First(p => p.GetMethod?.HasSameMetadataDefinitionAs(target) == true);
         }
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)
@@ -126,12 +158,11 @@ namespace FixtureBuilder.Configuration
         /// </summary>
         /// <param name="propName">The property name to derive field names from.</param>
         /// <returns>
-        /// An array of candidate field names in priority order: compiler-generated backing field,
+        /// An array of candidate field names in priority order:
         /// underscore-prefixed camelCase, camelCase, and underscore-prefixed original name.
         /// </returns>
         internal static string[] GetCommonFieldNames(string propName) =>
-            [$"<{propName}>k__BackingField",
-            $"_{char.ToLower(propName[0], CultureInfo.InvariantCulture) + propName[1..]}",
+            [$"_{char.ToLower(propName[0], CultureInfo.InvariantCulture) + propName[1..]}",
             $"{char.ToLower(propName[0], CultureInfo.InvariantCulture) + propName[1..]}",
             $"_{propName}"];
     }

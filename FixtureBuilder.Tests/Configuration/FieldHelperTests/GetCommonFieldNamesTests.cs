@@ -11,11 +11,10 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Has.Length.EqualTo(4));
-                Assert.That(result[0], Is.EqualTo("<FirstName>k__BackingField"));
-                Assert.That(result[1], Is.EqualTo("_firstName"));
-                Assert.That(result[2], Is.EqualTo("firstName"));
-                Assert.That(result[3], Is.EqualTo("_FirstName"));
+                Assert.That(result, Has.Length.EqualTo(3));
+                Assert.That(result[0], Is.EqualTo("_firstName"));
+                Assert.That(result[1], Is.EqualTo("firstName"));
+                Assert.That(result[2], Is.EqualTo("_FirstName"));
             }
         }
 
@@ -26,10 +25,9 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result[0], Is.EqualTo("<X>k__BackingField"));
-                Assert.That(result[1], Is.EqualTo("_x"));
-                Assert.That(result[2], Is.EqualTo("x"));
-                Assert.That(result[3], Is.EqualTo("_X"));
+                Assert.That(result[0], Is.EqualTo("_x"));
+                Assert.That(result[1], Is.EqualTo("x"));
+                Assert.That(result[2], Is.EqualTo("_X"));
             }
         }
 
@@ -40,10 +38,9 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result[0], Is.EqualTo("<age>k__BackingField"));
-                Assert.That(result[1], Is.EqualTo("_age"));
-                Assert.That(result[2], Is.EqualTo("age"));
-                Assert.That(result[3], Is.EqualTo("_age"));
+                Assert.That(result[0], Is.EqualTo("_age"));
+                Assert.That(result[1], Is.EqualTo("age"));
+                Assert.That(result[2], Is.EqualTo("_age"));
             }
         }
     }

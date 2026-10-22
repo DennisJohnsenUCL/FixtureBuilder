@@ -103,6 +103,17 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
         }
 
         [Test]
+        public void CastToInterface_ImplicitImplementation_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<InterfaceTestClass>().CastTo<ITestInterface>();
+
+            fixture.WithBackingField(t => t.ImplicitProperty, _text);
+
+            var field = TestHelper.GetFixture(fixture);
+            Assert.That(field.ImplicitProperty, Is.EqualTo(_text));
+        }
+
+        [Test]
         public void TwiceDerivedClass_PropertyInDerivedClass_SetsProperty()
         {
             var fixture = TestHelper.MakeFixture<TwiceDerivedClass>();
