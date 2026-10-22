@@ -111,5 +111,86 @@
                 Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
             }
         }
+
+        private class BaseEntity
+        {
+            public bool BaseWasCalled { get; private set; }
+
+            private void BaseMethod() => BaseWasCalled = true;
+            private void SharedMethod() => BaseWasCalled = true;
+        }
+
+        private class DerivedEntity : BaseEntity
+        {
+            public bool DerivedWasCalled { get; private set; }
+
+            private void SharedMethod() => DerivedWasCalled = true;
+        }
+
+        private class ThrowingEntity : BaseEntity
+        {
+            private void SharedMethod() => throw new InvalidOperationException("Thrown by SharedMethod");
+        }
+
+        private class ThrowingMissingMethodEntity : BaseEntity
+        {
+            private void SharedMethod() => throw new MissingMethodException("Thrown by SharedMethod");
+        }
+
+        [Test]
+        public void InvokePrivate_PrivateMethodDeclaredOnBaseClass_CallsMethod()
+        {
+            var fixture = TestHelper.MakeFixture<DerivedEntity>();
+
+            fixture.InvokePrivate("BaseMethod");
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.BaseWasCalled, Is.True);
+        }
+
+        [Test]
+        public void InvokePrivate_MethodDeclaredOnDerivedAndBaseClass_CallsOnlyDerivedMethod()
+        {
+            var fixture = TestHelper.MakeFixture<DerivedEntity>();
+
+            fixture.InvokePrivate("SharedMethod");
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.DerivedWasCalled, Is.True);
+                Assert.That(result.BaseWasCalled, Is.False);
+            }
+        }
+
+        [Test]
+        public void InvokePrivate_MethodThrows_RethrowsOriginalExceptionWithoutCallingBaseMethod()
+        {
+            var fixture = TestHelper.MakeFixture<ThrowingEntity>();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.InvokePrivate("SharedMethod"));
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ex!.Message, Is.EqualTo("Thrown by SharedMethod"));
+                Assert.That(result.BaseWasCalled, Is.False);
+            }
+        }
+
+        [Test]
+        public void InvokePrivate_MethodThrowsMissingMethodException_RethrowsItWithoutCallingBaseMethod()
+        {
+            var fixture = TestHelper.MakeFixture<ThrowingMissingMethodEntity>();
+
+            var ex = Assert.Throws<MissingMethodException>(() => fixture.InvokePrivate("SharedMethod"));
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ex!.Message, Is.EqualTo("Thrown by SharedMethod"));
+                Assert.That(result.BaseWasCalled, Is.False);
+            }
+        }
     }
 }

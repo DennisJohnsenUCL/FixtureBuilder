@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -271,12 +272,29 @@ namespace FixtureBuilder
 
         private static void InvokePrivateInternal(Type parentType, object instance, string methodName, params object?[] args)
         {
-            parentType.InvokeMember(
-                methodName,
-                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                instance,
-                args);
+            var currentType = parentType;
+            while (currentType != null && currentType != typeof(object))
+            {
+                try
+                {
+                    currentType.InvokeMember(
+                       methodName,
+                       BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                       null,
+                       instance,
+                       args);
+                    return;
+                }
+                catch (MissingMethodException)
+                {
+                    currentType = currentType.BaseType;
+                }
+                catch (TargetInvocationException ex)
+                {
+                    ExceptionDispatchInfo.Throw(ex.InnerException!);
+                }
+            }
+            throw new MissingMethodException($"No method {methodName} accepting the given arguments was found on {parentType.Name} or its base types.");
         }
 
         internal T InstantiateFixture()

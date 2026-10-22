@@ -168,5 +168,23 @@
                 Assert.That(result.Child.PrivateWasCalled, Is.True);
             }
         }
+
+        private class DerivedChildEntity : ChildEntity;
+
+        private class DerivedChildHolder
+        {
+            public DerivedChildEntity Child { get; set; } = null!;
+        }
+
+        [Test]
+        public void InvokePrivate_CallsPrivateMethodDeclaredOnBaseClassOfProperty()
+        {
+            var fixture = TestHelper.MakeFixture<DerivedChildHolder>();
+
+            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Child.PrivateWasCalled, Is.True);
+        }
     }
 }

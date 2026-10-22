@@ -159,7 +159,7 @@ namespace FixtureBuilder
         /// <param name="methodName">The name of the method to invoke on the fixture.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="T"/>.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="T"/> or its base types.</exception>
         IFixtureConfigurator<T> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, params object[] arguments);
 
         /// <summary>
@@ -173,7 +173,8 @@ namespace FixtureBuilder
         /// <param name="methodName">The name of the method to invoke on the resolved member.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid or the method is not found on <typeparamref name="TProp"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="TProp"/> or its base types.</exception>
         IFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);
 
         /// <summary>
