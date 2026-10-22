@@ -229,6 +229,31 @@ internal class CreateUninitializedTests
         }
     }
 
+    class EntityBase
+    {
+        private readonly string _createdBy = null!;
+        public string GetCreatedBy() => _createdBy;
+    }
+    class Product : EntityBase
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_InheritedPrivateField_IsInitialized()
+    {
+        var fixture = Fixture.New<Product>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Name, Is.EqualTo("Name"));
+            Assert.That(result.GetCreatedBy(), Is.EqualTo("_createdBy"));
+        }
+    }
+
     class AddressView
     {
         private readonly Address _address = null!;
