@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Assignment.TypeLinks;
+﻿using System.Collections.ObjectModel;
+using FixtureBuilder.Assignment.TypeLinks;
 using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Tests.Assignment.TypeLinks
@@ -32,7 +33,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
         [Test]
         public void Constructor_Constructs()
         {
-            Assert.DoesNotThrow(() => new TypeLink(typeof(int), typeof(long)));
+            Assert.DoesNotThrow(() => new TypeLink(typeof(IDisposable), typeof(MemoryStream)));
         }
 
         [Test]
@@ -42,10 +43,28 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
         }
 
         [Test]
+        public void Constructor_OpenGenericBaseClass_Constructs()
+        {
+            Assert.DoesNotThrow(() => new TypeLink(typeof(Collection<>), typeof(ObservableCollection<>)));
+        }
+
+        [Test]
+        public void Constructor_OutTypeNotAssignable_ThrowsException()
+        {
+            Assert.Throws<ArgumentException>(() => new TypeLink(typeof(IDisposable), typeof(string)));
+        }
+
+        [Test]
+        public void Constructor_OpenGenericOutTypeNotAssignable_ThrowsException()
+        {
+            Assert.Throws<ArgumentException>(() => new TypeLink(typeof(ISet<>), typeof(List<>)));
+        }
+
+        [Test]
         public void Link_TargetInType_ReturnsOutType()
         {
-            var inType = typeof(int);
-            var outType = typeof(long);
+            var inType = typeof(IDisposable);
+            var outType = typeof(MemoryStream);
             var link = new TypeLink(inType, outType);
 
             var result = link.Link(new FixtureRequest(inType));
@@ -56,8 +75,8 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
         [Test]
         public void Link_TargetNotInType_ReturnsNull()
         {
-            var inType = typeof(int);
-            var outType = typeof(long);
+            var inType = typeof(IDisposable);
+            var outType = typeof(MemoryStream);
             var link = new TypeLink(inType, outType);
 
             var result = link.Link(new FixtureRequest(typeof(string)));

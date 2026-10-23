@@ -15,6 +15,12 @@ namespace FixtureBuilder.Assignment.TypeLinks
             if (inType.IsGenericTypeDefinition != outType.IsGenericTypeDefinition)
                 throw new ArgumentException("Both TypeLink types must be either generic type definitions or concrete types.");
 
+            if (!IsLinkable(inType, outType))
+            {
+                throw new ArgumentException($"Output type {outType.Name} must be assignable to input type {inType.Name} for TypeLink to be valid, " +
+                    "otherwise objects of output type cannot be assigned to members of input type.");
+            }
+
             _inType = inType;
             _outType = outType;
         }
@@ -36,6 +42,23 @@ namespace FixtureBuilder.Assignment.TypeLinks
             }
 
             return null;
+        }
+
+        private static bool IsLinkable(Type inType, Type outType)
+        {
+            if (!inType.IsGenericTypeDefinition) return inType.IsAssignableFrom(outType);
+
+            var outArgs = outType.GetGenericArguments();
+            if (inType.GetGenericArguments().Length != outArgs.Length) return false;
+
+            try
+            {
+                return inType.MakeGenericType(outArgs).IsAssignableFrom(outType);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
         }
     }
 }
