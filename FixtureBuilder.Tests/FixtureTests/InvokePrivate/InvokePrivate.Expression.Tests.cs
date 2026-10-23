@@ -186,5 +186,23 @@
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Child.PrivateWasCalled, Is.True);
         }
+
+        private class ChildWithOwnPrivateMethod : ChildEntity
+        {
+            public bool OwnPrivateWasCalled { get; private set; }
+            private void OwnPrivateMethod() => OwnPrivateWasCalled = true;
+        }
+
+        [Test]
+        public void InvokePrivate_CallsPrivateMethodDeclaredOnRuntimeTypeOfProperty()
+        {
+            var fixture = TestHelper.MakeFixture<TestEntity>()
+                .With(x => x.Child, new ChildWithOwnPrivateMethod());
+
+            fixture.InvokePrivate(x => x.Child, "OwnPrivateMethod");
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(((ChildWithOwnPrivateMethod)result.Child).OwnPrivateWasCalled, Is.True);
+        }
     }
 }

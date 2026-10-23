@@ -2,7 +2,6 @@
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
@@ -39,12 +38,11 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var root = new Root { Child = new Child { Value = 42 } };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
-            var (instance, dataMember) = sut.ResolveDataMemberInstance(root, expr);
+            var instance = sut.ResolveDataMemberInstance(root, expr);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(instance, Is.EqualTo(42));
-                Assert.That(dataMember.Name, Is.EqualTo(nameof(Child.Value)));
             }
         }
 
@@ -63,7 +61,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedChild);
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberInstance(root, expr);
+            var instance = sut.ResolveDataMemberInstance(root, expr);
 
             using (Assert.EnterMultipleScope())
             {

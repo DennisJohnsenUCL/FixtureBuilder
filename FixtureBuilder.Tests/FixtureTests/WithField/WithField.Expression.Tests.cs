@@ -120,5 +120,23 @@
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.NestedClass.GetField, Is.EqualTo(_text));
         }
+
+        class DeclaredAsBaseHolder
+        {
+            public InheritedClass Member { get; set; } = null!;
+        }
+
+        [Test]
+        public void MemberHoldingDerivedInstance_SetsFieldDeclaredOnRuntimeType()
+        {
+            var fieldName = "_field";
+            var fixture = TestHelper.MakeFixture<DeclaredAsBaseHolder>()
+                .With(c => c.Member, new TwiceNestedClass());
+
+            fixture.WithField(c => c.Member, fieldName, _text);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(((TwiceNestedClass)result.Member).GetField, Is.EqualTo(_text));
+        }
     }
 }

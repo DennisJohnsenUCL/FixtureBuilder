@@ -2,7 +2,6 @@
 using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
 
 namespace FixtureBuilder.Configuration
 {
@@ -50,8 +49,7 @@ namespace FixtureBuilder.Configuration
 
         /// <summary>
         /// Walks a property access chain from the root object, initializing any <see langword="null"/>
-        /// intermediate properties along the path, and returns the last object together with
-        /// the final <see cref="PropertyInfo"/>.
+        /// properties along the path, including the final one, and returns the final property's value.
         /// </summary>
         /// <typeparam name="T">The type of the root object.</typeparam>
         /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
@@ -59,22 +57,19 @@ namespace FixtureBuilder.Configuration
         /// <param name="expr">
         /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
         /// </param>
-        /// <returns>
-        /// A tuple containing the object value of the final property, and the <see cref="PropertyInfo"/>
-        /// of that final property.
-        /// </returns>
+        /// <returns>The value of the final property, initialized if it was <see langword="null"/>.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
         /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
         /// <see langword="null"/> property along the path does not have a setter.
         /// </exception>
-        public (object Instance, DataMemberInfo DataMember) ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr)
+        public object ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolveDataMemberPath(memberExpr, root, resolveInstance: true);
+            return ResolveDataMemberPath(memberExpr, root, resolveInstance: true).Instance;
         }
 
         /// <summary>

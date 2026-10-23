@@ -143,10 +143,9 @@ namespace FixtureBuilder
 
             ExpressionValidator.ValidateExpression(expr);
 
-            var (instance, dataMember) = _expressionResolver.ResolveDataMemberInstance(_fixture, expr);
-            var dataMemberType = dataMember.DataMemberType;
+            var instance = _expressionResolver.ResolveDataMemberInstance(_fixture, expr);
 
-            return WithFieldInternal(fieldName, dataMemberType, value, instance);
+            return WithFieldInternal(fieldName, instance.GetType(), value, instance);
         }
 
         private Fixture<T> WithFieldInternal(string fieldName, Type dataMemberType, object? value, object instance)
@@ -262,10 +261,9 @@ namespace FixtureBuilder
 
             ExpressionValidator.ValidateExpression(expr);
 
-            var (instance, dataMember) = _expressionResolver.ResolveDataMemberInstance(_fixture, expr);
-            var dataMemberType = dataMember.DataMemberType;
+            var instance = _expressionResolver.ResolveDataMemberInstance(_fixture, expr);
 
-            InvokePrivateInternal(dataMemberType, instance, methodName, arguments);
+            InvokePrivateInternal(instance.GetType(), instance, methodName, arguments);
 
             return this;
         }
