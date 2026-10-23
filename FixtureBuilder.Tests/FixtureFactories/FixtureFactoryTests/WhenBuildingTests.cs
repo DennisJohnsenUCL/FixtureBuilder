@@ -200,6 +200,46 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             Assert.Throws<InvalidOperationException>(() => TestHelper.GetFixture(fixture));
         }
 
+        public class NullableAndDefaultParameterClass(int? count, int size = 99)
+        {
+            public int? Count { get; } = count;
+            public int Size { get; } = size;
+        }
+
+        [Test]
+        public void WhenBuilding_SetOptionsChained_AppliesAllOptions()
+        {
+            _factory.WhenBuilding<NullableAndDefaultParameterClass>(b => b
+                .SetOptions(o => o.PreferNullParameterValues = false)
+                .SetOptions(o => o.PreferDefaultParameterValues = false));
+
+            var fixture = _factory.New<NullableAndDefaultParameterClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Count, Is.Not.Null);
+                Assert.That(result.Size, Is.Not.EqualTo(99));
+            }
+        }
+
+        [Test]
+        public void WhenBuilding_SetOptionsInSeparateCalls_AppliesAllOptions()
+        {
+            _factory
+                .WhenBuilding<NullableAndDefaultParameterClass>(b => b.SetOptions(o => o.PreferNullParameterValues = false))
+                .WhenBuilding<NullableAndDefaultParameterClass>(b => b.SetOptions(o => o.PreferDefaultParameterValues = false));
+
+            var fixture = _factory.New<NullableAndDefaultParameterClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Count, Is.Not.Null);
+                Assert.That(result.Size, Is.Not.EqualTo(99));
+            }
+        }
+
         [Test]
         public void WhenBuilding_AddProvider_AppliesForMatchingRootType()
         {

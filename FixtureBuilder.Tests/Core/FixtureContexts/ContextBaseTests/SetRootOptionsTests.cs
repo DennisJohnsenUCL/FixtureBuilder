@@ -9,7 +9,7 @@ using Moq;
 
 namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
 {
-    internal sealed class AddRootOptionsTests
+    internal sealed class SetRootOptionsTests
     {
         private static TestableContext CreateContext()
         {
@@ -24,34 +24,37 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         }
 
         [Test]
-        public void AddRootOptions_OptionsForReturnsAddedOptions()
+        public void SetRootOptions_OptionsForReturnsAddedOptions()
         {
             var context = CreateContext();
             var rootOptions = new FixtureOptions { AllowPrivateConstructors = false };
 
-            context.AddRootOptions(typeof(string), rootOptions);
+            context.SetRootOptions(typeof(string), rootOptions);
 
             Assert.That(context.OptionsFor(typeof(string)), Is.SameAs(rootOptions));
         }
 
         [Test]
-        public void AddRootOptions_DuplicateType_Throws()
+        public void SetRootOptions_DuplicateType_ReplacesOptions()
         {
             var context = CreateContext();
-            context.AddRootOptions(typeof(string), new FixtureOptions());
+            var secondOptions = new FixtureOptions();
+            context.SetRootOptions(typeof(string), new FixtureOptions());
 
-            Assert.Throws<ArgumentException>(() => context.AddRootOptions(typeof(string), new FixtureOptions()));
+            context.SetRootOptions(typeof(string), secondOptions);
+
+            Assert.That(context.OptionsFor(typeof(string)), Is.SameAs(secondOptions));
         }
 
         [Test]
-        public void AddRootOptions_MultipleTypes_EachResolvesCorrectly()
+        public void SetRootOptions_MultipleTypes_EachResolvesCorrectly()
         {
             var context = CreateContext();
             var stringOptions = new FixtureOptions { AllowPrivateConstructors = false };
             var intOptions = new FixtureOptions { PreferSimplestConstructor = true };
 
-            context.AddRootOptions(typeof(string), stringOptions);
-            context.AddRootOptions(typeof(int), intOptions);
+            context.SetRootOptions(typeof(string), stringOptions);
+            context.SetRootOptions(typeof(int), intOptions);
 
             using (Assert.EnterMultipleScope())
             {

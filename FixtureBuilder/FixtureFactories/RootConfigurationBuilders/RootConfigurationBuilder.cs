@@ -22,7 +22,14 @@ namespace FixtureBuilder
         private readonly MatchingProviderBuilder _innerBuilder = new([new RootTypeRule(typeof(TRoot))]);
 
         /// <inheritdoc />
-        public FixtureOptions Options { set { _context.AddRootOptions(typeof(TRoot), value); } }
+        public FixtureOptions Options
+        {
+            set
+            {
+                ArgumentNullException.ThrowIfNull(value);
+                _context.SetRootOptions(typeof(TRoot), value);
+            }
+        }
 
         internal RootConfigurationBuilder(IFixtureContext context)
         {
@@ -33,9 +40,11 @@ namespace FixtureBuilder
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> SetOptions(Action<FixtureOptions> optionsAction)
         {
-            var options = _context.GetBaseOptions().Clone();
+            ArgumentNullException.ThrowIfNull(optionsAction);
+
+            var options = _context.OptionsFor(typeof(TRoot)).Clone();
             optionsAction(options);
-            _context.AddRootOptions(typeof(TRoot), options);
+            _context.SetRootOptions(typeof(TRoot), options);
             return this;
         }
 

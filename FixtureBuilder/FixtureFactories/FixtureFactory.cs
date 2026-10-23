@@ -26,7 +26,11 @@ namespace FixtureBuilder
         public FixtureOptions Options
         {
             get => _context.GetBaseOptions();
-            set => _context.Options = value;
+            set
+            {
+                ArgumentNullException.ThrowIfNull(value);
+                _context.Options = value;
+            }
         }
 
         /// <summary>

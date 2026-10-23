@@ -39,6 +39,12 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         }
 
         [Test]
+        public void Options_SetNull_Throws()
+        {
+            Assert.Throws<ArgumentNullException>(() => _factory.Options = null!);
+        }
+
+        [Test]
         public void SetOptions_Action_UpdatesOptions()
         {
             _factory.SetOptions(o => o.AllowPrivateConstructors = false);

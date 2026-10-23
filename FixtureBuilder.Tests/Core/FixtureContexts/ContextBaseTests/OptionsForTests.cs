@@ -46,7 +46,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         {
             var context = CreateContext();
             var rootOptions = new FixtureOptions();
-            context.AddRootOptions(typeof(string), rootOptions);
+            context.SetRootOptions(typeof(string), rootOptions);
 
             var result = context.OptionsFor(typeof(string));
 
@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public void OptionsFor_DifferentTypeRegistered_ReturnsBaseOptions()
         {
             var context = CreateContext();
-            context.AddRootOptions(typeof(int), new FixtureOptions());
+            context.SetRootOptions(typeof(int), new FixtureOptions());
 
             var result = context.OptionsFor(typeof(string));
 

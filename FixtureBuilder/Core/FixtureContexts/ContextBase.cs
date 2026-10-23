@@ -28,9 +28,9 @@ namespace FixtureBuilder.Core.FixtureContexts
             action.Invoke(Options);
         }
 
-        public void AddRootOptions(Type type, FixtureOptions options)
+        public void SetRootOptions(Type type, FixtureOptions options)
         {
-            RootOptions.Add(type, options);
+            RootOptions[type] = options;
         }
 
         public FixtureOptions OptionsFor(Type type)
