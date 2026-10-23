@@ -11,14 +11,14 @@ namespace FixtureBuilder.Configuration.ValueConverters
     /// </summary>
     internal class CompositeConverter : ICompositeConverter
     {
-        private IEnumerable<IValueConverter> _converters;
-        private IEnumerable<IValueConverter> _rootConverters;
+        private readonly List<IValueConverter> _converters;
+        private readonly List<IValueConverter> _rootConverters;
 
         public CompositeConverter(IEnumerable<IValueConverter> converters)
         {
             ArgumentNullException.ThrowIfNull(converters);
 
-            _converters = converters;
+            _converters = [.. converters];
             _rootConverters = [];
         }
 
@@ -34,12 +34,12 @@ namespace FixtureBuilder.Configuration.ValueConverters
 
         public void AddConverter(IValueConverter converter)
         {
-            _converters = _converters.Prepend(converter);
+            _converters.Insert(0, converter);
         }
 
         public void AddRootConverter(IValueConverter rootConverter)
         {
-            _rootConverters = _rootConverters.Prepend(rootConverter);
+            _rootConverters.Insert(0, rootConverter);
         }
     }
 }

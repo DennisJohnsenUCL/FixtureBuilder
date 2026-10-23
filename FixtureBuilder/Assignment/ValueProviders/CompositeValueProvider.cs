@@ -12,14 +12,14 @@ namespace FixtureBuilder.Assignment.ValueProviders
     /// </summary>
     internal class CompositeValueProvider : ICompositeValueProvider
     {
-        private IEnumerable<IValueProvider> _providers;
-        private IEnumerable<IValueProvider> _rootProviders;
+        private readonly List<IValueProvider> _providers;
+        private readonly List<IValueProvider> _rootProviders;
 
         public CompositeValueProvider(IEnumerable<IValueProvider> providers)
         {
             ArgumentNullException.ThrowIfNull(providers);
 
-            _providers = providers;
+            _providers = [.. providers];
             _rootProviders = [];
         }
 
@@ -47,12 +47,12 @@ namespace FixtureBuilder.Assignment.ValueProviders
 
         public void AddProvider(IValueProvider provider)
         {
-            _providers = _providers.Prepend(provider);
+            _providers.Insert(0, provider);
         }
 
         public void AddRootProvider(IValueProvider rootProvider)
         {
-            _rootProviders = _rootProviders.Prepend(rootProvider);
+            _rootProviders.Insert(0, rootProvider);
         }
     }
 }

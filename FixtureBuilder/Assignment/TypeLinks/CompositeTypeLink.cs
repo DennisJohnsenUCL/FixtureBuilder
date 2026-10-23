@@ -10,14 +10,14 @@ namespace FixtureBuilder.Assignment.TypeLinks
     /// </summary>
     internal class CompositeTypeLink : ICompositeTypeLink
     {
-        private IEnumerable<ITypeLink> _typeLinks;
-        private IEnumerable<ITypeLink> _rootTypeLinks;
+        private readonly List<ITypeLink> _typeLinks;
+        private readonly List<ITypeLink> _rootTypeLinks;
 
         public CompositeTypeLink(IEnumerable<ITypeLink> typeLinks)
         {
             ArgumentNullException.ThrowIfNull(typeLinks);
 
-            _typeLinks = typeLinks;
+            _typeLinks = [.. typeLinks];
             _rootTypeLinks = [];
         }
 
@@ -35,12 +35,12 @@ namespace FixtureBuilder.Assignment.TypeLinks
 
         public void AddTypeLink(ITypeLink link)
         {
-            _typeLinks = _typeLinks.Prepend(link);
+            _typeLinks.Insert(0, link);
         }
 
         public void AddRootTypeLink(ITypeLink rootLink)
         {
-            _rootTypeLinks = _rootTypeLinks.Prepend(rootLink);
+            _rootTypeLinks.Insert(0, rootLink);
         }
     }
 }

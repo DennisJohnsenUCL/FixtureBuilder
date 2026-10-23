@@ -173,5 +173,26 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             Assert.That(result, Is.EqualTo(rootResult));
             addedLink.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
         }
+
+        [Test]
+        public void AddRootTypeLink_PrependedBeforeEarlierRootLinks()
+        {
+            var laterResult = typeof(int);
+
+            var earlierRootLink = new Mock<ITypeLink>();
+            earlierRootLink.Setup(x => x.Link(_request)).Returns(typeof(long));
+
+            var laterRootLink = new Mock<ITypeLink>();
+            laterRootLink.Setup(x => x.Link(_request)).Returns(laterResult);
+
+            var composite = new CompositeTypeLink([]);
+            composite.AddRootTypeLink(earlierRootLink.Object);
+            composite.AddRootTypeLink(laterRootLink.Object);
+
+            var result = composite.Link(_request);
+
+            Assert.That(result, Is.EqualTo(laterResult));
+            earlierRootLink.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
+        }
     }
 }
