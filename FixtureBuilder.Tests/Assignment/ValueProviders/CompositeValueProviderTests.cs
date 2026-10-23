@@ -1,4 +1,7 @@
-﻿using FixtureBuilder.Assignment.ValueProviders;
+﻿#pragma warning disable IDE0060
+
+using System.Reflection;
+using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -15,6 +18,19 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
             var mock = new Mock<IValueProvider>();
             mock.Setup(p => p.ResolveValue(_request, _contextMock.Object)).Returns(returnValue);
             return mock;
+        }
+
+        private static ParameterInfo GetParameterInfo(string methodName)
+        {
+            return typeof(SampleMethods)
+                .GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic)!
+                .GetParameters()[0];
+        }
+
+        private static class SampleMethods
+        {
+            internal static void NullableInt(int? value) { }
+            internal static void InInt(in int value) { }
         }
 
         [SetUp]
@@ -114,6 +130,35 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
             var result = sut.ResolveValue(request, _contextMock.Object);
 
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void Resolve_WhenProviderReturnsNullForUnwrappedNullableParameter_ReturnsNull()
+        {
+            var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableInt));
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object), paramInfo.Name);
+            // UnwrapAndLink turns int? into int before the providers run.
+            request.Type = typeof(int);
+            var provider = new Mock<IValueProvider>();
+            provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
+            var sut = new CompositeValueProvider([provider.Object]);
+
+            var result = sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void Resolve_WhenProviderReturnsNullForByRefNonNullableParameter_ThrowsInvalidOperationException()
+        {
+            var paramInfo = GetParameterInfo(nameof(SampleMethods.InInt));
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object), paramInfo.Name);
+            var provider = new Mock<IValueProvider>();
+            provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
+            var sut = new CompositeValueProvider([provider.Object]);
+
+            Assert.Throws<InvalidOperationException>(
+                () => sut.ResolveValue(request, _contextMock.Object));
         }
 
         [Test]

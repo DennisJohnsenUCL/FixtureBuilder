@@ -1,7 +1,6 @@
 ﻿#pragma warning disable CS0649
 
 using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories;
 using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
@@ -243,7 +242,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         [Test]
         public void WhenBuilding_AddProvider_AppliesForMatchingRootType()
         {
-            var request = new FixtureRequest(typeof(string), "source", typeof(PersonClass), null);
+            var request = new FixtureRequest(typeof(string), typeof(PersonClass).GetProperty(nameof(PersonClass.Name))!, typeof(PersonClass), null);
             var expected = "from-added";
 
             var provider = new Mock<ICustomProvider>();
@@ -261,7 +260,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         [Test]
         public void WhenBuilding_AddProvider_DoesNotApplyForNonMatchingRootType()
         {
-            var request = new FixtureRequest(typeof(string), "source", typeof(BusinessClass), null);
+            var request = new FixtureRequest(typeof(string), typeof(BusinessClass).GetProperty(nameof(BusinessClass.Name))!, typeof(BusinessClass), null);
             var expected = "from-added";
 
             var provider = new Mock<ICustomProvider>();

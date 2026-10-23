@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Core
+﻿using System.Reflection;
+
+namespace FixtureBuilder.Core
 {
     /// <summary>
     /// Represents a request to create an object of a specific type, containing metadata about the creation context.
@@ -9,6 +11,12 @@
         /// Gets or sets the type of the object requested to be created.
         /// </summary>
         public Type Type { get; set; }
+
+        /// <summary>
+        /// Gets the declared type of the parameter, property or field in <see cref="RequestSource"/>, before unwrapping and linking.
+        /// Requests without a source use the type they were created with; any other source gives <see langword="null"/>.
+        /// </summary>
+        public Type? OriginalType { get; }
 
         /// <summary>
         /// Gets the source object that initiated the request, such as the <see cref="System.Reflection.PropertyInfo"/>, <see cref="System.Reflection.FieldInfo"/>, or <see cref="System.Reflection.ParameterInfo"/>.
@@ -30,6 +38,7 @@
             ArgumentNullException.ThrowIfNull(type);
             Type = type;
             RootType = type;
+            OriginalType = type;
         }
 
         internal FixtureRequest(Type type, Type rootType) : this(type)
@@ -43,6 +52,14 @@
             ArgumentNullException.ThrowIfNull(requestSource);
             RequestSource = requestSource;
             Name = name;
+
+            OriginalType = requestSource switch
+            {
+                ParameterInfo pa => pa.ParameterType,
+                PropertyInfo pr => pr.PropertyType,
+                FieldInfo fi => fi.FieldType,
+                _ => null
+            };
         }
     }
 }
