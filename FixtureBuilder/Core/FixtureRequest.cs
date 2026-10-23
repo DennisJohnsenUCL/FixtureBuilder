@@ -16,7 +16,7 @@ namespace FixtureBuilder.Core
         /// Gets the declared type of the parameter, property or field in <see cref="RequestSource"/>, before unwrapping and linking.
         /// Requests without a source use the type they were created with; any other source gives <see langword="null"/>.
         /// </summary>
-        public Type? OriginalType { get; }
+        public Type OriginalType { get; }
 
         /// <summary>
         /// Gets the source object that initiated the request, such as the <see cref="System.Reflection.PropertyInfo"/>, <see cref="System.Reflection.FieldInfo"/>, or <see cref="System.Reflection.ParameterInfo"/>.
@@ -58,7 +58,7 @@ namespace FixtureBuilder.Core
                 ParameterInfo pa => pa.ParameterType,
                 PropertyInfo pr => pr.PropertyType,
                 FieldInfo fi => fi.FieldType,
-                _ => null
+                _ => type
             };
         }
     }

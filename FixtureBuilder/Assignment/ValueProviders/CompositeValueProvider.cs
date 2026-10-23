@@ -22,7 +22,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
 
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            var originalType = request.OriginalType!.IsByRef ? request.OriginalType.GetElementType()! : request.OriginalType;
+            var originalType = request.OriginalType.IsByRef ? request.OriginalType.GetElementType()! : request.OriginalType;
             var isValueTypeNotNullable = originalType.IsValueType
                 && originalType.GetGenericTypeDefinitionOrDefault() != typeof(Nullable<>);
 
@@ -30,8 +30,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
             {
                 var result = provider.ResolveValue(request, context);
 
-                if (result == null
-                    && isValueTypeNotNullable)
+                if (result == null && isValueTypeNotNullable)
                 {
                     throw new InvalidOperationException($"ValueProvider {provider.GetType().Name} returned null for a non-nullable value type. " +
                         $"This is not allowed as null cannot be assigned to non-nullable value types.");
