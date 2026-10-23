@@ -320,6 +320,27 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             Assert.That(result, Is.Not.EqualTo("converted-value"));
         }
 
+        [Test]
+        public void WhenBuilding_ScopedConverter_WinsOverLaterFactoryWideConverter()
+        {
+            var scopedConverter = new Mock<ICustomConverter>();
+            scopedConverter.Setup(c => c.Convert(typeof(string), It.IsAny<object>())).Returns("scoped");
+
+            var factoryWideConverter = new Mock<ICustomConverter>();
+            factoryWideConverter.Setup(c => c.Convert(typeof(string), It.IsAny<object>())).Returns("factory-wide");
+
+            _factory
+                .WhenBuilding<PersonClass>(b => b.AddConverter(scopedConverter.Object))
+                .AddConverter(factoryWideConverter.Object);
+
+            var fixture = _factory.New<PersonClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(string), "source", typeof(PersonClass), null);
+            var result = context.Converter.Composite.Convert(request, "original", context);
+
+            Assert.That(result, Is.EqualTo("scoped"));
+        }
+
         public interface IPersonDependency { }
         public class PersonDependencyImpl : IPersonDependency { }
         public class OtherPersonDependencyImpl : IPersonDependency { }

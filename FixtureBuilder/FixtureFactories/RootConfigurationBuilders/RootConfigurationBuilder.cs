@@ -62,7 +62,7 @@ namespace FixtureBuilder
         {
             var adaptedConverter = new CustomConverterAdapter(converter);
             var decoratedRootConverter = new RootConverterDecorator(adaptedConverter, typeof(TRoot));
-            _context.Converter.Composite.AddConverter(decoratedRootConverter);
+            _context.Converter.Composite.AddRootConverter(decoratedRootConverter);
             return this;
         }
 

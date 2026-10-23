@@ -167,5 +167,28 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             Assert.That(result, Is.EqualTo(addedResult));
             originalConverter.Verify(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
+
+        [Test]
+        public void AddRootConverter_ConvertedBeforeLaterAddedConverters()
+        {
+            var targetType = new FixtureRequest(typeof(string));
+            var value = "test";
+            var rootResult = "from-root";
+
+            var rootConverter = new Mock<IValueConverter>();
+            rootConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(rootResult);
+
+            var addedConverter = new Mock<IValueConverter>();
+            addedConverter.Setup(x => x.Convert(targetType, value, _context)).Returns("from-added");
+
+            var sut = new CompositeConverter([]);
+            sut.AddRootConverter(rootConverter.Object);
+            sut.AddConverter(addedConverter.Object);
+
+            var result = sut.Convert(targetType, value, _context);
+
+            Assert.That(result, Is.EqualTo(rootResult));
+            addedConverter.Verify(x => x.Convert(It.IsAny<FixtureRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+        }
     }
 }

@@ -143,7 +143,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
 
             builder.AddConverter(converterMock.Object);
 
-            compositeMock.Verify(v => v.AddConverter(It.IsAny<RootConverterDecorator>()), Times.Once);
+            compositeMock.Verify(v => v.AddRootConverter(It.IsAny<RootConverterDecorator>()), Times.Once);
         }
 
         // AddTypeLink

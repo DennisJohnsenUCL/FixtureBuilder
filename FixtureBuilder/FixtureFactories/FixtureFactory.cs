@@ -187,6 +187,9 @@ namespace FixtureBuilder
         /// <summary>
         /// Begins a root-scoped configuration block for <typeparamref name="TRoot"/>. Registrations made within the builder action apply only when resolving values for fixtures of type <typeparamref name="TRoot"/>.
         /// </summary>
+        /// <remarks>
+        /// Values, providers, converters, and type links registered here take precedence over factory-wide registrations, regardless of registration order.
+        /// </remarks>
         public FixtureFactory WhenBuilding<TRoot>(Action<RootConfigurationBuilder<TRoot>> builderAction)
         {
             ArgumentNullException.ThrowIfNull(builderAction);
