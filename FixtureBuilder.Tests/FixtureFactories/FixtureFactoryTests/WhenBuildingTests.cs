@@ -67,6 +67,19 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         }
 
         [Test]
+        public void WhenBuilding_ScopedValue_WinsOverLaterFactoryWideValue()
+        {
+            _factory
+                .WhenBuilding<PersonClass>(b => b.With("scoped"))
+                .With("factory-wide");
+
+            var fixture = _factory.New<PersonClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Name, Is.EqualTo("scoped"));
+        }
+
+        [Test]
         public void WhenBuilding_DifferentRootTypes_DifferentValues()
         {
             _factory

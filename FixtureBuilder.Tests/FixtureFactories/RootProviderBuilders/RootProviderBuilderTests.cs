@@ -42,7 +42,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
 
             builder.With(42);
 
-            valueProviderMock.Verify(v => v.AddProvider(It.IsAny<MatchingProvider>()), Times.Once);
+            valueProviderMock.Verify(v => v.AddRootProvider(It.IsAny<MatchingProvider>()), Times.Once);
         }
 
         // Options setter
@@ -121,7 +121,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
 
             builder.AddProvider(providerMock.Object);
 
-            valueProviderMock.Verify(v => v.AddProvider(It.IsAny<RootProviderDecorator>()), Times.Once);
+            valueProviderMock.Verify(v => v.AddRootProvider(It.IsAny<RootProviderDecorator>()), Times.Once);
         }
 
         [Test]

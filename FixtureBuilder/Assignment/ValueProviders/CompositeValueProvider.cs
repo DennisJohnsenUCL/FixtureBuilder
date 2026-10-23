@@ -6,18 +6,21 @@ namespace FixtureBuilder.Assignment.ValueProviders
 {
     /// <summary>
     /// An <see cref="IValueProvider"/> that iterates through a sequence of
-    /// <see cref="IValueProvider"/> instances, returning the first non-null result.
-    /// Returns <see langword="null"/> if no provider resolves the request.
+    /// <see cref="IValueProvider"/> instances, returning the first result that is not <see cref="NoResult"/>.
+    /// Root-scoped providers are always tried before global and built-in ones, regardless of registration order.
+    /// Returns <see cref="NoResult"/> if no provider resolves the request.
     /// </summary>
     internal class CompositeValueProvider : ICompositeValueProvider
     {
         private IEnumerable<IValueProvider> _providers;
+        private IEnumerable<IValueProvider> _rootProviders;
 
         public CompositeValueProvider(IEnumerable<IValueProvider> providers)
         {
             ArgumentNullException.ThrowIfNull(providers);
 
             _providers = providers;
+            _rootProviders = [];
         }
 
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
@@ -26,7 +29,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
             var isValueTypeNotNullable = originalType.IsValueType
                 && originalType.GetGenericTypeDefinitionOrDefault() != typeof(Nullable<>);
 
-            foreach (var provider in _providers)
+            foreach (var provider in _rootProviders.Concat(_providers))
             {
                 var result = provider.ResolveValue(request, context);
 
@@ -45,6 +48,11 @@ namespace FixtureBuilder.Assignment.ValueProviders
         public void AddProvider(IValueProvider provider)
         {
             _providers = _providers.Prepend(provider);
+        }
+
+        public void AddRootProvider(IValueProvider rootProvider)
+        {
+            _rootProviders = _rootProviders.Prepend(rootProvider);
         }
     }
 }

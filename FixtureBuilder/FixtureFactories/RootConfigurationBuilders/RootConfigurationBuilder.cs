@@ -53,7 +53,7 @@ namespace FixtureBuilder
         {
             var adaptedProvider = new CustomProviderAdapter(provider);
             var decoratedRootProvider = new RootProviderDecorator(adaptedProvider, typeof(TRoot));
-            _context.ValueProvider.AddProvider(decoratedRootProvider);
+            _context.ValueProvider.AddRootProvider(decoratedRootProvider);
             return this;
         }
 
@@ -90,7 +90,7 @@ namespace FixtureBuilder
 
         private RootConfigurationBuilder<TRoot> Add(MatchingProvider provider)
         {
-            _context.ValueProvider.AddProvider(provider);
+            _context.ValueProvider.AddRootProvider(provider);
             return this;
         }
 

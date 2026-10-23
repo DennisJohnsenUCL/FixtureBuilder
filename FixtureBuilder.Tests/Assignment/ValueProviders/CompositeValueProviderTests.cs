@@ -199,5 +199,21 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
             Assert.That(result, Is.SameAs(addedResult));
             originalProvider.Verify(p => p.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
+
+        [Test]
+        public void AddRootProvider_ResolvedBeforeLaterAddedProviders()
+        {
+            var expected = "from-root";
+            var rootProvider = CreateProvider(expected);
+            var provider = CreateProvider("from-provider");
+            var sut = new CompositeValueProvider([]);
+            sut.AddRootProvider(rootProvider.Object);
+            sut.AddProvider(provider.Object);
+
+            var result = sut.ResolveValue(_request, _contextMock.Object);
+
+            Assert.That(result, Is.SameAs(expected));
+            provider.Verify(p => p.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
+        }
     }
 }
