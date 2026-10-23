@@ -13,8 +13,8 @@ namespace FixtureBuilder.Core
         public Type Type { get; set; }
 
         /// <summary>
-        /// Gets the declared type of the parameter, property or field in <see cref="RequestSource"/>, before unwrapping and linking.
-        /// Requests without a source use the type they were created with; any other source gives <see langword="null"/>.
+        /// Gets the declared type of the parameter, property or field in <see cref="RequestSource"/>, with by-ref removed
+        /// but before nullable unwrapping and linking. Any other request uses the type it was created with.
         /// </summary>
         public Type OriginalType { get; }
 
@@ -53,13 +53,15 @@ namespace FixtureBuilder.Core
             RequestSource = requestSource;
             Name = name;
 
-            OriginalType = requestSource switch
+            var declared = requestSource switch
             {
                 ParameterInfo pa => pa.ParameterType,
                 PropertyInfo pr => pr.PropertyType,
                 FieldInfo fi => fi.FieldType,
                 _ => type
             };
+
+            OriginalType = declared.IsByRef ? declared.GetElementType()! : declared;
         }
     }
 }

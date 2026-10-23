@@ -14,7 +14,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching.WithRules
 
         public bool IsMatch(FixtureRequest request)
         {
-            return request.Type == _type;
+            return request.Type == _type || request.OriginalType == _type;
         }
     }
 }

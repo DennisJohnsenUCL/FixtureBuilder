@@ -30,6 +30,17 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         }
 
         [Test]
+        public void IsMatch_OriginalTypeMatchesAfterTypeChanged_ReturnsTrue()
+        {
+            var sut = new TypeRule(typeof(int?));
+            var request = new FixtureRequest(typeof(int?));
+            // UnwrapAndLink turns int? into int before the providers run.
+            request.Type = typeof(int);
+
+            Assert.That(sut.IsMatch(request), Is.True);
+        }
+
+        [Test]
         public void IsMatch_DerivedType_ReturnsFalse()
         {
             var sut = new TypeRule(typeof(object));

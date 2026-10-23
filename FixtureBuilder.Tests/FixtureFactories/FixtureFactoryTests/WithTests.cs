@@ -29,6 +29,16 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             public int Value;
         }
 
+        public class NullableClass(int? count)
+        {
+            public int? Count { get; } = count;
+        }
+
+        public class EnumerableClass(IEnumerable<int> items)
+        {
+            public IEnumerable<int> Items { get; } = items;
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -65,6 +75,29 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             var result = TestHelper.GetFixture(fixture);
 
             Assert.That(result.Name, Is.Not.EqualTo("99"));
+        }
+
+        [Test]
+        public void With_DeclaredNullableValueType_AppliesValue()
+        {
+            _factory.With<int?>(42);
+
+            var fixture = _factory.New<NullableClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Count, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void With_DeclaredLinkedInterfaceType_AppliesValue()
+        {
+            int[] items = [1, 2, 3];
+            _factory.With<IEnumerable<int>>(items);
+
+            var fixture = _factory.New<EnumerableClass>();
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Items, Is.SameAs(items));
         }
 
         // --- With<T>(value, name) ---

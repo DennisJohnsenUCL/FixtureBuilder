@@ -25,9 +25,8 @@ namespace FixtureBuilder.Assignment.ValueProviders
 
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            var originalType = request.OriginalType.IsByRef ? request.OriginalType.GetElementType()! : request.OriginalType;
-            var isValueTypeNotNullable = originalType.IsValueType
-                && originalType.GetGenericTypeDefinitionOrDefault() != typeof(Nullable<>);
+            var isValueTypeNotNullable = request.OriginalType.IsValueType
+                && request.OriginalType.GetGenericTypeDefinitionOrDefault() != typeof(Nullable<>);
 
             foreach (var provider in _rootProviders.Concat(_providers))
             {

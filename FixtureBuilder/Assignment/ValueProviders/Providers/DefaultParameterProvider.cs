@@ -18,7 +18,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 && paramInfo.HasDefaultValue
                 && context.OptionsFor(request.RootType).PreferDefaultParameterValues)
             {
-                var type = paramInfo.ParameterType.IsByRef ? paramInfo.ParameterType.GetElementType()! : paramInfo.ParameterType;
+                var type = request.OriginalType;
                 var value = paramInfo.DefaultValue;
 
                 if (value is null
