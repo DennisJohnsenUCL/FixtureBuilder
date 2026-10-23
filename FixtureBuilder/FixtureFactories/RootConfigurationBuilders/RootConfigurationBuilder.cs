@@ -84,7 +84,7 @@ namespace FixtureBuilder
         private RootConfigurationBuilder<TRoot> AddTypeLink(ITypeLink typeLink)
         {
             var rootTypeLink = new RootTypeLinkDecorator(typeLink, typeof(TRoot));
-            _context.TypeLink.AddTypeLink(rootTypeLink);
+            _context.TypeLink.AddRootTypeLink(rootTypeLink);
             return this;
         }
 

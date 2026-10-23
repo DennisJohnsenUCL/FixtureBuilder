@@ -3,5 +3,6 @@
     internal interface ICompositeTypeLink : ITypeLink
     {
         void AddTypeLink(ITypeLink link);
+        void AddRootTypeLink(ITypeLink link);
     }
 }

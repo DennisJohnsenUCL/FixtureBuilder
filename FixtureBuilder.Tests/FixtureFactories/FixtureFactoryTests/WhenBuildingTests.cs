@@ -322,6 +322,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
         public interface IPersonDependency { }
         public class PersonDependencyImpl : IPersonDependency { }
+        public class OtherPersonDependencyImpl : IPersonDependency { }
 
         [Test]
         public void WhenBuilding_AddTypeLink_AppliesForMatchingRootType()
@@ -379,6 +380,21 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
             var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void WhenBuilding_ScopedTypeLink_WinsOverLaterFactoryWideTypeLink()
+        {
+            _factory
+                .WhenBuilding<PersonClass>(b => b.AddTypeLink<IPersonDependency, PersonDependencyImpl>())
+                .AddTypeLink<IPersonDependency, OtherPersonDependencyImpl>();
+
+            var fixture = _factory.New<PersonClass>();
+            var context = TestHelper.GetContext(fixture);
+            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(PersonClass), null);
+            var result = context.TypeLink.Link(request);
+
+            Assert.That(result, Is.EqualTo(typeof(PersonDependencyImpl)));
         }
     }
 }

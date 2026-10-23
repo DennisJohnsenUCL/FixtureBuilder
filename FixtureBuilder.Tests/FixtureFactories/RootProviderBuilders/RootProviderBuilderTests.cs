@@ -166,7 +166,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
 
             builder.AddTypeLink(typeLinkMock.Object);
 
-            compositeTypeLinkMock.Verify(v => v.AddTypeLink(It.IsAny<RootTypeLinkDecorator>()), Times.Once);
+            compositeTypeLinkMock.Verify(v => v.AddRootTypeLink(It.IsAny<RootTypeLinkDecorator>()), Times.Once);
         }
     }
 }
