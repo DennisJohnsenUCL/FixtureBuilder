@@ -104,5 +104,30 @@
                 Assert.That(result.Child.WasCalled, Is.True);
             }
         }
+
+        private struct ChildHolder
+        {
+            public ChildEntity Child { get; set; }
+        }
+
+        private class StructIntermediateEntity
+        {
+            public ChildHolder Holder { get; set; }
+        }
+
+        [Test]
+        public void NullMemberInsideStructIntermediate_InitializesAndInvokes()
+        {
+            var fixture = TestHelper.MakeFixture<StructIntermediateEntity>();
+
+            fixture.Invoke(x => x.Holder.Child.DoSomething());
+
+            var result = TestHelper.GetFixture(fixture);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Holder.Child, Is.Not.Null);
+                Assert.That(result.Holder.Child.WasCalled, Is.True);
+            }
+        }
     }
 }

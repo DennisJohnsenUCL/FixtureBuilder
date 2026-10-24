@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿#pragma warning disable CS0649
+
+using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -48,13 +50,15 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
         // --- Field-backed: single level ---
 
         [Test]
-        public void SingleField_ReturnsRootAndFieldDataMember()
+        public void SingleField_PassesRootAndFieldDataMember()
         {
             var root = new Root();
             var memberExpr = GetMemberExpr<Root, string>(x => x.NameField);
             var sut = CreateSut(Mock.Of<IFixtureContext>());
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            DataMemberInfo dataMember = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, member) => (instance, dataMember) = (resolved, member));
 
             using (Assert.EnterMultipleScope())
             {
@@ -79,7 +83,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedMiddle);
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            DataMemberInfo dataMember = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, member) => (instance, dataMember) = (resolved, member));
 
             using (Assert.EnterMultipleScope())
             {
@@ -100,7 +106,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var context = new Mock<IFixtureContext>();
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, _) => instance = resolved);
 
             Assert.That(instance, Is.SameAs(existingMiddle));
             context.VerifyNoOtherCalls();
@@ -126,7 +133,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedLeaf);
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            DataMemberInfo dataMember = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, member) => (instance, dataMember) = (resolved, member));
 
             using (Assert.EnterMultipleScope())
             {
@@ -152,7 +161,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedMiddle);
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            DataMemberInfo dataMember = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, member) => (instance, dataMember) = (resolved, member));
 
             using (Assert.EnterMultipleScope())
             {
@@ -175,7 +186,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedMiddle);
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            DataMemberInfo dataMember = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, member) => (instance, dataMember) = (resolved, member));
 
             using (Assert.EnterMultipleScope())
             {
@@ -195,7 +208,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var context = new Mock<IFixtureContext>();
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            object instance = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (resolved, _) => instance = resolved);
 
             using (Assert.EnterMultipleScope())
             {
@@ -218,13 +232,152 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedLeaf);
             var sut = CreateSut(context.Object);
 
-            var (instance, dataMember) = sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: true);
+            object instance = null!;
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: true, (resolved, _) => instance = resolved);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(instance, Is.SameAs(resolvedLeaf));
                 Assert.That(root.MiddleField.LeafField, Is.SameAs(resolvedLeaf));
             }
+        }
+
+        // --- Struct members: changes are written back ---
+
+        private struct Point
+        {
+            public int X;
+            public int Y { get; set; }
+            public Leaf Leaf { get; set; }
+        }
+
+        private struct Segment
+        {
+            public Point Start { get; set; }
+        }
+
+        private class StructRoot
+        {
+            public Point PointField;
+            public Point PointProperty { get; set; }
+            public Segment Segment { get; set; }
+            private readonly Point _readOnlyPoint;
+            public Point ReadOnlyPoint => _readOnlyPoint;
+        }
+
+        [Test]
+        public void StructFieldIntermediate_WritesChangeBack()
+        {
+            var root = new StructRoot();
+            var memberExpr = GetMemberExpr<StructRoot, int>(x => x.PointField.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.PointField.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void StructPropertyIntermediate_WritesChangeBack()
+        {
+            var root = new StructRoot();
+            var memberExpr = GetMemberExpr<StructRoot, int>(x => x.PointProperty.Y);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.PointProperty.Y, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void NestedStructIntermediates_WritesChangeBackThroughEveryLevel()
+        {
+            var root = new StructRoot();
+            var memberExpr = GetMemberExpr<StructRoot, int>(x => x.Segment.Start.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.Segment.Start.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void ResolveInstanceTrue_StructFinalMember_WritesChangeBack()
+        {
+            var root = new StructRoot();
+            var memberExpr = GetMemberExpr<StructRoot, Point>(x => x.PointProperty);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: true, (instance, _) => typeof(Point).GetField(nameof(Point.X))!.SetValue(instance, 5));
+
+            Assert.That(root.PointProperty.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void NullMemberInsideStruct_WritesInitializedValueBack()
+        {
+            var root = new StructRoot();
+            var resolvedLeaf = new Leaf();
+            var memberExpr = GetMemberExpr<StructRoot, string>(x => x.PointProperty.Leaf.Tag);
+            var context = CreateContext();
+            context.Setup(c => c.ProvideWithStrategy(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(Leaf)),
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
+                .Returns(resolvedLeaf);
+            var sut = CreateSut(context.Object);
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (_, _) => { });
+
+            Assert.That(root.PointProperty.Leaf, Is.SameAs(resolvedLeaf));
+        }
+
+        [Test]
+        public void ChangedStructInPropertyWithoutSetter_ThrowsInvalidOperationException()
+        {
+            var root = new StructRoot();
+            var memberExpr = GetMemberExpr<StructRoot, int>(x => x.ReadOnlyPoint.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            Assert.Throws<InvalidOperationException>(
+                () => sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5)));
+        }
+
+        [Test]
+        public void UnchangedStructInPropertyWithoutSetter_DoesNotThrow()
+        {
+            var root = new StructRoot();
+            var memberExpr = GetMemberExpr<StructRoot, int>(x => x.ReadOnlyPoint.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            Assert.DoesNotThrow(
+                () => sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (_, _) => { }));
+        }
+
+        private struct Money
+        {
+            public decimal Amount { get; set; }
+            public string Currency { get; set; }
+
+            // Ignores Currency, so Equals cannot tell a copy with a changed Currency from the original
+            public override bool Equals(object? obj) => obj is Money other && other.Amount == Amount;
+            public override int GetHashCode() => Amount.GetHashCode();
+        }
+
+        private class MoneyRoot
+        {
+            private readonly Money _price;
+            public Money Price => _price;
+        }
+
+        [Test]
+        public void ChangedStructWithCustomEqualsInPropertyWithoutSetter_ThrowsInvalidOperationException()
+        {
+            var root = new MoneyRoot();
+            var memberExpr = GetMemberExpr<MoneyRoot, string>(x => x.Price.Currency);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            Assert.Throws<InvalidOperationException>(
+                () => sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, "EUR")));
         }
     }
 }

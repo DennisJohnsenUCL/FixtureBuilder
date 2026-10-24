@@ -82,5 +82,35 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             Assert.That(root.Child, Is.SameAs(existingChild));
             context.VerifyNoOtherCalls();
         }
+
+        private struct ChildHolder
+        {
+            public Child Child { get; set; }
+        }
+
+        private class StructRoot
+        {
+            public ChildHolder Holder { get; set; }
+        }
+
+        [Test]
+        public void MethodOnNullMemberInsideStruct_WritesInitializedValueBack()
+        {
+            var root = new StructRoot();
+            var resolvedChild = new Child();
+            Expression<Action<StructRoot>> expr = x => x.Holder.Child.DoWork();
+            var context = new Mock<IFixtureContext>();
+            var options = new FixtureOptions();
+            context.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            context.Setup(c => c.ProvideWithStrategy(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(Child)),
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
+                .Returns(resolvedChild);
+            var sut = CreateSut(context.Object);
+
+            sut.ResolveMethodParent(root, expr);
+
+            Assert.That(root.Holder.Child, Is.SameAs(resolvedChild));
+        }
     }
 }

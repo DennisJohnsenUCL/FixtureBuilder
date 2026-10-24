@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
@@ -18,10 +19,13 @@ namespace FixtureBuilder.Configuration
             _context = context;
         }
 
+        private record PathStep(object Parent, DataMemberInfo DataMember, object Value);
+
         /// <summary>
         /// Walks a property access chain from the root object, initializing any <see langword="null"/>
-        /// intermediate properties along the path, and returns the penultimate object together with
-        /// the final <see cref="PropertyInfo"/>.
+        /// intermediate properties along the path, and passes the penultimate object together with
+        /// the final member to <paramref name="configure"/>. Structs along the path are copies, so they
+        /// are written back once <paramref name="configure"/> returns.
         /// </summary>
         /// <typeparam name="T">The type of the root object.</typeparam>
         /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
@@ -29,27 +33,30 @@ namespace FixtureBuilder.Configuration
         /// <param name="expr">
         /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
         /// </param>
-        /// <returns>
-        /// A tuple containing the object that owns the final property, and the <see cref="PropertyInfo"/>
-        /// of that final property.
-        /// </returns>
+        /// <param name="configure">
+        /// Applies the change to the object that owns the final member. It must not resolve the same
+        /// path again, as the write-back afterwards would overwrite those changes.
+        /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
-        /// <see langword="null"/> property along the path does not have a setter.
+        /// Thrown when <paramref name="expr"/> is not a valid property access chain, when a
+        /// <see langword="null"/> property along the path does not have a setter, or when a changed
+        /// struct along the path is held by a property without a setter.
         /// </exception>
-        public (object Instance, DataMemberInfo DataMember) ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr)
+        public void ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, Action<object, DataMemberInfo> configure)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolveDataMemberPath(memberExpr, root, resolveInstance: false);
+            ResolveDataMemberPath(memberExpr, root, resolveInstance: false, configure);
         }
 
         /// <summary>
         /// Walks a property access chain from the root object, initializing any <see langword="null"/>
-        /// properties along the path, including the final one, and returns the final property's value.
+        /// properties along the path, including the final one, and passes the final property's value
+        /// to <paramref name="configure"/>. Structs along the path, including the final value, are copies,
+        /// so they are written back once <paramref name="configure"/> returns.
         /// </summary>
         /// <typeparam name="T">The type of the root object.</typeparam>
         /// <typeparam name="TProp">The type of the final property in the chain.</typeparam>
@@ -57,24 +64,29 @@ namespace FixtureBuilder.Configuration
         /// <param name="expr">
         /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
         /// </param>
-        /// <returns>The value of the final property, initialized if it was <see langword="null"/>.</returns>
+        /// <param name="configure">
+        /// Applies the change to the value of the final property, initialized if it was <see langword="null"/>.
+        /// It must not resolve the same path again, as the write-back afterwards would overwrite those changes.
+        /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
-        /// <see langword="null"/> property along the path does not have a setter.
+        /// Thrown when <paramref name="expr"/> is not a valid property access chain, when a
+        /// <see langword="null"/> property along the path does not have a setter, or when a changed
+        /// struct along the path is held by a property without a setter.
         /// </exception>
-        public object ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr)
+        public void ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, Action<object, DataMemberInfo> configure)
         {
             if (root == null) throw new ArgumentException("Root must be initialized.");
 
             var memberExpr = (MemberExpression)expr.Body;
 
-            return ResolveDataMemberPath(memberExpr, root, resolveInstance: true).Instance;
+            ResolveDataMemberPath(memberExpr, root, resolveInstance: true, configure);
         }
 
         /// <summary>
         /// Walks a property access chain from the root object, initializing any <see langword="null"/>
-        /// intermediate properties along the path.
+        /// intermediate properties along the path. Structs along the path are written back, so members
+        /// initialized inside them are kept.
         /// </summary>
         /// <typeparam name="T">The type of the root object.</typeparam>
         /// <param name="root">The root object to begin traversal from.</param>
@@ -93,21 +105,23 @@ namespace FixtureBuilder.Configuration
             var call = (MethodCallExpression)expr.Body;
 
             if (call.Object is MemberExpression memberExpr)
-                ResolveDataMemberPath(memberExpr, root, resolveInstance: true);
+                ResolveDataMemberPath(memberExpr, root, resolveInstance: true, (_, _) => { });
         }
 
         /// <summary>
         /// Walks a chain of property accesses from a <see cref="MemberExpression"/>, initializing
-        /// each intermediate property along the path. Returns the final property and its owning instance.
+        /// each intermediate property along the path. Passes the resolved instance and the final property
+        /// to <paramref name="configure"/>, then writes structs along the path back into their parents.
         /// </summary>
         /// <param name="memberExpr">The member expression representing the property access chain.</param>
         /// <param name="root">The root object to begin resolution from.</param>
         /// <param name="resolveInstance">
-        /// If <c>true</c>, the final property is also initialized and the returned instance is its value.
-        /// If <c>false</c>, the returned instance is the parent that owns the final property.
+        /// If <c>true</c>, the final property is also initialized and the instance passed to
+        /// <paramref name="configure"/> is its value.
+        /// If <c>false</c>, the instance passed to <paramref name="configure"/> is the parent that owns the final property.
         /// </param>
-        /// <returns>A tuple of the resolved instance and the final property in the path.</returns>
-        internal (object Instance, DataMemberInfo DataMember) ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance)
+        /// <param name="configure">Applies the change to the resolved instance.</param>
+        internal void ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, Action<object, DataMemberInfo> configure)
         {
             var members = new Stack<DataMemberInfo>();
             while (memberExpr != null)
@@ -117,16 +131,25 @@ namespace FixtureBuilder.Configuration
             }
 
             object current = root;
+            var path = new Stack<PathStep>();
             while (members.Count > 1)
             {
                 var dataMember = members.Pop();
-                current = InitializeDataMemberValue(current, dataMember);
+                var value = InitializeDataMemberValue(current, dataMember);
+                path.Push(new PathStep(current, dataMember, value));
+                current = value;
             }
 
             var finalDataMember = members.Pop();
-            if (resolveInstance) current = InitializeDataMemberValue(current, finalDataMember);
+            if (resolveInstance)
+            {
+                var value = InitializeDataMemberValue(current, finalDataMember);
+                path.Push(new PathStep(current, finalDataMember, value));
+                current = value;
+            }
 
-            return (current, finalDataMember);
+            configure(current, finalDataMember);
+            WriteBackValueTypes(path);
         }
 
         /// <summary>
@@ -154,19 +177,40 @@ namespace FixtureBuilder.Configuration
             if (dataMember.IsPropertyInfo && !pi.CanWrite)
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
-            var type = dataMember.DataMemberType;
-            var name = dataMember.Name;
-            var request = dataMember.IsPropertyInfo
-                ? new FixtureRequest(type, dataMember.Property, _rootType, name)
-                : new FixtureRequest(type, dataMember.Field, _rootType, name);
+            MemberInfo source = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
+            var request = new FixtureRequest(dataMember.DataMemberType, source, _rootType, dataMember.Name);
 
             current = _context.ProvideWithStrategy(request, _context.OptionsFor(_rootType).NestedMemberInstantiationMethod, InitializeMembers.None)
-                ?? throw new InvalidOperationException($"User-registered Provider returned null for {type.Name} in Expression chain resolution. " +
+                ?? throw new InvalidOperationException($"User-registered Provider returned null for {dataMember.Name} in Expression chain resolution. " +
                 $"Providers for types in Expression chain Resolution must return concrete values. " +
                 $"Use Instantiate to explicitly instantiate the member instead.");
 
             dataMember.SetValue(parent, current);
             return current;
+        }
+
+        /// <summary>
+        /// Writes each struct value along the path back into its parent, innermost first, so changes
+        /// made to the boxed copies reach the root.
+        /// </summary>
+        /// <param name="path">The members walked, with the parent each was read from and its value, last walked on top.</param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when a struct was changed but is held by a property without a setter.
+        /// </exception>
+        private static void WriteBackValueTypes(Stack<PathStep> path)
+        {
+            foreach (var (parent, dataMember, value) in path)
+            {
+                if (!dataMember.DataMemberType.IsValueType) continue;
+
+                if (dataMember.TryIsPropertyInfo(out var pi) && !pi.CanWrite)
+                {
+                    if (RuntimeHelpers.Equals(pi.GetValue(parent), value)) continue;
+                    throw new InvalidOperationException($"Property {dataMember.Name} holds a struct but does not have a setter, so changes to it cannot be written back. Please set the struct as a whole with 'WithBackingField' instead.");
+                }
+
+                dataMember.SetValue(parent, value);
+            }
         }
     }
 }

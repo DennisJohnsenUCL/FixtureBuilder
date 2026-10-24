@@ -1,5 +1,6 @@
 ﻿#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CS0649
 
 namespace FixtureBuilder.Tests.FixtureTests
 {
@@ -194,6 +195,25 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.NestedClass.Value, Is.EqualTo(_text));
+        }
+
+        struct Point
+        {
+            public int Y { get; set; }
+        }
+        class StructFieldIntermediateClass
+        {
+            public Point Origin;
+        }
+        [Test]
+        public void StructFieldIntermediate_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<StructFieldIntermediateClass>();
+
+            fixture.WithSetter(t => t.Origin.Y, _number);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Origin.Y, Is.EqualTo(_number));
         }
     }
 }

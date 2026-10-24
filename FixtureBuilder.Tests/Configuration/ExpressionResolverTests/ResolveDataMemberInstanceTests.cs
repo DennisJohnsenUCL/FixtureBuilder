@@ -28,17 +28,18 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
             Assert.Throws<ArgumentException>(
-                () => sut.ResolveDataMemberInstance<Root, int>(null!, expr));
+                () => sut.ResolveDataMemberInstance<Root, int>(null!, expr, (_, _) => { }));
         }
 
         [Test]
-        public void ReturnedInstanceIsFinalMemberValue()
+        public void PassedInstanceIsFinalMemberValue()
         {
             var sut = CreateSut(Mock.Of<IFixtureContext>());
             var root = new Root { Child = new Child { Value = 42 } };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
-            var instance = sut.ResolveDataMemberInstance(root, expr);
+            object instance = null!;
+            sut.ResolveDataMemberInstance(root, expr, (resolved, _) => instance = resolved);
 
             using (Assert.EnterMultipleScope())
             {
@@ -61,7 +62,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
                 .Returns(resolvedChild);
             var sut = CreateSut(context.Object);
 
-            var instance = sut.ResolveDataMemberInstance(root, expr);
+            object instance = null!;
+            sut.ResolveDataMemberInstance(root, expr, (resolved, _) => instance = resolved);
 
             using (Assert.EnterMultipleScope())
             {

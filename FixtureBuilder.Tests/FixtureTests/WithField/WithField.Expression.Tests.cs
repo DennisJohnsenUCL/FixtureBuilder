@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.FixtureTests.WithField
+﻿#pragma warning disable CS0649
+
+namespace FixtureBuilder.Tests.FixtureTests.WithField
 {
     internal class WithFieldExpressionTests
     {
@@ -137,6 +139,29 @@
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(((TwiceNestedClass)result.Member).GetField, Is.EqualTo(_text));
+        }
+
+        struct Point
+        {
+            private int _z;
+            public readonly int Z => _z;
+        }
+
+        class StructFieldTerminatorClass
+        {
+            public Point Origin;
+        }
+
+        [Test]
+        public void StructFieldTerminator_SetsField()
+        {
+            var fieldName = "_z";
+            var fixture = TestHelper.MakeFixture<StructFieldTerminatorClass>();
+
+            fixture.WithField(c => c.Origin, fieldName, 5);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Origin.Z, Is.EqualTo(5));
         }
     }
 }

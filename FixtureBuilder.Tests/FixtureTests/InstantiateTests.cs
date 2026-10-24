@@ -246,5 +246,24 @@ namespace FixtureBuilder.Tests.FixtureTests
                 Assert.That(result.Middle.Nested.Value, Is.EqualTo("constructed"));
             }
         }
+
+        struct InnerHolder
+        {
+            public Inner Nested { get; set; }
+        }
+        class OuterWithStructProperty
+        {
+            public InnerHolder Holder { get; set; }
+        }
+        [Test]
+        public void Instantiate_MemberOfStructProperty_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<OuterWithStructProperty>();
+
+            fixture.Instantiate(o => o.Holder.Nested);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Holder.Nested.Value, Is.EqualTo("constructed"));
+        }
     }
 }

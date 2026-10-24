@@ -27,7 +27,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
             Assert.Throws<ArgumentException>(
-                () => sut.ResolveDataMemberParent<Root, int>(null!, expr));
+                () => sut.ResolveDataMemberParent<Root, int>(null!, expr, (_, _) => { }));
         }
 
         [Test]
@@ -37,7 +37,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var root = new Root { Child = new Child() };
             Expression<Func<Root, int>> expr = x => x.Child.Value;
 
-            var (instance, dataMember) = sut.ResolveDataMemberParent(root, expr);
+            object instance = null!;
+            DataMemberInfo dataMember = null!;
+            sut.ResolveDataMemberParent(root, expr, (resolved, member) => (instance, dataMember) = (resolved, member));
 
             using (Assert.EnterMultipleScope())
             {

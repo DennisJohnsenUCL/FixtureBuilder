@@ -143,9 +143,12 @@ namespace FixtureBuilder
 
             ExpressionValidator.ValidateExpression(expr);
 
-            var instance = _expressionResolver.ResolveDataMemberInstance(_fixture, expr);
+            _expressionResolver.ResolveDataMemberInstance(
+                _fixture,
+                expr,
+                (instance, _) => WithFieldInternal(fieldName, instance.GetType(), value, instance));
 
-            return WithFieldInternal(fieldName, instance.GetType(), value, instance);
+            return this;
         }
 
         private Fixture<T> WithFieldInternal(string fieldName, Type dataMemberType, object? value, object instance)
@@ -187,16 +190,18 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             ExpressionValidator.ValidatePropertyExpression(expr);
-            var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr);
-            var property = dataMember.Property;
-            var propertyParentType = instance.GetType();
+            _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember) =>
+                SetBackingFieldInternal(instance, dataMember.Property, value, fieldName));
 
-            if (!FieldHelper.TryGetPropertyBackingField(propertyParentType, property, fieldName, out var backingField))
+            return this;
+        }
+
+        private void SetBackingFieldInternal(object instance, PropertyInfo property, object? value, string? fieldName = null)
+        {
+            if (!FieldHelper.TryGetPropertyBackingField(instance.GetType(), property, fieldName, out var backingField))
                 throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
             FieldHelper.SetBackingFieldValue(backingField, property, instance, value, typeof(T), _context);
-
-            return this;
         }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value)
@@ -206,10 +211,10 @@ namespace FixtureBuilder
             ExpressionValidator.ValidatePropertyExpression(expr);
             ExpressionValidator.ValidatePropertyWriteable(expr);
 
-            var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr);
-            var property = dataMember.Property;
-
-            property.SetValue(instance, value);
+            _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember) =>
+            {
+                dataMember.Property.SetValue(instance, value);
+            });
 
             return this;
         }
@@ -219,16 +224,17 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
 
             ExpressionValidator.ValidateExpression(expr);
-            var (instance, dataMember) = _expressionResolver.ResolveDataMemberParent(_fixture, expr);
+            _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember) =>
+            {
+                if (dataMember.IsFieldInfo)
+                    FieldHelper.SetFieldValue(dataMember.Field, instance, value);
 
-            if (dataMember.IsFieldInfo)
-                FieldHelper.SetFieldValue(dataMember.Field, instance, value);
+                else if (ExpressionValidator.IsPropertyWritable(expr))
+                    dataMember.Property.SetValue(instance, value);
 
-            else if (ExpressionValidator.IsPropertyWritable(expr))
-                ((IFixtureConfigurator<T>)this).WithSetter(expr, value);
-
-            else
-                WithBackingFieldInternal(expr, value);
+                else
+                    SetBackingFieldInternal(instance, dataMember.Property, value);
+            });
 
             return this;
         }
@@ -261,9 +267,7 @@ namespace FixtureBuilder
 
             ExpressionValidator.ValidateExpression(expr);
 
-            var instance = _expressionResolver.ResolveDataMemberInstance(_fixture, expr);
-
-            InvokePrivateInternal(instance.GetType(), instance, methodName, arguments);
+            _expressionResolver.ResolveDataMemberInstance(_fixture, expr, (instance, _) => InvokePrivateInternal(instance.GetType(), instance, methodName, arguments));
 
             return this;
         }

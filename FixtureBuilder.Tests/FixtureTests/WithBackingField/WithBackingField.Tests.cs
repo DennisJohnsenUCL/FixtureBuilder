@@ -398,5 +398,25 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Values.Select(v => v.Value.Inner), Is.EqualTo([1, 2, 3]));
         }
+
+        struct Point
+        {
+            private int _z;
+            public readonly int Z => _z;
+        }
+        class StructPropertyIntermediateClass
+        {
+            public Point Center { get; set; }
+        }
+        [Test]
+        public void StructPropertyIntermediate_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<StructPropertyIntermediateClass>();
+
+            fixture.WithBackingField(t => t.Center.Z, _number);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Center.Z, Is.EqualTo(_number));
+        }
     }
 }
