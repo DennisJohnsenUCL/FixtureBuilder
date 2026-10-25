@@ -165,6 +165,22 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
                 Throws.TypeOf<InvalidCastException>());
         }
 
+        [Test]
+        public void CastTo_FromInstance_BuildMultiple_Throws()
+        {
+            var bogus = Fixture.WithBogus(new Dog()).CastTo<IAnimal>();
+
+            Assert.That(() => bogus.Build(2), Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void CastTo_FromInstance_InvalidCast_BuildMultiple_Throws()
+        {
+            var bogus = Fixture.WithBogus(new Dog()).CastTo<string>();
+
+            Assert.That(() => bogus.Build(2), Throws.TypeOf<InvalidCastException>());
+        }
+
         private interface ILiving
         {
             string Name { get; }

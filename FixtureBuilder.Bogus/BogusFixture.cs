@@ -38,6 +38,12 @@ namespace FixtureBuilder.Bogus
             _instance = instance;
         }
 
+        private BogusFixture(Faker faker, Func<IFixtureConfigurator<T>> constructionCommand, T? instance) : this(faker)
+        {
+            _constructionCommand = constructionCommand;
+            _instance = instance;
+        }
+
         T IBogusFixtureConfigurator<T>.Build()
         {
             return ((IBogusFixtureConfigurator<T>)this).Build(1).First();
@@ -186,14 +192,14 @@ namespace FixtureBuilder.Bogus
 
         IBogusFixtureConfigurator<TTarget> IBogusFixtureConfigurator<T>.CastTo<TTarget>()
         {
-            var newBogusFixture = new BogusFixture<TTarget>(_faker)
-            {
-                _constructionCommand = () =>
+            var newBogusFixture = new BogusFixture<TTarget>(
+                faker: _faker,
+                constructionCommand: () =>
                 {
                     var fixture = BuildConfiguration();
                     return fixture.CastTo<TTarget>();
-                }
-            };
+                },
+                instance: _instance as TTarget);
 
             return newBogusFixture;
         }

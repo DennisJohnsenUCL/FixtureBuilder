@@ -181,8 +181,8 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="count">The number of instances to build. Must be greater than zero.</param>
         /// <returns>A collection of configured fixture instances of type <typeparamref name="T"/>.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"/>
-        /// <exception cref="InvalidOperationException">Thrown if the configurator was created from an existing instance and <paramref name="count"/> is not 1.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="count"/> is less than 1.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the configurator was created from an existing instance, or cast from one, and <paramref name="count"/> is greater than 1.</exception>
         IEnumerable<T> Build(int count);
 
         #endregion
@@ -347,7 +347,7 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <remarks>
         /// Each call replays construction and configuration with freshly generated values, creating a new instance.
-        /// If the configurator was created from an existing instance, that same instance is reconfigured and returned instead.
+        /// If the configurator was created from an existing instance, or cast from one, that same instance is reconfigured and returned instead.
         /// </remarks>
         /// <returns>The configured fixture instance of type <typeparamref name="T"/>.</returns>
         T Build();
