@@ -20,7 +20,7 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="args">A function that receives a <see cref="Faker"/> and returns the arguments to pass to the constructor.</param>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
-        /// <exception cref="MissingMethodException"/>
+        /// <exception cref="InvalidOperationException"/>
         TReturn UseConstructor(Func<Faker, object[]> args);
 
         /// <summary>
@@ -54,12 +54,18 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="args">The arguments to pass to the constructor. Must match the constructor's parameter types and order.</param>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
-        /// <exception cref="MissingMethodException"/>
+        /// <exception cref="InvalidOperationException"/>
         TReturn UseConstructor(params object[] args);
 
         /// <summary>
         /// Creates an instance by automatically selecting a constructor and resolving all dependencies recursively.
         /// </summary>
+        /// <remarks>
+        /// Selects the simplest available constructor and resolves each parameter through the fixture's resolution pipeline.
+        /// Uses the <see cref="FixtureOptions.PreferSimplestConstructor"/> and <see cref="FixtureOptions.AllowPrivateConstructors"/> options.
+        /// Constructors with a parameter of the type being built are tried last, and skipped unless that parameter is nullable and
+        /// <see cref="FixtureOptions.PreferNullParameterValues"/> is enabled, or has a default value and <see cref="FixtureOptions.PreferDefaultParameterValues"/> is enabled.
+        /// </remarks>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="InvalidOperationException"/>
         TReturn UseAutoConstructor();

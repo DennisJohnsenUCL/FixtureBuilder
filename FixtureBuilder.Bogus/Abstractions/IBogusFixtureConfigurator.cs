@@ -10,7 +10,7 @@ namespace FixtureBuilder.Bogus
     /// <summary>
     /// Provides configuration methods for a Bogus-integrated fixture of type <typeparamref name="T"/>.
     /// Each method accepts either a flat value (passthrough to FixtureBuilder) or a <see cref="Faker"/> lambda for data generation.
-    /// Configuration is deferred until <see cref="Build()"/> or <see cref="Build(int)"/> is called.
+    /// Configuration is deferred until <see cref="Build()"/> or <see cref="Build(int)"/> is called, so exceptions documented on the configuration methods are thrown when building rather than when the method is called.
     /// </summary>
     /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
     public interface IBogusFixtureConfigurator<T> where T : class
@@ -18,8 +18,12 @@ namespace FixtureBuilder.Bogus
         #region IBogusFixtureConfigurator
 
         /// <summary>
-        /// Gets or sets the randomizer used for data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
+        /// Gets or sets the randomizer used for <see cref="Faker"/>-based data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
         /// </summary>
+        /// <remarks>
+        /// The seed only applies to values generated through a <see cref="Faker"/>. Values FixtureBuilder generates on its own, such as numbers, characters and Guids filled in by UseAutoConstructor or CreateUninitialized, are not seeded.
+        /// For fixtures created from a <see cref="BogusFixtureFactory"/>, the <see cref="Faker"/> is shared with the factory, so setting this also affects the factory and every fixture created from it.
+        /// </remarks>
         public Randomizer Random { get; set; }
 
         /// <summary>
@@ -33,6 +37,9 @@ namespace FixtureBuilder.Bogus
         /// <param name="expr">An expression identifying the property or field to instantiate. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="func">A function that receives an <see cref="IBogusConstructor{TProp}"/> and returns an instance of <typeparamref name="TProp"/>.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <remarks>
+        /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
+        /// </remarks>
         /// <exception cref="InvalidOperationException"/>
         IBogusFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IBogusConstructor<TProp>, TProp> func);
 
@@ -62,6 +69,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the backing field of the specified property to a value resolved via a <see cref="Faker"/> lambda.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">A function that receives a <see cref="Faker"/> and returns the value to assign to the backing field.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -74,6 +82,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting a specifically named backing field of the specified property to a value resolved via a <see cref="Faker"/> lambda.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">A function that receives a <see cref="Faker"/> and returns the value to assign to the backing field.</param>
         /// <param name="fieldName">The explicit name of the backing field to set.</param>
@@ -86,6 +95,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the backing field of the specified property to a value resolved via a <see cref="Faker"/> lambda, without enforcing the property's type.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">A function that receives a <see cref="Faker"/> and returns the value to assign to the backing field.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -99,6 +109,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting a specifically named backing field of the specified property to a value resolved via a <see cref="Faker"/> lambda, without enforcing the property's type.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">A function that receives a <see cref="Faker"/> and returns the value to assign to the backing field.</param>
         /// <param name="fieldName">The explicit name of the backing field to set.</param>
@@ -111,6 +122,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the specified property through its setter to a value resolved via a <see cref="Faker"/> lambda.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property to set. The property must have a setter. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">A function that receives a <see cref="Faker"/> and returns the value to assign to the property.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -120,6 +132,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the specified property or field to a value resolved via a <see cref="Faker"/> lambda.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property or field.</typeparam>
         /// <param name="expr">An expression identifying the property or field to set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">A function that receives a <see cref="Faker"/> and returns the value to assign.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -145,7 +158,7 @@ namespace FixtureBuilder.Bogus
         /// <param name="methodName">The name of the method to invoke on the fixture.</param>
         /// <param name="arguments">A function that receives a <see cref="Faker"/> and returns the arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="T"/>.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="T"/> or its base types.</exception>
         IBogusFixtureConfigurator<T> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, Func<Faker, object[]> arguments);
 
         /// <summary>
@@ -154,11 +167,13 @@ namespace FixtureBuilder.Bogus
         /// <remarks>
         /// This method supports the MemberLens VS extension which will provide method names automatically if installed.
         /// </remarks>
+        /// <typeparam name="TProp">The type of the target property or field.</typeparam>
         /// <param name="expr">An expression identifying the nested property or field. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="methodName">The name of the method to invoke on the resolved member.</param>
         /// <param name="arguments">A function that receives a <see cref="Faker"/> and returns the arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid or the method is not found on <typeparamref name="TProp"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="TProp"/> or its base types.</exception>
         IBogusFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, Func<Faker, object[]> arguments);
 
         /// <summary>
@@ -167,6 +182,7 @@ namespace FixtureBuilder.Bogus
         /// <param name="count">The number of instances to build. Must be greater than zero.</param>
         /// <returns>A collection of configured fixture instances of type <typeparamref name="T"/>.</returns>
         /// <exception cref="ArgumentOutOfRangeException"/>
+        /// <exception cref="InvalidOperationException">Thrown if the configurator was created from an existing instance and <paramref name="count"/> is not 1.</exception>
         IEnumerable<T> Build(int count);
 
         #endregion
@@ -219,6 +235,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the backing field of the specified property.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign to the backing field.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -231,6 +248,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting a specifically named backing field of the specified property.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign to the backing field.</param>
         /// <param name="fieldName">The explicit name of the backing field to set.</param>
@@ -243,6 +261,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the backing field of the specified property without enforcing the property's type.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign to the backing field.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -256,6 +275,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting a specifically named backing field of the specified property without enforcing the property's type.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property whose backing field should be set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign to the backing field.</param>
         /// <param name="fieldName">The explicit name of the backing field to set.</param>
@@ -268,6 +288,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the specified property through its setter.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
         /// <param name="expr">An expression identifying the property to set. The property must have a setter. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign to the property.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -277,6 +298,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Configures the fixture by setting the specified property or field.
         /// </summary>
+        /// <typeparam name="TProp">The type of the property or field.</typeparam>
         /// <param name="expr">An expression identifying the property or field to set. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign.</param>
         /// <returns>The current configurator for further configuration.</returns>
@@ -302,7 +324,7 @@ namespace FixtureBuilder.Bogus
         /// <param name="methodName">The name of the method to invoke on the fixture.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the method is not found on <typeparamref name="T"/>.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="T"/> or its base types.</exception>
         IBogusFixtureConfigurator<T> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, params object[] arguments);
 
         /// <summary>
@@ -311,18 +333,21 @@ namespace FixtureBuilder.Bogus
         /// <remarks>
         /// This method supports the MemberLens VS extension which will provide method names automatically if installed.
         /// </remarks>
+        /// <typeparam name="TProp">The type of the target property or field.</typeparam>
         /// <param name="expr">An expression identifying the nested property or field. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="methodName">The name of the method to invoke on the resolved member.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid or the method is not found on <typeparamref name="TProp"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the expression is invalid.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="TProp"/> or its base types.</exception>
         IBogusFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);
 
         /// <summary>
         /// Builds and returns the configured fixture instance.
         /// </summary>
         /// <remarks>
-        /// Each call creates a new instance with freshly generated values.
+        /// Each call replays construction and configuration with freshly generated values, creating a new instance.
+        /// If the configurator was created from an existing instance, that same instance is reconfigured and returned instead.
         /// </remarks>
         /// <returns>The configured fixture instance of type <typeparamref name="T"/>.</returns>
         T Build();

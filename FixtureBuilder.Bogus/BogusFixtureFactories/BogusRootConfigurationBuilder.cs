@@ -11,6 +11,7 @@ namespace FixtureBuilder.Bogus
     /// Provides root-scoped configuration for fixtures of type <typeparamref name="TRoot"/>,
     /// with support for <see cref="Faker"/>-based data generation.
     /// Registrations made through this builder apply only when resolving values for fixtures of type <typeparamref name="TRoot"/>.
+    /// Obtained via <see cref="BogusFixtureFactory.WhenBuilding{TRoot}"/>.
     /// </summary>
     /// <typeparam name="TRoot">The fixture type to which this configuration is scoped.</typeparam>
     public class BogusRootConfigurationBuilder<TRoot> : IBogusConfigurationBuilder<BogusRootConfigurationBuilder<TRoot>>, IBogusProviderBuilder<BogusRootConfigurationBuilder<TRoot>>

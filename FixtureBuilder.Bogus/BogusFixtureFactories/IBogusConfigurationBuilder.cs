@@ -8,7 +8,7 @@ namespace FixtureBuilder.Bogus.BogusFixtureFactories
     /// Provides registration methods for options, type links, value providers, and value converters within a configuration scope,
     /// with additional support for Bogus-integrated providers.
     /// </summary>
-    /// <typeparam name="TReturn">The return type for fluent chaining from inherited <see cref="IBogusProviderBuilder{TReturn}"/> methods.</typeparam>
+    /// <typeparam name="TReturn">The return type for fluent chaining.</typeparam>
     internal interface IBogusConfigurationBuilder<TReturn>
     {
         #region IBogusConfigurationBuilder

@@ -9,6 +9,9 @@ namespace FixtureBuilder.Bogus
     /// <summary>
     /// Provides construction methods for creating a Bogus-integrated fixture of type <typeparamref name="T"/>.
     /// Choose a construction method to control how the fixture is instantiated, then configure it via the returned <see cref="IBogusFixtureConfigurator{T}"/>.
+    /// Inherits from <see cref="IBogusFixtureConfigurator{T}"/> to allow configuration without explicitly choosing a construction method,
+    /// using the <see cref="FixtureOptions.DefaultFixtureInstantiationMethod"/> instead if allowed via <see cref="FixtureOptions.AllowImplicitConstruction"/>.
+    /// Construction is deferred until the fixture is built, so exceptions documented on the construction methods are thrown when building.
     /// </summary>
     /// <typeparam name="T">The type of the object to construct. Must be a reference type.</typeparam>
     public interface IBogusFixtureConstructor<T> : IBogusFixtureConfigurator<T> where T : class
@@ -20,7 +23,7 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="args">A function that receives a <see cref="Faker"/> and returns the arguments to pass to the constructor.</param>
         /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for further configuration.</returns>
-        /// <exception cref="MissingMethodException"/>
+        /// <exception cref="InvalidOperationException"/>
         IBogusFixtureConfigurator<T> UseConstructor(Func<Faker, object[]> args);
 
         /// <summary>
@@ -54,7 +57,7 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="args">The arguments to pass to the constructor. Must match the constructor's parameter types and order.</param>
         /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for further configuration.</returns>
-        /// <exception cref="MissingMethodException"/>
+        /// <exception cref="InvalidOperationException"/>
         IBogusFixtureConfigurator<T> UseConstructor(params object[] args);
 
         /// <summary>
@@ -63,13 +66,15 @@ namespace FixtureBuilder.Bogus
         /// <remarks>
         /// Selects the simplest available constructor and resolves each parameter through the fixture's resolution pipeline.
         /// Uses the <see cref="FixtureOptions.PreferSimplestConstructor"/> and <see cref="FixtureOptions.AllowPrivateConstructors"/> options.
+        /// Constructors with a parameter of the type being built are tried last, and skipped unless that parameter is nullable and
+        /// <see cref="FixtureOptions.PreferNullParameterValues"/> is enabled, or has a default value and <see cref="FixtureOptions.PreferDefaultParameterValues"/> is enabled.
         /// </remarks>
         /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for further configuration.</returns>
         /// <exception cref="InvalidOperationException"/>
         IBogusFixtureConfigurator<T> UseAutoConstructor();
 
         /// <summary>
-        /// Instantiates the fixture using a caller-defined factory function.
+        /// Creates an instance using a caller-defined factory function.
         /// </summary>
         /// <param name="instantiator">A function that returns the fully constructed instance of <typeparamref name="T"/>.</param>
         /// <returns>An <see cref="IBogusFixtureConfigurator{T}"/> for further configuration.</returns>

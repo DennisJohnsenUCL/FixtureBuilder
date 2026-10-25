@@ -18,8 +18,12 @@ namespace FixtureBuilder.Bogus
         private readonly FixtureFactory _factory;
 
         /// <summary>
-        /// Gets or sets the randomizer used for data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
+        /// Gets or sets the randomizer used for <see cref="Faker"/>-based data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
         /// </summary>
+        /// <remarks>
+        /// The seed only applies to values generated through a <see cref="Faker"/>. Values FixtureBuilder generates on its own, such as numbers, characters and Guids filled in by UseAutoConstructor or CreateUninitialized, are not seeded.
+        /// The <see cref="Faker"/> is shared with every fixture created from this factory, including ones already created, so setting this affects all of them.
+        /// </remarks>
         public Randomizer Random { get => _faker.Random; set { _faker.Random = value; } }
 
         /// <summary>
@@ -114,7 +118,9 @@ namespace FixtureBuilder.Bogus
 
         #region Passthrough configuration methods
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the global options for this factory.
+        /// </summary>
         public FixtureOptions Options { get => _factory.Options; set { _factory.Options = value; } }
 
         /// <inheritdoc/>
@@ -198,6 +204,12 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Begins a root-scoped configuration block for <typeparamref name="TRoot"/>. Registrations made within the builder action apply only when resolving values for fixtures of type <typeparamref name="TRoot"/>.
         /// </summary>
+        /// <typeparam name="TRoot">The fixture type to which the configuration is scoped.</typeparam>
+        /// <param name="builderAction">An action that receives a <see cref="BogusRootConfigurationBuilder{TRoot}"/> to make the root-scoped registrations on.</param>
+        /// <returns>The current factory for further configuration.</returns>
+        /// <remarks>
+        /// Values, providers, converters, and type links registered here take precedence over factory-wide registrations, regardless of registration order.
+        /// </remarks>
         public BogusFixtureFactory WhenBuilding<TRoot>(Action<BogusRootConfigurationBuilder<TRoot>> builderAction)
         {
             _factory.WhenBuilding<TRoot>(inner =>
