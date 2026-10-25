@@ -119,5 +119,14 @@
 
             Assert.That(() => bogus.Build(2), Throws.TypeOf<InvalidOperationException>());
         }
+
+        [Test]
+        public void Build_WithInstance_Zero_Throws()
+        {
+            var instance = new SimpleClass();
+            var bogus = Fixture.WithBogus(instance);
+
+            Assert.That(() => bogus.Build(0), Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
     }
 }
