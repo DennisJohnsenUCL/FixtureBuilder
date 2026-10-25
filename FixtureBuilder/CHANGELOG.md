@@ -1,3 +1,51 @@
+#### 3.0.0
+
+- Breaking change: FixtureFactory.New with an instance given now returns IFixtureConfigurator instead of IFixtureConstructor.
+  - The instance already exists, so construction methods no longer apply to it.
+- Breaking change: InvokePrivate now rethrows exceptions thrown by the invoked method as they are, rather than wrapped in a TargetInvocationException.
+- Added providers for bool, char, Delegate, Task and Task<T>.
+  - bool members are set to true, and char members to a random ASCII letter.
+  - Delegates ignore their arguments and return the default value of their return type.
+  - Task members are set to a completed task, and Task<T> members to a completed task holding the default value of T.
+- Added OriginalType to FixtureRequest, holding the declared type of the parameter, property or field before nullable unwrapping and type linking.
+- Fixed providers, converters and type links registered on FixtureFactory after a .WhenBuilding block overriding the root type specific ones.
+  - Registrations made in .WhenBuilding now always take precedence, regardless of registration order.
+- Fixed setting root options more than once for the same type throwing an exception.
+  - .SetOptions in .WhenBuilding now builds on the options already set for that root type.
+- Fixed TypeLink not throwing on registration when the output type is not assignable to the input type.
+- Fixed .WithX providers not being used for nullable value types or types with a type link.
+- Fixed Guids never being provided, as their provider was not registered.
+- Fixed providers returning null for nullable value types throwing an exception.
+- Fixed UseAutoConstructor failing for types with constructors taking a parameter of their own type.
+  - Such constructors are tried last, and skipped unless that parameter is nullable and PreferNullParameterValues is enabled, or has a default value and PreferDefaultParameterValues is enabled.
+- Fixed UseAutoConstructor throwing for structs with no constructors.
+- Fixed UseAutoConstructor and CreateUninitialized in .Instantiate not unwrapping nullable types or applying type links.
+- Fixed UseCustomInstantiator not throwing when the instantiator returns null.
+- Fixed ref, out and in parameters not being unwrapped before nullable checking, type linking and default parameter values.
+- Fixed PreferNullParameterValues checking parameter nullability through ReadState rather than WriteState, so [AllowNull] and [DisallowNull] were not respected.
+- Fixed struct parameters with a default value of default being given null when PreferDefaultParameterValues is enabled.
+- Fixed nullable enum parameters with default values being given the underlying numeric value rather than the enum value.
+- Fixed enums with no members throwing an exception. They now get the value 0.
+- Fixed CreateUninitialized silently skipping interfaces and abstract types with no type link or provider, rather than throwing.
+- Fixed CreateUninitialized not setting get-only auto-properties.
+- Fixed CreateUninitialized failing for properties with getters that throw on invocation. Such properties are now left unchanged.
+- Fixed CreateUninitialized not initializing private fields of base classes.
+- Fixed CreateUninitialized treating types and members from namespaces that merely start with System or Microsoft (e.g. SystemTools) as framework types.
+- Fixed CreateUninitialized circular dependency tracking misidentifying sibling members of the same type as circular dependencies.
+- Fixed AllowResolveCircularDependencies not copying private fields of base classes into the resolved circular references.
+- Fixed AllowResolveCircularDependencies leaving already resolved circular references registered in the rest of the object hierarchy.
+- Fixed WithField not finding private fields from base classes.
+- Fixed WithField and InvokePrivate on nested members using the declared type of the member rather than its runtime type.
+- Fixed InvokePrivate not invoking private methods of base classes.
+- Fixed WithBackingField not handling explicit interface implementations, generics and complex override hierarchies correctly.
+- Fixed backing field names being lowercased incorrectly in Turkish culture.
+- Fixed member expressions with struct members silently failing to write to them.
+  - Changes to structs along the expression are now written back to their parent. A changed struct held by a property without a setter throws an exception instead.
+- Fixed WithSetter naming the type rather than the property when the property is not writeable.
+- Fixed CastTo not passing the FixtureFactory configuration along to the new Fixture instance.
+- Fixed conversion to Collection and ReadOnlyCollection failing when the source is not an IList.
+- Fixed conversion failing for empty dictionaries.
+
 #### 2.0.0
 
 - Added new FixtureOption DefaultInstantiationMethod which, if set, will override other InstantiationMethod options (fixture, chain, .Instantiate)
