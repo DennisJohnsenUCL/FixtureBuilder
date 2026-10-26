@@ -61,11 +61,13 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void Instantiate_WithBogusConstructor_Seeded_ProducesRepeatableResults()
         {
-            var first = Fixture.WithBogus<Parent>();
-            first.Random = new Randomizer(42);
+            var firstFactory = FixtureFactory.WithBogus();
+            firstFactory.Random = new Randomizer(42);
+            var first = firstFactory.New<Parent>();
 
-            var second = Fixture.WithBogus<Parent>();
-            second.Random = new Randomizer(42);
+            var secondFactory = FixtureFactory.WithBogus();
+            secondFactory.Random = new Randomizer(42);
+            var second = secondFactory.New<Parent>();
 
             var result1 = first.Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()])).Build();
             var result2 = second.Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()])).Build();

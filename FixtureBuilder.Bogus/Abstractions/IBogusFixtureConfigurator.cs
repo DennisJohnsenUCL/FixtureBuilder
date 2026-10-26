@@ -18,13 +18,13 @@ namespace FixtureBuilder.Bogus
         #region IBogusFixtureConfigurator
 
         /// <summary>
-        /// Gets or sets the randomizer used for <see cref="Faker"/>-based data generation. Set this to a seeded <see cref="Randomizer"/> for repeatable results.
+        /// Gets the randomizer used for <see cref="Faker"/>-based data generation.
         /// </summary>
         /// <remarks>
-        /// The seed only applies to values generated through a <see cref="Faker"/>. Values FixtureBuilder generates on its own, such as numbers, characters and Guids filled in by UseAutoConstructor or CreateUninitialized, are not seeded.
-        /// For fixtures created from a <see cref="BogusFixtureFactory"/>, the <see cref="Faker"/> is shared with the factory, so setting this also affects the factory and every fixture created from it.
+        /// For repeatable results, create the fixture from a <see cref="BogusFixtureFactory"/> and set <see cref="BogusFixtureFactory.Random"/> to a seeded <see cref="Randomizer"/>.
+        /// Fixtures created from a factory share its <see cref="Faker"/>, so this returns the factory's randomizer. Fixtures created with <c>Fixture.WithBogus()</c> have their own unseeded randomizer.
         /// </remarks>
-        public Randomizer Random { get; set; }
+        public Randomizer Random { get; }
 
         /// <summary>
         /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").

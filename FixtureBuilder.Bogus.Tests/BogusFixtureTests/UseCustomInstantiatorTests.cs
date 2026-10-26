@@ -58,11 +58,13 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void UseCustomInstantiator_Seeded_ProducesRepeatableResults()
         {
-            var first = Fixture.WithBogus<Person>();
-            first.Random = new Randomizer(42);
+            var firstFactory = FixtureFactory.WithBogus();
+            firstFactory.Random = new Randomizer(42);
+            var first = firstFactory.New<Person>();
 
-            var second = Fixture.WithBogus<Person>();
-            second.Random = new Randomizer(42);
+            var secondFactory = FixtureFactory.WithBogus();
+            secondFactory.Random = new Randomizer(42);
+            var second = secondFactory.New<Person>();
 
             var result1 = first.UseCustomInstantiator(f => new Person(f.Name.FirstName(), f.Random.Int(18, 65))).Build();
             var result2 = second.UseCustomInstantiator(f => new Person(f.Name.FirstName(), f.Random.Int(18, 65))).Build();
