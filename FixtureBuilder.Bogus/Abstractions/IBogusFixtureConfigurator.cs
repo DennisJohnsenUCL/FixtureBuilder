@@ -29,7 +29,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
         /// </summary>
-        public string Locale { get; set; }
+        public string Locale { get; }
 
         /// <summary>
         /// Instantiates the specified property or field using a caller-defined instantiation strategy with access to a <see cref="Faker"/>-integrated constructor.

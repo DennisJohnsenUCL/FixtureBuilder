@@ -13,7 +13,7 @@ namespace FixtureBuilder.Bogus
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
 
         public Randomizer Random { get => _faker.Random; set { _faker.Random = value; } }
-        public string Locale { get => _faker.Locale; set { _faker.Locale = value; } }
+        public string Locale { get => _faker.Locale; }
 
         public BogusFixture(Faker faker)
         {

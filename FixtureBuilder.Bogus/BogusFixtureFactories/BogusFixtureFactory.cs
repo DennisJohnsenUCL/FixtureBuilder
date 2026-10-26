@@ -29,7 +29,7 @@ namespace FixtureBuilder.Bogus
         /// <summary>
         /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
         /// </summary>
-        public string Locale { get => _faker.Locale; set { _faker.Locale = value; } }
+        public string Locale { get => _faker.Locale; }
 
         internal BogusFixtureFactory(Faker faker)
         {
