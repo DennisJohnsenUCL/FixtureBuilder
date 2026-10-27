@@ -8,12 +8,13 @@ namespace FixtureBuilder.Core
     public enum InstantiationMethod
     {
         /// <summary>
-        /// Objects will be instantiated using a parameterized constructor to maximize automatic initialization.
+        /// Objects will be instantiated using the simplest available constructor, with each parameter resolved automatically.
         /// </summary>
         UseAutoConstructor,
 
         /// <summary>
-        /// Objects will be instantiated preferring the default (parameterless) constructor if one exists.
+        /// Objects will be instantiated using the default (parameterless) constructor.
+        /// An <see cref="InvalidOperationException"/> is thrown if the type does not have one.
         /// </summary>
         UseDefaultConstructor,
 

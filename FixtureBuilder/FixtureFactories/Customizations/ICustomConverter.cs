@@ -3,7 +3,7 @@ namespace FixtureBuilder.Core
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
-    /// Defines a custom value provider for the value resolution pipeline.
+    /// Defines a custom value converter for backing field assignment.
     /// </summary>
     public interface ICustomConverter
     {

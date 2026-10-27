@@ -9,7 +9,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// </summary>
     /// <remarks>
     /// Returns a fixed <see cref="TimeSpan"/> of 30 minutes for each request.
-    /// Returns <see langword="null"/> for all other types.
+    /// Returns <see cref="NoResult"/> for all other types.
     /// </remarks>
     internal class TimeSpanProvider : IValueProvider
     {

@@ -32,6 +32,7 @@ namespace FixtureBuilder.Configuration
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
         /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
+        /// It must already be validated with <see cref="ExpressionValidator"/>, as it is not checked here.
         /// </param>
         /// <param name="configure">
         /// Applies the change to the object that owns the final member. It must not resolve the same
@@ -39,9 +40,10 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a valid property access chain, when a
-        /// <see langword="null"/> property along the path does not have a setter, or when a changed
-        /// struct along the path is held by a property without a setter.
+        /// Thrown when a property along the path does not have a getter, when a <see langword="null"/> member
+        /// along the path cannot be initialized because nested instantiation is disabled, the property does not
+        /// have a setter, or a provider returned <see langword="null"/>, or when a changed struct along the path
+        /// is held by a property without a setter.
         /// </exception>
         public void ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, Action<object, DataMemberInfo> configure)
         {
@@ -63,6 +65,7 @@ namespace FixtureBuilder.Configuration
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
         /// A property access chain expression, e.g., <c>x => x.Child.Grandchild.Tag</c>.
+        /// It must already be validated with <see cref="ExpressionValidator"/>, as it is not checked here.
         /// </param>
         /// <param name="configure">
         /// Applies the change to the value of the final property, initialized if it was <see langword="null"/>.
@@ -70,9 +73,10 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a valid property access chain, when a
-        /// <see langword="null"/> property along the path does not have a setter, or when a changed
-        /// struct along the path is held by a property without a setter.
+        /// Thrown when a property along the path does not have a getter, when a <see langword="null"/> member
+        /// along the path cannot be initialized because nested instantiation is disabled, the property does not
+        /// have a setter, or a provider returned <see langword="null"/>, or when a changed struct along the path
+        /// is held by a property without a setter.
         /// </exception>
         public void ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, Action<object, DataMemberInfo> configure)
         {
@@ -92,11 +96,14 @@ namespace FixtureBuilder.Configuration
         /// <param name="root">The root object to begin traversal from.</param>
         /// <param name="expr">
         /// A property access chain expression ending in a method invocation, e.g., <c>x => x.Child.Grandchild.Method()</c>.
+        /// It must already be validated with <see cref="ExpressionValidator"/>, as it is not checked here.
         /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a valid property access chain, or when a
-        /// <see langword="null"/> property along the path does not have a setter.
+        /// Thrown when a property along the path does not have a getter, when a <see langword="null"/> member
+        /// along the path cannot be initialized because nested instantiation is disabled, the property does not
+        /// have a setter, or a provider returned <see langword="null"/>, or when a changed struct along the path
+        /// is held by a property without a setter.
         /// </exception>
         public void ResolveMethodParent<T>(T root, Expression<Action<T>> expr)
         {
@@ -161,7 +168,8 @@ namespace FixtureBuilder.Configuration
         /// <param name="dataMember">The property to read or initialize.</param>
         /// <returns>The existing or newly initialized value of the property.</returns>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when the property value is <see langword="null"/> and the property does not have a setter.
+        /// Thrown when the property does not have a getter, or when the value is <see langword="null"/> and
+        /// nested instantiation is disabled, the property does not have a setter, or a provider returned <see langword="null"/>.
         /// </exception>
         internal object InitializeDataMemberValue(object parent, DataMemberInfo dataMember)
         {

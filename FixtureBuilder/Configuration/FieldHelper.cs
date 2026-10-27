@@ -7,7 +7,7 @@ using FixtureBuilder.Extensions;
 namespace FixtureBuilder.Configuration
 {
     /// <summary>
-    /// Provides utility methods for locating fields on types using reflection,
+    /// Provides utility methods for locating and setting fields on types using reflection,
     /// including support for common backing field naming conventions.
     /// </summary>
     internal static class FieldHelper

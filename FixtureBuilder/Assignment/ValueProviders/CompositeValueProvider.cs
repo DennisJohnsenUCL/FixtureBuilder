@@ -9,6 +9,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
     /// <see cref="IValueProvider"/> instances, returning the first result that is not <see cref="NoResult"/>.
     /// Root-scoped providers are always tried before global and built-in ones, regardless of registration order.
     /// Returns <see cref="NoResult"/> if no provider resolves the request.
+    /// Throws an <see cref="InvalidOperationException"/> if a provider returns <see langword="null"/> for a non-nullable value type.
     /// </summary>
     internal class CompositeValueProvider : ICompositeValueProvider
     {

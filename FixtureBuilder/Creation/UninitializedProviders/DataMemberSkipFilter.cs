@@ -7,8 +7,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 {
     /// <summary>
     /// Determines whether a <see cref="DataMemberInfo"/> should be skipped during fixture
-    /// member initialization. Members are skipped if they belong to system namespaces, are static,
-    /// are inaccessible properties (read-only, write-only, or indexed), are compiler-generated
+    /// member initialization. Members are skipped if they belong to <c>System</c> or <c>Microsoft</c> namespaces, are static,
+    /// are inaccessible properties (write-only, indexed, or read-only without an auto-property backing field), are compiler-generated
     /// backing fields, or — when <see cref="InitializeMembers.NonNullables"/> is specified —
     /// are nullable (either nullable value types or nullable reference types).
     /// </summary>

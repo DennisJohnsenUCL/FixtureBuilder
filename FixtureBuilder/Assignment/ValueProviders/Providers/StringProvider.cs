@@ -9,7 +9,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// </summary>
     /// <remarks>
     /// Returns <see cref="FixtureRequest.Name"/> if it is not <see langword="null"/>;
-    /// otherwise returns an empty string. Returns <see langword="null"/> for all non-string types.
+    /// otherwise returns an empty string. Returns <see cref="NoResult"/> for all non-string types.
     /// </remarks>
     internal class StringProvider : IValueProvider
     {

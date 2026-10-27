@@ -9,7 +9,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// </summary>
     /// <remarks>
     /// Returns <see cref="DateTime.UtcNow"/> for requests matching <see cref="DateTime"/>;
-    /// returns <see langword="null"/> for all other types.
+    /// returns <see cref="NoResult"/> for all other types.
     /// </remarks>
     internal class DateTimeProvider : IValueProvider
     {

@@ -12,7 +12,7 @@ namespace FixtureBuilder
     public interface IConstructor<TReturn>
     {
         /// <summary>
-        /// Creates an uninitialized instance without invoking a constructor, using the <see cref="FixtureOptions.DefaultInitializeMembers"/> option.
+        /// Creates an uninitialized instance without invoking a constructor, using <see cref="InitializeMembers.None"/>.
         /// </summary>
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="InvalidOperationException"/>
@@ -52,6 +52,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="instantiator">A function that returns the fully constructed instance.</param>
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
+        /// <exception cref="InvalidOperationException"/>
         TReturn UseCustomInstantiator(Func<TReturn> instantiator);
     }
 }

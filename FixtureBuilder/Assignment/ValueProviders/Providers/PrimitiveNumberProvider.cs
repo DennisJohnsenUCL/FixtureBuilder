@@ -21,7 +21,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     ///   <item><description><see cref="float"/>, <see cref="double"/>, <see cref="decimal"/></description></item>
     /// </list>
     /// <para>
-    /// Returns <see langword="null"/> for any type not in the supported set.
+    /// Returns <see cref="NoResult"/> for any type not in the supported set.
     /// </para>
     /// </remarks>
     internal class PrimitiveNumberProvider : IValueProvider

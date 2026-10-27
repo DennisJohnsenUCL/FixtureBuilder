@@ -90,8 +90,9 @@ namespace FixtureBuilder.Configuration
         /// A lambda expression expected to be a property or field access chain ending in a method invocation, e.g., <c>x => x.Property1.Method()</c>.
         /// </param>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain. This includes
-        /// expressions that reference constants, fields, computed values, or the bare parameter itself.
+        /// Thrown when <paramref name="expr"/> is not an instance method call on the lambda parameter or on a direct
+        /// property or field access chain rooted at it. This includes static and extension methods, and calls on
+        /// constants, computed values, or the results of other method calls.
         /// </exception>
         public static void ValidateMethodExpression<T>(Expression<Action<T>> expr)
         {

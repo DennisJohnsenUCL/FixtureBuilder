@@ -9,8 +9,8 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// </summary>
     /// <remarks>
     /// Creates arrays with a fixed length of 10 elements, initialized to their default values.
-    /// Only handles requests where <see cref="FixtureRequest.Type"/> is an array type;
-    /// returns <see langword="null"/> for all other types.
+    /// Only handles requests where <see cref="FixtureRequest.Type"/> is a single-dimensional array type;
+    /// returns <see cref="NoResult"/> for all other types.
     /// </remarks>
     internal class ArrayProvider : IValueProvider
     {

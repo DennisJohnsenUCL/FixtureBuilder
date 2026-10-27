@@ -9,7 +9,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// </summary>
     /// <remarks>
     /// Returns a new unique <see cref="Guid"/> generated via <see cref="Guid.NewGuid"/> for each request.
-    /// Returns <see langword="null"/> for all other types.
+    /// Returns <see cref="NoResult"/> for all other types.
     /// </remarks>
     internal class GuidProvider : IValueProvider
     {

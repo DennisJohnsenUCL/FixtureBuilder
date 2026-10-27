@@ -12,7 +12,7 @@ namespace FixtureBuilder.Core
         /// </summary>
         /// <remarks>
         /// Invoked during the value resolution pipeline to substitute interfaces and abstract types with concrete implementations.
-        /// Return <see langword="null"/>null if this link does not handle the given type.
+        /// Return <see langword="null"/> if this link does not handle the given type.
         /// </remarks>
         Type? Link(Type target);
     }

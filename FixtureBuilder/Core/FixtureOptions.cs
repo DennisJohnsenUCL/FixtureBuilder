@@ -21,10 +21,12 @@
         public FixtureOptions Clone() => (FixtureOptions)MemberwiseClone();
 
         /// <summary>
-        /// The default InitializeMembers setting used by CreateUninitialized.
+        /// The InitializeMembers setting used by the fixture's CreateUninitialized(), and by implicit construction
+        /// when <see cref="DefaultFixtureInstantiationMethod"/> is <see cref="InstantiationMethod.CreateUninitialized"/>.
         /// </summary>
         /// <remarks>
         /// Default is <see cref="InitializeMembers.None" />
+        /// <br /><br />Members created via .Instantiate or along a member chain always use <see cref="InitializeMembers.None"/>.
         /// </remarks>
         public InitializeMembers DefaultInitializeMembers { get; set; } = InitializeMembers.None;
 
@@ -63,10 +65,11 @@
         public bool PreferNullParameterValues { get; set; } = true;
 
         /// <summary>
-        /// Whether CreateUninitialized with InitializeMembers on is allowed to assign null for fields it cannot initialize.
+        /// Whether CreateUninitialized with InitializeMembers on is allowed to leave members it cannot initialize at their default value.
         /// </summary>
         /// <remarks>
         /// Default is <see langword="true" />
+        /// <br /><br />When <see langword="false"/>, an <see cref="InvalidOperationException"/> is thrown instead.
         /// </remarks>
         public bool AllowSkipUninitializableMembers { get; set; } = true;
 
@@ -111,7 +114,7 @@
         public InstantiationMethod NestedMemberInstantiationMethod { get => DefaultInstantiationMethod ?? field; set; } = InstantiationMethod.UseAutoConstructor;
 
         /// <summary>
-        /// Whether the construction stage can be skipped, instead using the <see cref="DefaultInstantiationMethod"/>
+        /// Whether the construction stage can be skipped, instead using the <see cref="DefaultFixtureInstantiationMethod"/>
         /// </summary>
         /// <remarks>
         /// Default is <see langword="true" />

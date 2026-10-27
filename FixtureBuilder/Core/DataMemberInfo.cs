@@ -37,13 +37,13 @@ internal class DataMemberInfo : MemberInfo
     public bool IsFieldInfo => _field != null;
 
     /// <summary>
-    /// Initialises a new <see cref="DataMemberInfo"/> backed by the specified property.
+    /// Initializes a new <see cref="DataMemberInfo"/> backed by the specified property.
     /// </summary>
     /// <param name="propertyInfo">The property to wrap.</param>
     public DataMemberInfo(PropertyInfo propertyInfo) => _property = propertyInfo;
 
     /// <summary>
-    /// Initialises a new <see cref="DataMemberInfo"/> backed by the specified field.
+    /// Initializes a new <see cref="DataMemberInfo"/> backed by the specified field.
     /// </summary>
     /// <param name="fieldInfo">The field to wrap.</param>
     public DataMemberInfo(FieldInfo fieldInfo) => _field = fieldInfo;

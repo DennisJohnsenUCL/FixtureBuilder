@@ -7,7 +7,7 @@ namespace FixtureBuilder
 {
     /// <summary>
     /// Entry point for building a fixture of type <typeparamref name="T"/>. Inherits from <see cref="IFixtureConfigurator{T}"/> to allow
-    /// configuration without explicitly choosing a construction method, using the <see cref="FixtureOptions.DefaultInstantiationMethod"/> instead.
+    /// configuration without explicitly choosing a construction method, using the <see cref="FixtureOptions.DefaultFixtureInstantiationMethod"/> instead.
     /// </summary>
     /// <typeparam name="T">The type of the object to construct and configure. Must be a reference type.</typeparam>
     public interface IFixtureConstructor<T> : IFixtureConfigurator<T> where T : class
@@ -53,6 +53,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="instantiator">A function that returns the fully constructed instance of <typeparamref name="T"/>.</param>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> for further configuration.</returns>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> UseCustomInstantiator(Func<T> instantiator);
     }
 }

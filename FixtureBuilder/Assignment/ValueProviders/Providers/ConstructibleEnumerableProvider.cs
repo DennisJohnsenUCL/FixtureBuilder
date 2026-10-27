@@ -20,14 +20,14 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     /// <list type="bullet">
     ///   <item><description><see cref="List{T}"/>, <see cref="HashSet{T}"/>, <see cref="SortedSet{T}"/>, <see cref="LinkedList{T}"/></description></item>
     ///   <item><description><see cref="Stack{T}"/>, <see cref="Queue{T}"/></description></item>
-    ///   <item><description><see cref="Collection{T}"/>, <see cref="ReadOnlyCollection{T}"/></description></item>
+    ///   <item><description><see cref="Collection{T}"/></description></item>
     ///   <item><description><see cref="ConcurrentBag{T}"/>, <see cref="ConcurrentQueue{T}"/>, <see cref="ConcurrentStack{T}"/></description></item>
     ///   <item><description><see cref="Dictionary{TKey, TValue}"/>, <see cref="ConcurrentDictionary{TKey, TValue}"/>, <see cref="OrderedDictionary{TKey, TValue}"/></description></item>
-    ///   <item><description><see cref="ReadOnlyDictionary{TKey, TValue}"/>, <see cref="SortedDictionary{TKey, TValue}"/>, <see cref="SortedList{TKey, TValue}"/></description></item>
+    ///   <item><description><see cref="SortedDictionary{TKey, TValue}"/>, <see cref="SortedList{TKey, TValue}"/></description></item>
     ///   <item><description><see cref="ArrayList"/>, <see cref="Stack"/>, <see cref="Queue"/>, <see cref="Hashtable"/>, <see cref="SortedList"/></description></item>
     /// </list>
     /// <para>
-    /// Returns <see langword="null"/> for any type not in the supported set.
+    /// Returns <see cref="NoResult"/> for any type not in the supported set.
     /// </para>
     /// </remarks>
     internal class ConstructibleEnumerableProvider : IValueProvider

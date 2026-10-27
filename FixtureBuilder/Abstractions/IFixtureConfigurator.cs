@@ -16,16 +16,18 @@ namespace FixtureBuilder
         /// Casts the current fixture to the specified target type.
         /// </summary>
         /// <typeparam name="TTarget">The type to which the fixture should be cast.</typeparam>
-        /// <returns>The current configurator for further configuration.</returns>
+        /// <returns>A configurator of type <typeparamref name="TTarget"/> for the same fixture instance.</returns>
         /// <exception cref="InvalidCastException"/>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<TTarget> CastTo<TTarget>() where TTarget : class;
 
         /// <summary>
-        /// Instantiates the specified property or field using the default instantiation method and assigns it to the fixture.
+        /// Instantiates the specified property or field and assigns it to the fixture.
         /// </summary>
         /// <param name="expr">An expression identifying the property or field to instantiate. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <remarks>
-        /// The default instantiation method can be set via the <see cref="FixtureOptions.DefaultInstantiateInstantiationMethod"/> option.
+        /// Registered and built-in value providers are tried first. If none of them resolves the member, the default instantiation method is used,
+        /// which can be set via the <see cref="FixtureOptions.DefaultInstantiateInstantiationMethod"/> option.
         /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
         /// </remarks>
         /// <returns>The current configurator for further configuration.</returns>
@@ -50,9 +52,10 @@ namespace FixtureBuilder
         /// <remarks>
         /// This method supports the MemberLens VS extension which will provide field names automatically if installed.
         /// </remarks>
-        /// <param name="fieldName">The name of the field to set. This must match the name of an existing field on <typeparamref name="T"/>.</param>
+        /// <param name="fieldName">The name of the field to set. This must match the name of an existing field on <typeparamref name="T"/> or its base types.</param>
         /// <param name="value">The value to assign to the specified field.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithField<TValue>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, TValue value);
 
         /// <summary>
@@ -65,6 +68,7 @@ namespace FixtureBuilder
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field on the resolved member.</param>
         /// <param name="value">The value to assign to the specified field.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Field, GenericSource.Method, 0)] string fieldName, TValue value);
 
         /// <summary>
@@ -78,6 +82,7 @@ namespace FixtureBuilder
         /// The backing field is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value);
 
         /// <summary>
@@ -91,6 +96,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when the backing field name cannot be automatically discovered.
         /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName);
 
         /// <summary>
@@ -105,6 +111,7 @@ namespace FixtureBuilder
         /// The backing field is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value);
 
         /// <summary>
@@ -118,6 +125,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when the backing field has a different type from the property and its name cannot be automatically discovered.
         /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName);
 
         /// <summary>
@@ -140,6 +148,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Automatically determines whether to use the property setter (if writable) or directly set the backing field (if read-only).
         /// </remarks>
+        /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> With<TProp>(Expression<Func<T, TProp>> expr, TProp value);
 
         /// <summary>
@@ -159,6 +168,7 @@ namespace FixtureBuilder
         /// <param name="methodName">The name of the method to invoke on the fixture.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="InvalidOperationException"/>
         /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="T"/> or its base types.</exception>
         IFixtureConfigurator<T> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, params object[] arguments);
 
@@ -174,16 +184,17 @@ namespace FixtureBuilder
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the expression is invalid.</exception>
-        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="TProp"/> or its base types.</exception>
+        /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on the runtime type of the resolved member or its base types.</exception>
         IFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);
 
         /// <summary>
         /// Builds and returns the configured fixture instance.
         /// </summary>
         /// <remarks>
-        /// If the fixture has not been previously created, a new instance is instantiated using the <see cref="FixtureOptions.DefaultInstantiationMethod"/>. Subsequent calls return the same instance.
+        /// If the fixture has not been previously created, a new instance is instantiated using the <see cref="FixtureOptions.DefaultFixtureInstantiationMethod"/>. Subsequent calls return the same instance.
         /// </remarks>
         /// <returns>The configured fixture instance of type <typeparamref name="T"/>.</returns>
+        /// <exception cref="InvalidOperationException"/>
         T Build();
     }
 }

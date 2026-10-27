@@ -10,11 +10,11 @@ using FixtureBuilder.Extensions;
 namespace FixtureBuilder.Assignment.ValueProviders.Providers
 {
     /// <summary>
-    /// Provides fixture instances for immutable and frozen collection types.
+    /// Provides fixture instances for immutable, frozen and read-only collection types.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Creates empty instances by invoking the static <c>Empty</c> property or method
+    /// Creates empty instances by reading the static <c>Empty</c> property or field
     /// exposed by each supported type. Supported types include:
     /// </para>
     /// <list type="bullet">
@@ -23,9 +23,10 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     ///   <item><description><see cref="FrozenSet{T}"/></description></item>
     ///   <item><description><see cref="ImmutableDictionary{TKey, TValue}"/>, <see cref="ImmutableSortedDictionary{TKey, TValue}"/></description></item>
     ///   <item><description><see cref="FrozenDictionary{TKey, TValue}"/></description></item>
+    ///   <item><description><see cref="ReadOnlyCollection{T}"/>, <see cref="ReadOnlyDictionary{TKey, TValue}"/></description></item>
     /// </list>
     /// <para>
-    /// Returns <see langword="null"/> for any type not in the supported set.
+    /// Returns <see cref="NoResult"/> for any type not in the supported set.
     /// </para>
     /// </remarks>
     internal class ImmutableFrozenEnumerableProvider : IValueProvider

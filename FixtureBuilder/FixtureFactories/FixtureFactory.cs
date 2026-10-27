@@ -52,7 +52,7 @@ namespace FixtureBuilder
         }
 
         /// <summary>
-        /// Creates a new fixture configurator for type <typeparamref name="T"/>.
+        /// Creates a new fixture constructor for type <typeparamref name="T"/>.
         /// </summary>
         public IFixtureConstructor<T> New<T>() where T : class
         {
@@ -69,7 +69,7 @@ namespace FixtureBuilder
         }
 
         /// <summary>
-        /// Creates and returns an instance of <typeparamref name="T"/> using the <see cref="FixtureOptions.DefaultInstantiationMethod"/> with no additional configuration.
+        /// Creates and returns an instance of <typeparamref name="T"/> using the <see cref="FixtureOptions.DefaultFixtureInstantiationMethod"/> with no additional configuration.
         /// </summary>
         public T Build<T>() where T : class
         {
@@ -101,7 +101,6 @@ namespace FixtureBuilder
             return AddTypeLink(adaptedTypeLink);
         }
 
-        /// <inheritdoc/>
         private FixtureFactory AddTypeLink(ITypeLink typeLink)
         {
             _context.TypeLink.AddTypeLink(typeLink);

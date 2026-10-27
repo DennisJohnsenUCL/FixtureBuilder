@@ -13,7 +13,8 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// <remarks>
     /// <para>
     /// The provider selects the simplest (fewest parameters) constructor available on the requested
-    /// type, preferring public constructors over non-public ones. Constructors with a parameter of the
+    /// type, preferring public constructors over non-public ones unless <see cref="FixtureOptions.PreferSimplestConstructor"/>
+    /// is enabled. Constructors with a parameter of the
     /// requested type are tried last, and skipped unless that parameter resolves to null or its default value.
     /// Each constructor parameter is resolved recursively via <see cref="IFixtureContext.ValueProvider"/>.
     /// </para>
