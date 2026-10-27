@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -50,8 +51,9 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 }
                 catch { continue; }
 
-                var defaultValue = dataMember.DataMemberType.IsValueType
-                    ? Activator.CreateInstance(dataMember.DataMemberType)
+                var type = dataMember.DataMemberType;
+                var defaultValue = type.IsValueType && Nullable.GetUnderlyingType(type) is null
+                    ? RuntimeHelpers.GetUninitializedObject(type)
                     : null;
 
                 if (Equals(value, defaultValue))
@@ -61,12 +63,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
                     value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
 
-                    if (value is NoResult)
-                    {
-                        value = dataMember.DataMemberType.IsValueType
-                            ? Activator.CreateInstance(dataMember.DataMemberType)
-                            : null;
-                    }
+                    if (value is NoResult) continue;
 
                     if (dataMember.IsPropertyInfo
                         && !dataMember.Property.CanWrite

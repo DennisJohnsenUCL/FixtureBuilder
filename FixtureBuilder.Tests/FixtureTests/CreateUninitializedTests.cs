@@ -302,6 +302,68 @@ internal class CreateUninitializedTests
         }
     }
 
+    record struct SettingsWithDefaults()
+    {
+        public string Name { get; init; } = "default";
+    }
+    class WithStructWithDefaults
+    {
+        public SettingsWithDefaults Settings { get; set; }
+    }
+
+    [Test]
+    public void CreateUninitialized_StructMemberWithParameterlessConstructor_InitializesMembers()
+    {
+        var fixture = Fixture.New<WithStructWithDefaults>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Settings.Name, Is.EqualTo("Name"));
+    }
+
+    struct ThrowingConstructorStruct
+    {
+        public string Value { get; set; }
+        public ThrowingConstructorStruct() => throw new InvalidOperationException();
+    }
+    class WithThrowingConstructorStruct
+    {
+        public ThrowingConstructorStruct Member { get; set; }
+    }
+
+    [Test]
+    public void CreateUninitialized_StructMemberWithThrowingParameterlessConstructor_InitializesMembers()
+    {
+        var fixture = Fixture.New<WithThrowingConstructorStruct>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Member.Value, Is.EqualTo("Value"));
+    }
+
+    class WithNullableValueTypes
+    {
+        public int? Count { get; set; }
+        public SettingsWithDefaults? Settings { get; set; }
+    }
+
+    [Test]
+    public void CreateUninitialized_All_InitializesNullableValueTypeMembers()
+    {
+        var fixture = Fixture.New<WithNullableValueTypes>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Count, Is.Not.Null);
+            Assert.That(result.Settings?.Name, Is.EqualTo("Name"));
+        }
+    }
+
     class OuterAndInner
     {
         public Middle Middle { get; set; } = null!;
