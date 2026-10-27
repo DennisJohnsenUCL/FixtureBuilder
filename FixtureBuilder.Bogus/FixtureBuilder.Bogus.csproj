@@ -29,6 +29,14 @@
     <PackageReference Include="Bogus" Version="35.6.5" />
     <PackageReference Include="FixtureBuilder" Version="3.0.0" />
     <PackageReference Include="MemberLens.Attributes" Version="1.0.1" />
+    <PackageReference Include="Roslynator.Analyzers" Version="5.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="5.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 	<ItemGroup>
