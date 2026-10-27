@@ -24,10 +24,10 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         }
 
         [Test]
-        public void New_WithInstance_ReturnsFixtureConstructor()
+        public void New_WithInstance_ReturnsFixtureConfigurator()
         {
             var result = _factory.New(new TestClass());
-            Assert.That(result, Is.InstanceOf<IFixtureConstructor<TestClass>>());
+            Assert.That(result, Is.InstanceOf<IFixtureConfigurator<TestClass>>());
         }
 
         [Test]
