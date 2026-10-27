@@ -52,6 +52,8 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             public string WriteOnly { set { } }
 #pragma warning restore CA1822 // Mark members as static
             public string this[int index] { get => ""; set { } }
+            private int[] _spanValues = [];
+            public Span<int> RefStructProperty { get => _spanValues; set => _spanValues = value.ToArray(); }
             public static string StaticProperty { get; set; } = "";
             public int RegularField;
             public static int StaticField;
@@ -204,6 +206,16 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             var property = typeof(StandardClass).GetProperties()
                 .First(p => p.GetIndexParameters().Length > 0);
             var member = new DataMemberInfo(property);
+
+            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void ShouldSkip_RefStructProperty_ReturnsTrue()
+        {
+            var member = PropertyMember<StandardClass>(nameof(StandardClass.RefStructProperty));
 
             var result = _sut.ShouldSkip(member, InitializeMembers.All);
 

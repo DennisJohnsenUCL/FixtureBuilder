@@ -386,6 +386,70 @@ internal class CreateUninitializedTests
         }
     }
 
+    class WithThrowingGetter
+    {
+        public string Broken { get => throw new InvalidOperationException(); set { } }
+        public string Name { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_PropertyWithThrowingGetter_InitializesOtherMembers()
+    {
+        var fixture = Fixture.New<WithThrowingGetter>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Name, Is.EqualTo("Name"));
+    }
+
+    class WithThrowingSetter
+    {
+        public string Broken { get => null!; set => throw new InvalidOperationException(); }
+        public string Name { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_PropertyWithThrowingSetter_InitializesOtherMembers()
+    {
+        var fixture = Fixture.New<WithThrowingSetter>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Name, Is.EqualTo("Name"));
+    }
+
+    [Test]
+    public void CreateUninitialized_AllowSkipUninitializableMembersFalse_PropertyWithThrowingSetter_ThrowsInvalidOperationException()
+    {
+        var fixture = Fixture.New<WithThrowingSetter>();
+
+        TestHelper.SetOption(fixture, o => o.AllowSkipUninitializableMembers = false);
+
+        var ex = Assert.Throws<InvalidOperationException>(() => fixture.CreateUninitialized(InitializeMembers.All));
+
+        Assert.That(ex!.Message, Does.Contain(nameof(WithThrowingSetter.Broken)));
+    }
+
+    class WithRefStructProperty
+    {
+        private int[] _values = [];
+        public Span<int> Values { get => _values; set => _values = value.ToArray(); }
+        public string Name { get; set; } = null!;
+    }
+
+    [Test]
+    public void CreateUninitialized_RefStructProperty_InitializesOtherMembers()
+    {
+        var fixture = Fixture.New<WithRefStructProperty>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Name, Is.EqualTo("Name"));
+    }
+
     class OuterAndInner
     {
         public Middle Middle { get; set; } = null!;

@@ -8,7 +8,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// <summary>
     /// Determines whether a <see cref="DataMemberInfo"/> should be skipped during fixture
     /// member initialization. Members are skipped if they belong to <c>System</c> or <c>Microsoft</c> namespaces, are static,
-    /// are inaccessible properties (write-only, indexed, or read-only without an auto-property backing field), are compiler-generated
+    /// are inaccessible properties (write-only, indexed, of a ref struct type such as <see cref="Span{T}"/>,
+    /// or read-only without an auto-property backing field), are compiler-generated
     /// backing fields, or — when <see cref="InitializeMembers.NonNullables"/> is specified —
     /// are nullable (either nullable value types or nullable reference types).
     /// </summary>
@@ -42,13 +43,16 @@ namespace FixtureBuilder.Creation.UninitializedProviders
         private static bool IsInaccessibleProperty(DataMemberInfo dataMember)
         {
             if (!dataMember.IsPropertyInfo) return false;
+            var property = dataMember.Property;
 
             var isInaccessible = false;
 
-            if (!dataMember.Property.CanRead) isInaccessible = true;
-            if (dataMember.Property.GetIndexParameters().Length > 0) isInaccessible = true;
-            if (!dataMember.Property.CanWrite
-                            && !dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), out _))
+            if (!property.CanRead) isInaccessible = true;
+            if (property.GetIndexParameters().Length > 0) isInaccessible = true;
+            if (property.PropertyType.IsByRefLike) isInaccessible = true;
+
+            if (!property.CanWrite
+                && !dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(property), out _))
             {
                 isInaccessible = true;
             }

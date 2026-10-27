@@ -13,7 +13,9 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// <see cref="IUninitializedProvider"/>. Members are discovered via reflection
     /// using <see cref="Extensions.TypeExtensions.GetDataMembers"/> and filtered through an
     /// <see cref="IDataMemberSkipFilter"/> before initialization. Members the skip filter rejects,
-    /// and properties whose getter throws, are left unchanged; the remaining members are still processed.
+    /// and properties whose getter or setter throws, are left unchanged; the remaining members are still processed.
+    /// If a setter throws and <see cref="FixtureOptions.AllowSkipUninitializableMembers"/> is disabled,
+    /// an <see cref="InvalidOperationException"/> is thrown instead.
     /// </summary>
     internal class MemberInitializer : IMemberInitializer
     {
@@ -49,31 +51,39 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 {
                     value = dataMember.GetValue(instance);
                 }
-                catch { continue; }
+                catch (TargetInvocationException) { continue; }
 
                 var type = dataMember.DataMemberType;
                 var defaultValue = type.IsValueType && Nullable.GetUnderlyingType(type) is null
                     ? RuntimeHelpers.GetUninitializedObject(type)
                     : null;
 
-                if (RuntimeHelpers.Equals(value, defaultValue))
+                if (!RuntimeHelpers.Equals(value, defaultValue)) continue;
+
+                MemberInfo requestSource = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
+                var request = new FixtureRequest(dataMember.DataMemberType, requestSource, rootType, dataMember.Name);
+
+                value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
+
+                if (value is NoResult) continue;
+
+                if (dataMember.IsPropertyInfo
+                    && !dataMember.Property.CanWrite
+                    && dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), out var backingField))
                 {
-                    MemberInfo requestSource = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
-                    var request = new FixtureRequest(dataMember.DataMemberType, requestSource, rootType, dataMember.Name);
-
-                    value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
-
-                    if (value is NoResult) continue;
-
-                    if (dataMember.IsPropertyInfo
-                        && !dataMember.Property.CanWrite
-                        && dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), out var backingField))
-                    {
-                        backingField.SetValue(instance, value);
-                    }
-                    else
+                    backingField.SetValue(instance, value);
+                }
+                else
+                {
+                    try
                     {
                         dataMember.SetValue(instance, value);
+                    }
+                    catch (TargetInvocationException ex)
+                    {
+                        if (!context.OptionsFor(request.RootType).AllowSkipUninitializableMembers)
+                            throw new InvalidOperationException(
+                                $"Could not set {dataMember.Name} on {dataMember.DeclaringType!.Name}.", ex.InnerException);
                     }
                 }
             }
