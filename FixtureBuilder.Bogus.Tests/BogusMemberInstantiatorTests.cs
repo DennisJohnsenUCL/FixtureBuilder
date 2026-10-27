@@ -1,5 +1,4 @@
 ﻿using Bogus;
-using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Bogus.Tests
@@ -83,7 +82,7 @@ namespace FixtureBuilder.Bogus.Tests
             var expected = new SimpleClass();
             _mockConstructor.Setup(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>())).Returns(expected);
 
-            var result = _sut.UseCustomInstantiator(f => new SimpleClass());
+            var result = _sut.UseCustomInstantiator(_ => new SimpleClass());
 
             Assert.That(result, Is.SameAs(expected));
         }
@@ -93,7 +92,7 @@ namespace FixtureBuilder.Bogus.Tests
         {
             _mockConstructor.Setup(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>())).Returns(new SimpleClass());
 
-            _sut.UseCustomInstantiator(f => new SimpleClass());
+            _sut.UseCustomInstantiator(_ => new SimpleClass());
 
             _mockConstructor.Verify(c => c.UseCustomInstantiator(It.IsAny<Func<SimpleClass>>()), Times.Once);
         }

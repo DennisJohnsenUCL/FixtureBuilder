@@ -52,7 +52,7 @@ namespace FixtureBuilder.Bogus
         IEnumerable<T> IBogusFixtureConfigurator<T>.Build(int count)
         {
             if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count), count, "Can only build positive numbers of objects.");
-            if (_instance != null && count != 1) throw new InvalidOperationException($"Cannot build multiple Fixtures when given an instance to build from as this would require several copies of the initial object.");
+            if (_instance != null && count != 1) throw new InvalidOperationException($"Cannot build multiple Fixtures when given an instance (type: {_instance.GetType().Name} to build from as this would require several copies of the initial object.");
 
             var fixtures = new List<T>();
             for (int i = 0; i < count; i++)

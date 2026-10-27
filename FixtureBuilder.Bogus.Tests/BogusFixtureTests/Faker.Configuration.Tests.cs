@@ -17,7 +17,9 @@
         private class ClassWithBackingField
         {
             private readonly string _name = string.Empty;
+#pragma warning disable RCS1085 // Use auto-implemented property
             public string Name => _name;
+#pragma warning restore RCS1085 // Use auto-implemented property
         }
 
         private class ClassWithMethod

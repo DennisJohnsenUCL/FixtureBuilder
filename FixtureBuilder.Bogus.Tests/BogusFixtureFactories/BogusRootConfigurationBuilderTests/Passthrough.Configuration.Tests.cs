@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories;
 using Moq;
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfigurationBuilderTests
@@ -34,7 +33,7 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfiguratio
 
         #region Options
 
-        public class PrivateCtorClass
+        public sealed class PrivateCtorClass
         {
             private PrivateCtorClass() { }
         }
@@ -43,9 +42,7 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfiguratio
         public void Options_Set_AppliesOptions()
         {
             _factory.WhenBuilding<PrivateCtorClass>(b =>
-            {
-                b.Options = new FixtureOptions { AllowPrivateConstructors = false };
-            });
+                b.Options = new FixtureOptions { AllowPrivateConstructors = false });
 
             Assert.Throws<InvalidOperationException>(() => _factory.Build<PrivateCtorClass>());
         }
@@ -54,9 +51,7 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfiguratio
         public void SetOptions_Action_AppliesOptions()
         {
             _factory.WhenBuilding<PrivateCtorClass>(b =>
-            {
-                b.SetOptions(o => o.AllowPrivateConstructors = false);
-            });
+                b.SetOptions(o => o.AllowPrivateConstructors = false));
 
             Assert.Throws<InvalidOperationException>(() => _factory.Build<PrivateCtorClass>());
         }
