@@ -212,6 +212,7 @@ namespace FixtureBuilder.Bogus
         /// </remarks>
         public BogusFixtureFactory WhenBuilding<TRoot>(Action<BogusRootConfigurationBuilder<TRoot>> builderAction)
         {
+            ArgumentNullException.ThrowIfNull(builderAction);
             _factory.WhenBuilding<TRoot>(inner =>
             {
                 var bogusBuilder = new BogusRootConfigurationBuilder<TRoot>(inner, _faker);
