@@ -22,12 +22,12 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <remarks>
         /// The seed only applies to values generated through a <see cref="Faker"/>. Values FixtureBuilder generates on its own, such as numbers, characters and Guids filled in by UseAutoConstructor or CreateUninitialized, are not seeded.
-        /// The <see cref="Faker"/> is shared with every fixture created from this factory, including ones already created, so setting this affects all of them.
+        /// The randomizer is shared with every fixture created from this factory, so the generated values depend on the order the fixtures are built in.
         /// </remarks>
         public Randomizer Random { get => _faker.Random; set { _faker.Random = value; } }
 
         /// <summary>
-        /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
+        /// Gets the locale used for data generation (e.g. "en", "de", "fr").
         /// </summary>
         public string Locale { get => _faker.Locale; }
 

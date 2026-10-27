@@ -27,7 +27,7 @@ namespace FixtureBuilder.Bogus
         public Randomizer Random { get; }
 
         /// <summary>
-        /// Gets or sets the locale used for data generation (e.g. "en", "de", "fr").
+        /// Gets the locale used for data generation (e.g. "en", "de", "fr").
         /// </summary>
         public string Locale { get; }
 

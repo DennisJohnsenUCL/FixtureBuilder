@@ -28,7 +28,7 @@ FixtureBuilder.Bogus is available as a NuGet package:
 dotnet add package FixtureBuilder.Bogus
 ```
 
-The entry point is the `Fixture.WithBogus<T>()` extension method, which returns an `IBogusFixtureConstructor<T>`. From there, the API mirrors FixtureBuilder's fluent interface — every configuration method has a Faker-accepting overload alongside the standard passthrough.
+The entry point is the `Fixture.WithBogus<T>()` extension method, which returns an `IBogusFixtureConstructor<T>`. From there, the API mirrors FixtureBuilder's fluent interface — every value-taking method has a Faker-accepting overload alongside the standard passthrough.
 
 
 ## Construction
@@ -70,9 +70,12 @@ var user = Fixture.WithBogus<User>()
 - `WithField(fieldName, Func<Faker, TValue>)`
 - `WithField(expr, fieldName, Func<Faker, TValue>)`
 - `WithBackingField(expr, Func<Faker, TProp>)`
+- `WithBackingField(expr, Func<Faker, TProp>, fieldName)`
 - `WithBackingFieldUntyped(expr, Func<Faker, object?>)`
+- `WithBackingFieldUntyped(expr, Func<Faker, object?>, fieldName)`
 - `Invoke(Func<Faker, Expression<Action<T>>>)`
 - `InvokePrivate(methodName, Func<Faker, object[]>)`
+- `InvokePrivate(expr, methodName, Func<Faker, object[]>)`
 - `Instantiate(expr, Func<IBogusConstructor<TProp>, TProp>)`
 
 All standard FixtureBuilder configuration methods are also available as passthroughs for values that don't need generation.
@@ -103,21 +106,27 @@ var users = Fixture.WithBogus<User>()
 
 The returned collection is stable — re-enumerating it returns the same instances.
 
+Fixtures created from an existing instance (`Fixture.WithBogus(instance)` or `factory.New(instance)`) reconfigure and return that same instance on every build, so `Build(int count)` only accepts a count of 1 for them.
 
-## Locale and Seed
 
-Set the locale via the `WithBogus` overload, and the seed via the `Random` property. These are available on both `IBogusFixtureConstructor<T>` and `BogusFixtureFactory`.
+## Locale
+
+The default locale is `"en"`. Pass a locale to any `WithBogus` overload to change it:
 
 ```csharp
 // German locale — single fixture
 var bogus = Fixture.WithBogus<User>("de");
 
+// German locale — existing instance
+var configured = Fixture.WithBogus(existingUser, "de");
+
 // German locale — factory
 var factory = FixtureFactory.WithBogus("de");
-
-// Deterministic seed for repeatable test data
-bogus.Random = new Randomizer(42);
 ```
+
+The locale is fixed at creation and can be read back via the `Locale` property on fixtures and on `BogusFixtureFactory`.
+
+To seed the generated data, see [Seeding](#seeding) under `BogusFixtureFactory`.
 
 
 ## BogusFixtureFactory
@@ -161,13 +170,34 @@ var user = factory.New<User>().UseAutoConstructor().Build();
 var company = factory.New<Company>().UseAutoConstructor().Build();
 ```
 
+Scoped registrations take precedence over factory-wide registrations, regardless of registration order.
+
+### Seeding
+
+Set the factory's `Random` property to a seeded `Randomizer` for repeatable test data:
+
+```csharp
+var factory = FixtureFactory.WithBogus();
+factory.Random = new Randomizer(42);
+
+var user = factory.New<User>()
+    .With(u => u.Email, f => f.Internet.Email())
+    .Build();
+```
+
+The seed only applies to values generated through the Faker. Values FixtureBuilder generates on its own, such as numbers, characters, and Guids filled in by `UseAutoConstructor` or `CreateUninitialized`, are not seeded.
+
+Fixtures created from a factory share its randomizer, so the generated values depend on the order the fixtures are built in.
+
+Fixtures created directly with `Fixture.WithBogus()` have their own unseeded randomizer. It can be read via the `Random` property but not replaced, so use a factory when you need a seed.
+
 ### Options
 
 Configure options the same way as `FixtureFactory`:
 
 ```csharp
-factory.Options = new FixtureOptions { AllowPrivateConstructors = true };
-factory.SetOptions(o => o.AllowPrivateConstructors = true);
+factory.Options = new FixtureOptions { PreferSimplestConstructor = true };
+factory.SetOptions(o => o.PreferSimplestConstructor = true);
 ```
 
 ### Extensibility
@@ -178,7 +208,7 @@ In addition to the standard `AddProvider`, `AddConverter`, and `AddTypeLink` met
 factory.AddBogusProvider(myBogusProvider);
 ```
 
-Custom Bogus providers implement `IBogusCustomProvider`. Standard `ICustomProvider`, `ICustomConverter`, and `ICustomTypeLink` registrations are also available.
+Custom Bogus providers implement `IBogusCustomProvider`. `AddBogusProvider` is also available inside `WhenBuilding` for scoped providers.
 
 
 ## MemberLens
