@@ -102,6 +102,17 @@ internal class CreateUninitializedTests
     }
 
     [Test]
+    public void CreateUninitialized_AlreadyConstructed_ThrowsInvalidOperationException()
+    {
+        var fixture = Fixture.New<SimpleTestClass>().CreateUninitialized(InitializeMembers.None);
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            ((IFixtureConstructor<SimpleTestClass>)fixture).CreateUninitialized(InitializeMembers.None));
+
+        Assert.That(ex!.Message, Does.Contain("already constructed"));
+    }
+
+    [Test]
     public void CreateUninitialized_NoParameter_OptionAll_InitializesAll()
     {
         var fixture = Fixture.New<ClassWithNullableAndNonNullable>();

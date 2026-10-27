@@ -64,6 +64,28 @@ namespace FixtureBuilder.Tests.FixtureTests
         }
 
         [Test]
+        public void AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<DefaultConstructorClass>().UseConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                ((IFixtureConstructor<DefaultConstructorClass>)fixture).UseConstructor());
+
+            Assert.That(ex!.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
+        public void AfterImplicitConstruction_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<DefaultConstructorClass>();
+            fixture.With(x => x.Value, "Configured");
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor());
+
+            Assert.That(ex!.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
         public void GenericClass_CanConstruct()
         {
             IFixtureConfigurator<GenericClass<string>> fixture = null!;

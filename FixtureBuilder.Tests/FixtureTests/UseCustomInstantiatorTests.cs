@@ -84,5 +84,17 @@
             Assert.Throws<InvalidOperationException>(() => Fixture.New<SimpleClass>()
                 .UseCustomInstantiator(() => null!));
         }
+
+        [Test]
+        public void AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<SimpleClass>()
+                .UseCustomInstantiator(() => new SimpleClass());
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                ((IFixtureConstructor<SimpleClass>)fixture).UseCustomInstantiator(() => new SimpleClass()));
+
+            Assert.That(ex!.Message, Does.Contain("already constructed"));
+        }
     }
 }

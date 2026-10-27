@@ -21,6 +21,17 @@ namespace FixtureBuilder.Tests.FixtureTests
             Assert.That(result, Is.Not.Null);
         }
 
+        [Test]
+        public void AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<Empty>().UseAutoConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                ((IFixtureConstructor<Empty>)fixture).UseAutoConstructor());
+
+            Assert.That(ex!.Message, Does.Contain("already constructed"));
+        }
+
         class WithPrimitives(string name, int count, long id)
         {
             public string Name { get; } = name;

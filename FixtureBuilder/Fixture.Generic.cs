@@ -58,6 +58,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.CreateUninitialized(InitializeMembers initializeMembers)
         {
+            ValidateNullFixture();
+
             var request = new FixtureRequest(typeof(T));
             var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
             if (instance is NoResult || instance == null)
@@ -70,6 +72,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] arguments)
         {
+            ValidateNullFixture();
+
             var request = new FixtureRequest(typeof(T));
             var instance = _context.ConstructingProvider.ResolveWithArguments(request, arguments);
 
@@ -80,6 +84,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseAutoConstructor()
         {
+            ValidateNullFixture();
+
             var request = new FixtureRequest(typeof(T));
             var instance = _context.AutoConstructingProvider.AutoResolve(request, _context);
 
@@ -90,6 +96,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseCustomInstantiator(Func<T> instantiator)
         {
+            ValidateNullFixture();
+
             var instance = instantiator() ?? throw new InvalidOperationException(
                 $"Custom instantiator for {typeof(T).Name} returned null. Custom instantiators must always return a valid instance.");
 
@@ -297,6 +305,12 @@ namespace FixtureBuilder
                 }
             }
             throw new MissingMethodException($"No method {methodName} accepting the given arguments was found on {parentType.Name} or its base types.");
+        }
+
+        private void ValidateNullFixture()
+        {
+            if (_fixture is not null) throw new InvalidOperationException(
+                $"The {typeof(T).Name} fixture is already constructed. Construction methods can only be called once, before any configuration method or Build.");
         }
 
         internal T InstantiateFixture()
