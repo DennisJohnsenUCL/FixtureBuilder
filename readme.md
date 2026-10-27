@@ -21,14 +21,14 @@ using FixtureBuilder;
 
 public class User
 {
-	public string Name { get; }
+	public string Name { get; private set; }
 	private int _age;
 
 	public User(string name) { Name = name; }
 }
 
 // Build a test fixture for User, bypassing the constructor
-var fixture = new Fixture<User>()
+var fixture = Fixture.New<User>()
 	.CreateUninitialized()
 	.WithField("_age", 30)
 	.WithSetter(u => u.Name, "Alice")
@@ -41,7 +41,9 @@ var fixture = new Fixture<User>()
 ### Creation
 - `CreateUninitialized()`: Instantiates the object without invoking its constructor.
 
-- `UseConstructor(params object[] arguments)`: Instantiates with specific constructor arguments.
+- `CreateUninitialized(InitializeMembers initializeMembers)`: Instantiates the object without invoking its constructor, then initializes its members as chosen (`None`, `NonNullables` or `All`).
+
+- `UseConstructor(params object[] args)`: Instantiates with specific constructor arguments.
 
 - `UseAutoConstructor()`: Instantiates the object by automatically invoking its simplest constructor, recursively building dependencies.
 
@@ -52,11 +54,17 @@ var fixture = new Fixture<User>()
 
 - `WithField(Expression<Func<T, TProp>> expr, string fieldName, object value)`: Sets a field value on a member of the object.
 
-- `WithBackingField(Expression<Func<T, TProp>> expr, object value)`: Sets the value of the backing field for a given property.
+- `WithBackingField(Expression<Func<T, TProp>> expr, TProp value)`: Sets the value of the backing field for a given property.
+
+- `WithBackingField(Expression<Func<T, TProp>> expr, TProp value, string fieldName)`: Sets the value of a specifically named backing field, for when it cannot be found automatically.
+
+- `WithBackingFieldUntyped(Expression<Func<T, TProp>> expr, object? value)`: Sets the value of the backing field for a given property, for when the backing field has a different type than the property.
+
+- `WithBackingFieldUntyped(Expression<Func<T, TProp>> expr, object? value, string fieldName)`: Sets the value of a specifically named backing field that has a different type than the property.
 
 - `WithSetter(Expression<Func<T, TProp>> expr, TProp value)`: Sets a writable property via its setter.
 
-- `With(Expression<Func<T, TProp>> expr, TProp value)`: Sets either a property (if writable) or its backing field.
+- `With(Expression<Func<T, TProp>> expr, TProp value)`: Sets a field directly, or a property via its setter if writable and its backing field otherwise.
 
 - `Invoke(Expression<Action<T>> expr)`: Invokes a method on the test object or its member.
 
@@ -64,21 +72,24 @@ var fixture = new Fixture<User>()
 
 - `InvokePrivate(Expression<Func<T, TProp>> expr, string methodName, params object?[] arguments)`: Invokes a private method on a member of the test object.
 
-- `Instantiate(Expression<Func<T, TProp>> expr)`: Instantiates the given member using the default instantiation method.
+- `Instantiate(Expression<Func<T, TProp>> expr)`: Instantiates the given member, using registered value providers first and the default instantiation method otherwise.
 
-- `Instantiate(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp>, func)`: Instantiates the given member using the chosen instantiation method via the `IConstructor`.
+- `Instantiate(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)`: Instantiates the given member using the chosen instantiation method via the `IConstructor`.
 
 - `CastTo<TTarget>()`: Casts fixture to another type for chaining configurations.
 
 ## FixtureFactory
 
-`FixtureFactory` is a pre-configured fixture producer. Where `Fixture<T>` creates a single test object, `FixtureFactory` lets you define shared configuration once — type mappings, value providers, default values — and then produce consistently configured fixtures from it.
+`FixtureFactory` is a pre-configured fixture producer. Where `Fixture` creates a single test object, `FixtureFactory` lets you define shared configuration once — type links, value providers, default values — and then produce consistently configured fixtures from it.
 
 ### Basic Usage
 
 ```csharp
 var factory = new FixtureFactory();
 var fixture = factory.New<User>().UseAutoConstructor().Build();
+
+// Or build directly, using the default instantiation method
+var user = factory.Build<User>();
 ```
 
 ### Pre-Configured Values
@@ -92,7 +103,7 @@ var factory = new FixtureFactory()
     .WithParameter(30)                     // Constructor parameters of type int receive 30
     .WithParameter(30, "age")              // Only the parameter named "age" receives 30
     .WithPropertyOrField("Bob")            // Properties and fields of type string receive "Bob"
-    .WithPropertyOrField("Bob", "Name")    // Only the property/field named "Name" receives "Bob"
+    .WithPropertyOrField("Bob", "Name");   // Only the property/field named "Name" receives "Bob"
 
 var user = factory.New<User>().UseAutoConstructor().Build();
 ```
@@ -124,13 +135,13 @@ Configure factory-wide options either at construction or afterwards:
 
 ```csharp
 // At construction
-var factory = new FixtureFactory(new FixtureOptions { AllowPrivateConstructors = true });
+var factory = new FixtureFactory(new FixtureOptions { PreferSimplestConstructor = true });
 
 // After construction
-factory.Options = new FixtureOptions { AllowPrivateConstructors = true };
+factory.Options = new FixtureOptions { PreferSimplestConstructor = true };
 
 // Or modify in place
-factory.SetOptions(o => o.AllowPrivateConstructors = true);
+factory.SetOptions(o => o.PreferSimplestConstructor = true);
 ```
 
 Options apply to all fixtures produced by the factory.
@@ -163,13 +174,13 @@ factory.AddProvider(myProvider);
 factory.AddConverter(myConverter);
 ```
 
-Custom providers implement `ICustomProvider` and custom converters implement `ICustomConverter`. Both are available in the `FixtureBuilder.Core` namespace.
+Custom type links implement `ICustomTypeLink`, custom providers implement `ICustomProvider` and custom converters implement `ICustomConverter`. All three, along with `FixtureOptions`, are available in the `FixtureBuilder.Core` namespace.
 
 ## MemberLens
 
-Configuration methods WithField and InvokePrivate that take stringly-typed field and method names support the Visual Studio extension [MemberLens](https://marketplace.visualstudio.com/items?itemName=DennisJohnsen.MemberLens). With MemberLens installed, these methods will receive autocomplete suggestions for field names and method names on the test object or its member.
+Configuration methods `WithField` and `InvokePrivate` that take stringly-typed field and method names support the Visual Studio extension [MemberLens](https://marketplace.visualstudio.com/items?itemName=DennisJohnsen.MemberLens). With MemberLens installed, these methods will receive autocomplete suggestions for field names and method names on the test object or its member.
 
 
 ## Feedback & Issues
 
-For bug reports, feature requests, or usage questions, please submit an issue on the Github repository.
+For bug reports, feature requests, or usage questions, please submit an issue on the [GitHub repository](https://github.com/DennisJohnsenUCL/FixtureBuilder).

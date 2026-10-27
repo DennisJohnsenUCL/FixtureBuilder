@@ -41,16 +41,16 @@
 - Fixed backing field names being lowercased incorrectly in Turkish culture.
 - Fixed member expressions with struct members silently failing to write to them.
   - Changes to structs along the expression are now written back to their parent. A changed struct held by a property without a setter throws an exception instead.
-- Fixed WithSetter naming the type rather than the property when the property is not writeable.
+- Fixed WithSetter naming the type rather than the property when the property is not writable.
 - Fixed CastTo not passing the FixtureFactory configuration along to the new Fixture instance.
 - Fixed conversion to Collection and ReadOnlyCollection failing when the source is not an IList.
 - Fixed conversion failing for empty dictionaries.
 
 #### 2.0.0
 
-- Added new FixtureOption DefaultInstantiationMethod which, if set, will override other InstantiationMethod options (fixture, chain, .Instantiate)
+- Added new option DefaultInstantiationMethod to FixtureOptions which, if set, will override other InstantiationMethod options (fixture, chain, .Instantiate).
   - Old DefaultInstantiationMethod option has been renamed to DefaultFixtureInstantiationMethod.
-- RootConfigurationBuilder methods now always return the builder so method calls inside .WhenBuilding() lambda can be chained.
+- RootConfigurationBuilder methods now always return the builder so method calls inside the .WhenBuilding() lambda can be chained.
 - Breaking change: Moved ICustomTypeLink to FixtureBuilder.Core namespace.
 - Breaking change: Moved InstantiationMethod enum to FixtureBuilder.Core namespace.
 - Breaking change: Moved InitializeMembers to FixtureBuilder namespace.
@@ -58,9 +58,9 @@
 
 #### 1.4.0
 
-- Added construction method UseCustomInstantiator
+- Added construction method UseCustomInstantiator.
   - This method will construct the fixture object using any user-provided constructor, factory method, or factory class.
-- Added UseCustomInstantiator method to IConstructor, exposed via Fixture .Instantiate method to instantiate members and nested members.
+- Added UseCustomInstantiator method to IConstructor, exposed via Fixture's .Instantiate method to instantiate members and nested members.
   - Accepts any user-provided constructor, factory method, or factory class.
 
 #### 1.3.1
@@ -69,12 +69,12 @@
 
 #### 1.3.0
 
-- Added .Build method to FactoryFactory to instantly output a test object with only pre-configuration through the factory.
+- Added .Build method to FixtureFactory to instantly output a test object with only pre-configuration through the factory.
 - Added option AllowResolveCircularDependencies to allow .UseAutoConstructor and .CreateUninitialized methods to resolve circular dependencies rather than throwing.
 - Added option AllowImplicitConversion to allow WithBackingField to apply implicit conversions for properties with backing fields of different types.
 - Added new ways to customize FixtureFactory for specific root object types with FixtureFactory.WhenBuilding:
-  - .SetOptions method allows to set root object type specific options on top of already defined global options.
-  - .Options allows to override global options entirely with root object type specific options.
+  - .SetOptions method allows setting root object type specific options on top of already defined global options.
+  - .Options allows overriding global options entirely with root object type specific options.
   - .AddProvider allows for registering custom providers for specific root object types.
   - .AddConverter allows for registering custom converters for specific root object types.
   - .AddTypeLink allows for registering custom type links for specific root object types.
@@ -82,9 +82,9 @@
 
 #### 1.2.1
 
-- Added overloads for .AddTypeLink on FixtureFactory that take the input type and output type directly as parameters
-- Added overloads for .WithX methods on FixtureFactory that take funcs instead of a flat value
-  - These allow for adding factories that generate values when needed rather than providing a static value
+- Added overloads for .AddTypeLink on FixtureFactory that take the input type and output type directly as parameters.
+- Added overloads for .WithX methods on FixtureFactory that take funcs instead of a flat value.
+  - These allow for adding factories that generate values when needed rather than providing a static value.
 - Added .WhenBuilding method to FixtureFactory which allows for adding .WithX providers that apply only when building a test object of a given type.
 
 #### 1.2.0
@@ -94,7 +94,7 @@
   - .AddTypeLink allows for adding TypeLinks, which are used to tell Fixture which concrete classes to use when it encounters an interface.
   - .AddConverter allows for adding converters that are used when Fixture encounters a backing field with an unassignable type relative to its property.
   - A series of .WithX methods allows for adding templated providers that are used to populate parameters in constructors, and properties and fields on test objects.
-	- This allows for precisely controlling the state of test objects generated by Fixture.
+    - This allows for precisely controlling the state of test objects generated by Fixture.
   - .AddProvider allows for adding a fully custom provider which the user can tailor to their exact needs.
   - .New outputs a new Fixture instance for test object generation with the options and additions to the FixtureFactory.
 
@@ -103,8 +103,8 @@
 - New method Instantiate allows for setting a member or a nested member on the test object without providing a specific value.
   - A specific construction method can be chosen with a lambda parameter on Instantiate, allowing for precise control.
   - A default option will be used if no construction method is chosen.
-- Expressions may now contain public fields when configuring nested members on the text object, not just properties.
-- Fixed circular dependencies causing a stack overflow when constructing objects with UseAutoConstructor or CreateInitialized.
+- Expressions may now contain public fields when configuring nested members on the test object, not just properties.
+- Fixed circular dependencies causing a stack overflow when constructing objects with UseAutoConstructor or CreateUninitialized.
   - The circular dependency is now caught early and an exception is thrown.
 - Fixed InvokePrivate throwing an exception for overloaded methods, and failing to find method overloads with optional parameters.
   - The best fitting method is now chosen based on the given parameters.
@@ -116,7 +116,7 @@
 - WithField has been split into two methods as it did two different things depending on arguments provided.
   - WithField now sets the given field on the test object or, if given, a member of the test object.
   - WithBackingField sets the value of the backing field for the given property.
-- New method WithBackingFieldUntyped can be used to configure backing fields for properties in cases where the property and backing fields have different (unassignable) types.
+- New method WithBackingFieldUntyped can be used to configure backing fields for properties in cases where the property and backing field have different (unassignable) types.
 - New method Invoke can be used to invoke methods on the test object or its members during the configuration stage.
 - New method InvokePrivate can be used to invoke private methods on the test object or its members during the configuration stage.
 - New method UseAutoConstructor constructs the test object by invoking the simplest constructor, recursively building dependencies of that constructor.
