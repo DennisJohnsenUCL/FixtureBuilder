@@ -33,8 +33,11 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.TypeOf<Func<string, int>>());
-            Assert.That(((Func<string, int>)result!)("text"), Is.Zero);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf<Func<string, int>>());
+                Assert.That(((Func<string, int>)result!)("text"), Is.Zero);
+            }
         }
 
         [Test]
@@ -44,8 +47,11 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.TypeOf<Func<string>>());
-            Assert.That(((Func<string>)result!)(), Is.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf<Func<string>>());
+                Assert.That(((Func<string>)result!)(), Is.Null);
+            }
         }
 
         [Test]

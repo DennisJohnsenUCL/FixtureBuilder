@@ -3,7 +3,9 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace SystemUnderTest
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     public class Invoice
     {

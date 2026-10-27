@@ -4,7 +4,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Creation.UninitializedProviders;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Contoso
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     public class Widget
     {
@@ -12,7 +14,9 @@ namespace Microsoft.Contoso
     }
 }
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace MicrosoftGraphClient
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     public class GraphUser
     {
@@ -89,7 +93,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromSystemChildNamespace_ReturnsTrue()
         {
-            var member = PropertyMember<List<int>>(nameof(List<int>.Capacity));
+            var member = PropertyMember<List<int>>(nameof(List<>.Capacity));
 
             var result = _sut.ShouldSkip(member, InitializeMembers.All);
 

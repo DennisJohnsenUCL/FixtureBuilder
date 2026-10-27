@@ -136,9 +136,11 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         public void Resolve_WhenProviderReturnsNullForUnwrappedNullableParameter_ReturnsNull()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableInt));
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object), paramInfo.Name);
-            // UnwrapAndLink turns int? into int before the providers run.
-            request.Type = typeof(int);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object), paramInfo.Name)
+            {
+                // UnwrapAndLink turns int? into int before the providers run.
+                Type = typeof(int)
+            };
             var provider = new Mock<IValueProvider>();
             provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
             var sut = new CompositeValueProvider([provider.Object]);

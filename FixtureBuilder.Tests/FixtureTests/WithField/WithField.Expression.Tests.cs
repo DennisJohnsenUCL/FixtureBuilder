@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CS0649
+#pragma warning disable IDE0044 // Add readonly modifier
 
 namespace FixtureBuilder.Tests.FixtureTests.WithField
 {

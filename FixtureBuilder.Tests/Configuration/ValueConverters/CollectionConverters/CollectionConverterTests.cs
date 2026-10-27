@@ -69,7 +69,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
             var result = _sut.Convert(request, value, _context);
             value.Add("test4");
 
-            Assert.That((IEnumerable)result!, Is.EqualTo(new[] { "test1", "test2", "test3" }));
+            Assert.That((IEnumerable)result!, Is.EqualTo(["test1", "test2", "test3"]));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
             var result = (Collection<string>)_sut.Convert(request, value, _context)!;
 
             Assert.DoesNotThrow(() => result.Add("test4"));
-            Assert.That(result, Is.EqualTo(new[] { "test1", "test2", "test3", "test4" }));
+            Assert.That(result, Is.EqualTo(["test1", "test2", "test3", "test4"]));
         }
 
         [Test]

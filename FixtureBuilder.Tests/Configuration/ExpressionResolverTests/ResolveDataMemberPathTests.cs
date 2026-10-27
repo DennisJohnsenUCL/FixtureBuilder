@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
 namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
@@ -359,8 +358,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             public string Currency { get; set; }
 
             // Ignores Currency, so Equals cannot tell a copy with a changed Currency from the original
-            public override bool Equals(object? obj) => obj is Money other && other.Amount == Amount;
-            public override int GetHashCode() => Amount.GetHashCode();
+            public override readonly bool Equals(object? obj) => obj is Money other && other.Amount == Amount;
+            public override readonly int GetHashCode() => Amount.GetHashCode();
         }
 
         private class MoneyRoot

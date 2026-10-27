@@ -30,8 +30,11 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
-            Assert.That(result, Is.InstanceOf<Task>());
-            Assert.That(((Task)result!).IsCompletedSuccessfully, Is.True);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.InstanceOf<Task>());
+                Assert.That(((Task)result!).IsCompletedSuccessfully, Is.True);
+            }
         }
 
         [TestCase(typeof(Task<int>), TestName = "Resolve_GenericTask_ReturnsNoResult")]

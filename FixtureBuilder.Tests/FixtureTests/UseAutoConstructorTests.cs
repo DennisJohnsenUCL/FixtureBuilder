@@ -198,8 +198,10 @@ namespace FixtureBuilder.Tests.FixtureTests
         {
             public bool UsedSelfParameterConstructor { get; }
 
+#pragma warning disable IDE0060 // Remove unused parameter
             public SelfParameterWithAlternative(int first, int second) { }
             public SelfParameterWithAlternative(SelfParameterWithAlternative? parent = null) { UsedSelfParameterConstructor = true; }
+#pragma warning restore IDE0060 // Remove unused parameter
         }
         [Test]
         public void SelfParameterConstructor_IsChosenAfterOtherConstructors()

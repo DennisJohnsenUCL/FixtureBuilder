@@ -314,7 +314,7 @@ internal sealed class DataMemberInfoTests
         var sut = FromProperty(nameof(SampleClass.TaggedProperty));
 
         Assert.That(sut.CustomAttributes,
-            Has.Some.Matches<CustomAttributeData>(a => a.AttributeType == typeof(MarkerAttribute)));
+            Has.Some.Matches<CustomAttributeData>(a => a!.AttributeType == typeof(MarkerAttribute)));
     }
 
     [Test]
@@ -323,7 +323,7 @@ internal sealed class DataMemberInfoTests
         var sut = FromField(nameof(SampleClass.TaggedField));
 
         Assert.That(sut.CustomAttributes,
-            Has.Some.Matches<CustomAttributeData>(a => a.AttributeType == typeof(MarkerAttribute)));
+            Has.Some.Matches<CustomAttributeData>(a => a!.AttributeType == typeof(MarkerAttribute)));
     }
 
     // ═════════════════════════════════════════════════════════════════

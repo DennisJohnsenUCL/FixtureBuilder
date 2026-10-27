@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.FixtureTests.InvokePrivate
+﻿#pragma warning disable CA1822 // Mark members as static
+
+namespace FixtureBuilder.Tests.FixtureTests.InvokePrivate
 {
     internal sealed class InvokePrivateTests
     {
