@@ -56,7 +56,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                     ? RuntimeHelpers.GetUninitializedObject(type)
                     : null;
 
-                if (Equals(value, defaultValue))
+                if (RuntimeHelpers.Equals(value, defaultValue))
                 {
                     MemberInfo requestSource = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
                     var request = new FixtureRequest(dataMember.DataMemberType, requestSource, rootType, dataMember.Name);

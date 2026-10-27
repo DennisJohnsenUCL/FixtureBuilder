@@ -343,6 +343,28 @@ internal class CreateUninitializedTests
         Assert.That(result.Member.Value, Is.EqualTo("Value"));
     }
 
+    struct ThrowingEqualsStruct
+    {
+        public string Value { get; set; }
+        public override readonly bool Equals(object? obj) => throw new InvalidOperationException();
+        public override readonly int GetHashCode() => 0;
+    }
+    class WithThrowingEqualsStruct
+    {
+        public ThrowingEqualsStruct Member { get; set; }
+    }
+
+    [Test]
+    public void CreateUninitialized_StructMemberWithThrowingEquals_InitializesMembers()
+    {
+        var fixture = Fixture.New<WithThrowingEqualsStruct>();
+
+        fixture.CreateUninitialized(InitializeMembers.All);
+        var result = TestHelper.GetFixture(fixture);
+
+        Assert.That(result.Member.Value, Is.EqualTo("Value"));
+    }
+
     class WithNullableValueTypes
     {
         public int? Count { get; set; }
