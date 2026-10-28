@@ -36,7 +36,7 @@ namespace FixtureBuilder.Configuration
 
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
-                var request = new FixtureRequest(fieldType, rootType);
+                var request = new TypeRequest(fieldType, rootType);
                 value = context.Converter.Root.Convert(request, value!, context);
                 if (value is NoResult)
                     throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");

@@ -31,7 +31,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(Collection<string>), TestName = "Convert_TargetCollection_Converts")]
         public void Convert_Target_Converts(Type target)
         {
-            var request = new FixtureRequest(target);
+            var request = new TypeRequest(target, target);
             var value = new string[] { "test1", "test2", "test3" };
 
             var result = _sut.Convert(request, value, _context);
@@ -47,7 +47,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(Collection<string>), TestName = "Convert_TargetCollection_ValueNotList_Converts")]
         public void Convert_ValueNotList_Converts(Type target)
         {
-            var request = new FixtureRequest(target);
+            var request = new TypeRequest(target, target);
             var value = new Queue<string>(["test1", "test2", "test3"]);
 
             var result = _sut.Convert(request, value, _context);
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(Collection<string>), TestName = "Convert_TargetCollection_ValueChangedAfterConvert_ResultUnchanged")]
         public void Convert_ValueChangedAfterConvert_ResultUnchanged(Type target)
         {
-            var request = new FixtureRequest(target);
+            var request = new TypeRequest(target, target);
             var value = new List<string> { "test1", "test2", "test3" };
 
             var result = _sut.Convert(request, value, _context);
@@ -75,7 +75,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetCollection_ValueArray_ResultCanBeAddedTo()
         {
-            var request = new FixtureRequest(typeof(Collection<string>));
+            var request = new TypeRequest(typeof(Collection<string>), typeof(Collection<string>));
             var value = new string[] { "test1", "test2", "test3" };
 
             var result = (Collection<string>)_sut.Convert(request, value, _context)!;
@@ -87,7 +87,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetCollection_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(Collection<string>));
+            var request = new TypeRequest(typeof(Collection<string>), typeof(Collection<string>));
             var result = _sut.Convert(request, new int[] { 1, 2, 3 }, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
@@ -96,7 +96,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotCollection_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(List<string>));
+            var request = new TypeRequest(typeof(List<string>), typeof(List<string>));
             var result = _sut.Convert(request, new string[] { "test1" }, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
@@ -105,7 +105,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(Collection<string>));
+            var request = new TypeRequest(typeof(Collection<string>), typeof(Collection<string>));
             var result = _sut.Convert(request, 42, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
@@ -114,7 +114,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(Collection<string>));
+            var request = new TypeRequest(typeof(Collection<string>), typeof(Collection<string>));
             var result = _sut.Convert(request, new ArrayList { "test1" }, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());

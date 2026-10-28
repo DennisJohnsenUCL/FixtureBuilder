@@ -22,7 +22,7 @@ namespace FixtureBuilder.Configuration.ValueConverters
             _rootConverters = [];
         }
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             foreach (var converter in _rootConverters.Concat(_converters))
             {

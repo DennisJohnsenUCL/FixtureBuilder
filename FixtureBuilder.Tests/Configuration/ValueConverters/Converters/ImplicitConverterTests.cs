@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_ImplicitOnSourceType_Converts()
         {
-            var target = new FixtureRequest(typeof(int));
+            var target = new TypeRequest(typeof(int), typeof(int));
             var value = new SourceDefined { Value = 42 };
             var context = CreateContext(true).Object;
 
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_ImplicitOnTargetType_Converts()
         {
-            var target = new FixtureRequest(typeof(TargetDefined));
+            var target = new TypeRequest(typeof(TargetDefined), typeof(TargetDefined));
             var value = 42;
             var context = CreateContext(true).Object;
 
@@ -70,7 +70,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_NoImplicitOperatorExists_ReturnsNoResult()
         {
-            var target = new FixtureRequest(typeof(string));
+            var target = new TypeRequest(typeof(string), typeof(string));
             var value = 42;
             var context = CreateContext(true).Object;
 
@@ -84,7 +84,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_AllowImplicitConversionDisabled_ReturnsNoResult()
         {
-            var target = new FixtureRequest(typeof(int));
+            var target = new TypeRequest(typeof(int), typeof(int));
             var value = new SourceDefined { Value = 42 };
             var context = CreateContext(false).Object;
 
@@ -104,7 +104,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_GenericTypeWithImplicit_Converts()
         {
-            var target = new FixtureRequest(typeof(Wrapper<int>));
+            var target = new TypeRequest(typeof(Wrapper<int>), typeof(Wrapper<int>));
             var value = 42;
             var context = CreateContext(true).Object;
 
@@ -130,7 +130,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_ImplicitAcceptsBaseType_ValueIsDerived_Converts()
         {
-            var target = new FixtureRequest(typeof(AcceptsBase));
+            var target = new TypeRequest(typeof(AcceptsBase), typeof(AcceptsBase));
             var value = new Derived();
             var context = CreateContext(true).Object;
 
@@ -150,7 +150,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         [Test]
         public void Convert_ExplicitConversionExists_ButNoImplicit_ReturnsNoResult()
         {
-            var target = new FixtureRequest(typeof(int));
+            var target = new TypeRequest(typeof(int), typeof(int));
             var value = new ExplicitOnly { Value = 42 };
             var context = CreateContext(true).Object;
 

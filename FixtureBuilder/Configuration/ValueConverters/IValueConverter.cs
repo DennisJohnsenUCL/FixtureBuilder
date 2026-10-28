@@ -5,6 +5,6 @@ namespace FixtureBuilder.Configuration.ValueConverters
 {
     internal interface IValueConverter
     {
-        object? Convert(FixtureRequest request, object value, IFixtureContext context);
+        object? Convert(TypeRequest request, object value, IFixtureContext context);
     }
 }

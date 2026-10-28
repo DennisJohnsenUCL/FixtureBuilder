@@ -10,7 +10,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         {
             var factory = new FixtureFactory();
             var target = typeof(string);
-            var request = new FixtureRequest(target);
+            var request = new TypeRequest(target, target);
             var value = 42;
             var expected = "converted";
 

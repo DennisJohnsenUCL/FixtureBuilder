@@ -6,7 +6,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
 {
     internal class ArrayConverter : IValueConverter
     {
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             if (request.Type.IsArray
                 && value is IEnumerable enumerable)

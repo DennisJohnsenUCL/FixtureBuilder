@@ -14,9 +14,10 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
-            request.Type = context.UnwrapAndLink(request.Type, request.RootType);
+            var type = context.UnwrapAndLink(request.Type, request.RootType);
+            request = new TypeRequest(type, request.RootType);
 
             var result = _inner.Convert(request, value, context);
             if (result != null) return result;

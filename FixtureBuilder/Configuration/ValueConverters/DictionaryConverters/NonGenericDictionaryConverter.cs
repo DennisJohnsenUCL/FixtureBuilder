@@ -9,7 +9,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(Hashtable), typeof(SortedList)];
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             if (_types.Contains(request.Type)
                 && (value is IDictionary

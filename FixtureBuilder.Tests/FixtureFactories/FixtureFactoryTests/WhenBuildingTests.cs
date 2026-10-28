@@ -298,7 +298,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<PersonClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(string), typeof(PersonClass));
+            var request = new TypeRequest(typeof(string), typeof(PersonClass));
             var result = context.Converter.Composite.Convert(request, "original", context);
 
             Assert.That(result, Is.EqualTo("converted-value"));
@@ -314,7 +314,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<BusinessClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(string), typeof(BusinessClass));
+            var request = new TypeRequest(typeof(string), typeof(BusinessClass));
             var result = context.Converter.Composite.Convert(request, "original", context);
 
             Assert.That(result, Is.Not.EqualTo("converted-value"));
@@ -335,7 +335,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<PersonClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(string), typeof(PersonClass));
+            var request = new TypeRequest(typeof(string), typeof(PersonClass));
             var result = context.Converter.Composite.Convert(request, "original", context);
 
             Assert.That(result, Is.EqualTo("scoped"));

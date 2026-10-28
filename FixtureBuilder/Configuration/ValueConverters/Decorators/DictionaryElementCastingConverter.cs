@@ -18,7 +18,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (target.IsDictionary()
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             if (item == null) return null;
             if (targetType.IsAssignableFrom(item.GetType())) return item;
 
-            var request = new FixtureRequest(targetType, rootType);
+            var request = new TypeRequest(targetType, rootType);
             var converted = context.Converter.Root.Convert(request, item, context);
             if (converted is NoResult)
                 throw new InvalidCastException(

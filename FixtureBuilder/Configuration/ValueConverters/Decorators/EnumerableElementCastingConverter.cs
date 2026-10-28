@@ -16,7 +16,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             _inner = inner;
         }
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (value is IEnumerable enumerable
@@ -50,7 +50,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 }
                 else
                 {
-                    var request = new FixtureRequest(elementType, rootType);
+                    var request = new TypeRequest(elementType, rootType);
                     var converted = context.Converter.Root.Convert(request, item, context);
                     if (converted is NoResult)
                         throw new InvalidCastException(

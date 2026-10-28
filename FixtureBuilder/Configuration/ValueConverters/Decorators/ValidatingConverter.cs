@@ -10,14 +10,11 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
         public ValidatingConverter(IValueConverter inner)
         {
             ArgumentNullException.ThrowIfNull(inner);
-
             _inner = inner;
         }
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
-            ArgumentNullException.ThrowIfNull(request);
-            ArgumentNullException.ThrowIfNull(context);
             if (value == null) return null;
             if (value.GetType().IsAssignableTo(request.Type)) return value;
 

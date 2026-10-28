@@ -9,7 +9,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(ReadOnlyCollection<>), typeof(Collection<>)];
 
-        public object? Convert(FixtureRequest request, object value, IFixtureContext context)
+        public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())
