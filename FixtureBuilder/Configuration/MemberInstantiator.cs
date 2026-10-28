@@ -23,6 +23,8 @@ namespace FixtureBuilder.Configuration
 
         public T UseConstructor(params object?[] arguments)
         {
+            _request.Type = ContextBase.Unwrap(_request.Type);
+
             return (T)_context.ConstructingProvider.ResolveWithArguments(_request, arguments);
         }
 

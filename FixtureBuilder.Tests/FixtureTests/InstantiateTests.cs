@@ -265,5 +265,24 @@ namespace FixtureBuilder.Tests.FixtureTests
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Holder.Nested.Value, Is.EqualTo("constructed"));
         }
+
+        struct InnerStructWithParam(string value)
+        {
+            public string Value { get; } = value;
+        }
+        class OuterWithNullableStruct
+        {
+            public InnerStructWithParam? Nested { get; set; }
+        }
+        [Test]
+        public void Instantiate_UseConstructor_NullableStructProperty_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<OuterWithNullableStruct>();
+
+            fixture.Instantiate(o => o.Nested, m => m.UseConstructor("hello"));
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Nested?.Value, Is.EqualTo("hello"));
+        }
     }
 }
