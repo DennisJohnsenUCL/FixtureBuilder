@@ -30,6 +30,8 @@ internal class DataMemberInfo : MemberInfo
     /// <exception cref="InvalidOperationException">This instance wraps a property, not a field.</exception>
     public FieldInfo Field => _field ?? throw new InvalidOperationException("This DataMember is a Property.");
 
+    public MemberInfo MemberInfo => IsPropertyInfo ? _property! : _field!;
+
     /// <summary>Gets <see langword="true"/> when this instance wraps a <see cref="PropertyInfo"/>.</summary>
     public bool IsPropertyInfo => _property != null;
 

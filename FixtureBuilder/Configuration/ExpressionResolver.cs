@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -186,9 +185,8 @@ namespace FixtureBuilder.Configuration
             if (dataMember.IsPropertyInfo && !pi.CanWrite)
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
-            MemberInfo source = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
             var type = _context.UnwrapAndLink(dataMember.DataMemberType, _rootType);
-            var request = new FixtureRequest(type, source, _rootType);
+            var request = new FixtureRequest(type, dataMember.MemberInfo, _rootType);
 
             current = _context.ProvideWithStrategy(request, _context.OptionsFor(_rootType).NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {dataMember.Name} in Expression chain resolution. " +

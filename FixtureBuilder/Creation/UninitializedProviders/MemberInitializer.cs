@@ -60,9 +60,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
                 if (!RuntimeHelpers.Equals(value, defaultValue)) continue;
 
-                MemberInfo requestSource = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
                 var linked = context.UnwrapAndLink(type, rootType);
-                var request = new FixtureRequest(linked, requestSource, rootType);
+                var request = new FixtureRequest(linked, dataMember.MemberInfo, rootType);
 
                 value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
 
