@@ -43,16 +43,12 @@ namespace FixtureBuilder.Core
             OriginalType = type;
         }
 
-        internal FixtureRequest(Type type, Type rootType) : this(type)
-        {
-            ArgumentNullException.ThrowIfNull(rootType);
-            RootType = rootType;
-        }
-
-        internal FixtureRequest(Type type, object requestSource, Type rootType) : this(type, rootType)
+        internal FixtureRequest(Type type, object requestSource, Type rootType) : this(type)
         {
             ArgumentNullException.ThrowIfNull(requestSource);
+            ArgumentNullException.ThrowIfNull(rootType);
             RequestSource = requestSource;
+            RootType = rootType;
 
             (var declared, Name) = requestSource switch
             {

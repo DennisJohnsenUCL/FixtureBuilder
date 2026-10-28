@@ -44,14 +44,6 @@ namespace FixtureBuilder.Tests.Core
         }
 
         [Test]
-        public void Constructor_WithRootType_SetsRootType()
-        {
-            var request = new FixtureRequest(typeof(string), typeof(double));
-
-            Assert.That(request.RootType, Is.EqualTo(typeof(double)));
-        }
-
-        [Test]
         public void Constructor_ParameterSource_SetsNameFromParameter()
         {
             var request = new FixtureRequest(typeof(string), GetParameterInfo(), typeof(double));

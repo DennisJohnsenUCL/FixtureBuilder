@@ -35,7 +35,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         [Test]
         public void ResolveValue_MatchingRootType_DelegatesToInner()
         {
-            var request = new FixtureRequest(typeof(string), typeof(string));
+            var request = new FixtureRequest(typeof(string));
             _innerMock
                 .Setup(p => p.ResolveValue(request, _contextMock.Object))
                 .Returns("resolved");
@@ -50,7 +50,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         [Test]
         public void ResolveValue_NonMatchingRootType_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string), typeof(string));
+            var request = new FixtureRequest(typeof(string));
             var sut = new RootProviderDecorator(_innerMock.Object, typeof(int));
 
             var result = sut.ResolveValue(request, _contextMock.Object);
@@ -64,7 +64,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         [Test]
         public void ResolveValue_InnerReturnsNull_ReturnsNull()
         {
-            var request = new FixtureRequest(typeof(string), typeof(string));
+            var request = new FixtureRequest(typeof(string));
             _innerMock
                 .Setup(p => p.ResolveValue(request, _contextMock.Object))
                 .Returns((object?)null);
@@ -78,7 +78,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         [Test]
         public void ResolveValue_PassesContextToInner()
         {
-            var request = new FixtureRequest(typeof(string), typeof(string));
+            var request = new FixtureRequest(typeof(string));
             var sut = new RootProviderDecorator(_innerMock.Object, typeof(string));
 
             sut.ResolveValue(request, _contextMock.Object);
