@@ -125,7 +125,7 @@ namespace FixtureBuilder
             var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
             var value = (TProp)_context.ProvideWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
-            return ((IFixtureConfigurator<T>)this).With(expr, value);
+            return WithInternal(expr, value);
         }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
@@ -137,7 +137,7 @@ namespace FixtureBuilder
             var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
             var value = func(new MemberInstantiator<TProp>(request, _context));
 
-            return ((IFixtureConfigurator<T>)this).With(expr, value);
+            return WithInternal(expr, value);
         }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithField<TValue>(string fieldName, TValue value)
@@ -234,6 +234,11 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
+            return WithInternal(expr, value);
+        }
+
+        private Fixture<T> WithInternal<TProp>(Expression<Func<T, TProp>> expr, TProp value)
+        {
             _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember) =>
             {
                 if (dataMember.IsFieldInfo)
