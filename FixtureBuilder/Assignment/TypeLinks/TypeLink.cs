@@ -25,7 +25,7 @@ namespace FixtureBuilder.Assignment.TypeLinks
             _outType = outType;
         }
 
-        public Type? Link(FixtureRequest request)
+        public Type? Link(TypeRequest request)
         {
             var target = request.Type;
 

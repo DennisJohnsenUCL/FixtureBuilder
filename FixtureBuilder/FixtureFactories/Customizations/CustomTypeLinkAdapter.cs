@@ -13,7 +13,7 @@ namespace FixtureBuilder.FixtureFactories.Customizations
             _typeLink = typeLink;
         }
 
-        public Type? Link(FixtureRequest request)
+        public Type? Link(TypeRequest request)
         {
             return _typeLink.Link(request.Type);
         }

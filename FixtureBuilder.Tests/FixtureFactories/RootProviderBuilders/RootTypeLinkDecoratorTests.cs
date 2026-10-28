@@ -30,9 +30,9 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         [Test]
         public void Link_MatchingRootType_DelegatesToInner()
         {
-            _innerMock.Setup(i => i.Link(It.IsAny<FixtureRequest>())).Returns(typeof(int));
+            _innerMock.Setup(i => i.Link(It.IsAny<TypeRequest>())).Returns(typeof(int));
             var sut = new RootTypeLinkDecorator(_innerMock.Object, typeof(string));
-            var request = new FixtureRequest(typeof(double), "source", typeof(string), null);
+            var request = new TypeRequest(typeof(double), typeof(string));
 
             var result = sut.Link(request);
 
@@ -43,12 +43,12 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         public void Link_NonMatchingRootType_ReturnsNull()
         {
             var sut = new RootTypeLinkDecorator(_innerMock.Object, typeof(string));
-            var request = new FixtureRequest(typeof(double), "source", typeof(int), null);
+            var request = new TypeRequest(typeof(double), typeof(int));
 
             var result = sut.Link(request);
 
             Assert.That(result, Is.Null);
-            _innerMock.Verify(i => i.Link(It.IsAny<FixtureRequest>()), Times.Never);
+            _innerMock.Verify(i => i.Link(It.IsAny<TypeRequest>()), Times.Never);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.FixtureFactories
         [Test]
         public void Link_DelegatesToAdapteeWithRequestType()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = new TypeRequest(typeof(string), typeof(string));
             _adapteeMock.Setup(a => a.Link(typeof(string))).Returns(typeof(int));
             var sut = new CustomTypeLinkAdapter(_adapteeMock.Object);
 
@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.FixtureFactories
         [Test]
         public void Link_AdapteeReturnsNull_ReturnsNull()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = new TypeRequest(typeof(string), typeof(string));
             _adapteeMock.Setup(a => a.Link(typeof(string))).Returns((Type?)null);
             var sut = new CustomTypeLinkAdapter(_adapteeMock.Object);
 

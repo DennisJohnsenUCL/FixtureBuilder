@@ -16,7 +16,7 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
             _rootType = rootType;
         }
 
-        public Type? Link(FixtureRequest request)
+        public Type? Link(TypeRequest request)
         {
             if (request.RootType != _rootType)
                 return null;

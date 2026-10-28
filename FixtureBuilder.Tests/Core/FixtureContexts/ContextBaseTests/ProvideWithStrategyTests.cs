@@ -43,8 +43,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             var request = new FixtureRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
-            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>()))
-                .Returns((Type?)null);
             var context = CreateContext();
 
             var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
@@ -58,8 +56,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             var request = new FixtureRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("Provided value");
-            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>()))
-                .Returns((Type?)null);
             var context = CreateContext();
 
             context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
@@ -73,8 +69,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             var request = new FixtureRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(null!);
-            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>()))
-                .Returns((Type?)null);
             var context = CreateContext();
 
             var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
@@ -91,8 +85,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
                 .Returns(new NoResult());
             _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
-            _typeLinkMock.Setup(r => r.Link(It.IsAny<FixtureRequest>()))
-                .Returns((Type?)null);
             var context = CreateContext();
 
             var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
@@ -108,7 +100,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Callback<FixtureRequest, IFixtureContext>((req, _) => capturedRequest = req)
                 .Returns(new NoResult());
-            _typeLinkMock.Setup(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(IDisposable))))
+            _typeLinkMock.Setup(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(IDisposable))))
                 .Returns(typeof(MemoryStream));
             _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(new MemoryStream());
@@ -127,30 +119,11 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Callback<FixtureRequest, IFixtureContext>((req, _) => capturedRequest = req)
                 .Returns(42);
-            _typeLinkMock.Setup(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int))))
-                .Returns((Type?)null);
             var context = CreateContext();
 
             context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
 
             Assert.That(capturedRequest!.Type, Is.EqualTo(typeof(int)));
-        }
-
-        [Test]
-        public void ProvideWithStrategy_UnwrapsNullable_ThenLinks()
-        {
-            var request = new FixtureRequest(typeof(int?));
-            FixtureRequest? capturedRequest = null;
-            _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Callback<FixtureRequest, IFixtureContext>((req, _) => capturedRequest = req)
-                .Returns(100L);
-            _typeLinkMock.Setup(r => r.Link(It.Is<FixtureRequest>(req => req.Type == typeof(int))))
-                .Returns(typeof(long));
-            var context = CreateContext();
-
-            context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
-
-            Assert.That(capturedRequest!.Type, Is.EqualTo(typeof(long)));
         }
     }
 }

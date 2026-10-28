@@ -4,6 +4,6 @@ namespace FixtureBuilder.Assignment.TypeLinks
 {
     internal interface ITypeLink
     {
-        Type? Link(FixtureRequest request);
+        Type? Link(TypeRequest request);
     }
 }

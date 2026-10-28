@@ -21,10 +21,8 @@ namespace FixtureBuilder.Assignment.TypeLinks
             _rootTypeLinks = [];
         }
 
-        public Type? Link(FixtureRequest request)
+        public Type? Link(TypeRequest request)
         {
-            ArgumentNullException.ThrowIfNull(request);
-
             foreach (var typeLink in _rootTypeLinks.Concat(_typeLinks))
             {
                 var result = typeLink.Link(request);

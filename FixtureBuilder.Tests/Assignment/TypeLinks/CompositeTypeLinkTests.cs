@@ -6,12 +6,12 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
 {
     internal sealed class CompositeTypeLinkTests
     {
-        private FixtureRequest _request;
+        private TypeRequest _request;
 
         [SetUp]
         public void SetUp()
         {
-            _request = new FixtureRequest(typeof(string));
+            _request = new TypeRequest(typeof(string), typeof(string));
         }
 
         [Test]
@@ -43,10 +43,10 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
         public void Link_NoConverterReturnsResult_ReturnsNull()
         {
             var typeLink1 = new Mock<ITypeLink>();
-            typeLink1.Setup(x => x.Link(It.IsAny<FixtureRequest>())).Returns((Type?)null);
+            typeLink1.Setup(x => x.Link(It.IsAny<TypeRequest>())).Returns((Type?)null);
 
             var typeLink2 = new Mock<ITypeLink>();
-            typeLink2.Setup(x => x.Link(It.IsAny<FixtureRequest>())).Returns((Type?)null);
+            typeLink2.Setup(x => x.Link(It.IsAny<TypeRequest>())).Returns((Type?)null);
 
             var composite = new CompositeTypeLink([typeLink1.Object, typeLink2.Object]);
 
@@ -71,7 +71,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
 
             Assert.That(result, Is.EqualTo(expectedResult));
             typeLink1.Verify(x => x.Link(_request), Times.Once);
-            typeLink2.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
+            typeLink2.Verify(x => x.Link(It.IsAny<TypeRequest>()), Times.Never);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var result = composite.Link(_request);
 
             Assert.That(result, Is.EqualTo(firstResult));
-            typeLink3.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
+            typeLink3.Verify(x => x.Link(It.IsAny<TypeRequest>()), Times.Never);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var result = composite.Link(_request);
 
             Assert.That(result, Is.EqualTo(addedResult));
-            originalLink.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
+            originalLink.Verify(x => x.Link(It.IsAny<TypeRequest>()), Times.Never);
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var result = composite.Link(_request);
 
             Assert.That(result, Is.EqualTo(rootResult));
-            addedLink.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
+            addedLink.Verify(x => x.Link(It.IsAny<TypeRequest>()), Times.Never);
         }
 
         [Test]
@@ -192,7 +192,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var result = composite.Link(_request);
 
             Assert.That(result, Is.EqualTo(laterResult));
-            earlierRootLink.Verify(x => x.Link(It.IsAny<FixtureRequest>()), Times.Never);
+            earlierRootLink.Verify(x => x.Link(It.IsAny<TypeRequest>()), Times.Never);
         }
     }
 }

@@ -48,8 +48,9 @@ namespace FixtureBuilder.Core.FixtureContexts
 
         public Type UnwrapAndLink(FixtureRequest request)
         {
-            request.Type = Unwrap(request.Type);
-            return TypeLink.Link(request) ?? request.Type;
+            var unwrapped = Unwrap(request.Type);
+            var typeRequest = new TypeRequest(unwrapped, request.RootType);
+            return TypeLink.Link(typeRequest) ?? unwrapped;
         }
 
         public object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)

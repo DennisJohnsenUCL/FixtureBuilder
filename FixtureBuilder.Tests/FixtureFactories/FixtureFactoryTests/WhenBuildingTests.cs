@@ -355,7 +355,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<PersonClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(PersonClass), null);
+            var request = new TypeRequest(typeof(IPersonDependency), typeof(PersonClass));
             var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.EqualTo(typeof(PersonDependencyImpl)));
@@ -371,7 +371,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<BusinessClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(BusinessClass), null);
+            var request = new TypeRequest(typeof(IPersonDependency), typeof(BusinessClass));
             var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.Null);
@@ -384,7 +384,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<PersonClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(PersonClass), null);
+            var request = new TypeRequest(typeof(IPersonDependency), typeof(PersonClass));
             var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.EqualTo(typeof(PersonDependencyImpl)));
@@ -397,7 +397,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<BusinessClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(BusinessClass), null);
+            var request = new TypeRequest(typeof(IPersonDependency), typeof(BusinessClass));
             var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.Null);
@@ -412,7 +412,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = _factory.New<PersonClass>();
             var context = TestHelper.GetContext(fixture);
-            var request = new FixtureRequest(typeof(IPersonDependency), "source", typeof(PersonClass), null);
+            var request = new TypeRequest(typeof(IPersonDependency), typeof(PersonClass));
             var result = context.TypeLink.Link(request);
 
             Assert.That(result, Is.EqualTo(typeof(PersonDependencyImpl)));

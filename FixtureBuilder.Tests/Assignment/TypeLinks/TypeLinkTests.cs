@@ -67,7 +67,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(MemoryStream);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(new FixtureRequest(inType));
+            var result = link.Link(new TypeRequest(inType, inType));
 
             Assert.That(result, Is.EqualTo(outType));
         }
@@ -79,7 +79,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(MemoryStream);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(new FixtureRequest(typeof(string)));
+            var result = link.Link(new TypeRequest(typeof(string), typeof(string)));
 
             Assert.That(result, Is.Null);
         }
@@ -91,7 +91,8 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(List<>);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(new FixtureRequest(inType.MakeGenericType(typeof(string))));
+            var target = inType.MakeGenericType(typeof(string));
+            var result = link.Link(new TypeRequest(target, target));
 
             Assert.That(result, Is.EqualTo(outType.MakeGenericType(typeof(string))));
         }
@@ -103,7 +104,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(List<>);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(new FixtureRequest(typeof(string)));
+            var result = link.Link(new TypeRequest(typeof(string), typeof(string)));
 
             Assert.That(result, Is.Null);
         }
@@ -115,7 +116,7 @@ namespace FixtureBuilder.Tests.Assignment.TypeLinks
             var outType = typeof(List<>);
             var link = new TypeLink(inType, outType);
 
-            var result = link.Link(new FixtureRequest(typeof(Stack<>)));
+            var result = link.Link(new TypeRequest(typeof(Stack<>), typeof(Stack<>)));
 
             Assert.That(result, Is.Null);
         }
