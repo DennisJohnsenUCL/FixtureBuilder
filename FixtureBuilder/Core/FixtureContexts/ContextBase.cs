@@ -67,7 +67,7 @@ namespace FixtureBuilder.Core.FixtureContexts
             {
                 InstantiationMethod.UseAutoConstructor => AutoConstructingProvider.AutoResolve(request, this),
 
-                InstantiationMethod.UseDefaultConstructor => ConstructingProvider.ResolveWithArguments(request),
+                InstantiationMethod.UseDefaultConstructor => ConstructingProvider.ResolveWithArguments(request.Type),
 
                 InstantiationMethod.CreateUninitialized => UninitializedProvider.ResolveUninitialized(request, initializeMembers, this) is { } instance and not NoResult
                     ? instance

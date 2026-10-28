@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             var expected = "Test string value";
             var request = new FixtureRequest(typeof(string));
             _constructingMock
-                .Setup(r => r.ResolveWithArguments(It.IsAny<FixtureRequest>(), It.IsAny<object?[]>()))
+                .Setup(r => r.ResolveWithArguments(typeof(string), It.IsAny<object?[]>()))
                 .Returns(expected);
             var context = CreateContext();
 

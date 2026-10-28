@@ -76,7 +76,7 @@ namespace FixtureBuilder.Tests.Configuration
             _sut.UseAutoConstructor();
 
             _autoConstructingMock.Verify(c => c.AutoResolve(
-                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) &&r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
+                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) && r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
                 _contextMock.Object), Times.Once);
         }
 
@@ -85,7 +85,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new TestClass();
             _constructingMock
-                .Setup(c => c.ResolveWithArguments(It.IsAny<FixtureRequest>(), It.IsAny<object?[]>()))
+                .Setup(c => c.ResolveWithArguments(It.IsAny<Type>(), It.IsAny<object?[]>()))
                 .Returns(expected);
 
             var result = _sut.UseConstructor();
@@ -99,22 +99,12 @@ namespace FixtureBuilder.Tests.Configuration
             var args = new object?[] { "arg1", 42 };
             var expected = new TestClass();
             _constructingMock
-                .Setup(c => c.ResolveWithArguments(It.IsAny<FixtureRequest>(), args))
+                .Setup(c => c.ResolveWithArguments(It.IsAny<Type>(), args))
                 .Returns(expected);
 
             var result = _sut.UseConstructor(args);
 
             Assert.That(result, Is.SameAs(expected));
-        }
-
-        [Test]
-        public void UseConstructor_RequestCarriesSourceRootTypeAndName()
-        {
-            _sut.UseConstructor();
-
-            _constructingMock.Verify(c => c.ResolveWithArguments(
-                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) &&r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
-                It.IsAny<object?[]>()), Times.Once);
         }
 
         [Test]
@@ -143,7 +133,7 @@ namespace FixtureBuilder.Tests.Configuration
             _sut.CreateUninitialized();
 
             _uninitializedMock.Verify(c => c.ResolveUninitialized(
-                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) &&r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
+                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) && r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
                 It.IsAny<InitializeMembers>(),
                 _contextMock.Object), Times.Once);
         }
@@ -176,7 +166,7 @@ namespace FixtureBuilder.Tests.Configuration
                 .Returns(typeof(LinkedTestClass));
 
             _constructingMock
-                .Setup(c => c.ResolveWithArguments(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass)), It.IsAny<object?[]>()))
+                .Setup(c => c.ResolveWithArguments(typeof(TestClass), It.IsAny<object?[]>()))
                 .Returns(expected);
 
             var result = _sut.UseConstructor();

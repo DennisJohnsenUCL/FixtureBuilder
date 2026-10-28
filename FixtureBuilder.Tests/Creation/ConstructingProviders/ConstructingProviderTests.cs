@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.Core;
-using FixtureBuilder.Creation.ConstructingProviders;
+﻿using FixtureBuilder.Creation.ConstructingProviders;
 
 namespace FixtureBuilder.Tests.Creation.ConstructingProviders
 {
@@ -44,9 +43,7 @@ namespace FixtureBuilder.Tests.Creation.ConstructingProviders
         [Test]
         public void Resolve_DefaultConstructor_CreatesInstance()
         {
-            var request = new FixtureRequest(typeof(DefaultCtorClass));
-
-            var result = _sut.ResolveWithArguments(request);
+            var result = _sut.ResolveWithArguments(typeof(DefaultCtorClass));
 
             Assert.That(result, Is.InstanceOf<DefaultCtorClass>());
         }
@@ -54,9 +51,7 @@ namespace FixtureBuilder.Tests.Creation.ConstructingProviders
         [Test]
         public void Resolve_PublicConstructorWithArgs_CreatesInstance()
         {
-            var request = new FixtureRequest(typeof(PublicCtorClass));
-
-            var result = (PublicCtorClass)_sut.ResolveWithArguments(request, "hello", 42);
+            var result = (PublicCtorClass)_sut.ResolveWithArguments(typeof(PublicCtorClass), "hello", 42);
 
             using (Assert.EnterMultipleScope())
             {
@@ -68,9 +63,7 @@ namespace FixtureBuilder.Tests.Creation.ConstructingProviders
         [Test]
         public void Resolve_NonPublicConstructor_CreatesInstance()
         {
-            var request = new FixtureRequest(typeof(PrivateCtorClass));
-
-            var result = (PrivateCtorClass)_sut.ResolveWithArguments(request, "hidden");
+            var result = (PrivateCtorClass)_sut.ResolveWithArguments(typeof(PrivateCtorClass), "hidden");
 
             Assert.That(result.Secret, Is.EqualTo("hidden"));
         }
@@ -78,10 +71,8 @@ namespace FixtureBuilder.Tests.Creation.ConstructingProviders
         [Test]
         public void Resolve_MismatchedArgs_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(PublicCtorClass));
-
             var ex = Assert.Throws<InvalidOperationException>(
-                () => _sut.ResolveWithArguments(request, "only one arg"));
+                () => _sut.ResolveWithArguments(typeof(PublicCtorClass), "only one arg"));
 
             using (Assert.EnterMultipleScope())
             {
@@ -93,10 +84,8 @@ namespace FixtureBuilder.Tests.Creation.ConstructingProviders
         [Test]
         public void Resolve_AbstractType_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(AbstractClass));
-
             var ex = Assert.Throws<InvalidOperationException>(
-                () => _sut.ResolveWithArguments(request));
+                () => _sut.ResolveWithArguments(typeof(AbstractClass)));
 
             Assert.That(ex.Message, Does.Contain("AbstractClass"));
         }
@@ -104,9 +93,7 @@ namespace FixtureBuilder.Tests.Creation.ConstructingProviders
         [Test]
         public void Resolve_NullArgWhereExpected_CreatesInstance()
         {
-            var request = new FixtureRequest(typeof(PublicCtorClass));
-
-            var result = (PublicCtorClass)_sut.ResolveWithArguments(request, null!, 7);
+            var result = (PublicCtorClass)_sut.ResolveWithArguments(typeof(PublicCtorClass), null!, 7);
 
             using (Assert.EnterMultipleScope())
             {

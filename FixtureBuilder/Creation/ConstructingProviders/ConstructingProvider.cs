@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Creation.ConstructingProviders
 {
@@ -10,25 +9,24 @@ namespace FixtureBuilder.Creation.ConstructingProviders
     internal class ConstructingProvider : IConstructingProvider
     {
         /// <summary>
-        /// Creates an instance of the type specified in <paramref name="request"/> by invoking
-        /// its constructor with the supplied arguments.
+        /// Creates an instance of <paramref name="type"/> by invoking its constructor with the supplied arguments.
         /// </summary>
-        /// <param name="request">The fixture request containing the <see cref="Type"/> to instantiate.</param>
+        /// <param name="type">The type to instantiate.</param>
         /// <param name="args">Constructor arguments, matched by position and type.</param>
-        /// <returns>A new instance of the requested type.</returns>
+        /// <returns>A new instance of <paramref name="type"/>.</returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when the type cannot be instantiated with the given parameters — for example,
-        /// if no matching constructor exists, the type is abstract, or a constructor argument is invalid.
+        /// if no matching constructor exists, the type is an interface or abstract, or a constructor argument is invalid.
         /// </exception>
-        public object ResolveWithArguments(FixtureRequest request, params object?[] args)
+        public object ResolveWithArguments(Type type, params object?[] args)
         {
-            if (request.Type.IsInterface || request.Type.IsAbstract)
-                throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
+            if (type.IsInterface || type.IsAbstract)
+                throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {type.Name}.");
 
             try
             {
                 return Activator.CreateInstance(
-                    type: request.Type,
+                    type: type,
                     bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
                     binder: null,
                     args: args,
@@ -36,7 +34,7 @@ namespace FixtureBuilder.Creation.ConstructingProviders
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to create {request.Type.Name} with given parameters.", ex);
+                throw new InvalidOperationException($"Failed to create {type.Name} with given parameters.", ex);
             }
         }
     }

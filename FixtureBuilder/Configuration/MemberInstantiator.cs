@@ -28,9 +28,8 @@ namespace FixtureBuilder.Configuration
         public T UseConstructor(params object?[] arguments)
         {
             var type = ContextBase.Unwrap(typeof(T));
-            var request = new FixtureRequest(type, _requestSource, _rootType, _requestSource.Name);
 
-            return (T)_context.ConstructingProvider.ResolveWithArguments(request, arguments);
+            return (T)_context.ConstructingProvider.ResolveWithArguments(type, arguments);
         }
 
         public T CreateUninitialized()

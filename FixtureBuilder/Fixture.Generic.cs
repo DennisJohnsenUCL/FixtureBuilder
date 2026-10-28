@@ -74,8 +74,7 @@ namespace FixtureBuilder
         {
             ValidateNullFixture();
 
-            var request = new FixtureRequest(typeof(T));
-            var instance = _context.ConstructingProvider.ResolveWithArguments(request, arguments);
+            var instance = _context.ConstructingProvider.ResolveWithArguments(typeof(T), arguments);
 
             _fixture = (T)instance;
 

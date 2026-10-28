@@ -1,9 +1,7 @@
-﻿using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Creation.ConstructingProviders
+﻿namespace FixtureBuilder.Creation.ConstructingProviders
 {
     internal interface IConstructingProvider
     {
-        object ResolveWithArguments(FixtureRequest request, params object?[] args);
+        object ResolveWithArguments(Type type, params object?[] args);
     }
 }
