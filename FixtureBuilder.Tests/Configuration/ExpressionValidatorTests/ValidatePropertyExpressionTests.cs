@@ -10,6 +10,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
             public Inner Field = new();
             public string Name { get; set; } = "";
             public string NameField = "";
+            public Point? NullablePointField = new Point();
         }
 
         private class Inner
@@ -17,6 +18,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
             public string Value { get; set; } = "";
             public string ValueField = "";
         }
+
+        private struct Point;
 
         [Test]
         public void SingleProperty_DoesNotThrow()
@@ -65,6 +68,13 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         {
             Assert.Throws<InvalidOperationException>(() =>
                 ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => "hello"));
+        }
+
+        [Test]
+        public void FieldThenTrailingNullableValue_Throws()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+                ExpressionValidator.ValidatePropertyExpression<Outer, Point>(x => x.NullablePointField!.Value));
         }
     }
 }

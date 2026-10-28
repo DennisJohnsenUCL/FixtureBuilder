@@ -12,12 +12,18 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
             public Inner Field = new();
             public string Name { get; set; } = "";
             public string NameField = "";
+            public Point? NullablePoint { get; set; }
             public int GetValue() => 42;
         }
 
         private class Inner
         {
             public string Value { get; set; } = "";
+        }
+
+        private struct Point
+        {
+            public int X { get; set; }
         }
 
         [Test]
@@ -75,6 +81,22 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
             var outer = new Outer();
             Assert.Throws<InvalidOperationException>(() =>
                 ExpressionValidator.ValidateExpression<Outer, string>(x => outer.Name));
+        }
+
+        [Test]
+        public void TrailingNullableValue_ThrowsSuggestingNullableMember()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                ExpressionValidator.ValidateExpression<Outer, Point>(x => x.NullablePoint!.Value));
+
+            Assert.That(ex.Message, Does.Contain("'x => x.NullablePoint'"));
+        }
+
+        [Test]
+        public void NullableValueMidChain_DoesNotThrow()
+        {
+            Assert.DoesNotThrow(() =>
+                ExpressionValidator.ValidateExpression<Outer, int>(x => x.NullablePoint!.Value.X));
         }
     }
 }

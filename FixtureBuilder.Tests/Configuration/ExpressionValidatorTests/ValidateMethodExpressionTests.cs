@@ -10,10 +10,16 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         {
             public Inner Prop { get; set; } = new();
             public Inner Field = new();
+            public Point? NullablePoint { get; set; }
             public int GetValue() => 42;
         }
 
         private class Inner
+        {
+            public int DoSomething() => 1;
+        }
+
+        private struct Point
         {
             public int DoSomething() => 1;
         }
@@ -37,6 +43,13 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         {
             Assert.DoesNotThrow(() =>
                 ExpressionValidator.ValidateMethodExpression<Outer>(x => x.GetValue()));
+        }
+
+        [Test]
+        public void MethodOnNullableValue_DoesNotThrow()
+        {
+            Assert.DoesNotThrow(() =>
+                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.NullablePoint!.Value.DoSomething()));
         }
 
         [Test]

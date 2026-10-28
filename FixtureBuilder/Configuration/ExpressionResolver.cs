@@ -133,7 +133,7 @@ namespace FixtureBuilder.Configuration
             var members = new Stack<DataMemberInfo>();
             while (memberExpr != null)
             {
-                if (!IsNullableValueProperty(memberExpr.Member))
+                if (!ExpressionValidator.IsNullableValueProperty(memberExpr.Member))
                     members.Push(DataMemberInfo.FromMemberInfo(memberExpr.Member));
                 memberExpr = memberExpr.Expression as MemberExpression;
             }
@@ -196,12 +196,6 @@ namespace FixtureBuilder.Configuration
 
             dataMember.SetValue(parent, current);
             return current;
-        }
-
-        private static bool IsNullableValueProperty(MemberInfo member)
-        {
-            return member.Name == nameof(Nullable<>.Value)
-                && Nullable.GetUnderlyingType(member.DeclaringType!) is not null;
         }
 
         /// <summary>

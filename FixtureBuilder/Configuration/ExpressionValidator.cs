@@ -6,39 +6,22 @@ namespace FixtureBuilder.Configuration
     internal class ExpressionValidator
     {
         /// <summary>
-        /// Determines whether the final property in the specified expression is writable.
-        /// </summary>
-        /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
-        /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
-        /// <param name="expr">A lambda expression targeting a property, e.g., <c>x => x.Name</c>.</param>
-        /// <returns>
-        /// <see langword="true"/> if the expression body is a property access and the property has a setter;
-        /// otherwise, <see langword="false"/>.
-        /// </returns>
-        public static bool IsPropertyWritable<T, TProp>(Expression<Func<T, TProp>> expr)
-        {
-            if (expr.Body is MemberExpression me && me.Member is PropertyInfo pi)
-                return pi.CanWrite;
-
-            return false;
-        }
-
-        /// <summary>
         /// Validates that the final property in the specified expression has a setter.
         /// </summary>
         /// <typeparam name="T">The type of the entity the expression operates on.</typeparam>
         /// <typeparam name="TProp">The type of the property the expression returns.</typeparam>
-        /// <param name="expr">A lambda expression targeting a property, e.g., <c>x => x.Name</c>.</param>
+        /// <param name="expr">
+        /// A lambda expression targeting a property, e.g., <c>x => x.Name</c>.
+        /// It must already be validated with <see cref="ValidatePropertyExpression{T, TProp}"/>, as it is not checked here.
+        /// </param>
         /// <exception cref="InvalidOperationException">
         /// Thrown when the property targeted by <paramref name="expr"/> does not have a setter.
         /// </exception>
         public static void ValidatePropertyWriteable<T, TProp>(Expression<Func<T, TProp>> expr)
         {
-            if (!IsPropertyWritable(expr))
-            {
-                var propertyName = ((PropertyInfo)((MemberExpression)expr.Body).Member).Name;
-                throw new InvalidOperationException($"{propertyName} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
-            }
+            var property = (PropertyInfo)((MemberExpression)expr.Body).Member;
+            if (!property.CanWrite)
+                throw new InvalidOperationException($"{property.Name} Does not contain a setter. Please use With or WithField when wanting to set the value of a property without a setter.");
         }
 
         /// <summary>
@@ -51,14 +34,17 @@ namespace FixtureBuilder.Configuration
         /// A lambda expression expected to be a property or field access chain, e.g., <c>x => x.Property1.Property2</c>.
         /// </param>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain. This includes
-        /// expressions that reference methods, constants, computed values, or the bare parameter itself.
+        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain, which includes
+        /// expressions that reference methods, constants, computed values, or the bare parameter itself, or when
+        /// it ends in <see cref="Nullable{T}.Value"/> instead of the nullable member itself.
         /// </exception>
         public static void ValidateExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (expr.Body is not MemberExpression || !TryWalkToParameter(expr.Body, expr.Parameters[0]))
                 throw new InvalidOperationException(
                     "Expression must be a direct property or field access chain, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
+
+            ThrowIfEndsInNullableValue(expr);
         }
 
         /// <summary>
@@ -71,14 +57,17 @@ namespace FixtureBuilder.Configuration
         /// A lambda expression expected to be a property or field access chain, e.g., <c>x => x.Property1.Property2</c>.
         /// </param>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain. This includes
-        /// expressions that reference methods, constants, computed values, or the bare parameter itself.
+        /// Thrown when <paramref name="expr"/> is not a direct property or field access chain terminating in a property,
+        /// which includes expressions that reference methods, constants, computed values, or the bare parameter itself,
+        /// or when it ends in <see cref="Nullable{T}.Value"/> instead of the nullable member itself.
         /// </exception>
         public static void ValidatePropertyExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (expr.Body is not MemberExpression { Member: PropertyInfo } || !TryWalkToParameter(expr.Body, expr.Parameters[0]))
                 throw new InvalidOperationException(
                     "Expression must be a direct property or field access chain terminating in a property, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
+
+            ThrowIfEndsInNullableValue(expr);
         }
 
         /// <summary>
@@ -99,6 +88,19 @@ namespace FixtureBuilder.Configuration
             if (expr.Body is not MethodCallExpression { Object: { } obj } || !TryWalkToParameter(obj, expr.Parameters[0]))
                 throw new InvalidOperationException(
                     "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.");
+        }
+
+        private static void ThrowIfEndsInNullableValue(LambdaExpression expr)
+        {
+            if (expr.Body is MemberExpression me && IsNullableValueProperty(me.Member))
+                throw new InvalidOperationException(
+                    $"Expression '{expr}' ends in Nullable<T>.Value. The expression selects the member to configure, so target the nullable member itself: '{Expression.Lambda(me.Expression!, expr.Parameters)}'.");
+        }
+
+        internal static bool IsNullableValueProperty(MemberInfo member)
+        {
+            return member.Name == nameof(Nullable<>.Value)
+                && Nullable.GetUnderlyingType(member.DeclaringType!) is not null;
         }
 
         internal static bool TryWalkToParameter(Expression body, ParameterExpression param)

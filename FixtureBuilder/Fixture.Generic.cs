@@ -118,6 +118,7 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
+            _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
@@ -129,6 +130,7 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
+            _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
@@ -230,14 +232,14 @@ namespace FixtureBuilder
         IFixtureConfigurator<T> IFixtureConfigurator<T>.With<TProp>(Expression<Func<T, TProp>> expr, TProp value)
         {
             _fixture ??= InstantiateFixture();
-
             ExpressionValidator.ValidateExpression(expr);
+
             _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember) =>
             {
                 if (dataMember.IsFieldInfo)
                     FieldHelper.SetFieldValue(dataMember.Field, instance, value);
 
-                else if (ExpressionValidator.IsPropertyWritable(expr))
+                else if (dataMember.Property.CanWrite)
                     dataMember.Property.SetValue(instance, value);
 
                 else
