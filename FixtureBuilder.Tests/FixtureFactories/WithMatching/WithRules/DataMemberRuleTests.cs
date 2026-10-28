@@ -14,6 +14,11 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         {
             public string Property { get; set; } = "";
             public int Field;
+
+            public SampleClass(string property)
+            {
+                Property = property;
+            }
         }
 
         private static PropertyInfo GetPropertyInfo() =>
@@ -26,7 +31,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_RequestSourceIsPropertyInfo_ReturnsTrue()
         {
             var prop = GetPropertyInfo();
-            var request = new FixtureRequest(prop.PropertyType, prop, _rootType, prop.Name);
+            var request = new FixtureRequest(prop.PropertyType, prop, _rootType);
             var sut = new DataMemberRule();
 
             Assert.That(sut.IsMatch(request), Is.True);
@@ -36,7 +41,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_RequestSourceIsFieldInfo_ReturnsTrue()
         {
             var field = GetFieldInfo();
-            var request = new FixtureRequest(field.FieldType, field, _rootType, field.Name);
+            var request = new FixtureRequest(field.FieldType, field, _rootType);
             var sut = new DataMemberRule();
 
             Assert.That(sut.IsMatch(request), Is.True);
@@ -54,8 +59,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         [Test]
         public void IsMatch_RequestSourceIsParameterInfo_ReturnsFalse()
         {
-            var paramInfo = typeof(SampleClass).GetConstructors()[0].GetParameters();
-            var request = new FixtureRequest(typeof(string), paramInfo, _rootType, "Name");
+            var paramInfo = typeof(SampleClass).GetConstructors()[0].GetParameters()[0];
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var sut = new DataMemberRule();
 
             Assert.That(sut.IsMatch(request), Is.False);

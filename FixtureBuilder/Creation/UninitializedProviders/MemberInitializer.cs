@@ -62,7 +62,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
                 MemberInfo requestSource = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
                 var linked = context.UnwrapAndLink(type, rootType);
-                var request = new FixtureRequest(linked, requestSource, rootType, dataMember.Name);
+                var request = new FixtureRequest(linked, requestSource, rootType);
 
                 value = _uninitializedProvider.ResolveUninitialized(request, initializeMembers, context, recursiveResolveContext.Branch());
 

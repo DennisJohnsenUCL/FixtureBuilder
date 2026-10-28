@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_MatchingRootType_ReturnsTrue()
         {
             var rule = new RootTypeRule(typeof(string));
-            var request = new FixtureRequest(typeof(int), "param", typeof(string), "name");
+            var request = new FixtureRequest(typeof(int), typeof(string));
 
             Assert.That(rule.IsMatch(request), Is.True);
         }
@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_NonMatchingRootType_ReturnsFalse()
         {
             var rule = new RootTypeRule(typeof(string));
-            var request = new FixtureRequest(typeof(int), "param", typeof(double), "name");
+            var request = new FixtureRequest(typeof(int), typeof(double));
 
             Assert.That(rule.IsMatch(request), Is.False);
         }

@@ -49,18 +49,17 @@ namespace FixtureBuilder.Core
             RootType = rootType;
         }
 
-        internal FixtureRequest(Type type, object requestSource, Type rootType, string? name) : this(type, rootType)
+        internal FixtureRequest(Type type, object requestSource, Type rootType) : this(type, rootType)
         {
             ArgumentNullException.ThrowIfNull(requestSource);
             RequestSource = requestSource;
-            Name = name;
 
-            var declared = requestSource switch
+            (var declared, Name) = requestSource switch
             {
-                ParameterInfo pa => pa.ParameterType,
-                PropertyInfo pr => pr.PropertyType,
-                FieldInfo fi => fi.FieldType,
-                _ => type
+                ParameterInfo pa => (pa.ParameterType, pa.Name),
+                PropertyInfo pr => (pr.PropertyType, pr.Name),
+                FieldInfo fi => (fi.FieldType, fi.Name),
+                _ => throw new ArgumentException($"Invalid RequestSource in FixtureRequest: {requestSource.GetType().Name}", nameof(requestSource))
             };
 
             OriginalType = declared.IsByRef ? declared.GetElementType()! : declared;

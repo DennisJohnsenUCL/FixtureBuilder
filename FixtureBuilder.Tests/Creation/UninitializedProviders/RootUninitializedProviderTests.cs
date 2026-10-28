@@ -73,7 +73,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_NullContext_ThrowsArgumentNullException()
         {
-            var request = new FixtureRequest(typeof(SimpleClass), this, _rootType, null);
+            var request = new FixtureRequest(typeof(SimpleClass), _rootType);
 
             var ex = Assert.Throws<ArgumentNullException>(() =>
                 _sut.ResolveUninitialized(request, InitializeMembers.None, null!));
@@ -84,7 +84,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_SimpleClass_ReturnsUninitializedInstance()
         {
-            var request = new FixtureRequest(typeof(ClassWithConstructorSideEffect), this, _rootType, null);
+            var request = new FixtureRequest(typeof(ClassWithConstructorSideEffect), _rootType);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -99,7 +99,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_InitializeMembersNone_DoesNotCallMemberInitializer()
         {
-            var request = new FixtureRequest(typeof(SimpleClass), this, _rootType, null);
+            var request = new FixtureRequest(typeof(SimpleClass), _rootType);
             var context = Mock.Of<IFixtureContext>();
 
             _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -112,7 +112,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_InitializeMembersAll_CallsMemberInitializer()
         {
-            var request = new FixtureRequest(typeof(SimpleClass), this, _rootType, null);
+            var request = new FixtureRequest(typeof(SimpleClass), _rootType);
             var context = Mock.Of<IFixtureContext>();
 
             _sut.ResolveUninitialized(request, InitializeMembers.All, context);
@@ -125,7 +125,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_TypeThatCannotBeCreatedUninitialized_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string), this, _rootType, null);
+            var request = new FixtureRequest(typeof(string), _rootType);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -136,7 +136,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_InterfaceType_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(ISimpleInterface), this, _rootType, null);
+            var request = new FixtureRequest(typeof(ISimpleInterface), _rootType);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -147,7 +147,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ResolveUninitialized_AbstractType_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(AbstractClass), this, _rootType, null);
+            var request = new FixtureRequest(typeof(AbstractClass), _rootType);
             var context = Mock.Of<IFixtureContext>();
 
             var result = _sut.ResolveUninitialized(request, InitializeMembers.None, context);
@@ -160,7 +160,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void ResolveUninitialized_PassesRootTypeToMemberInitializer()
         {
             var rootType = typeof(string);
-            var request = new FixtureRequest(typeof(SimpleClass), this, rootType, null);
+            var request = new FixtureRequest(typeof(SimpleClass), rootType);
             var context = Mock.Of<IFixtureContext>();
 
             _sut.ResolveUninitialized(request, InitializeMembers.All, context);

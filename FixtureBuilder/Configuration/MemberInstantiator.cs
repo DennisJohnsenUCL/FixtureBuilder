@@ -20,7 +20,7 @@ namespace FixtureBuilder.Configuration
         public T UseAutoConstructor()
         {
             var type = _context.UnwrapAndLink(typeof(T), _rootType);
-            var request = new FixtureRequest(type, _requestSource, _rootType, _requestSource.Name);
+            var request = new FixtureRequest(type, _requestSource, _rootType);
 
             return (T)_context.AutoConstructingProvider.AutoResolve(request, _context);
         }
@@ -38,7 +38,7 @@ namespace FixtureBuilder.Configuration
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
             var type = _context.UnwrapAndLink(typeof(T), _rootType);
-            var request = new FixtureRequest(type, _requestSource, _rootType, _requestSource.Name);
+            var request = new FixtureRequest(type, _requestSource, _rootType);
 
             var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
 

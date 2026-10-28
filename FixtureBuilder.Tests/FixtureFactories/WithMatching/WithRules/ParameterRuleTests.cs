@@ -21,11 +21,16 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
             internal static void Method(string value) { }
         }
 
+        private class SampleClass
+        {
+            public string Name { get; set; } = "";
+        }
+
         [Test]
         public void IsMatch_RequestSourceIsParameterInfo_ReturnsTrue()
         {
             var paramInfo = GetParameterInfo();
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object), null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, typeof(object));
             var sut = new ParameterRule();
 
             Assert.That(sut.IsMatch(request), Is.True);
@@ -43,7 +48,8 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         [Test]
         public void IsMatch_RequestSourceIsNotParameterInfo_ReturnsFalse()
         {
-            var request = new FixtureRequest(typeof(string), this, typeof(object), "Name");
+            var property = typeof(SampleClass).GetProperty(nameof(SampleClass.Name))!;
+            var request = new FixtureRequest(property.PropertyType, property, typeof(object));
             var sut = new ParameterRule();
 
             Assert.That(sut.IsMatch(request), Is.False);

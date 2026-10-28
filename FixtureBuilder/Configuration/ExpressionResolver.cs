@@ -188,7 +188,7 @@ namespace FixtureBuilder.Configuration
 
             MemberInfo source = dataMember.IsPropertyInfo ? dataMember.Property : dataMember.Field;
             var type = _context.UnwrapAndLink(dataMember.DataMemberType, _rootType);
-            var request = new FixtureRequest(type, source, _rootType, dataMember.Name);
+            var request = new FixtureRequest(type, source, _rootType);
 
             current = _context.ProvideWithStrategy(request, _context.OptionsFor(_rootType).NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {dataMember.Name} in Expression chain resolution. " +

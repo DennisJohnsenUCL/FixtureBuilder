@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter("world", "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -73,7 +73,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter("world", "other");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -113,7 +113,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter(() => "world", "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -129,7 +129,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder();
             var provider = builder.WithParameter(() => "world", "other");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, "value");
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 

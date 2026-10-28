@@ -78,7 +78,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             return parameters.Select(p =>
             {
                 var type = context.UnwrapAndLink(p.ParameterType, rootType);
-                var request = new FixtureRequest(type, p, rootType, p.Name);
+                var request = new FixtureRequest(type, p, rootType);
 
                 var result = context.ValueProvider.ResolveValue(request, context);
                 if (result is not NoResult) return result;

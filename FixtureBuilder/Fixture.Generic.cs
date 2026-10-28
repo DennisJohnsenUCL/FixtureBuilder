@@ -122,7 +122,7 @@ namespace FixtureBuilder
 
             var type = _context.UnwrapAndLink(typeof(TProp), typeof(T));
             var source = ((MemberExpression)expr.Body).Member;
-            var request = new FixtureRequest(type, source, typeof(T), source.Name);
+            var request = new FixtureRequest(type, source, typeof(T));
             var value = (TProp)_context.ProvideWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
             return WithInternal(expr, value);

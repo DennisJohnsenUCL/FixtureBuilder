@@ -55,7 +55,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_ParameterWithDefaultValue_OptionEnabled_ReturnsDefaultValue()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -68,7 +68,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_ParameterWithDefaultValue_OptionDisabled_ReturnsNoResult()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions { PreferDefaultParameterValues = false };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -81,7 +81,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_ParameterWithoutDefaultValue_OptionEnabled_ReturnsNoResult()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithoutDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -94,7 +94,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_ParameterWithNullDefault_OptionEnabled_ReturnsNull()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithNullDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -107,7 +107,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_ParameterWithStringDefault_OptionEnabled_ReturnsStringDefault()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithStringDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -120,7 +120,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_StructParameterWithDefaultLiteral_OptionEnabled_ReturnsDefaultStruct()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefaultStruct), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -133,7 +133,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NullableParameterWithNullDefault_OptionEnabled_ReturnsNull()
         {
             var paramInfo = GetParameterInfo(nameof(SampleMethods.WithNullableNullDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -149,7 +149,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         public void Resolve_NullableEnumParameterWithDefault_OptionEnabled_ReturnsTypedDefault(string methodName, object? expected)
         {
             var paramInfo = GetParameterInfo(methodName, "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType, null);
+            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
