@@ -378,5 +378,84 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             Assert.Throws<InvalidOperationException>(
                 () => sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, "EUR")));
         }
+
+        // --- Nullable struct members: Value is skipped, so changes are written back to the nullable member ---
+
+        private struct NullableSegment
+        {
+            public Point? End { get; set; }
+        }
+
+        private class NullableStructRoot
+        {
+            public Point? NullablePoint { get; set; }
+            public Point? NullablePointField;
+            public NullableSegment Segment { get; set; }
+        }
+
+        [Test]
+        public void NullableStructPropertyIntermediate_WritesChangeBack()
+        {
+            var root = new NullableStructRoot { NullablePoint = new Point() };
+            var memberExpr = GetMemberExpr<NullableStructRoot, int>(x => x.NullablePoint!.Value.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.NullablePoint?.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void NullableStructFieldIntermediate_WritesChangeBack()
+        {
+            var root = new NullableStructRoot { NullablePointField = new Point() };
+            var memberExpr = GetMemberExpr<NullableStructRoot, int>(x => x.NullablePointField!.Value.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.NullablePointField?.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void NullNullableStructIntermediate_WritesInitializedValueBack()
+        {
+            var root = new NullableStructRoot();
+            var memberExpr = GetMemberExpr<NullableStructRoot, int>(x => x.NullablePoint!.Value.X);
+            var context = CreateContext();
+            context.Setup(c => c.ProvideWithStrategy(
+                    It.Is<FixtureRequest>(r => r.Type == typeof(Point?)),
+                    It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
+                .Returns(new Point());
+            var sut = CreateSut(context.Object);
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.NullablePoint?.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void NullableStructInsideStruct_WritesChangeBackThroughEveryLevel()
+        {
+            var root = new NullableStructRoot { Segment = new NullableSegment { End = new Point() } };
+            var memberExpr = GetMemberExpr<NullableStructRoot, int>(x => x.Segment.End!.Value.X);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: false, (instance, dataMember) => dataMember.SetValue(instance, 5));
+
+            Assert.That(root.Segment.End?.X, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void ResolveInstanceTrue_NullableStructFinalMember_WritesChangeBack()
+        {
+            var root = new NullableStructRoot { NullablePoint = new Point() };
+            var memberExpr = GetMemberExpr<NullableStructRoot, Point>(x => x.NullablePoint!.Value);
+            var sut = CreateSut(Mock.Of<IFixtureContext>());
+
+            sut.ResolveDataMemberPath(memberExpr, root, resolveInstance: true, (instance, _) => typeof(Point).GetField(nameof(Point.X))!.SetValue(instance, 5));
+
+            Assert.That(root.NullablePoint?.X, Is.EqualTo(5));
+        }
     }
 }
