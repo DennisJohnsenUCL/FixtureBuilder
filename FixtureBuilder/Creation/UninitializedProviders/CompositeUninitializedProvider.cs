@@ -25,7 +25,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
         public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext)
         {
-            request.Type = context.UnwrapAndLink(request);
+            request.Type = context.UnwrapAndLink(request.Type, request.RootType);
 
             var result = context.ValueProvider.ResolveValue(request, context);
             if (result is not NoResult) return result;

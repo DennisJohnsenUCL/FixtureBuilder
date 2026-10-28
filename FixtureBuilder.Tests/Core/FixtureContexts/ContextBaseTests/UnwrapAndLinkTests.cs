@@ -34,10 +34,9 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NonNullableNonLinkedType_ReturnsSameType()
         {
-            var request = new FixtureRequest(typeof(string));
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(request);
+            var result = context.UnwrapAndLink(typeof(string), typeof(string));
 
             Assert.That(result, Is.EqualTo(typeof(string)));
         }
@@ -45,10 +44,9 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NullableValueType_ReturnsUnderlyingType()
         {
-            var request = new FixtureRequest(typeof(int?));
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(request);
+            var result = context.UnwrapAndLink(typeof(int?), typeof(int?));
 
             Assert.That(result, Is.EqualTo(typeof(int)));
         }
@@ -56,11 +54,10 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_LinkedType_ReturnsLinkedType()
         {
-            var request = new FixtureRequest(typeof(IDisposable));
             _typeLinkMock.Setup(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(IDisposable)))).Returns(typeof(MemoryStream));
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(request);
+            var result = context.UnwrapAndLink(typeof(IDisposable), typeof(IDisposable));
 
             Assert.That(result, Is.EqualTo(typeof(MemoryStream)));
         }
@@ -68,10 +65,9 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_NullableValueType_LinksOnUnwrappedType_NotOnNullable()
         {
-            var request = new FixtureRequest(typeof(int?));
             var context = CreateContext();
 
-            context.UnwrapAndLink(request);
+            context.UnwrapAndLink(typeof(int?), typeof(int?));
 
             _typeLinkMock.Verify(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(int))), Times.Once);
             _typeLinkMock.Verify(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(int?))), Times.Never);
@@ -80,37 +76,23 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void UnwrapAndLink_ByRefType_UnwrapsThenLinks()
         {
-            var request = new FixtureRequest(typeof(IDisposable).MakeByRefType());
+            var byRefType = typeof(IDisposable).MakeByRefType();
             _typeLinkMock.Setup(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(IDisposable)))).Returns(typeof(MemoryStream));
             var context = CreateContext();
 
-            var result = context.UnwrapAndLink(request);
+            var result = context.UnwrapAndLink(byRefType, byRefType);
 
             Assert.That(result, Is.EqualTo(typeof(MemoryStream)));
         }
 
         [Test]
-        public void UnwrapAndLink_LinksWithRequestRootType()
+        public void UnwrapAndLink_LinksWithRootType()
         {
-            var request = new FixtureRequest(typeof(IDisposable), typeof(string));
             var context = CreateContext();
 
-            context.UnwrapAndLink(request);
+            context.UnwrapAndLink(typeof(IDisposable), typeof(string));
 
             _typeLinkMock.Verify(r => r.Link(It.Is<TypeRequest>(req => req.RootType == typeof(string))), Times.Once);
-        }
-
-        [Test]
-        public void UnwrapAndLink_ByRefLinkedType_DoesNotChangeRequestType()
-        {
-            var byRefType = typeof(IDisposable).MakeByRefType();
-            var request = new FixtureRequest(byRefType);
-            _typeLinkMock.Setup(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(IDisposable)))).Returns(typeof(MemoryStream));
-            var context = CreateContext();
-
-            context.UnwrapAndLink(request);
-
-            Assert.That(request.Type, Is.EqualTo(byRefType));
         }
     }
 }

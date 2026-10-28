@@ -43,7 +43,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new TestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
                 .Returns(typeof(TestClass));
 
             _autoConstructingMock
@@ -99,7 +99,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new TestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
                 .Returns(typeof(TestClass));
 
             _uninitializedMock
@@ -121,7 +121,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new LinkedTestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
                 .Returns(typeof(LinkedTestClass));
 
             _autoConstructingMock
@@ -138,7 +138,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new TestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(It.IsAny<FixtureRequest>()))
+                .Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>()))
                 .Returns(typeof(LinkedTestClass));
 
             _constructingMock
@@ -155,7 +155,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new LinkedTestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass))))
+                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
                 .Returns(typeof(LinkedTestClass));
 
             _uninitializedMock

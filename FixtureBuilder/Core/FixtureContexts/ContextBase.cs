@@ -46,16 +46,16 @@ namespace FixtureBuilder.Core.FixtureContexts
             return type;
         }
 
-        public Type UnwrapAndLink(FixtureRequest request)
+        public Type UnwrapAndLink(Type type, Type rootType)
         {
-            var unwrapped = Unwrap(request.Type);
-            var typeRequest = new TypeRequest(unwrapped, request.RootType);
+            var unwrapped = Unwrap(type);
+            var typeRequest = new TypeRequest(unwrapped, rootType);
             return TypeLink.Link(typeRequest) ?? unwrapped;
         }
 
         public object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
         {
-            request.Type = UnwrapAndLink(request);
+            request.Type = UnwrapAndLink(request.Type, request.RootType);
             var result = ValueProvider.ResolveValue(request, this);
             if (result is not NoResult) return result;
 

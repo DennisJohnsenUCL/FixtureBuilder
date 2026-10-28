@@ -28,7 +28,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var request = new FixtureRequest(typeof(string));
             var value = "test";
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.UnwrapAndLink(request)).Returns(typeof(string));
+            contextMock.Setup(c => c.UnwrapAndLink(typeof(string), typeof(string))).Returns(typeof(string));
 
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(request, value, contextMock.Object)).Returns((object?)null);
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var value = "test";
             var expectedResult = "converted";
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.UnwrapAndLink(request)).Returns(typeof(string));
+            contextMock.Setup(c => c.UnwrapAndLink(typeof(string), typeof(string))).Returns(typeof(string));
 
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(request, value, contextMock.Object)).Returns(expectedResult);
@@ -64,32 +64,32 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         [Test]
         public void Convert_UnwrapAndLinkReturnsLinkedType_UpdatesTarget()
         {
-            var request = new FixtureRequest(typeof(string));
-            var linkedType = typeof(int);
-            var value = "test";
+            var request = new FixtureRequest(typeof(IList<int>));
+            var linkedType = typeof(List<int>);
+            var value = new[] { 1, 2, 3 };
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.UnwrapAndLink(request)).Returns(linkedType);
+            contextMock.Setup(c => c.UnwrapAndLink(typeof(IList<int>), typeof(IList<int>))).Returns(linkedType);
 
             var innerMock = new Mock<IValueConverter>();
-            innerMock.Setup(x => x.Convert(It.Is<FixtureRequest>(r => r.Type == linkedType), value, contextMock.Object)).Returns(42);
+            innerMock.Setup(x => x.Convert(It.Is<FixtureRequest>(r => r.Type == linkedType), value, contextMock.Object)).Returns(new List<int> { 1, 2, 3 });
 
             var converter = new TypeLinkingConverter(innerMock.Object);
 
             converter.Convert(request, value, contextMock.Object);
 
             innerMock.Verify(x => x.Convert(It.Is<FixtureRequest>(r => r.Type == linkedType), value, contextMock.Object), Times.Once);
-            innerMock.Verify(x => x.Convert(It.Is<FixtureRequest>(r => r.Type == typeof(string)), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+            innerMock.Verify(x => x.Convert(It.Is<FixtureRequest>(r => r.Type == typeof(IList<int>)), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
         public void Convert_UnwrapAndLinkReturnsLinkedType_ReturnsResult()
         {
-            var request = new FixtureRequest(typeof(string));
-            var linkedType = typeof(int);
-            var value = "test";
-            var expectedResult = 42;
+            var request = new FixtureRequest(typeof(IList<int>));
+            var linkedType = typeof(List<int>);
+            var value = new[] { 1, 2, 3 };
+            var expectedResult = new List<int> { 1, 2, 3 };
             var contextMock = new Mock<IFixtureContext>();
-            contextMock.Setup(c => c.UnwrapAndLink(request)).Returns(linkedType);
+            contextMock.Setup(c => c.UnwrapAndLink(typeof(IList<int>), typeof(IList<int>))).Returns(linkedType);
 
             var innerMock = new Mock<IValueConverter>();
             innerMock.Setup(x => x.Convert(It.Is<FixtureRequest>(r => r.Type == linkedType), value, contextMock.Object)).Returns(expectedResult);
