@@ -121,8 +121,9 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
+            var type = _context.UnwrapAndLink(typeof(TProp), typeof(T));
             var source = ((MemberExpression)expr.Body).Member;
-            var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
+            var request = new FixtureRequest(type, source, typeof(T), source.Name);
             var value = (TProp)_context.ProvideWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultInstantiateInstantiationMethod, InitializeMembers.None)!;
 
             return WithInternal(expr, value);
@@ -134,8 +135,7 @@ namespace FixtureBuilder
             ExpressionValidator.ValidateExpression(expr);
 
             var source = ((MemberExpression)expr.Body).Member;
-            var request = new FixtureRequest(typeof(TProp), source, typeof(T), source.Name);
-            var value = func(new MemberInstantiator<TProp>(request, _context));
+            var value = func(new MemberInstantiator<TProp>(source, typeof(T), _context));
 
             return WithInternal(expr, value);
         }

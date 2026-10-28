@@ -12,7 +12,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
 {
     internal sealed class ProvideWithStrategyTests
     {
-        private Mock<ICompositeTypeLink> _typeLinkMock;
         private Mock<ICompositeValueProvider> _valueProviderMock;
         private Mock<IAutoConstructingProvider> _autoConstructingMock;
 
@@ -21,7 +20,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             return new TestableContext(
                 new FixtureOptions(),
                 new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object),
-                _typeLinkMock.Object,
+                new Mock<ICompositeTypeLink>().Object,
                 new Mock<IUninitializedProvider>().Object,
                 _valueProviderMock.Object,
                 _autoConstructingMock.Object,
@@ -31,7 +30,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [SetUp]
         public void SetUp()
         {
-            _typeLinkMock = new Mock<ICompositeTypeLink>();
             _valueProviderMock = new Mock<ICompositeValueProvider>();
             _autoConstructingMock = new Mock<IAutoConstructingProvider>();
         }
@@ -90,40 +88,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
 
             Assert.That(result, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public void ProvideWithStrategy_LinksType_BeforeResolving()
-        {
-            var request = new FixtureRequest(typeof(IDisposable));
-            FixtureRequest? capturedRequest = null;
-            _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Callback<FixtureRequest, IFixtureContext>((req, _) => capturedRequest = req)
-                .Returns(new NoResult());
-            _typeLinkMock.Setup(r => r.Link(It.Is<TypeRequest>(req => req.Type == typeof(IDisposable))))
-                .Returns(typeof(MemoryStream));
-            _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns(new MemoryStream());
-            var context = CreateContext();
-
-            context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
-
-            Assert.That(capturedRequest!.Type, Is.EqualTo(typeof(MemoryStream)));
-        }
-
-        [Test]
-        public void ProvideWithStrategy_UnwrapsNullableValueType_BeforeResolving()
-        {
-            var request = new FixtureRequest(typeof(int?));
-            FixtureRequest? capturedRequest = null;
-            _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Callback<FixtureRequest, IFixtureContext>((req, _) => capturedRequest = req)
-                .Returns(42);
-            var context = CreateContext();
-
-            context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
-
-            Assert.That(capturedRequest!.Type, Is.EqualTo(typeof(int)));
         }
     }
 }

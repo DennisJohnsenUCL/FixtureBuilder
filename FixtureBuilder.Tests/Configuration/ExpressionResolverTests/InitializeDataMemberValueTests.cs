@@ -26,6 +26,8 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             public int Age { get; set; }
         }
 
+        private class LinkedChild : Child;
+
         private static DataMemberInfo Property(string name) =>
             new(typeof(Parent).GetProperty(name)!);
 
@@ -37,6 +39,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions { AllowInstantiateNestedMembers = allowInstantiate };
             context.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            context.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
             return context;
         }
 
@@ -214,6 +217,23 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
 
             context.Verify(c => c.ProvideWithStrategy(
                 It.Is<FixtureRequest>(r => r.RootType == typeof(Parent)),
+                It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()));
+        }
+
+        // --- Type linking ---
+
+        [Test]
+        public void NullWritableProperty_PassesLinkedTypeToFixtureRequest()
+        {
+            var context = MockContext();
+            context.Setup(c => c.UnwrapAndLink(typeof(Child), typeof(Parent))).Returns(typeof(LinkedChild));
+            SetupProvide(context, new LinkedChild());
+            var sut = CreateSut(context.Object, rootType: typeof(Parent));
+
+            sut.InitializeDataMemberValue(new Parent(), Property(nameof(Parent.Child)));
+
+            context.Verify(c => c.ProvideWithStrategy(
+                It.Is<FixtureRequest>(r => r.Type == typeof(LinkedChild)),
                 It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()));
         }
     }

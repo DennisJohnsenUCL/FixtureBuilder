@@ -10,7 +10,7 @@ namespace FixtureBuilder.Core
         /// <summary>
         /// Gets or sets the type of the object requested to be created.
         /// </summary>
-        public Type Type { get; set; }
+        public Type Type { get; [Obsolete("Requests should not be modified; this setter will be removed in 4.0.0.")] set; }
 
         /// <summary>
         /// Gets the declared type of the parameter, property or field in <see cref="RequestSource"/>, with by-ref removed
@@ -36,7 +36,9 @@ namespace FixtureBuilder.Core
         internal FixtureRequest(Type type)
         {
             ArgumentNullException.ThrowIfNull(type);
+#pragma warning disable CS0618 // Type or member is obsolete
             Type = type;
+#pragma warning restore CS0618 // Type or member is obsolete
             RootType = type;
             OriginalType = type;
         }

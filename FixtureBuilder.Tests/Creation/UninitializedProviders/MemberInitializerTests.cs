@@ -14,6 +14,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 
         private Mock<IDataMemberSkipFilter> _skipFilter;
         private Mock<IUninitializedProvider> _uninitializedProvider;
+        private Mock<IFixtureContext> _context;
         private RecursiveResolveContext _recursiveResolveContext;
         private MemberInitializer _sut;
 
@@ -38,11 +39,18 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             public int Count { get; set; }
         }
 
+        public class TestClassWithInterfaceProperty
+        {
+            public IList<int>? Items { get; set; }
+        }
+
         [SetUp]
         public void SetUp()
         {
             _skipFilter = new Mock<IDataMemberSkipFilter>();
             _uninitializedProvider = new Mock<IUninitializedProvider>();
+            _context = new Mock<IFixtureContext>();
+            _context.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
             _sut = new MemberInitializer(_skipFilter.Object, _uninitializedProvider.Object);
             _recursiveResolveContext = new();
         }
@@ -81,7 +89,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_PropertyIsNull_ResolvesAndSetsValue()
         {
             var instance = new TestClassWithProperty();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
             var expectedValue = "resolved";
 
@@ -104,7 +112,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_PropertyIsAlreadySet_DoesNotCallResolve()
         {
             var instance = new TestClassWithProperty { Name = "already set" };
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
 
             _skipFilter
@@ -114,7 +122,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
             _uninitializedProvider.Verify(
-                p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()),
+                p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>(), It.IsAny<RecursiveResolveContext>()),
                 Times.Never);
         }
 
@@ -122,7 +130,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_SkipFilterReturnsTrueForOneMember_StillProcessesOtherMembers()
         {
             var instance = new TestClassWithMultipleProperties();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
             var skipCount = 0;
 
@@ -145,7 +153,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_FieldIsNull_ResolvesAndSetsValue()
         {
             var instance = new TestClassWithField();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
             var expectedValue = "field resolved";
 
@@ -168,16 +176,12 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_ResolveReturnsNull_DoesNotSetValue()
         {
             var instance = new TestClassWithProperty();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
 
             _skipFilter
                 .Setup(f => f.ShouldSkip(It.IsAny<DataMemberInfo>(), initMembers))
                 .Returns(false);
-
-            _uninitializedProvider
-                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context))
-                .Returns((object?)null);
 
             _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
 
@@ -190,7 +194,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_WithMultipleNullProperties_ResolvesEach()
         {
             var instance = new TestClassWithMultipleProperties();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
             var callCount = 0;
 
@@ -215,7 +219,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_PassesCorrectRequestType_ForProperty()
         {
             var instance = new TestClassWithProperty();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
             FixtureRequest? capturedRequest = null;
 
@@ -242,7 +246,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void InitializeMembers_DefaultValueTypeProperty_ResolvesValue()
         {
             var instance = new TestClassWithValueType();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
 
             _skipFilter
@@ -260,13 +264,39 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             Assert.That(result, Is.EqualTo(42));
         }
 
+        [Test]
+        public void InitializeMembers_PassesLinkedTypeToRequest()
+        {
+            var instance = new TestClassWithInterfaceProperty();
+            var context = _context.Object;
+            var initMembers = InitializeMembers.All;
+
+            _context
+                .Setup(c => c.UnwrapAndLink(typeof(IList<int>), _rootType))
+                .Returns(typeof(List<int>));
+
+            _skipFilter
+                .Setup(f => f.ShouldSkip(It.IsAny<DataMemberInfo>(), initMembers))
+                .Returns(false);
+
+            _uninitializedProvider
+                .Setup(p => p.ResolveUninitialized(It.IsAny<FixtureRequest>(), initMembers, context, It.IsAny<RecursiveResolveContext>()))
+                .Returns(new List<int>());
+
+            _sut.InitializeMembers(instance, initMembers, _rootType, context, _recursiveResolveContext);
+
+            _uninitializedProvider.Verify(
+                p => p.ResolveUninitialized(It.Is<FixtureRequest>(r => r.Type == typeof(List<int>)), initMembers, context, It.IsAny<RecursiveResolveContext>()),
+                Times.Once);
+        }
+
         #endregion
 
         [Test]
         public void InitializeMembers_PassesRootTypeToRequest()
         {
             var instance = new TestClassWithProperty();
-            var context = Mock.Of<IFixtureContext>();
+            var context = _context.Object;
             var initMembers = InitializeMembers.All;
             var rootType = typeof(string);
             FixtureRequest? capturedRequest = null;

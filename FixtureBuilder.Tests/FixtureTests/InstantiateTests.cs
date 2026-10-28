@@ -134,6 +134,18 @@ namespace FixtureBuilder.Tests.FixtureTests
         }
 
         [Test]
+        public void Instantiate_AppliesTypeLinkForRootType()
+        {
+            var fixture = new FixtureFactory()
+                .WhenBuilding<OuterWithInterface>(b => b.AddTypeLink<IInner, LinkedInner>())
+                .New(new OuterWithInterface());
+
+            var result = fixture.Instantiate(o => o.Nested).Build();
+
+            Assert.That(result.Nested, Is.TypeOf<LinkedInner>());
+        }
+
+        [Test]
         public void Instantiate_UseAutoConstructor_AppliesTypeLink()
         {
             var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());

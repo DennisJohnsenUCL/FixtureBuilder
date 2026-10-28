@@ -1,31 +1,36 @@
-﻿using FixtureBuilder.Core;
+﻿using System.Reflection;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Configuration
 {
     internal class MemberInstantiator<T> : IConstructor<T>
     {
-        private readonly FixtureRequest _request;
+        private readonly MemberInfo _requestSource;
+        private readonly Type _rootType;
         private readonly IFixtureContext _context;
 
-        internal MemberInstantiator(FixtureRequest request, IFixtureContext context)
+        internal MemberInstantiator(MemberInfo requestSource, Type rootType, IFixtureContext context)
         {
-            _request = request;
+            _requestSource = requestSource;
+            _rootType = rootType;
             _context = context;
         }
 
         public T UseAutoConstructor()
         {
-            _request.Type = _context.UnwrapAndLink(_request.Type, _request.RootType);
+            var type = _context.UnwrapAndLink(typeof(T), _rootType);
+            var request = new FixtureRequest(type, _requestSource, _rootType, _requestSource.Name);
 
-            return (T)_context.AutoConstructingProvider.AutoResolve(_request, _context);
+            return (T)_context.AutoConstructingProvider.AutoResolve(request, _context);
         }
 
         public T UseConstructor(params object?[] arguments)
         {
-            _request.Type = ContextBase.Unwrap(_request.Type);
+            var type = ContextBase.Unwrap(typeof(T));
+            var request = new FixtureRequest(type, _requestSource, _rootType, _requestSource.Name);
 
-            return (T)_context.ConstructingProvider.ResolveWithArguments(_request, arguments);
+            return (T)_context.ConstructingProvider.ResolveWithArguments(request, arguments);
         }
 
         public T CreateUninitialized()
@@ -33,9 +38,10 @@ namespace FixtureBuilder.Configuration
 
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
-            _request.Type = _context.UnwrapAndLink(_request.Type, _request.RootType);
+            var type = _context.UnwrapAndLink(typeof(T), _rootType);
+            var request = new FixtureRequest(type, _requestSource, _rootType, _requestSource.Name);
 
-            var instance = _context.UninitializedProvider.ResolveUninitialized(_request, initializeMembers, _context);
+            var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
 
             if (instance is NoResult || instance == null)
                 throw new InvalidOperationException($"Failed to instantiate {typeof(T).Name} uninitialized.");

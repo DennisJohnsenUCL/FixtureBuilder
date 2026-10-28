@@ -43,6 +43,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var context = new Mock<IFixtureContext>();
             var options = new FixtureOptions();
             context.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            context.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
             return context;
         }
 
@@ -423,8 +424,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionResolverTests
             var root = new NullableStructRoot();
             var memberExpr = GetMemberExpr<NullableStructRoot, int>(x => x.NullablePoint!.Value.X);
             var context = CreateContext();
+            context.Setup(c => c.UnwrapAndLink(typeof(Point?), typeof(object))).Returns(typeof(Point));
             context.Setup(c => c.ProvideWithStrategy(
-                    It.Is<FixtureRequest>(r => r.Type == typeof(Point?)),
+                    It.Is<FixtureRequest>(r => r.Type == typeof(Point)),
                     It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(new Point());
             var sut = CreateSut(context.Object);

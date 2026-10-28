@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Configuration;
+﻿using System.Reflection;
+using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.AutoConstructingProviders;
@@ -14,12 +15,17 @@ namespace FixtureBuilder.Tests.Configuration
         private Mock<IAutoConstructingProvider> _autoConstructingMock = null!;
         private Mock<IConstructingProvider> _constructingMock = null!;
         private Mock<IUninitializedProvider> _uninitializedMock = null!;
-        private FixtureRequest _request = null!;
+        private MemberInfo _source = null!;
         private MemberInstantiator<TestClass> _sut = null!;
 
         class TestClass
         {
             public string Value { get; set; } = null!;
+        }
+
+        class Root
+        {
+            public TestClass Member { get; set; } = null!;
         }
 
         [SetUp]
@@ -33,19 +39,16 @@ namespace FixtureBuilder.Tests.Configuration
             _contextMock.Setup(c => c.AutoConstructingProvider).Returns(_autoConstructingMock.Object);
             _contextMock.Setup(c => c.ConstructingProvider).Returns(_constructingMock.Object);
             _contextMock.Setup(c => c.UninitializedProvider).Returns(_uninitializedMock.Object);
+            _contextMock.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
 
-            _request = new FixtureRequest(typeof(TestClass));
-            _sut = new MemberInstantiator<TestClass>(_request, _contextMock.Object);
+            _source = typeof(Root).GetProperty(nameof(Root.Member))!;
+            _sut = new MemberInstantiator<TestClass>(_source, typeof(Root), _contextMock.Object);
         }
 
         [Test]
         public void UseAutoConstructor_CallsAutoResolve()
         {
             var expected = new TestClass();
-            _contextMock
-                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
-                .Returns(typeof(TestClass));
-
             _autoConstructingMock
                 .Setup(c => c.AutoResolve(It.Is<FixtureRequest>(r => r.Type == typeof(TestClass)), _contextMock.Object))
                 .Returns(expected);
@@ -65,6 +68,16 @@ namespace FixtureBuilder.Tests.Configuration
             _sut.UseAutoConstructor();
 
             _autoConstructingMock.Verify(c => c.AutoResolve(It.IsAny<FixtureRequest>(), _contextMock.Object), Times.Once);
+        }
+
+        [Test]
+        public void UseAutoConstructor_RequestCarriesSourceRootTypeAndName()
+        {
+            _sut.UseAutoConstructor();
+
+            _autoConstructingMock.Verify(c => c.AutoResolve(
+                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) &&r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
+                _contextMock.Object), Times.Once);
         }
 
         [Test]
@@ -95,13 +108,19 @@ namespace FixtureBuilder.Tests.Configuration
         }
 
         [Test]
+        public void UseConstructor_RequestCarriesSourceRootTypeAndName()
+        {
+            _sut.UseConstructor();
+
+            _constructingMock.Verify(c => c.ResolveWithArguments(
+                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) &&r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
+                It.IsAny<object?[]>()), Times.Once);
+        }
+
+        [Test]
         public void CreateUninitialized_CallsResolveUninitialized()
         {
             var expected = new TestClass();
-            _contextMock
-                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
-                .Returns(typeof(TestClass));
-
             _uninitializedMock
                 .Setup(c => c.ResolveUninitialized(
                     It.Is<FixtureRequest>(r => r.Type == typeof(TestClass)),
@@ -114,6 +133,21 @@ namespace FixtureBuilder.Tests.Configuration
             Assert.That(result, Is.SameAs(expected));
         }
 
+        [Test]
+        public void CreateUninitialized_RequestCarriesSourceRootTypeAndName()
+        {
+            _uninitializedMock
+                .Setup(c => c.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), _contextMock.Object))
+                .Returns(new TestClass());
+
+            _sut.CreateUninitialized();
+
+            _uninitializedMock.Verify(c => c.ResolveUninitialized(
+                It.Is<FixtureRequest>(r => Equals(r.RequestSource, _source) &&r.RootType == typeof(Root) && r.Name == nameof(Root.Member)),
+                It.IsAny<InitializeMembers>(),
+                _contextMock.Object), Times.Once);
+        }
+
         class LinkedTestClass : TestClass;
 
         [Test]
@@ -121,7 +155,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new LinkedTestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
+                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(Root)))
                 .Returns(typeof(LinkedTestClass));
 
             _autoConstructingMock
@@ -155,7 +189,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             var expected = new LinkedTestClass();
             _contextMock
-                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(TestClass)))
+                .Setup(c => c.UnwrapAndLink(typeof(TestClass), typeof(Root)))
                 .Returns(typeof(LinkedTestClass));
 
             _uninitializedMock

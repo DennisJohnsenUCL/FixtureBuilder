@@ -55,7 +55,6 @@ namespace FixtureBuilder.Core.FixtureContexts
 
         public object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
         {
-            request.Type = UnwrapAndLink(request.Type, request.RootType);
             var result = ValueProvider.ResolveValue(request, this);
             if (result is not NoResult) return result;
 
