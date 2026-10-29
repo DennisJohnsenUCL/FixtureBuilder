@@ -11,7 +11,7 @@ namespace FixtureBuilder.Core
         /// Attempts to resolve a value for the given request.
         /// </summary>
         /// <remarks>
-        /// Return <see cref="NoResult"/> if the provider does not handle the given request. A <see langword="null"/> return is treated as an explicit null assignment.
+        /// Return <see cref="NoResult.Instance"/> if the provider does not handle the given request. A <see langword="null"/> return is treated as an explicit null assignment.
         /// </remarks>
         object? ResolveValue(FixtureRequest request);
     }

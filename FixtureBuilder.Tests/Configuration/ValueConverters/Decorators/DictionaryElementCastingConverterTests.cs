@@ -257,7 +257,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             var rootConverter = new Mock<IValueConverter>();
             rootConverter.Setup(c => c.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var composite = new Mock<ICompositeConverter>();
             var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);

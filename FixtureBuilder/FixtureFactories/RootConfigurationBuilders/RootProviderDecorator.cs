@@ -20,7 +20,7 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
             if (request.RootType != _rootType)
-                return new NoResult();
+                return NoResult.Instance;
 
             return _inner.ResolveValue(request, context);
         }

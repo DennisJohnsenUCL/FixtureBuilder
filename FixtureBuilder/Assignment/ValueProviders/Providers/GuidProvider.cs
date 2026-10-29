@@ -20,7 +20,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return Guid.NewGuid();
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

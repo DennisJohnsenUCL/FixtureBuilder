@@ -19,7 +19,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return true;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

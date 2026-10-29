@@ -24,7 +24,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                     .Invoke(null, [null]);
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

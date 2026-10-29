@@ -36,7 +36,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
 
                 return genericCreateRange.Invoke(null, [value])!;
             }
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

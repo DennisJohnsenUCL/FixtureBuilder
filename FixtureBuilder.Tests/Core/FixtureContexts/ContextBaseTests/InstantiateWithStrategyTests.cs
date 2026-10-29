@@ -103,7 +103,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         {
             var request = new FixtureRequest(typeof(string));
             _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
             var context = CreateContext();
 
             Assert.Throws<InvalidOperationException>(() =>

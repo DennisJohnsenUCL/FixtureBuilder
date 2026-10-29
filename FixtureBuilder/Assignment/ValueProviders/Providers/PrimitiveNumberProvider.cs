@@ -41,7 +41,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return Convert.ChangeType(Random.Shared.Next(1, 11), request.Type);
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

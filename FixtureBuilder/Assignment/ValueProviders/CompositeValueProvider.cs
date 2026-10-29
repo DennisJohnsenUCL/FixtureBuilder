@@ -42,7 +42,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
                 if (result is not NoResult) return result;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
 
         public void AddProvider(IValueProvider provider)

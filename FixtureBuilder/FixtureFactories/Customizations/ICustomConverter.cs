@@ -12,7 +12,7 @@ namespace FixtureBuilder.Core
         /// </summary>
         /// <remarks>
         /// Invoked during backing field assignment when the field type differs from the property type.
-        /// Return <see cref="NoResult"/> if the converter does not handle the given conversion. A <see langword="null"/> return is treated as an explicit null assignment.
+        /// Return <see cref="NoResult.Instance"/> if the converter does not handle the given conversion. A <see langword="null"/> return is treated as an explicit null assignment.
         /// </remarks>
         object? Convert(Type target, object value);
     }

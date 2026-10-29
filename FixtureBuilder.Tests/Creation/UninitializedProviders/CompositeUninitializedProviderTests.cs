@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void ResolveUninitialized_WhenContextResolveReturnsNoResult_AndBclProviderResolves_ReturnsBclResult()
         {
             var bclRequest = new FixtureRequest(typeof(List<int>));
-            _valueProviderMock.Setup(c => c.ResolveValue(bclRequest, _contextMock.Object)).Returns(new NoResult());
+            _valueProviderMock.Setup(c => c.ResolveValue(bclRequest, _contextMock.Object)).Returns(NoResult.Instance);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
             var result = sut.ResolveUninitialized(bclRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
@@ -69,7 +69,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             var expected = new CompositeUninitializedProvider(_defaultBclTypeProvider);
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-            _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
+            _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(NoResult.Instance);
             _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
                 .Returns(expected);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
@@ -86,9 +86,9 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-            _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
+            _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(NoResult.Instance);
             _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
             var result = sut.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext);
@@ -102,9 +102,9 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
             var nonSystemRequest = new FixtureRequest(typeof(CompositeUninitializedProvider));
             var options = new FixtureOptions() { AllowSkipUninitializableMembers = false };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-            _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(new NoResult());
+            _valueProviderMock.Setup(c => c.ResolveValue(nonSystemRequest, _contextMock.Object)).Returns(NoResult.Instance);
             _uninitializedProviderMock.Setup(c => c.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
             var sut = new CompositeUninitializedProvider(_defaultBclTypeProvider);
 
             Assert.Throws<InvalidOperationException>(() => sut.ResolveUninitialized(nonSystemRequest, _defaultInitializeMembers, _contextMock.Object, _recursiveResolveContext));

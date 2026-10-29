@@ -46,10 +46,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void Convert_NoConverterReturnsResult_ReturnsNull()
         {
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
+            converter1.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(NoResult.Instance);
 
             var converter2 = new Mock<IValueConverter>();
-            converter2.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(new NoResult());
+            converter2.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(NoResult.Instance);
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object]);
             var targetType = new TypeRequest(typeof(string), typeof(string));
@@ -89,7 +89,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var value = "test";
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(new NoResult());
+            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(NoResult.Instance);
 
             var converter2 = new Mock<IValueConverter>();
             converter2.Setup(x => x.Convert(targetType, value, _context)).Returns(expectedResult);
@@ -111,7 +111,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var value = "test";
 
             var converter1 = new Mock<IValueConverter>();
-            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(new NoResult());
+            converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(NoResult.Instance);
 
             var converter2 = new Mock<IValueConverter>();
             converter2.Setup(x => x.Convert(targetType, value, _context)).Returns(firstResult);

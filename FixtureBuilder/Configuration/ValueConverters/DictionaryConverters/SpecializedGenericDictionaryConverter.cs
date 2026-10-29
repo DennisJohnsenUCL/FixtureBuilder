@@ -25,7 +25,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
 
                 return Activator.CreateInstance(target, value);
             }
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

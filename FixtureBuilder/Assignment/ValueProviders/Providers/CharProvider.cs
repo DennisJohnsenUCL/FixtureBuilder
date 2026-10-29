@@ -21,7 +21,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return letters[Random.Shared.Next(letters.Length)];
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

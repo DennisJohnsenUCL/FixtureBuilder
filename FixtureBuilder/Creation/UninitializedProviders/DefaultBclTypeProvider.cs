@@ -27,11 +27,11 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 }
                 catch
                 {
-                    return new NoResult();
+                    return NoResult.Instance;
                 }
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

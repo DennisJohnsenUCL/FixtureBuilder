@@ -19,7 +19,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             if (value.GetType().IsAssignableTo(request.Type)) return value;
 
             var result = _inner.Convert(request, value, context);
-            if (result is not NoResult && result != null && !result.GetType().IsAssignableTo(request.Type)) return new NoResult();
+            if (result is not NoResult && result != null && !result.GetType().IsAssignableTo(request.Type)) return NoResult.Instance;
             return result;
         }
     }

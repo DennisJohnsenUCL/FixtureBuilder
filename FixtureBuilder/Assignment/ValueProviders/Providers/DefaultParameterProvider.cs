@@ -37,7 +37,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return value;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

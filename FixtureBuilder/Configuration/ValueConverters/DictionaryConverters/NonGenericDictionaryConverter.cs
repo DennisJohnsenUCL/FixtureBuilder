@@ -24,7 +24,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
 
                 return Activator.CreateInstance(request.Type, value);
             }
-            return new NoResult();
+            return NoResult.Instance;
         }
 
         private static (Type sourceKeyType, Type sourceValueType) GetSourceKeyValueTypes(object values)

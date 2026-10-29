@@ -29,7 +29,7 @@ namespace FixtureBuilder.Configuration.ValueConverters
                 var result = converter.Convert(request, value, context);
                 if (result is not NoResult) return result;
             }
-            return new NoResult();
+            return NoResult.Instance;
         }
 
         public void AddConverter(IValueConverter converter)

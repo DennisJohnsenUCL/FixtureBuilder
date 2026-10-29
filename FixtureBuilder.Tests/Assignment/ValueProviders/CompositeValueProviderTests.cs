@@ -64,7 +64,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         public void Resolve_WhenFirstReturnsNoResult_TriesSecondProvider()
         {
             var expected = "from-second";
-            var first = CreateProvider(new NoResult());
+            var first = CreateProvider(NoResult.Instance);
             var second = CreateProvider(expected);
             var sut = new CompositeValueProvider([first.Object, second.Object]);
 

@@ -20,7 +20,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return DateTime.UtcNow;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

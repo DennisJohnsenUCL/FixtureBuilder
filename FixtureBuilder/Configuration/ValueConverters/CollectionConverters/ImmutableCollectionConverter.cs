@@ -39,7 +39,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
                     ?? throw new InvalidOperationException($"Failed to create immutable collection for {target.Name}.");
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

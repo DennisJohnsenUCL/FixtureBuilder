@@ -31,7 +31,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
                     ?? throw new InvalidOperationException($"Failed to create FrozenSet collection for {target.Name}.");
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

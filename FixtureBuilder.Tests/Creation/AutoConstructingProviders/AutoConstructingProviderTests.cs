@@ -282,7 +282,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(Outer))).Returns(typeof(Inner));
             _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var result = (Outer)_sut.AutoResolve(request, _contextMock.Object);
 
@@ -362,7 +362,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             Assert.Throws<InvalidOperationException>(() =>
                 _sut.AutoResolve(request, _contextMock.Object));
@@ -377,7 +377,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             Assert.Throws<InvalidOperationException>(() =>
                 _sut.AutoResolve(request, _contextMock.Object));
@@ -398,7 +398,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
                 .Setup(c => c.ResolveValue(
                     It.Is<FixtureRequest>(r => r.Type != typeof(string)),
                     It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var result = (CircularA)_sut.AutoResolve(request, _contextMock.Object);
 
@@ -431,7 +431,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
                 .Setup(c => c.ResolveValue(
                     It.Is<FixtureRequest>(r => r.Type != typeof(string)),
                     It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var result = (TriA)_sut.AutoResolve(request, _contextMock.Object);
 
@@ -469,7 +469,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
                 .Setup(c => c.ResolveValue(
                     It.Is<FixtureRequest>(r => r.Type != typeof(string)),
                     It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var result = (BranchRoot)_sut.AutoResolve(request, _contextMock.Object);
 
@@ -506,7 +506,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
                 .Setup(c => c.ResolveValue(
                     It.Is<FixtureRequest>(r => r.Type != typeof(string)),
                     It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var result = (DerivedA)_sut.AutoResolve(request, _contextMock.Object);
 
@@ -525,7 +525,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
                 .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             var result = (TwinRoot)_sut.AutoResolve(request, _contextMock.Object);
 
@@ -555,7 +555,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
                 .Setup(c => c.ResolveValue(
                     It.Is<FixtureRequest>(r => r.Type != typeof(string)),
                     It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             Assert.DoesNotThrow(() => _sut.AutoResolve(request, _contextMock.Object));
         }

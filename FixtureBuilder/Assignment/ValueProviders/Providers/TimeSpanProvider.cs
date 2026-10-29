@@ -20,7 +20,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return TimeSpan.FromMinutes(30);
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

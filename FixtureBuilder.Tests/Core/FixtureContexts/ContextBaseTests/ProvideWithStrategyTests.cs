@@ -80,7 +80,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
             var expected = "Instantiated value";
             var request = new FixtureRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
             _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
             var context = CreateContext();

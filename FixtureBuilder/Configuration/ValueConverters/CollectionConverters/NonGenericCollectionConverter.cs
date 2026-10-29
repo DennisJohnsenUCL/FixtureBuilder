@@ -19,7 +19,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
                 return collection;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
 
         private static Array CastToArray(IEnumerable value)

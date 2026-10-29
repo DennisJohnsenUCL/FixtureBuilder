@@ -21,12 +21,12 @@ namespace FixtureBuilder.Configuration.ValueConverters.Converters
                 var implConversionMethod = FindImplicit(sourceType, sourceType, target)
                     ?? FindImplicit(target, sourceType, target);
 
-                if (implConversionMethod == null) return new NoResult();
+                if (implConversionMethod == null) return NoResult.Instance;
 
                 return implConversionMethod.Invoke(null, [value]);
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
 
         private static MethodInfo? FindImplicit(Type searchType, Type parameterType, Type returnType)

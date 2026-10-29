@@ -27,7 +27,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return Expression.Lambda(request.Type, Expression.Default(invoke.ReturnType), parameters).Compile();
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

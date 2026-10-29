@@ -20,7 +20,7 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
         public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             if (request.RootType != _rootType)
-                return new NoResult();
+                return NoResult.Instance;
 
             return _inner.Convert(request, value, context);
         }

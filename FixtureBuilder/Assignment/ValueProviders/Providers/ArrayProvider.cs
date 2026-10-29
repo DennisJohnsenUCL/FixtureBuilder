@@ -26,7 +26,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return instance;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

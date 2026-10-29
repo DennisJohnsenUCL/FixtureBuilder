@@ -22,7 +22,7 @@ namespace FixtureBuilder.FixtureFactories
         /// Registers a custom provider for value resolution.
         /// </summary>
         /// <remarks>
-        /// The provider must return <c>new NoResult()</c> for requests it does not handle. A <c>null</c> return is treated as an explicit null assignment.
+        /// The provider must return <c>NoResult.Instance</c> for requests it does not handle. A <c>null</c> return is treated as an explicit null assignment.
         /// </remarks>
         TReturn AddProvider(ICustomProvider provider);
 
@@ -30,7 +30,7 @@ namespace FixtureBuilder.FixtureFactories
         /// Registers a custom converter for backing field assignment when the field type differs from the property type.
         /// </summary>
         /// <remarks>
-        /// The converter must return <c>new NoResult()</c> for conversions it does not handle. A <c>null</c> return is treated as an explicit null assignment.
+        /// The converter must return <c>NoResult.Instance</c> for conversions it does not handle. A <c>null</c> return is treated as an explicit null assignment.
         /// </remarks>
         TReturn AddConverter(ICustomConverter converter);
 

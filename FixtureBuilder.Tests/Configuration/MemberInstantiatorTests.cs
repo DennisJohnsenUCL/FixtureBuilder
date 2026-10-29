@@ -240,7 +240,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             _uninitializedMock
                 .Setup(c => c.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), _contextMock.Object))
-                .Returns(new NoResult());
+                .Returns(NoResult.Instance);
 
             Assert.Throws<InvalidOperationException>(() => _sut.CreateUninitialized());
         }

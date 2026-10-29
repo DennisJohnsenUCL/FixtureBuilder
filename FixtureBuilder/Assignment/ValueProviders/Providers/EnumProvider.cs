@@ -23,7 +23,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                     : Enum.ToObject(request.Type, 0);
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

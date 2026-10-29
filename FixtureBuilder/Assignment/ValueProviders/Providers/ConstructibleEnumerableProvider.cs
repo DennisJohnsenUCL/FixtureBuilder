@@ -49,7 +49,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 return Activator.CreateInstance(request.Type);
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

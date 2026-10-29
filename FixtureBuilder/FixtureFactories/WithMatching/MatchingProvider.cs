@@ -25,7 +25,7 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
             if (_withRules.All(r => r.IsMatch(request)))
                 return _func();
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }

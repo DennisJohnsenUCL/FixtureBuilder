@@ -29,7 +29,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
                 return genericToFrozenDictionary.Invoke(null, [value, null])!;
             }
 
-            return new NoResult();
+            return NoResult.Instance;
         }
     }
 }
