@@ -278,7 +278,9 @@ namespace FixtureBuilder.Tests.FixtureTests
             Assert.That(result.Holder.Nested.Value, Is.EqualTo("constructed"));
         }
 
+#pragma warning disable IDE0250 // Make struct 'readonly'
         struct InnerStructWithParam(string value)
+#pragma warning restore IDE0250 // Make struct 'readonly'
         {
             public string Value { get; } = value;
         }

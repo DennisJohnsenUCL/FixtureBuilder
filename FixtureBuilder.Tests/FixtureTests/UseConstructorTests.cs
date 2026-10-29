@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0290
-
-namespace FixtureBuilder.Tests.FixtureTests
+﻿namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class UseConstructorTests
     {

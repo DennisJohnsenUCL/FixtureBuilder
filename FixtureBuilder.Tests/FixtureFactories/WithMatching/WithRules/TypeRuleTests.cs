@@ -5,6 +5,11 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
 {
     internal sealed class TypeRuleTests
     {
+        private class SampleClass
+        {
+            public int? NullableInt { get; set; }
+        }
+
         [Test]
         public void Constructor_NullType_Throws()
         {
@@ -30,14 +35,12 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         }
 
         [Test]
-        public void IsMatch_OriginalTypeMatchesAfterTypeChanged_ReturnsTrue()
+        public void IsMatch_OnlyOriginalTypeMatches_ReturnsTrue()
         {
             var sut = new TypeRule(typeof(int?));
-            var request = new FixtureRequest(typeof(int?))
-            {
-                // UnwrapAndLink turns int? into int before the providers run.
-                Type = typeof(int)
-            };
+            var property = typeof(SampleClass).GetProperty(nameof(SampleClass.NullableInt))!;
+            // UnwrapAndLink turns int? into int before the request is created.
+            var request = new FixtureRequest(typeof(int), property, typeof(SampleClass));
 
             Assert.That(sut.IsMatch(request), Is.True);
         }

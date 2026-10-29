@@ -21,7 +21,9 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 
         private struct Point
         {
+#pragma warning disable IDE0251 // Make member 'readonly'
             public int DoSomething() => 1;
+#pragma warning restore IDE0251 // Make member 'readonly'
         }
 
         [Test]
