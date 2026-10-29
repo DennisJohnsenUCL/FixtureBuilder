@@ -420,18 +420,6 @@ internal class CreateUninitializedTests
         Assert.That(result.Name, Is.EqualTo("Name"));
     }
 
-    [Test]
-    public void CreateUninitialized_AllowSkipUninitializableMembersFalse_PropertyWithThrowingSetter_ThrowsInvalidOperationException()
-    {
-        var fixture = Fixture.New<WithThrowingSetter>();
-
-        TestHelper.SetOption(fixture, o => o.AllowSkipUninitializableMembers = false);
-
-        var ex = Assert.Throws<InvalidOperationException>(() => fixture.CreateUninitialized(InitializeMembers.All));
-
-        Assert.That(ex!.Message, Does.Contain(nameof(WithThrowingSetter.Broken)));
-    }
-
     class WithRefStructProperty
     {
         private int[] _values = [];

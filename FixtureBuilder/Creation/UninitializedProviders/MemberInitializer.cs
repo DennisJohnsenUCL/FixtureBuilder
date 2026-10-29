@@ -14,8 +14,6 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// using <see cref="Extensions.TypeExtensions.GetDataMembers"/> and filtered through an
     /// <see cref="IDataMemberSkipFilter"/> before initialization. Members the skip filter rejects,
     /// and properties whose getter or setter throws, are left unchanged; the remaining members are still processed.
-    /// If a setter throws and <see cref="FixtureOptions.AllowSkipUninitializableMembers"/> is disabled,
-    /// an <see cref="InvalidOperationException"/> is thrown instead.
     /// </summary>
     internal class MemberInitializer : IMemberInitializer
     {
@@ -79,12 +77,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                     {
                         dataMember.SetValue(instance, value);
                     }
-                    catch (TargetInvocationException ex)
-                    {
-                        if (!context.OptionsFor(request.RootType).AllowSkipUninitializableMembers)
-                            throw new InvalidOperationException(
-                                $"Could not set {dataMember.Name} on {dataMember.DeclaringType!.Name}.", ex.InnerException);
-                    }
+                    catch (TargetInvocationException) { }
                 }
             }
         }
