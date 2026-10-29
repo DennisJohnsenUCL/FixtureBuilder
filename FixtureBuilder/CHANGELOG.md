@@ -1,3 +1,18 @@
+#### 3.0.1
+
+- Deprecated the FixtureRequest.Type setter, as requests should not be modified. It will be removed in 4.0.0.
+- Fixed construction methods silently overwriting the instance when called more than once on the same Fixture.
+  - They now throw an exception instead. This could happen when casting the Fixture back to IFixtureConstructor, or when calling configuration methods separately while keeping it typed as IFixtureConstructor.
+- Fixed CreateUninitialized not initializing struct members whose type declares a parameterless constructor.
+- Fixed CreateUninitialized calling overridden Equals methods on struct members when checking for default values, which could give incorrect results or throw exceptions.
+- Fixed CreateUninitialized failing for properties with setters that throw on invocation.
+  - Such properties are now left unchanged.
+- Fixed member expressions failing for nullable struct members chained through .Value, e.g. x => x.NullableStruct.Value.Property.
+- Fixed member expressions ending in .Value on a nullable struct throwing inconsistently across configuration methods.
+  - They now always throw an exception pointing to the nullable member itself.
+- Fixed UseConstructor in .Instantiate throwing for nullable struct members.
+- Fixed errors in XML documentation.
+
 #### 3.0.0
 
 - Breaking change: FixtureFactory.New with an instance given now returns IFixtureConfigurator instead of IFixtureConstructor.
