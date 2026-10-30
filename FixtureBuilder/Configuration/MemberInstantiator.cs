@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Configuration
 {
@@ -27,7 +28,7 @@ namespace FixtureBuilder.Configuration
 
         public T UseConstructor(params object?[] arguments)
         {
-            var type = ContextBase.Unwrap(typeof(T));
+            var type = typeof(T).Unwrap();
 
             return (T)_context.ConstructingProvider.ResolveWithArguments(type, arguments);
         }

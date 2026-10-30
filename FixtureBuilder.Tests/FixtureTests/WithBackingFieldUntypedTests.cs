@@ -1,5 +1,4 @@
-﻿#pragma warning disable IDE0044
-#pragma warning disable CS0169
+﻿#pragma warning disable CS0169
 #pragma warning disable CS0649
 
 namespace FixtureBuilder.Tests.FixtureTests

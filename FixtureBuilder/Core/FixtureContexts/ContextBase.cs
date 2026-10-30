@@ -4,6 +4,7 @@ using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Core.FixtureContexts
 {
@@ -39,16 +40,9 @@ namespace FixtureBuilder.Core.FixtureContexts
             else return Options;
         }
 
-        public static Type Unwrap(Type type)
-        {
-            type = type.IsByRef ? type.GetElementType()! : type;
-            type = Nullable.GetUnderlyingType(type) ?? type;
-            return type;
-        }
-
         public Type UnwrapAndLink(Type type, Type rootType)
         {
-            var unwrapped = Unwrap(type);
+            var unwrapped = type.Unwrap();
             var typeRequest = new TypeRequest(unwrapped, rootType);
             return TypeLink.Link(typeRequest) ?? unwrapped;
         }

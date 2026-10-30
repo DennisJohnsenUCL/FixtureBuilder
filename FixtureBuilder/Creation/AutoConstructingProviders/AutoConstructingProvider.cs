@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Creation.AutoConstructingProviders
 {
@@ -117,13 +118,13 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 .GetConstructors(bindingAttr)
                 .Where(c => c.GetParameters().All(p =>
                 {
-                    if (ContextBase.Unwrap(p.ParameterType) != type) return true;
+                    if (p.ParameterType.Unwrap() != type) return true;
                     var isNullAndNullsPreferred = nullsPreferred && new NullabilityInfoContext().Create(p).WriteState == NullabilityState.Nullable;
                     var hasDefaultAndDefaultPreferred = defaultPreferred && p.HasDefaultValue;
 
                     return isNullAndNullsPreferred || hasDefaultAndDefaultPreferred;
                 }))
-                .OrderBy(c => c.GetParameters().Any(p => ContextBase.Unwrap(p.ParameterType) == type))
+                .OrderBy(c => c.GetParameters().Any(p => p.ParameterType.Unwrap() == type))
                 .ThenBy(c => c.GetParameters().Length)
                 .FirstOrDefault();
         }

@@ -85,6 +85,23 @@ namespace FixtureBuilder.Extensions
             }
 
             /// <summary>
+            /// Removes any by-ref and <see cref="Nullable{T}"/> wrapping from the specified type.
+            /// </summary>
+            /// <returns>
+            /// The type wrapped by <paramref name="type"/> if it is a by-ref type, a <see cref="Nullable{T}"/>,
+            /// or a by-ref <see cref="Nullable{T}"/>; otherwise, <paramref name="type"/> itself.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
+            public Type Unwrap()
+            {
+                ArgumentNullException.ThrowIfNull(type);
+
+                var unwrappedByRef = type.IsByRef ? type.GetElementType()! : type;
+                var unwrappedNullable = Nullable.GetUnderlyingType(unwrappedByRef) ?? unwrappedByRef;
+                return unwrappedNullable;
+            }
+
+            /// <summary>
             /// Determines whether the specified type implements a given interface, supporting both
             /// closed and open generic interface definitions.
             /// </summary>
