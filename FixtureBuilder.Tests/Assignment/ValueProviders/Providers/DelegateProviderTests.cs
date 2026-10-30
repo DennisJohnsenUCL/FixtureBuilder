@@ -55,6 +55,52 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         }
 
         [Test]
+        public void Resolve_FuncWithTaskReturn_ReturnsDelegateReturningCompletedTask()
+        {
+            var request = new FixtureRequest(typeof(Func<string, Task>));
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf<Func<string, Task>>());
+                Assert.That(((Func<string, Task>)result!)("text").IsCompletedSuccessfully, Is.True);
+            }
+        }
+
+        [Test]
+        public void Resolve_FuncWithTaskOfValueTypeReturn_ReturnsDelegateReturningCompletedTaskWithDefault()
+        {
+            var request = new FixtureRequest(typeof(Func<string, Task<int>>));
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.TypeOf<Func<string, Task<int>>>());
+            var task = ((Func<string, Task<int>>)result!)("text");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(task.IsCompletedSuccessfully, Is.True);
+                Assert.That(task.Result, Is.Zero);
+            }
+        }
+
+        [Test]
+        public void Resolve_FuncWithTaskOfReferenceTypeReturn_ReturnsDelegateReturningCompletedTaskWithNull()
+        {
+            var request = new FixtureRequest(typeof(Func<Task<string>>));
+
+            var result = _sut.ResolveValue(request, _contextMock.Object);
+
+            Assert.That(result, Is.TypeOf<Func<Task<string>>>());
+            var task = ((Func<Task<string>>)result!)();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(task.IsCompletedSuccessfully, Is.True);
+                Assert.That(task.Result, Is.Null);
+            }
+        }
+
+        [Test]
         public void Resolve_Action_ReturnsInvokableDelegate()
         {
             var request = new FixtureRequest(typeof(Action<int, string>));

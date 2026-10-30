@@ -15,13 +15,9 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
     {
         public object? ResolveValue(FixtureRequest request, IFixtureContext context)
         {
-            if (request.Type.GetGenericTypeDefinitionOrDefault() is { } typeDef && typeDef == typeof(Task<>))
+            if (request.Type.GetGenericTypeDefinitionOrDefault() == typeof(Task<>))
             {
-                var genericParam = request.Type.GenericTypeArguments[0];
-                return typeof(Task)
-                    .GetMethod("FromResult")!
-                    .MakeGenericMethod(genericParam)
-                    .Invoke(null, [null]);
+                return CompletedTaskFactory.Create(request.Type.GenericTypeArguments[0]);
             }
 
             return NoResult.Instance;
