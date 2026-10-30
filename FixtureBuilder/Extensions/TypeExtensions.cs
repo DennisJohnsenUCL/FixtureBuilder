@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace FixtureBuilder.Extensions
 {
@@ -89,6 +90,26 @@ namespace FixtureBuilder.Extensions
                 i == target
                 || (target.IsGenericTypeDefinition
                 && i.GetGenericTypeDefinitionOrDefault() == target));
+            }
+
+            /// <summary>
+            /// Returns the value a member or parameter of the specified type holds by default.
+            /// Value types are created without running a constructor, so any parameterless
+            /// constructor or field initializer on a struct is ignored.
+            /// </summary>
+            /// <returns>
+            /// A boxed zeroed instance if <paramref name="type"/> is a non-nullable value type; otherwise,
+            /// <see langword="null"/>. This includes <see cref="Nullable{T}"/>, reference types, and by-ref types,
+            /// which do not count as value types even when their element type is one.
+            /// </returns>
+            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
+            public object? GetDefaultValue()
+            {
+                ArgumentNullException.ThrowIfNull(type);
+
+                return type.IsValueType && Nullable.GetUnderlyingType(type) is null
+                    ? RuntimeHelpers.GetUninitializedObject(type)
+                    : null;
             }
 
             /// <summary>

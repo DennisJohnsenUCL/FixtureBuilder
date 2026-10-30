@@ -52,9 +52,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
                 catch (TargetInvocationException) { continue; }
 
                 var type = dataMember.DataMemberType;
-                var defaultValue = type.IsValueType && Nullable.GetUnderlyingType(type) is null
-                    ? RuntimeHelpers.GetUninitializedObject(type)
-                    : null;
+                var defaultValue = type.GetDefaultValue();
 
                 if (!RuntimeHelpers.Equals(value, defaultValue)) continue;
 

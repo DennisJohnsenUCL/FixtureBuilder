@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Assignment.ValueProviders.Providers
 {
@@ -21,18 +21,11 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
                 var type = request.OriginalType;
                 var value = paramInfo.DefaultValue;
 
-                if (value is null
-                    && type.IsValueType
-                    && Nullable.GetUnderlyingType(type) is null)
-                {
-                    return RuntimeHelpers.GetUninitializedObject(type);
-                }
+                if (value is null)
+                    return type.GetDefaultValue();
 
-                if (value is not null
-                    && Nullable.GetUnderlyingType(type) is { IsEnum: true } enumType)
-                {
+                if (Nullable.GetUnderlyingType(type) is { IsEnum: true } enumType)
                     return Enum.ToObject(enumType, value);
-                }
 
                 return value;
             }
