@@ -167,7 +167,8 @@ namespace FixtureBuilder
 
             while (type != null && type != typeof(object))
             {
-                if (type.TryGetField(fieldName, out fieldInfo)) break;
+                fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (fieldInfo is not null) break;
                 type = type.BaseType;
             }
 
@@ -207,8 +208,8 @@ namespace FixtureBuilder
 
         private void SetBackingFieldInternal(object instance, PropertyInfo property, object? value, string? fieldName = null)
         {
-            if (!FieldHelper.TryGetPropertyBackingField(instance.GetType(), property, fieldName, out var backingField))
-                throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
+            var backingField = FieldHelper.GetPropertyBackingField(instance.GetType(), property, fieldName)
+                ?? throw new InvalidOperationException($"Backing field not found for property {property.Name}. Please specify the name of the backing field if not following standard naming.");
 
             FieldHelper.SetBackingFieldValue(backingField, property, instance, value, typeof(T), _context);
         }

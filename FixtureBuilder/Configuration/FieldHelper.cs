@@ -51,30 +51,26 @@ namespace FixtureBuilder.Configuration
         }
 
         /// <summary>
-        /// Attempts to retrieve a field from the specified type by checking multiple candidate field names in order.
+        /// Retrieves a field from the specified type by checking multiple candidate field names in order.
         /// </summary>
         /// <param name="type">The type to search for the field.</param>
         /// <param name="fieldNames">An array of candidate field names to try, in order.</param>
-        /// <param name="fieldInfo">
-        /// When this method returns, contains the <see cref="FieldInfo"/> for the first matching field
-        /// if found; otherwise, <see langword="null"/>.
-        /// </param>
         /// <returns>
-        /// <see langword="true"/> if any of the candidate field names matched a field on the type;
-        /// otherwise, <see langword="false"/>.
+        /// The <see cref="FieldInfo"/> for the first matching field if any of the candidate field names matched
+        /// a field on the type; otherwise, <see langword="null"/>.
         /// </returns>
-        internal static bool TryGetField(Type type, string[] fieldNames, out FieldInfo fieldInfo)
+        internal static FieldInfo? GetField(Type type, string[] fieldNames)
         {
             foreach (var name in fieldNames)
             {
-                if (type.TryGetField(name, out fieldInfo)) return true;
+                var fieldInfo = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (fieldInfo is not null) return fieldInfo;
             }
-            fieldInfo = null!;
-            return false;
+            return null;
         }
 
         /// <summary>
-        /// Attempts to locate the backing field for a property. The type hierarchy of <paramref name="propertyParentType"/>
+        /// Locates the backing field for a property. The type hierarchy of <paramref name="propertyParentType"/>
         /// is walked to the most derived type declaring or overriding the property, and the field is searched for on that
         /// type and its base types. A property declared on an interface is first resolved to the class property implementing it.
         /// </summary>
@@ -84,23 +80,17 @@ namespace FixtureBuilder.Configuration
         /// An explicit field name to search for. If <see langword="null"/>, the compiler-generated backing field name
         /// and common naming conventions are used as candidates.
         /// </param>
-        /// <param name="backingField">
-        /// When this method returns, contains the <see cref="FieldInfo"/> for the backing field
-        /// if found; otherwise, <see langword="null"/>.
-        /// </param>
         /// <returns>
-        /// <see langword="true"/> if a backing field was found; otherwise, <see langword="false"/>, including when
+        /// The <see cref="FieldInfo"/> for the backing field if found; otherwise, <see langword="null"/>, including when
         /// <paramref name="propertyParentType"/> does not declare, inherit or implement the property.
         /// </returns>
-        public static bool TryGetPropertyBackingField(Type propertyParentType, PropertyInfo property, string? fieldName, out FieldInfo backingField)
+        public static FieldInfo? GetPropertyBackingField(Type propertyParentType, PropertyInfo property, string? fieldName)
         {
-            backingField = null!;
-
             var commonFieldNames = GetCommonFieldNames(property.Name);
 
             if (property.DeclaringType is { IsInterface: true })
             {
-                if (GetPropertyImplementation(propertyParentType, property) is not { } implementation) return false;
+                if (GetPropertyImplementation(propertyParentType, property) is not { } implementation) return null;
                 property = implementation;
             }
 
@@ -118,19 +108,18 @@ namespace FixtureBuilder.Configuration
                 currentType = currentType.BaseType;
             }
 
-            if (currentType == null || currentType == typeof(object)) return false;
+            if (currentType == null || currentType == typeof(object)) return null;
 
             while (currentType != null && currentType != typeof(object))
             {
-                if (TryGetField(currentType, fieldNames, out var fieldInfo))
+                if (GetField(currentType, fieldNames) is { } fieldInfo)
                 {
-                    backingField = fieldInfo;
-                    return true;
+                    return fieldInfo;
                 }
                 currentType = currentType.BaseType;
             }
 
-            return false;
+            return null;
         }
 
         private static PropertyInfo? GetPropertyImplementation(Type propertyParentType, PropertyInfo interfaceProperty)

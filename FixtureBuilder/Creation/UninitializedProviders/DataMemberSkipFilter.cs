@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Configuration;
-using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Creation.UninitializedProviders
 {
@@ -52,7 +51,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             if (property.PropertyType.IsByRefLike) isInaccessible = true;
 
             if (!property.CanWrite
-                && !dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(property), out _))
+                && dataMember.DeclaringType!.GetField(FieldHelper.GetAutoBackingFieldName(property), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public) is null)
             {
                 isInaccessible = true;
             }

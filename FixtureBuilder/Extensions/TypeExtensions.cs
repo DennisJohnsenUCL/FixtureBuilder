@@ -9,23 +9,6 @@ namespace FixtureBuilder.Extensions
         extension(Type type)
         {
             /// <summary>
-            /// Attempts to retrieve a field from the specified type by name.
-            /// </summary>
-            /// <param name="fieldName">The name of the field to find.</param>
-            /// <param name="fieldInfo">
-            /// When this method returns, contains the <see cref="FieldInfo"/> for the specified field
-            /// if found; otherwise, <see langword="null"/>.
-            /// </param>
-            /// <returns>
-            /// <see langword="true"/> if the field was found on the type; otherwise, <see langword="false"/>.
-            /// </returns>
-            public bool TryGetField(string fieldName, out FieldInfo fieldInfo)
-            {
-                fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
-                return fieldInfo != null;
-            }
-
-            /// <summary>
             /// Returns a sequence of <see cref="DataMemberInfo"/> instances representing all properties and fields
             /// of the specified type that match the given binding constraints.
             /// </summary>
@@ -43,31 +26,6 @@ namespace FixtureBuilder.Extensions
 
                 return type.GetProperties(bindingAttr).Select(p => new DataMemberInfo(p))
                     .Concat(type.GetFields(bindingAttr).Select(f => new DataMemberInfo(f)));
-            }
-
-            /// <summary>
-            /// Attempts to retrieve the generic type definition of the specified type.
-            /// </summary>
-            /// <param name="genericTypeDefinition">
-            /// When this method returns <see langword="true"/>, contains the generic type definition of
-            /// <paramref name="type"/>; otherwise, contains a <see langword="null"/> reference.
-            /// </param>
-            /// <returns>
-            /// <see langword="true"/> if <paramref name="type"/> is a generic type and its generic type definition
-            /// was successfully retrieved; otherwise, <see langword="false"/>.
-            /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
-            public bool TryGetGenericTypeDefinition(out Type genericTypeDefinition)
-            {
-                ArgumentNullException.ThrowIfNull(type);
-
-                if (type.IsGenericType)
-                {
-                    genericTypeDefinition = type.GetGenericTypeDefinition();
-                    return true;
-                }
-                genericTypeDefinition = null!;
-                return false;
             }
 
             /// <summary>
@@ -166,7 +124,7 @@ namespace FixtureBuilder.Extensions
 
                 if (typeof(IDictionary).IsAssignableFrom(type)) return true;
 
-                else if (type.IsInterface && type.TryGetGenericTypeDefinition(out var genericTypeDef))
+                else if (type.IsInterface && type.GetGenericTypeDefinitionOrDefault() is { } genericTypeDef)
                 {
                     if (genericTypeDef == typeof(IDictionary<,>) ||
                         genericTypeDef == typeof(IReadOnlyDictionary<,>) ||

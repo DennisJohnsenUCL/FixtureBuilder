@@ -173,7 +173,7 @@ namespace FixtureBuilder.Configuration
         /// </exception>
         internal object InitializeDataMemberValue(object parent, DataMemberInfo dataMember)
         {
-            if (dataMember.TryIsPropertyInfo(out var pi) && !pi.CanRead)
+            if (dataMember.IsPropertyInfo && !dataMember.Property.CanRead)
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
 
             var current = dataMember.GetValue(parent);
@@ -182,7 +182,7 @@ namespace FixtureBuilder.Configuration
             if (!_context.OptionsFor(_rootType).AllowInstantiateNestedMembers)
                 throw new InvalidOperationException($"Property or field {dataMember.Name} in member chain is null, and instantiation of null chain members is disabled.");
 
-            if (dataMember.IsPropertyInfo && !pi.CanWrite)
+            if (dataMember.IsPropertyInfo && !dataMember.Property.CanWrite)
                 throw new InvalidOperationException($"Property {dataMember.Name} does not have a setter. Please provide a value manually or with 'WithBackingField'");
 
             var type = _context.UnwrapAndLink(dataMember.DataMemberType, _rootType);
@@ -211,9 +211,9 @@ namespace FixtureBuilder.Configuration
             {
                 if (!dataMember.DataMemberType.IsValueType) continue;
 
-                if (dataMember.TryIsPropertyInfo(out var pi) && !pi.CanWrite)
+                if (dataMember.IsPropertyInfo && !dataMember.Property.CanWrite)
                 {
-                    if (RuntimeHelpers.Equals(pi.GetValue(parent), value)) continue;
+                    if (RuntimeHelpers.Equals(dataMember.GetValue(parent), value)) continue;
                     throw new InvalidOperationException($"Property {dataMember.Name} holds a struct but does not have a setter, so changes to it cannot be written back. Please set the struct as a whole with 'WithBackingField' instead.");
                 }
 

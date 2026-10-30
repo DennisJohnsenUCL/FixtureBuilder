@@ -40,7 +40,7 @@ namespace FixtureBuilder.Configuration
         /// </exception>
         public static void ValidateExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
-            if (expr.Body is not MemberExpression || !TryWalkToParameter(expr.Body, expr.Parameters[0]))
+            if (expr.Body is not MemberExpression || !IsMemberChainOnParameter(expr.Body, expr.Parameters[0]))
                 throw new InvalidOperationException(
                     "Expression must be a direct property or field access chain, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
 
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Configuration
         /// </exception>
         public static void ValidatePropertyExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
-            if (expr.Body is not MemberExpression { Member: PropertyInfo } || !TryWalkToParameter(expr.Body, expr.Parameters[0]))
+            if (expr.Body is not MemberExpression { Member: PropertyInfo } || !IsMemberChainOnParameter(expr.Body, expr.Parameters[0]))
                 throw new InvalidOperationException(
                     "Expression must be a direct property or field access chain terminating in a property, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
 
@@ -85,7 +85,7 @@ namespace FixtureBuilder.Configuration
         /// </exception>
         public static void ValidateMethodExpression<T>(Expression<Action<T>> expr)
         {
-            if (expr.Body is not MethodCallExpression { Object: { } obj } || !TryWalkToParameter(obj, expr.Parameters[0]))
+            if (expr.Body is not MethodCallExpression { Object: { } obj } || !IsMemberChainOnParameter(obj, expr.Parameters[0]))
                 throw new InvalidOperationException(
                     "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.");
         }
@@ -103,9 +103,9 @@ namespace FixtureBuilder.Configuration
                 && Nullable.GetUnderlyingType(member.DeclaringType!) is not null;
         }
 
-        internal static bool TryWalkToParameter(Expression body, ParameterExpression param)
+        internal static bool IsMemberChainOnParameter(Expression expression, ParameterExpression param)
         {
-            Expression current = body;
+            Expression current = expression;
             while (current is MemberExpression member)
             {
                 current = member.Expression!;

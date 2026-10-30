@@ -3,7 +3,7 @@ using FixtureBuilder.Configuration;
 
 namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
-    internal sealed class TryWalkToParameterTests
+    internal sealed class IsMemberChainOnParameterTests
     {
         private class Outer
         {
@@ -22,7 +22,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void BareParameter_ReturnsTrue()
         {
             Expression<Func<Outer, Outer>> expr = x => x;
-            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -30,7 +30,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void SingleProperty_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.Name;
-            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void SingleField_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.NameField;
-            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -46,7 +46,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void NestedPropertyChain_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.Prop.Value;
-            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -54,7 +54,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void MixedFieldAndPropertyChain_ReturnsTrue()
         {
             Expression<Func<Outer, string>> expr = x => x.Field.Value;
-            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.True);
         }
 
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         {
             var outer = new Outer();
             Expression<Func<Outer, string>> expr = x => outer.Name;
-            var result = ExpressionValidator.TryWalkToParameter(expr.Body, expr.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr.Body, expr.Parameters[0]);
             Assert.That(result, Is.False);
         }
 
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         {
             Expression<Func<Outer, string>> expr1 = x => x.Name;
             Expression<Func<Outer, string>> expr2 = y => y.Name;
-            var result = ExpressionValidator.TryWalkToParameter(expr1.Body, expr2.Parameters[0]);
+            var result = ExpressionValidator.IsMemberChainOnParameter(expr1.Body, expr2.Parameters[0]);
             Assert.That(result, Is.False);
         }
     }

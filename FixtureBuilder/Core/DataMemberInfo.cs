@@ -57,12 +57,6 @@ internal class DataMemberInfo : MemberInfo
         throw new InvalidOperationException("MemberInfo must be a PropertyInfo or FieldInfo to be a valid DataMemberInfo.");
     }
 
-    public bool TryIsPropertyInfo(out PropertyInfo propertyInfo)
-    {
-        propertyInfo = _property!;
-        return IsPropertyInfo;
-    }
-
     /// <summary>
     /// Gets the <see cref="Type"/> of the data member — <see cref="PropertyInfo.PropertyType"/>
     /// for properties, <see cref="FieldInfo.FieldType"/> for fields.

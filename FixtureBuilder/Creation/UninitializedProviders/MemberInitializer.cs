@@ -67,7 +67,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
                 if (dataMember.IsPropertyInfo
                     && !dataMember.Property.CanWrite
-                    && dataMember.DeclaringType!.TryGetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), out var backingField))
+                    && dataMember.DeclaringType!.GetField(FieldHelper.GetAutoBackingFieldName(dataMember.Property), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public) is { } backingField)
                 {
                     backingField.SetValue(instance, value);
                 }
