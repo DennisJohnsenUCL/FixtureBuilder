@@ -1,5 +1,6 @@
 ﻿#pragma warning disable IDE0044
 #pragma warning disable CS0169
+#pragma warning disable CS0649
 
 namespace FixtureBuilder.Tests.FixtureTests
 {
@@ -23,15 +24,15 @@ namespace FixtureBuilder.Tests.FixtureTests
             Assert.That(field.Text, Is.EqualTo(_text));
         }
 
-        class DifferentTypeAssignableClass
+        class WideningFieldClass
         {
-            private long _number;
-            public int Number { get; set; }
+            private readonly long _number;
+            public int Number => (int)_number;
         }
         [Test]
-        public void DifferentTypeField_Assignable_SetsProperty()
+        public void WideningFieldType_SetsField()
         {
-            var fixture = TestHelper.MakeFixture<DifferentTypeAssignableClass>();
+            var fixture = TestHelper.MakeFixture<WideningFieldClass>();
 
             fixture.WithBackingFieldUntyped(t => t.Number, _number);
 

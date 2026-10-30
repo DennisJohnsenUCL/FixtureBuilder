@@ -1,6 +1,9 @@
 ﻿#pragma warning disable CS0649
 #pragma warning disable IDE0044 // Add readonly modifier
 
+using FixtureBuilder.Core;
+using Moq;
+
 namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal sealed class WithBackingFieldTests
@@ -398,6 +401,61 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 
             var result = TestHelper.GetFixture(fixture);
             Assert.That(result.Values.Select(v => v.Value.Inner), Is.EqualTo([1, 2, 3]));
+        }
+
+        class WideningFieldClass
+        {
+            private readonly long _number;
+            public int Number => (int)_number;
+        }
+        [Test]
+        public void WideningFieldType_NoConverter_SetsField()
+        {
+            var fixture = TestHelper.MakeFixture<WideningFieldClass>();
+
+            fixture.WithBackingField(t => t.Number, _number);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Number, Is.EqualTo(_number));
+        }
+
+        [Test]
+        public void WideningFieldType_ConverterHandlesValue_SetsConvertedValue()
+        {
+            var converted = 456L;
+            var converter = new Mock<ICustomConverter>();
+            converter.Setup(c => c.Convert(typeof(long), _number)).Returns(converted);
+            var fixture = new FixtureFactory()
+                .AddConverter(converter.Object)
+                .New(new WideningFieldClass());
+
+            fixture.WithBackingField(t => t.Number, _number);
+
+            var result = TestHelper.GetFixture(fixture);
+            Assert.That(result.Number, Is.EqualTo(converted));
+        }
+
+        class NarrowingFieldClass
+        {
+            private readonly int _number;
+            public long Number => _number;
+        }
+        [Test]
+        public void NarrowingFieldType_ThrowsException()
+        {
+            var fixture = TestHelper.MakeFixture<NarrowingFieldClass>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Number, 123L));
+        }
+
+        [Test]
+        public void NarrowingFieldType_ExceptionHasSetValueExceptionAsInner()
+        {
+            var fixture = TestHelper.MakeFixture<NarrowingFieldClass>();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Number, 123L));
+
+            Assert.That(ex?.InnerException, Is.InstanceOf<ArgumentException>());
         }
 
         struct Point

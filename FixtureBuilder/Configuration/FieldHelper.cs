@@ -23,7 +23,7 @@ namespace FixtureBuilder.Configuration
             {
                 fieldInfo.SetValue(instance, value);
             }
-            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field of type {fieldType.Name}");
+            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field {fieldInfo.Name} of type {fieldType.Name}");
         }
 
         public static void SetBackingFieldValue(FieldInfo backingField, PropertyInfo property, object instance, object? value, Type rootType, IFixtureContext context)
@@ -37,12 +37,17 @@ namespace FixtureBuilder.Configuration
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
                 var request = new TypeRequest(fieldType, rootType);
-                value = context.Converter.Root.Convert(request, value!, context);
-                if (value is NoResult)
-                    throw new InvalidOperationException($"Cannot assign type {sourceType.Name} to backing field for property {property.Name}, or convert it to a fitting type.");
+                var convertedValue = context.Converter.Root.Convert(request, value!, context);
+                if (convertedValue is not NoResult) value = convertedValue;
             }
-
-            backingField.SetValue(instance, value);
+            try
+            {
+                backingField.SetValue(instance, value);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to assign value of type {value!.GetType().Name} to backing field of property {property.Name} on {instance.GetType().Name}", ex);
+            }
         }
 
         /// <summary>

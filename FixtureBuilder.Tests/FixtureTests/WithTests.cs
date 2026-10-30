@@ -58,6 +58,24 @@ namespace FixtureBuilder.Tests.FixtureTests
             Assert.That(field.Text, Is.EqualTo(text));
         }
 
+        class PropWithoutSetterWideningFieldClass
+        {
+            private readonly long _number;
+            public int Number => (int)_number;
+        }
+        [Test]
+        public void PropWithoutSetterWideningField_SetsField()
+        {
+            var number = 123;
+
+            var fixture = TestHelper.MakeFixture<PropWithoutSetterWideningFieldClass>();
+
+            fixture.With(t => t.Number, number);
+
+            var field = TestHelper.GetFixture(fixture);
+            Assert.That(field.Number, Is.EqualTo(number));
+        }
+
         class PropWithoutSetterAndUnrecognizedFieldClass
         {
             private readonly string _unrelatedFieldName = null!;
