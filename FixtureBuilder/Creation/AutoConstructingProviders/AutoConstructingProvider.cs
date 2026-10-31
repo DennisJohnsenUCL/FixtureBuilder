@@ -25,6 +25,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// <list type="bullet">
     ///   <item><description>Interfaces</description></item>
     ///   <item><description>Abstract classes</description></item>
+    ///   <item><description>Delegates</description></item>
     ///   <item><description>Types with no discoverable constructors, except value types that declare none, which get a zeroed instance</description></item>
     /// </list>
     /// </remarks>
@@ -35,6 +36,12 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
 
+            if (request.Type.IsInterface || request.Type.IsAbstract)
+                throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
+
+            if (request.Type.IsSubclassOf(typeof(MulticastDelegate)))
+                throw new InvalidOperationException($"Cannot auto construct delegates: {request.Type.Name}");
+
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
             {
@@ -43,9 +50,6 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
 
                 return recursiveResolveContext.AddShell(request.Type);
             }
-
-            if (request.Type.IsInterface || request.Type.IsAbstract)
-                throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
 
             var constructor = GetConstructorInfo(request, context);
             if (constructor is null)

@@ -329,5 +329,13 @@ namespace FixtureBuilder.Tests.FixtureTests
 
             Assert.That(result.Parse("text"), Is.Zero);
         }
+
+        [Test]
+        public void DelegateFixture_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<Func<int>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.UseAutoConstructor());
+        }
     }
 }
