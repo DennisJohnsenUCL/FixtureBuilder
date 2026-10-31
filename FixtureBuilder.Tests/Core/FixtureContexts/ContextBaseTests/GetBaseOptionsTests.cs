@@ -17,7 +17,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
                 options,
                 new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object),
                 new Mock<ICompositeTypeLink>().Object,
-                new Mock<IUninitializedProvider>().Object,
+                new Mock<IRootUninitializedProvider>().Object,
                 new Mock<ICompositeValueProvider>().Object,
                 new Mock<IAutoConstructingProvider>().Object,
                 new Mock<IConstructingProvider>().Object);

@@ -62,7 +62,7 @@ namespace FixtureBuilder
 
             var request = new FixtureRequest(typeof(T));
             var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
-            if (instance is NoResult || instance == null)
+            if (instance is NoResult)
                 throw new InvalidOperationException($"Failed to instantiate {typeof(T).Name} uninitialized.");
 
             _fixture = (T)instance;

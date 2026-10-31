@@ -11,7 +11,7 @@ namespace FixtureBuilder.Core.FixtureContexts
     {
         ConverterGraph Converter { get; }
         ICompositeTypeLink TypeLink { get; }
-        IUninitializedProvider UninitializedProvider { get; }
+        IRootUninitializedProvider UninitializedProvider { get; }
         ICompositeValueProvider ValueProvider { get; }
         IAutoConstructingProvider AutoConstructingProvider { get; }
         IConstructingProvider ConstructingProvider { get; }

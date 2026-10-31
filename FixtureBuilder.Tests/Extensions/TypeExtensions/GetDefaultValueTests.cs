@@ -25,7 +25,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(int).GetDefaultValue();
 
-            Assert.That(result, Is.EqualTo(0));
+            Assert.That(result, Is.Zero);
         }
 
         [Test]
@@ -49,8 +49,11 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(StructWithInitializer).GetDefaultValue();
 
-            Assert.That(result, Is.TypeOf<StructWithInitializer>());
-            Assert.That(((StructWithInitializer)result!).Value, Is.EqualTo(0));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf<StructWithInitializer>());
+                Assert.That(((StructWithInitializer)result!).Value, Is.Zero);
+            }
         }
 
         [Test]

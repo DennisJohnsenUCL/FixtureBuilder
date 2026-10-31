@@ -10,7 +10,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// members via an <see cref="IMemberInitializer"/>. Returns <see cref="NoResult"/> if the
     /// type is an interface, abstract, or cannot be created uninitialized.
     /// </summary>
-    internal class RootUninitializedProvider : IUninitializedProvider
+    internal class RootUninitializedProvider : IRootUninitializedProvider
     {
         private readonly IMemberInitializer _memberInitializer;
 
@@ -20,7 +20,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             _memberInitializer = memberInitializer;
         }
 
-        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
+        public object ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentNullException.ThrowIfNull(context);
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
             if (request.Type.IsInterface || request.Type.IsAbstract) return NoResult.Instance;
 
-            object? instance = NoResult.Instance;
+            object instance = NoResult.Instance;
             try
             {
                 instance = RuntimeHelpers.GetUninitializedObject(request.Type);

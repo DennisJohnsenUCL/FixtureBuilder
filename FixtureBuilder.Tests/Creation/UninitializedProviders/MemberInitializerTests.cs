@@ -13,7 +13,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         private readonly Type _rootType = typeof(object);
 
         private Mock<IDataMemberSkipFilter> _skipFilter;
-        private Mock<IUninitializedProvider> _uninitializedProvider;
+        private Mock<ICompositeUninitializedProvider> _uninitializedProvider;
         private Mock<IFixtureContext> _context;
         private RecursiveResolveContext _recursiveResolveContext;
         private MemberInitializer _sut;
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void SetUp()
         {
             _skipFilter = new Mock<IDataMemberSkipFilter>();
-            _uninitializedProvider = new Mock<IUninitializedProvider>();
+            _uninitializedProvider = new Mock<ICompositeUninitializedProvider>();
             _context = new Mock<IFixtureContext>();
             _context.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
             _sut = new MemberInitializer(_skipFilter.Object, _uninitializedProvider.Object);

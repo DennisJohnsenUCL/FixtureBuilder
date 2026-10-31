@@ -13,7 +13,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         FixtureOptions options,
         ConverterGraph converter,
         ICompositeTypeLink typeLink,
-        IUninitializedProvider uninitializedProvider,
+        IRootUninitializedProvider uninitializedProvider,
         ICompositeValueProvider valueProvider,
         IAutoConstructingProvider autoConstructingProvider,
         IConstructingProvider constructingProvider) : ContextBase
@@ -21,7 +21,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public override FixtureOptions Options { protected get; set; } = options;
         public override ConverterGraph Converter { get; } = converter;
         public override ICompositeTypeLink TypeLink { get; } = typeLink;
-        public override IUninitializedProvider UninitializedProvider { get; } = uninitializedProvider;
+        public override IRootUninitializedProvider UninitializedProvider { get; } = uninitializedProvider;
         public override ICompositeValueProvider ValueProvider { get; } = valueProvider;
         public override IAutoConstructingProvider AutoConstructingProvider { get; } = autoConstructingProvider;
         public override IConstructingProvider ConstructingProvider { get; } = constructingProvider;

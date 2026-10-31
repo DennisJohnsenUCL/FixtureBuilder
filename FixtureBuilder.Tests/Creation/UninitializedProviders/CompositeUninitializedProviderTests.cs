@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
     {
         private Mock<IFixtureContext> _contextMock;
         private Mock<ICompositeValueProvider> _valueProviderMock;
-        private Mock<IUninitializedProvider> _uninitializedProviderMock;
+        private Mock<IRootUninitializedProvider> _uninitializedProviderMock;
         private DefaultBclTypeProvider _defaultBclTypeProvider;
         private RecursiveResolveContext _recursiveResolveContext;
         private FixtureRequest _request;
@@ -21,7 +21,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void SetUp()
         {
             _valueProviderMock = new Mock<ICompositeValueProvider>();
-            _uninitializedProviderMock = new Mock<IUninitializedProvider>();
+            _uninitializedProviderMock = new Mock<IRootUninitializedProvider>();
             _contextMock = new Mock<IFixtureContext>();
             _contextMock.Setup(c => c.ValueProvider).Returns(_valueProviderMock.Object);
             _contextMock.Setup(c => c.UninitializedProvider).Returns(_uninitializedProviderMock.Object);

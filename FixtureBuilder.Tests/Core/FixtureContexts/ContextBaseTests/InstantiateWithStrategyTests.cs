@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
     {
         private Mock<IAutoConstructingProvider> _autoConstructingMock;
         private Mock<IConstructingProvider> _constructingMock;
-        private Mock<IUninitializedProvider> _uninitializedMock;
+        private Mock<IRootUninitializedProvider> _uninitializedMock;
 
         private TestableContext CreateContext()
         {
@@ -34,7 +34,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         {
             _autoConstructingMock = new Mock<IAutoConstructingProvider>();
             _constructingMock = new Mock<IConstructingProvider>();
-            _uninitializedMock = new Mock<IUninitializedProvider>();
+            _uninitializedMock = new Mock<IRootUninitializedProvider>();
         }
 
         [Test]
@@ -84,18 +84,6 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
                 Assert.That(result, Is.EqualTo(expected));
                 Assert.That(capturedInitMembers, Is.EqualTo(InitializeMembers.All));
             }
-        }
-
-        [Test]
-        public void InstantiateWithStrategy_CreateUninitialized_NullResult_Throws()
-        {
-            var request = new FixtureRequest(typeof(string));
-            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
-                .Returns((object?)null);
-            var context = CreateContext();
-
-            Assert.Throws<InvalidOperationException>(() =>
-                context.InstantiateWithStrategy(request, InstantiationMethod.CreateUninitialized, InitializeMembers.None));
         }
 
         [Test]

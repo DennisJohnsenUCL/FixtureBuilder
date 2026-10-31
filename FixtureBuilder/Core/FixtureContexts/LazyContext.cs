@@ -17,8 +17,8 @@ namespace FixtureBuilder.Core.FixtureContexts
         private readonly Lazy<ICompositeTypeLink> _typeLink;
         public override ICompositeTypeLink TypeLink => _typeLink.Value;
 
-        private readonly Lazy<IUninitializedProvider> _uninitializedProvider;
-        public override IUninitializedProvider UninitializedProvider => _uninitializedProvider.Value;
+        private readonly Lazy<IRootUninitializedProvider> _uninitializedProvider;
+        public override IRootUninitializedProvider UninitializedProvider => _uninitializedProvider.Value;
 
         private readonly Lazy<ICompositeValueProvider> _valueProvider;
         public override ICompositeValueProvider ValueProvider => _valueProvider.Value;
@@ -32,7 +32,7 @@ namespace FixtureBuilder.Core.FixtureContexts
         public LazyContext(FixtureOptions options,
             Func<ConverterGraph> converter,
             Func<ICompositeTypeLink> typeLink,
-            Func<IUninitializedProvider> uninitializedProvider,
+            Func<IRootUninitializedProvider> uninitializedProvider,
             Func<ICompositeValueProvider> valueProvider,
             Func<IAutoConstructingProvider> autoConstructingProvider,
             Func<IConstructingProvider> constructingProvider)

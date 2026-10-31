@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
         private FixtureOptions _options;
         private Func<ConverterGraph> _converterFactory;
         private Func<ICompositeTypeLink> _typeLinkFactory;
-        private Func<IUninitializedProvider> _uninitializedFactory;
+        private Func<IRootUninitializedProvider> _uninitializedFactory;
         private Func<ICompositeValueProvider> _valueProviderFactory;
         private Func<IAutoConstructingProvider> _autoConstructingFactory;
         private Func<IConstructingProvider> _constructingFactory;
@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
             _options = new FixtureOptions();
             _converterFactory = () => new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object);
             _typeLinkFactory = () => new Mock<ICompositeTypeLink>().Object;
-            _uninitializedFactory = () => new Mock<IUninitializedProvider>().Object;
+            _uninitializedFactory = () => new Mock<IRootUninitializedProvider>().Object;
             _valueProviderFactory = () => new Mock<ICompositeValueProvider>().Object;
             _autoConstructingFactory = () => new Mock<IAutoConstructingProvider>().Object;
             _constructingFactory = () => new Mock<IConstructingProvider>().Object;
@@ -88,7 +88,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
                 _options,
                 () => { converterCalled = true; return new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object); },
                 () => { typeLinkCalled = true; return Mock.Of<ICompositeTypeLink>(); },
-                () => { uninitializedCalled = true; return Mock.Of<IUninitializedProvider>(); },
+                () => { uninitializedCalled = true; return Mock.Of<IRootUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<ICompositeValueProvider>(); },
                 () => { autoConstructingCalled = true; return Mock.Of<IAutoConstructingProvider>(); },
                 () => { constructingCalled = true; return Mock.Of<IConstructingProvider>(); });

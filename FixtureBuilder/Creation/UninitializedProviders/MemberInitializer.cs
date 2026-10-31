@@ -10,7 +10,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// <summary>
     /// Iterates over an object's data members (properties and fields) and initializes any
     /// that hold their default value by resolving values through an
-    /// <see cref="IUninitializedProvider"/>. Members are discovered via reflection
+    /// <see cref="ICompositeUninitializedProvider"/>. Members are discovered via reflection
     /// using <see cref="Extensions.TypeExtensions.GetDataMembers"/> and filtered through an
     /// <see cref="IDataMemberSkipFilter"/> before initialization. Members the skip filter rejects,
     /// and properties whose getter or setter throws, are left unchanged; the remaining members are still processed.
@@ -18,9 +18,9 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     internal class MemberInitializer : IMemberInitializer
     {
         private readonly IDataMemberSkipFilter _skipFilter;
-        private readonly IUninitializedProvider _uninitializedProvider;
+        private readonly ICompositeUninitializedProvider _uninitializedProvider;
 
-        public MemberInitializer(IDataMemberSkipFilter skipFilter, IUninitializedProvider uninitializedProvider)
+        public MemberInitializer(IDataMemberSkipFilter skipFilter, ICompositeUninitializedProvider uninitializedProvider)
         {
             ArgumentNullException.ThrowIfNull(skipFilter);
             ArgumentNullException.ThrowIfNull(uninitializedProvider);

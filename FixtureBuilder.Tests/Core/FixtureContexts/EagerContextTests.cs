@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
         private FixtureOptions _options;
         private ConverterGraph _converter;
         private Mock<ICompositeTypeLink> _typeLinkMock;
-        private Mock<IUninitializedProvider> _uninitializedMock;
+        private Mock<IRootUninitializedProvider> _uninitializedMock;
         private Mock<ICompositeValueProvider> _valueProviderMock;
         private Mock<IAutoConstructingProvider> _autoConstructingMock;
         private Mock<IConstructingProvider> _constructingMock;
@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
             _options = new FixtureOptions();
             _converter = new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object);
             _typeLinkMock = new Mock<ICompositeTypeLink>();
-            _uninitializedMock = new Mock<IUninitializedProvider>();
+            _uninitializedMock = new Mock<IRootUninitializedProvider>();
             _valueProviderMock = new Mock<ICompositeValueProvider>();
             _autoConstructingMock = new Mock<IAutoConstructingProvider>();
             _constructingMock = new Mock<IConstructingProvider>();

@@ -4,7 +4,7 @@ using FixtureBuilder.Core.FixtureContexts;
 namespace FixtureBuilder.Creation.UninitializedProviders
 {
     /// <summary>
-    /// The <see cref="IUninitializedProvider"/> used by <see cref="MemberInitializer"/> to resolve
+    /// The <see cref="ICompositeUninitializedProvider"/> used by <see cref="MemberInitializer"/> to resolve
     /// member values. Attempts resolution in order:
     /// first via the <see cref="IFixtureContext"/>'s registered providers, then via
     /// <see cref="DefaultBclTypeProvider"/> for <c>System</c>-namespace types, and finally
@@ -12,7 +12,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
     /// Throws an <see cref="InvalidOperationException"/> if none of them produces a value and
     /// <see cref="FixtureOptions.AllowSkipUninitializableMembers"/> is disabled.
     /// </summary>
-    internal class CompositeUninitializedProvider : IUninitializedProvider
+    internal class CompositeUninitializedProvider : ICompositeUninitializedProvider
     {
         private readonly DefaultBclTypeProvider _defaultBclTypeProvider;
 
@@ -23,7 +23,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             _defaultBclTypeProvider = defaultBclTypeProvider;
         }
 
-        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext)
+        public object? ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
         {
             var result = context.ValueProvider.ResolveValue(request, context);
             if (result is not NoResult) return result;

@@ -14,7 +14,7 @@ namespace FixtureBuilder.Tests.Configuration
         private Mock<IFixtureContext> _contextMock = null!;
         private Mock<IAutoConstructingProvider> _autoConstructingMock = null!;
         private Mock<IConstructingProvider> _constructingMock = null!;
-        private Mock<IUninitializedProvider> _uninitializedMock = null!;
+        private Mock<IRootUninitializedProvider> _uninitializedMock = null!;
         private MemberInfo _source = null!;
         private MemberInstantiator<TestClass> _sut = null!;
 
@@ -33,7 +33,7 @@ namespace FixtureBuilder.Tests.Configuration
         {
             _autoConstructingMock = new Mock<IAutoConstructingProvider>();
             _constructingMock = new Mock<IConstructingProvider>();
-            _uninitializedMock = new Mock<IUninitializedProvider>();
+            _uninitializedMock = new Mock<IRootUninitializedProvider>();
 
             _contextMock = new Mock<IFixtureContext>();
             _contextMock.Setup(c => c.AutoConstructingProvider).Returns(_autoConstructingMock.Object);
@@ -223,16 +223,6 @@ namespace FixtureBuilder.Tests.Configuration
             var result = _sut.CreateUninitialized(InitializeMembers.All);
 
             Assert.That(result, Is.SameAs(expected));
-        }
-
-        [Test]
-        public void CreateUninitialized_NullResult_Throws()
-        {
-            _uninitializedMock
-                .Setup(c => c.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), _contextMock.Object))
-                .Returns((object?)null);
-
-            Assert.Throws<InvalidOperationException>(() => _sut.CreateUninitialized());
         }
 
         [Test]
