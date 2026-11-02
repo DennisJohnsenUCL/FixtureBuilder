@@ -1,5 +1,5 @@
 ﻿using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Configuration.ValueConverters.Decorators;
+using FixtureBuilder.Configuration.ValueConverters.Casters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -9,17 +9,23 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
     internal sealed class CompositeConverterTests
     {
         private IFixtureContext _context;
-        private IEnumerableElementCaster _caster;
+        private IEnumerableElementCaster _enumerableCaster;
+        private IDictionaryElementCaster _dictionaryCaster;
 
         [SetUp]
         public void Setup()
         {
             _context = new Mock<IFixtureContext>().Object;
 
-            var caster = new Mock<IEnumerableElementCaster>();
-            caster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+            var enumerableCaster = new Mock<IEnumerableElementCaster>();
+            enumerableCaster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
                 .Returns((TypeRequest _, object v, IFixtureContext _) => v);
-            _caster = caster.Object;
+            _enumerableCaster = enumerableCaster.Object;
+
+            var dictionaryCaster = new Mock<IDictionaryElementCaster>();
+            dictionaryCaster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((TypeRequest _, object v, IFixtureContext _) => v);
+            _dictionaryCaster = dictionaryCaster.Object;
         }
 
         [Test]
@@ -27,14 +33,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var converters = new[] { Mock.Of<IValueConverter>(), Mock.Of<IValueConverter>() };
 
-            Assert.DoesNotThrow(() => new CompositeConverter(converters, _caster));
+            Assert.DoesNotThrow(() => new CompositeConverter(converters, _enumerableCaster, _dictionaryCaster));
         }
 
         [Test]
         public void Convert_NoConverters_ReturnsNoResult()
         {
             var converters = Enumerable.Empty<IValueConverter>();
-            var composite = new CompositeConverter(converters, _caster);
+            var composite = new CompositeConverter(converters, _enumerableCaster, _dictionaryCaster);
             var targetType = new TypeRequest(typeof(string), typeof(string));
             var value = "test";
 
@@ -52,7 +58,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var converter2 = new Mock<IValueConverter>();
             converter2.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(NoResult.Instance);
 
-            var composite = new CompositeConverter([converter1.Object, converter2.Object], _caster);
+            var composite = new CompositeConverter([converter1.Object, converter2.Object], _enumerableCaster, _dictionaryCaster);
             var targetType = new TypeRequest(typeof(string), typeof(string));
             var value = "test";
 
@@ -73,7 +79,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             var converter2 = new Mock<IValueConverter>();
 
-            var composite = new CompositeConverter([converter1.Object, converter2.Object], _caster);
+            var composite = new CompositeConverter([converter1.Object, converter2.Object], _enumerableCaster, _dictionaryCaster);
 
             var result = composite.Convert(targetType, value, _context);
 
@@ -95,7 +101,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var converter2 = new Mock<IValueConverter>();
             converter2.Setup(x => x.Convert(targetType, value, _context)).Returns(expectedResult);
 
-            var composite = new CompositeConverter([converter1.Object, converter2.Object], _caster);
+            var composite = new CompositeConverter([converter1.Object, converter2.Object], _enumerableCaster, _dictionaryCaster);
 
             var result = composite.Convert(targetType, value, _context);
 
@@ -120,7 +126,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var converter3 = new Mock<IValueConverter>();
             converter3.Setup(x => x.Convert(targetType, value, _context)).Returns("should not reach");
 
-            var composite = new CompositeConverter([converter1.Object, converter2.Object, converter3.Object], _caster);
+            var composite = new CompositeConverter([converter1.Object, converter2.Object, converter3.Object], _enumerableCaster, _dictionaryCaster);
 
             var result = composite.Convert(targetType, value, _context);
 
@@ -129,7 +135,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         }
 
         [Test]
-        public void Convert_PassesCastValueToRootAndOtherConverters()
+        public void Convert_PassesEnumerableCastValueToRootAndOtherConverters()
         {
             var targetType = new TypeRequest(typeof(List<long>), typeof(List<long>));
             var value = new List<int> { 1, 2, 3 };
@@ -144,7 +150,34 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var converter = new Mock<IValueConverter>();
             converter.Setup(x => x.Convert(targetType, castValue, _context)).Returns(castValue);
 
-            var sut = new CompositeConverter([converter.Object], caster.Object);
+            var sut = new CompositeConverter([converter.Object], caster.Object, _dictionaryCaster);
+            sut.AddRootConverter(rootConverter.Object);
+
+            var result = sut.Convert(targetType, value, _context);
+
+            Assert.That(result, Is.SameAs(castValue));
+            caster.Verify(x => x.Cast(targetType, value, _context), Times.Once);
+            rootConverter.Verify(x => x.Convert(targetType, castValue, _context), Times.Once);
+            converter.Verify(x => x.Convert(targetType, castValue, _context), Times.Once);
+        }
+
+        [Test]
+        public void Convert_PassesDictionaryCastValueToRootAndOtherConverters()
+        {
+            var targetType = new TypeRequest(typeof(Dictionary<string, long>), typeof(Dictionary<string, long>));
+            var value = new Dictionary<string, int> { { "one", 1 } };
+            var castValue = new Dictionary<string, long> { { "one", 1L } };
+
+            var caster = new Mock<IDictionaryElementCaster>();
+            caster.Setup(x => x.Cast(targetType, value, _context)).Returns(castValue);
+
+            var rootConverter = new Mock<IValueConverter>();
+            rootConverter.Setup(x => x.Convert(targetType, castValue, _context)).Returns(NoResult.Instance);
+
+            var converter = new Mock<IValueConverter>();
+            converter.Setup(x => x.Convert(targetType, castValue, _context)).Returns(castValue);
+
+            var sut = new CompositeConverter([converter.Object], _enumerableCaster, caster.Object);
             sut.AddRootConverter(rootConverter.Object);
 
             var result = sut.Convert(targetType, value, _context);
@@ -165,7 +198,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var addedConverter = new Mock<IValueConverter>();
             addedConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(expected);
 
-            var sut = new CompositeConverter([], _caster);
+            var sut = new CompositeConverter([], _enumerableCaster, _dictionaryCaster);
             sut.AddConverter(addedConverter.Object);
 
             var result = sut.Convert(targetType, value, _context);
@@ -187,7 +220,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var addedConverter = new Mock<IValueConverter>();
             addedConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(addedResult);
 
-            var sut = new CompositeConverter([originalConverter.Object], _caster);
+            var sut = new CompositeConverter([originalConverter.Object], _enumerableCaster, _dictionaryCaster);
             sut.AddConverter(addedConverter.Object);
 
             var result = sut.Convert(targetType, value, _context);
@@ -209,7 +242,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var addedConverter = new Mock<IValueConverter>();
             addedConverter.Setup(x => x.Convert(targetType, value, _context)).Returns("from-added");
 
-            var sut = new CompositeConverter([], _caster);
+            var sut = new CompositeConverter([], _enumerableCaster, _dictionaryCaster);
             sut.AddRootConverter(rootConverter.Object);
             sut.AddConverter(addedConverter.Object);
 
@@ -232,7 +265,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var laterRootConverter = new Mock<IValueConverter>();
             laterRootConverter.Setup(x => x.Convert(targetType, value, _context)).Returns(laterResult);
 
-            var sut = new CompositeConverter([], _caster);
+            var sut = new CompositeConverter([], _enumerableCaster, _dictionaryCaster);
             sut.AddRootConverter(earlierRootConverter.Object);
             sut.AddRootConverter(laterRootConverter.Object);
 

@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using FixtureBuilder.Configuration.ValueConverters;
-using FixtureBuilder.Configuration.ValueConverters.Decorators;
+using FixtureBuilder.Configuration.ValueConverters.Casters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
 
-namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
+namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
 {
     internal sealed class EnumerableElementCasterTests
     {

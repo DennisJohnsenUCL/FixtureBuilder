@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
+﻿using FixtureBuilder.Configuration.ValueConverters.Casters;
+using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
 using FixtureBuilder.Configuration.ValueConverters.Converters;
 using FixtureBuilder.Configuration.ValueConverters.Decorators;
 using FixtureBuilder.Configuration.ValueConverters.DictionaryConverters;
@@ -24,11 +25,10 @@ namespace FixtureBuilder.Configuration.ValueConverters
                 new NonGenericDictionaryConverter(),
                 new ImplicitConverter()]);
 
-            var composite = new CompositeConverter(converters, new EnumerableElementCaster());
+            var composite = new CompositeConverter(converters, new EnumerableElementCaster(), new DictionaryElementCaster());
 
             var converter = new ValidatingConverter(
-                new TypeLinkingConverter(
-                        new DictionaryElementCastingConverter(composite))) as IValueConverter;
+                new TypeLinkingConverter(composite)) as IValueConverter;
 
             var graph = new ConverterGraph(converter, composite);
 

@@ -3,7 +3,7 @@ using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
-namespace FixtureBuilder.Configuration.ValueConverters.Decorators
+namespace FixtureBuilder.Configuration.ValueConverters.Casters
 {
     internal class EnumerableElementCaster : IEnumerableElementCaster
     {
@@ -11,7 +11,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
         {
             var target = request.Type;
             if (value is IEnumerable enumerable
-                && target.GetEnumerableElementType() is Type targetElementType
+                && target.GetEnumerableElementType() is { } targetElementType
                 && value.GetType().GetEnumerableElementType() != targetElementType
                 && target != typeof(string)
                 && !target.IsArray
@@ -31,23 +31,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
 
             foreach (var item in values)
             {
-                if (item == null)
-                {
-                    list.Add(null);
-                }
-                else if (elementType.IsAssignableFrom(item.GetType()))
-                {
-                    list.Add(item);
-                }
-                else
-                {
-                    var request = new TypeRequest(elementType, rootType);
-                    var converted = context.Converter.Root.Convert(request, item, context);
-                    if (converted is NoResult)
-                        throw new InvalidCastException(
-                            $"Cannot convert element of type {item.GetType().Name} to {elementType.Name}.");
-                    list.Add(converted);
-                }
+                list.Add(ElementConverter.Convert(item, elementType, rootType, context));
             }
 
             return list;

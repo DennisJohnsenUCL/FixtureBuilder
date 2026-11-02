@@ -1,4 +1,4 @@
-﻿using FixtureBuilder.Configuration.ValueConverters.Decorators;
+﻿using FixtureBuilder.Configuration.ValueConverters.Casters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
@@ -15,17 +15,20 @@ namespace FixtureBuilder.Configuration.ValueConverters
         private readonly List<IValueConverter> _converters;
         private readonly List<IValueConverter> _rootConverters;
         private readonly IEnumerableElementCaster _enumerableElementCaster;
+        private readonly IDictionaryElementCaster _dictionaryElementCaster;
 
-        public CompositeConverter(IEnumerable<IValueConverter> converters, IEnumerableElementCaster enumerableElementCaster)
+        public CompositeConverter(IEnumerable<IValueConverter> converters, IEnumerableElementCaster enumerableElementCaster, IDictionaryElementCaster dictionaryElementCaster)
         {
             _converters = [.. converters];
             _rootConverters = [];
             _enumerableElementCaster = enumerableElementCaster;
+            _dictionaryElementCaster = dictionaryElementCaster;
         }
 
         public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             value = _enumerableElementCaster.Cast(request, value, context);
+            value = _dictionaryElementCaster.Cast(request, value, context);
 
             foreach (var converter in _rootConverters.Concat(_converters))
             {

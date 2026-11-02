@@ -5,20 +5,11 @@ using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
-namespace FixtureBuilder.Configuration.ValueConverters.Decorators
+namespace FixtureBuilder.Configuration.ValueConverters.Casters
 {
-    internal class DictionaryElementCastingConverter : IValueConverter
+    internal class DictionaryElementCaster : IDictionaryElementCaster
     {
-        private readonly IValueConverter _inner;
-
-        public DictionaryElementCastingConverter(IValueConverter inner)
-        {
-            ArgumentNullException.ThrowIfNull(inner);
-
-            _inner = inner;
-        }
-
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object Cast(TypeRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (target.IsDictionary()
@@ -31,9 +22,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
 
                 var castDictionary = CastDictionaryElements(targetKeyType!, targetValueType!, (IEnumerable)value, request.RootType, context);
 
-                return _inner.Convert(request, castDictionary, context);
+                return castDictionary;
             }
-            return _inner.Convert(request, value, context);
+            return value;
         }
 
         private static IEnumerable CastDictionaryElements(Type fieldKeyType, Type fieldValueType, IEnumerable values, Type rootType, IFixtureContext context)
@@ -46,8 +37,8 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 getter ??= MakeKeyValueGetter(item.GetType());
                 var (key, value) = getter(item);
 
-                key = ConvertElement(key, fieldKeyType, rootType, context);
-                value = ConvertElement(value, fieldValueType, rootType, context);
+                key = ElementConverter.Convert(key, fieldKeyType, rootType, context);
+                value = ElementConverter.Convert(value, fieldValueType, rootType, context);
 
                 try
                 {
@@ -56,19 +47,6 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
                 catch (ArgumentException ex) { throw new InvalidCastException(ex.Message); }
             }
             return dict;
-        }
-
-        private static object? ConvertElement(object? item, Type targetType, Type rootType, IFixtureContext context)
-        {
-            if (item == null) return null;
-            if (targetType.IsAssignableFrom(item.GetType())) return item;
-
-            var request = new TypeRequest(targetType, rootType);
-            var converted = context.Converter.Root.Convert(request, item, context);
-            if (converted is NoResult)
-                throw new InvalidCastException(
-                    $"Cannot convert element of type {item.GetType().Name} to {targetType.Name}.");
-            return converted;
         }
 
         private static Func<object, (object Key, object Value)> MakeKeyValueGetter(Type pairType)
