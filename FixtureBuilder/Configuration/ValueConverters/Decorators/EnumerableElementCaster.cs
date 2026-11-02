@@ -5,18 +5,9 @@ using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Configuration.ValueConverters.Decorators
 {
-    internal class EnumerableElementCastingConverter : IValueConverter
+    internal class EnumerableElementCaster : IEnumerableElementCaster
     {
-        private readonly IValueConverter _inner;
-
-        public EnumerableElementCastingConverter(IValueConverter inner)
-        {
-            ArgumentNullException.ThrowIfNull(inner);
-
-            _inner = inner;
-        }
-
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object Cast(TypeRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (value is IEnumerable enumerable
@@ -28,9 +19,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.Decorators
             {
                 var typedList = CastElements(enumerable, targetElementType, request.RootType, context);
 
-                return _inner.Convert(request, typedList, context);
+                return typedList;
             }
-            return _inner.Convert(request, value, context);
+            return value;
         }
 
         private static IEnumerable CastElements(IEnumerable values, Type elementType, Type rootType, IFixtureContext context)

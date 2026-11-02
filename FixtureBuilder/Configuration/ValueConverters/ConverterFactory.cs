@@ -24,12 +24,11 @@ namespace FixtureBuilder.Configuration.ValueConverters
                 new NonGenericDictionaryConverter(),
                 new ImplicitConverter()]);
 
-            var composite = new CompositeConverter(converters);
+            var composite = new CompositeConverter(converters, new EnumerableElementCaster());
 
             var converter = new ValidatingConverter(
                 new TypeLinkingConverter(
-                    new EnumerableElementCastingConverter(
-                        new DictionaryElementCastingConverter(composite)))) as IValueConverter;
+                        new DictionaryElementCastingConverter(composite))) as IValueConverter;
 
             var graph = new ConverterGraph(converter, composite);
 

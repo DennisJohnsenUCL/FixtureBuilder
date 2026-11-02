@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Core;
+﻿using FixtureBuilder.Configuration.ValueConverters.Decorators;
+using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Configuration.ValueConverters
@@ -13,17 +14,19 @@ namespace FixtureBuilder.Configuration.ValueConverters
     {
         private readonly List<IValueConverter> _converters;
         private readonly List<IValueConverter> _rootConverters;
+        private readonly IEnumerableElementCaster _enumerableElementCaster;
 
-        public CompositeConverter(IEnumerable<IValueConverter> converters)
+        public CompositeConverter(IEnumerable<IValueConverter> converters, IEnumerableElementCaster enumerableElementCaster)
         {
-            ArgumentNullException.ThrowIfNull(converters);
-
             _converters = [.. converters];
             _rootConverters = [];
+            _enumerableElementCaster = enumerableElementCaster;
         }
 
         public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
+            value = _enumerableElementCaster.Cast(request, value, context);
+
             foreach (var converter in _rootConverters.Concat(_converters))
             {
                 var result = converter.Convert(request, value, context);
