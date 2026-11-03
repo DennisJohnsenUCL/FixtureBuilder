@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
 {
     internal class TestableContext(
         FixtureOptions options,
-        ConverterGraph converter,
+        ICompositeConverter converter,
         ICompositeTypeLink typeLink,
         IRootUninitializedProvider uninitializedProvider,
         ICompositeValueProvider valueProvider,
@@ -19,7 +19,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         IConstructingProvider constructingProvider) : ContextBase
     {
         public override FixtureOptions Options { protected get; set; } = options;
-        public override ConverterGraph Converter { get; } = converter;
+        public override ICompositeConverter Converter { get; } = converter;
         public override ICompositeTypeLink TypeLink { get; } = typeLink;
         public override IRootUninitializedProvider UninitializedProvider { get; } = uninitializedProvider;
         public override ICompositeValueProvider ValueProvider { get; } = valueProvider;

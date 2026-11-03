@@ -11,7 +11,7 @@ namespace FixtureBuilder.Core.FixtureContexts
     {
         public override FixtureOptions Options { protected get; set; }
 
-        public override ConverterGraph Converter { get; }
+        public override ICompositeConverter Converter { get; }
         public override ICompositeTypeLink TypeLink { get; }
         public override IRootUninitializedProvider UninitializedProvider { get; }
         public override ICompositeValueProvider ValueProvider { get; }
@@ -19,21 +19,13 @@ namespace FixtureBuilder.Core.FixtureContexts
         public override IConstructingProvider ConstructingProvider { get; }
 
         public EagerContext(FixtureOptions options,
-            ConverterGraph converter,
+            ICompositeConverter converter,
             ICompositeTypeLink typeLink,
             IRootUninitializedProvider uninitializedProvider,
             ICompositeValueProvider valueProvider,
             IAutoConstructingProvider autoConstructingProvider,
             IConstructingProvider constructingProvider)
         {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(converter);
-            ArgumentNullException.ThrowIfNull(typeLink);
-            ArgumentNullException.ThrowIfNull(uninitializedProvider);
-            ArgumentNullException.ThrowIfNull(valueProvider);
-            ArgumentNullException.ThrowIfNull(autoConstructingProvider);
-            ArgumentNullException.ThrowIfNull(constructingProvider);
-
             Options = options;
             Converter = converter;
             TypeLink = typeLink;

@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         {
             return new TestableContext(
                 new FixtureOptions(),
-                new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object),
+                new Mock<ICompositeConverter>().Object,
                 new Mock<ICompositeTypeLink>().Object,
                 new Mock<IRootUninitializedProvider>().Object,
                 new Mock<ICompositeValueProvider>().Object,

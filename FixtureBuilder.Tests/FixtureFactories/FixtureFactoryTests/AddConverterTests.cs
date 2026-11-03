@@ -21,7 +21,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             var fixture = factory.New<TestClass>();
             var context = TestHelper.GetContext(fixture);
-            var result = context.Converter.Root.Convert(request, value, context);
+            var result = context.Converter.Convert(request, value, target, context);
 
             Assert.That(result, Is.EqualTo(expected));
         }

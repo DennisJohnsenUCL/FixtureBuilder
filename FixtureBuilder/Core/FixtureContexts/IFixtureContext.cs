@@ -9,7 +9,7 @@ namespace FixtureBuilder.Core.FixtureContexts
 {
     internal interface IFixtureContext : IOptionsContext
     {
-        ConverterGraph Converter { get; }
+        ICompositeConverter Converter { get; }
         ICompositeTypeLink TypeLink { get; }
         IRootUninitializedProvider UninitializedProvider { get; }
         ICompositeValueProvider ValueProvider { get; }

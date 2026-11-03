@@ -136,8 +136,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.RootProviderBuilders
         public void AddConverter_AddsAdaptedConverterToContext()
         {
             var compositeMock = new Mock<ICompositeConverter>();
-            var converterGraph = new ConverterGraph(Mock.Of<IValueConverter>(), compositeMock.Object);
-            _contextMock.Setup(c => c.Converter).Returns(converterGraph);
+            _contextMock.Setup(c => c.Converter).Returns(compositeMock.Object);
             var builder = CreateBuilder();
             var converterMock = new Mock<ICustomConverter>();
 

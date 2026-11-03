@@ -137,14 +137,12 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
             var targetType = new TypeRequest(typeof(List<long>), typeof(List<long>));
             var value = new List<int> { 1, 2, 3 };
             var context = new Mock<IFixtureContext>();
-            var rootConverter = new Mock<IValueConverter>();
-            rootConverter.Setup(c => c.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+            var converter = new Mock<ICompositeConverter>();
+            converter.Setup(c => c.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<Type>(), It.IsAny<IFixtureContext>()))
                 .Returns(NoResult.Instance);
 
-            var composite = new Mock<ICompositeConverter>();
-            var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
-
-            context.Setup(c => c.Converter).Returns(converterGraph);
+            context.Setup(c => c.Converter).Returns(converter.Object);
+            context.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
 
             var caster = new EnumerableElementCaster();
 
@@ -152,20 +150,18 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         }
 
         [Test]
-        public void Cast_ElementsNotAssignable_ConvertsViaRoot()
+        public void Cast_ElementsNotAssignable_ConvertsViaContextConverter()
         {
             var targetType = new TypeRequest(typeof(List<long>), typeof(List<long>));
             var value = new List<int> { 1, 2, 3 };
 
-            var rootConverter = new Mock<IValueConverter>();
-            rootConverter.Setup(c => c.Convert(It.Is<TypeRequest>(r => r.Type == typeof(long)), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((TypeRequest r, object v, IFixtureContext c) => Convert.ChangeType(v, r.Type));
-
-            var composite = new Mock<ICompositeConverter>();
-            var converterGraph = new ConverterGraph(rootConverter.Object, composite.Object);
+            var converter = new Mock<ICompositeConverter>();
+            converter.Setup(c => c.Convert(It.Is<TypeRequest>(r => r.Type == typeof(long)), It.IsAny<object>(), It.IsAny<Type>(), It.IsAny<IFixtureContext>()))
+                .Returns((TypeRequest r, object v, Type _, IFixtureContext c) => Convert.ChangeType(v, r.Type));
 
             var context = new Mock<IFixtureContext>();
-            context.Setup(c => c.Converter).Returns(converterGraph);
+            context.Setup(c => c.Converter).Returns(converter.Object);
+            context.Setup(c => c.UnwrapAndLink(It.IsAny<Type>(), It.IsAny<Type>())).Returns((Type type, Type _) => type);
 
             var caster = new EnumerableElementCaster();
 

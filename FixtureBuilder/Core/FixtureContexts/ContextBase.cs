@@ -13,7 +13,7 @@ namespace FixtureBuilder.Core.FixtureContexts
         public abstract FixtureOptions Options { protected get; set; }
         protected readonly Dictionary<Type, FixtureOptions> RootOptions = [];
 
-        public abstract ConverterGraph Converter { get; }
+        public abstract ICompositeConverter Converter { get; }
         public abstract ICompositeTypeLink TypeLink { get; }
         public abstract IRootUninitializedProvider UninitializedProvider { get; }
         public abstract ICompositeValueProvider ValueProvider { get; }

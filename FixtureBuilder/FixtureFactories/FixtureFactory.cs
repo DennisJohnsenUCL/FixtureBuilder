@@ -119,7 +119,7 @@ namespace FixtureBuilder
         public FixtureFactory AddConverter(ICustomConverter converter)
         {
             var adaptedConverter = new CustomConverterAdapter(converter);
-            _context.Converter.Composite.AddConverter(adaptedConverter);
+            _context.Converter.AddConverter(adaptedConverter);
             return this;
         }
 

@@ -30,7 +30,8 @@ namespace FixtureBuilder.FixtureFactories
         /// Registers a custom converter for backing field assignment when the field type differs from the property type.
         /// </summary>
         /// <remarks>
-        /// The converter must return <c>NoResult.Instance</c> for conversions it does not handle. A <c>null</c> return is treated as an explicit null assignment.
+        /// The converter must return <c>NoResult.Instance</c> for conversions it does not handle. A <c>null</c> return is treated as an explicit null assignment, except for a non-nullable value type, where it throws an <see cref="InvalidCastException"/>.
+        /// Returning a value that is not assignable to the field or element type being converted to throws an <see cref="InvalidCastException"/>.
         /// </remarks>
         TReturn AddConverter(ICustomConverter converter);
 

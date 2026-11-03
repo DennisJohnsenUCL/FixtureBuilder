@@ -11,8 +11,8 @@ namespace FixtureBuilder.Core.FixtureContexts
     {
         public override FixtureOptions Options { protected get; set; }
 
-        private readonly Lazy<ConverterGraph> _converter;
-        public override ConverterGraph Converter => _converter.Value;
+        private readonly Lazy<ICompositeConverter> _converter;
+        public override ICompositeConverter Converter => _converter.Value;
 
         private readonly Lazy<ICompositeTypeLink> _typeLink;
         public override ICompositeTypeLink TypeLink => _typeLink.Value;
@@ -30,21 +30,13 @@ namespace FixtureBuilder.Core.FixtureContexts
         public override IConstructingProvider ConstructingProvider => _constructingProvider.Value;
 
         public LazyContext(FixtureOptions options,
-            Func<ConverterGraph> converter,
+            Func<ICompositeConverter> converter,
             Func<ICompositeTypeLink> typeLink,
             Func<IRootUninitializedProvider> uninitializedProvider,
             Func<ICompositeValueProvider> valueProvider,
             Func<IAutoConstructingProvider> autoConstructingProvider,
             Func<IConstructingProvider> constructingProvider)
         {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(converter);
-            ArgumentNullException.ThrowIfNull(typeLink);
-            ArgumentNullException.ThrowIfNull(uninitializedProvider);
-            ArgumentNullException.ThrowIfNull(valueProvider);
-            ArgumentNullException.ThrowIfNull(autoConstructingProvider);
-            ArgumentNullException.ThrowIfNull(constructingProvider);
-
             Options = options;
             _converter = new(converter);
             _typeLink = new(typeLink);

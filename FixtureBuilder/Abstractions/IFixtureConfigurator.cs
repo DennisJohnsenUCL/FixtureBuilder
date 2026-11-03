@@ -82,6 +82,7 @@ namespace FixtureBuilder
         /// The backing field is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
+        /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value);
 
@@ -96,6 +97,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when the backing field name cannot be automatically discovered.
         /// </remarks>
+        /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName);
 
@@ -111,6 +113,7 @@ namespace FixtureBuilder
         /// The backing field is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
+        /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value);
 
@@ -125,6 +128,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when the backing field has a different type from the property and its name cannot be automatically discovered.
         /// </remarks>
+        /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName);
 

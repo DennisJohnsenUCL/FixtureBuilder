@@ -13,65 +13,11 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
     internal sealed class LazyContextTests
     {
         private FixtureOptions _options;
-        private Func<ConverterGraph> _converterFactory;
-        private Func<ICompositeTypeLink> _typeLinkFactory;
-        private Func<IRootUninitializedProvider> _uninitializedFactory;
-        private Func<ICompositeValueProvider> _valueProviderFactory;
-        private Func<IAutoConstructingProvider> _autoConstructingFactory;
-        private Func<IConstructingProvider> _constructingFactory;
 
         [SetUp]
         public void SetUp()
         {
             _options = new FixtureOptions();
-            _converterFactory = () => new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object);
-            _typeLinkFactory = () => new Mock<ICompositeTypeLink>().Object;
-            _uninitializedFactory = () => new Mock<IRootUninitializedProvider>().Object;
-            _valueProviderFactory = () => new Mock<ICompositeValueProvider>().Object;
-            _autoConstructingFactory = () => new Mock<IAutoConstructingProvider>().Object;
-            _constructingFactory = () => new Mock<IConstructingProvider>().Object;
-        }
-
-        [Test]
-        public void Constructor_NullOptions_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(null!, _converterFactory, _typeLinkFactory, _uninitializedFactory, _valueProviderFactory, _autoConstructingFactory, _constructingFactory));
-        }
-
-        [Test]
-        public void Constructor_NullConverter_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(_options, null!, _typeLinkFactory, _uninitializedFactory, _valueProviderFactory, _autoConstructingFactory, _constructingFactory));
-        }
-
-        [Test]
-        public void Constructor_NullTypeLink_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(_options, _converterFactory, null!, _uninitializedFactory, _valueProviderFactory, _autoConstructingFactory, _constructingFactory));
-        }
-
-        [Test]
-        public void Constructor_NullUninitializedProvider_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(_options, _converterFactory, _typeLinkFactory, null!, _valueProviderFactory, _autoConstructingFactory, _constructingFactory));
-        }
-
-        [Test]
-        public void Constructor_NullValueProvider_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(_options, _converterFactory, _typeLinkFactory, _uninitializedFactory, null!, _autoConstructingFactory, _constructingFactory));
-        }
-
-        [Test]
-        public void Constructor_NullAutoConstructingProvider_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(_options, _converterFactory, _typeLinkFactory, _uninitializedFactory, _valueProviderFactory, null!, _constructingFactory));
-        }
-
-        [Test]
-        public void Constructor_NullConstructingProvider_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => new LazyContext(_options, _converterFactory, _typeLinkFactory, _uninitializedFactory, _valueProviderFactory, _autoConstructingFactory, null!));
         }
 
         [Test]
@@ -86,7 +32,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts
 
             _ = new LazyContext(
                 _options,
-                () => { converterCalled = true; return new ConverterGraph(new Mock<IValueConverter>().Object, new Mock<ICompositeConverter>().Object); },
+                () => { converterCalled = true; return Mock.Of<ICompositeConverter>(); },
                 () => { typeLinkCalled = true; return Mock.Of<ICompositeTypeLink>(); },
                 () => { uninitializedCalled = true; return Mock.Of<IRootUninitializedProvider>(); },
                 () => { valueProviderCalled = true; return Mock.Of<ICompositeValueProvider>(); },

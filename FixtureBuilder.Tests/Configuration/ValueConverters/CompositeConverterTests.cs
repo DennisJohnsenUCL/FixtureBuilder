@@ -4,10 +4,14 @@ using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
 
-namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
+namespace FixtureBuilder.Tests.Configuration.ValueConverters
 {
     internal sealed class CompositeConverterTests
     {
+        private interface IFoo { }
+        private class LinkedFoo : IFoo { }
+        private class OtherFoo : IFoo { }
+
         private IFixtureContext _context;
         private IEnumerableElementCaster _enumerableCaster;
         private IDictionaryElementCaster _dictionaryCaster;
@@ -42,9 +46,9 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var converters = Enumerable.Empty<IValueConverter>();
             var composite = new CompositeConverter(converters, _enumerableCaster, _dictionaryCaster);
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
 
-            var result = composite.Convert(targetType, value, _context);
+            var result = composite.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -60,9 +64,9 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object], _enumerableCaster, _dictionaryCaster);
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
 
-            var result = composite.Convert(targetType, value, _context);
+            var result = composite.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -72,7 +76,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var expectedResult = "converted";
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
 
             var converter1 = new Mock<IValueConverter>();
             converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(expectedResult);
@@ -81,7 +85,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object], _enumerableCaster, _dictionaryCaster);
 
-            var result = composite.Convert(targetType, value, _context);
+            var result = composite.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
             converter1.Verify(x => x.Convert(targetType, value, _context), Times.Once);
@@ -93,7 +97,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var expectedResult = "converted";
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
 
             var converter1 = new Mock<IValueConverter>();
             converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(NoResult.Instance);
@@ -103,7 +107,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object], _enumerableCaster, _dictionaryCaster);
 
-            var result = composite.Convert(targetType, value, _context);
+            var result = composite.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(expectedResult));
             converter1.Verify(x => x.Convert(targetType, value, _context), Times.Once);
@@ -115,7 +119,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         {
             var firstResult = "first";
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
 
             var converter1 = new Mock<IValueConverter>();
             converter1.Setup(x => x.Convert(targetType, value, _context)).Returns(NoResult.Instance);
@@ -128,10 +132,67 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
 
             var composite = new CompositeConverter([converter1.Object, converter2.Object, converter3.Object], _enumerableCaster, _dictionaryCaster);
 
-            var result = composite.Convert(targetType, value, _context);
+            var result = composite.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(firstResult));
             converter3.Verify(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+        }
+
+        [Test]
+        public void Convert_ConverterReturnsNullForNullableValueType_ReturnsNull()
+        {
+            var request = new TypeRequest(typeof(int), typeof(int));
+
+            var converter = new Mock<IValueConverter>();
+            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
+
+            var composite = new CompositeConverter([converter.Object], _enumerableCaster, _dictionaryCaster);
+
+            var result = composite.Convert(request, "Any string", typeof(int?), _context);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void Convert_ConverterReturnsNullForNonNullableValueType_Throws()
+        {
+            var request = new TypeRequest(typeof(int), typeof(int));
+
+            var converter = new Mock<IValueConverter>();
+            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns((object?)null);
+
+            var composite = new CompositeConverter([converter.Object], _enumerableCaster, _dictionaryCaster);
+
+            Assert.Throws<InvalidCastException>(() => composite.Convert(request, "Any string", request.Type, _context));
+        }
+
+        [Test]
+        public void Convert_ConverterReturnsWrongType_Throws()
+        {
+            var request = new TypeRequest(typeof(int), typeof(int));
+
+            var converter = new Mock<IValueConverter>();
+            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns("Test string");
+
+            var composite = new CompositeConverter([converter.Object], _enumerableCaster, _dictionaryCaster);
+
+            Assert.Throws<InvalidCastException>(() => composite.Convert(request, "Any string", request.Type, _context));
+        }
+
+        [Test]
+        public void Convert_ResultAssignableToOriginalTypeButNotRequestedType_ReturnsResult()
+        {
+            var request = new TypeRequest(typeof(LinkedFoo), typeof(LinkedFoo));
+            var expected = new OtherFoo();
+
+            var converter = new Mock<IValueConverter>();
+            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(expected);
+
+            var composite = new CompositeConverter([converter.Object], _enumerableCaster, _dictionaryCaster);
+
+            var result = composite.Convert(request, "Any string", typeof(IFoo), _context);
+
+            Assert.That(result, Is.SameAs(expected));
         }
 
         [Test]
@@ -153,7 +214,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var sut = new CompositeConverter([converter.Object], caster.Object, _dictionaryCaster);
             sut.AddRootConverter(rootConverter.Object);
 
-            var result = sut.Convert(targetType, value, _context);
+            var result = sut.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.SameAs(castValue));
             caster.Verify(x => x.Cast(targetType, value, _context), Times.Once);
@@ -180,7 +241,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var sut = new CompositeConverter([converter.Object], _enumerableCaster, caster.Object);
             sut.AddRootConverter(rootConverter.Object);
 
-            var result = sut.Convert(targetType, value, _context);
+            var result = sut.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.SameAs(castValue));
             caster.Verify(x => x.Cast(targetType, value, _context), Times.Once);
@@ -192,7 +253,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void AddConverter_AddedConverterIsUsedByConvert()
         {
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
             var expected = "converted";
 
             var addedConverter = new Mock<IValueConverter>();
@@ -201,7 +262,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var sut = new CompositeConverter([], _enumerableCaster, _dictionaryCaster);
             sut.AddConverter(addedConverter.Object);
 
-            var result = sut.Convert(targetType, value, _context);
+            var result = sut.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -210,7 +271,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void AddConverter_PrependedBeforeExistingConverters()
         {
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
             var addedResult = "from-added";
             var originalResult = "from-original";
 
@@ -223,7 +284,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             var sut = new CompositeConverter([originalConverter.Object], _enumerableCaster, _dictionaryCaster);
             sut.AddConverter(addedConverter.Object);
 
-            var result = sut.Convert(targetType, value, _context);
+            var result = sut.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(addedResult));
             originalConverter.Verify(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
@@ -233,7 +294,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void AddRootConverter_ConvertedBeforeLaterAddedConverters()
         {
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
             var rootResult = "from-root";
 
             var rootConverter = new Mock<IValueConverter>();
@@ -246,7 +307,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             sut.AddRootConverter(rootConverter.Object);
             sut.AddConverter(addedConverter.Object);
 
-            var result = sut.Convert(targetType, value, _context);
+            var result = sut.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(rootResult));
             addedConverter.Verify(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
@@ -256,7 +317,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
         public void AddRootConverter_PrependedBeforeEarlierRootConverters()
         {
             var targetType = new TypeRequest(typeof(string), typeof(string));
-            var value = "test";
+            var value = 5;
             var laterResult = "from-later-root";
 
             var earlierRootConverter = new Mock<IValueConverter>();
@@ -269,7 +330,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Decorators
             sut.AddRootConverter(earlierRootConverter.Object);
             sut.AddRootConverter(laterRootConverter.Object);
 
-            var result = sut.Convert(targetType, value, _context);
+            var result = sut.Convert(targetType, value, targetType.Type, _context);
 
             Assert.That(result, Is.EqualTo(laterResult));
             earlierRootConverter.Verify(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);

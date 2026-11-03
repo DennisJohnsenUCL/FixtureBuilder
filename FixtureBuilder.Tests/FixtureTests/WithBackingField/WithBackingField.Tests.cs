@@ -435,6 +435,18 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(result.Number, Is.EqualTo(converted));
         }
 
+        [Test]
+        public void WideningFieldType_ConverterReturnsWrongType_ThrowsException()
+        {
+            var converter = new Mock<ICustomConverter>();
+            converter.Setup(c => c.Convert(typeof(long), _number)).Returns(_text);
+            var fixture = new FixtureFactory()
+                .AddConverter(converter.Object)
+                .New(new WideningFieldClass());
+
+            Assert.Throws<InvalidCastException>(() => fixture.WithBackingField(t => t.Number, _number));
+        }
+
         class NarrowingFieldClass
         {
             private readonly int _number;

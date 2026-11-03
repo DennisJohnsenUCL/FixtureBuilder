@@ -36,8 +36,9 @@ namespace FixtureBuilder.Configuration
 
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
-                var request = new TypeRequest(fieldType, rootType);
-                var convertedValue = context.Converter.Root.Convert(request, value!, context);
+                var linked = context.UnwrapAndLink(fieldType, rootType);
+                var request = new TypeRequest(linked, rootType);
+                var convertedValue = context.Converter.Convert(request, value!, fieldType, context);
                 if (convertedValue is not NoResult) value = convertedValue;
             }
             try

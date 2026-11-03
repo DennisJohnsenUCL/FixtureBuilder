@@ -1,14 +1,13 @@
 ﻿using FixtureBuilder.Configuration.ValueConverters.Casters;
 using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
 using FixtureBuilder.Configuration.ValueConverters.Converters;
-using FixtureBuilder.Configuration.ValueConverters.Decorators;
 using FixtureBuilder.Configuration.ValueConverters.DictionaryConverters;
 
 namespace FixtureBuilder.Configuration.ValueConverters
 {
     internal class ConverterFactory
     {
-        public static ConverterGraph CreateDefaultConverter()
+        public static ICompositeConverter CreateDefaultConverter()
         {
             var converters = new List<IValueConverter>([
                 new MutableGenericCollectionConverter(),
@@ -27,12 +26,7 @@ namespace FixtureBuilder.Configuration.ValueConverters
 
             var composite = new CompositeConverter(converters, new EnumerableElementCaster(), new DictionaryElementCaster());
 
-            var converter = new ValidatingConverter(
-                new TypeLinkingConverter(composite)) as IValueConverter;
-
-            var graph = new ConverterGraph(converter, composite);
-
-            return graph;
+            return composite;
         }
     }
 }
