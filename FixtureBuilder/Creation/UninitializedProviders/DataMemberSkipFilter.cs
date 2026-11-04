@@ -51,7 +51,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             if (property.PropertyType.IsByRefLike) isInaccessible = true;
 
             if (!property.CanWrite
-                && dataMember.DeclaringType!.GetField(FieldHelper.GetAutoBackingFieldName(property), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public) is null)
+                && FieldHelper.GetAutoBackingField(property) is null)
             {
                 isInaccessible = true;
             }

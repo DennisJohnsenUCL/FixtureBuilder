@@ -143,6 +143,11 @@ namespace FixtureBuilder.Configuration
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
         }
 
+        public static FieldInfo? GetAutoBackingField(PropertyInfo property)
+        {
+            return property.DeclaringType?.GetField(GetAutoBackingFieldName(property), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        }
+
         internal static string GetAutoBackingFieldName(PropertyInfo propertyInfo)
         {
             return $"<{propertyInfo.Name}>k__BackingField";
