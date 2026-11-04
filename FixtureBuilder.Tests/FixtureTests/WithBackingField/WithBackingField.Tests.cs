@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS0649
 #pragma warning disable IDE0044 // Add readonly modifier
 
+using System.Reflection;
 using FixtureBuilder.Core;
 using Moq;
 
@@ -93,6 +94,33 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 
             var field = TestHelper.GetFixture(fixture);
             Assert.That(field.Number, Is.EqualTo(_number));
+        }
+
+        class VirtualAutoPropertyBase
+        {
+            public virtual int Number { get; }
+        }
+        class UnrelatedFieldOverrideClass : VirtualAutoPropertyBase
+        {
+            private int _other;
+            public override int Number => _other;
+        }
+        // _other does not follow the naming conventions and no field name is passed, so the base auto-property's
+        // field is written instead. The getter cannot be inspected, so this cannot be detected.
+        [Test]
+        public void OverriddenPropertyUnrelatedFieldName_WritesBaseAutoPropertyFieldSilently()
+        {
+            var fixture = TestHelper.MakeFixture<UnrelatedFieldOverrideClass>();
+
+            Assert.DoesNotThrow(() => fixture.WithBackingField(t => t.Number, _number));
+
+            var result = TestHelper.GetFixture(fixture);
+            var baseField = typeof(VirtualAutoPropertyBase).GetField("<Number>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(baseField.GetValue(result), Is.EqualTo(_number));
+                Assert.That(result.Number, Is.Not.EqualTo(_number));
+            }
         }
 
         [Test]

@@ -47,6 +47,28 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
             public override int Number => base.Number;
         }
 
+        private class PrivateFieldBase
+        {
+            private readonly int _number = 1;
+            protected int ReadNumber() => _number;
+        }
+
+        private class ReadsPrivateBaseField : PrivateFieldBase
+        {
+            public int Number => ReadNumber();
+        }
+
+        private class CustomPrivateFieldBase
+        {
+            private readonly int _custom = 1;
+            protected int ReadCustom() => _custom;
+        }
+
+        private class ReadsCustomPrivateBaseField : CustomPrivateFieldBase
+        {
+            public int Number => ReadCustom();
+        }
+
         private class HidingDerived : AutoPropTarget
         {
             public new string Name { get; set; } = null!;
@@ -211,6 +233,33 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result?.DeclaringType, Is.EqualTo(typeof(VirtualBase)));
             }
+        }
+
+        // Type.GetField does not return private fields of base types, so these are only found by searching the base types.
+        [Test]
+        public void GetPropertyBackingField_PrivateBaseFieldReadThroughBaseMethod_FindsFieldReadByGetter()
+        {
+            var property = typeof(ReadsPrivateBaseField).GetProperty("Number")!;
+            var instance = new ReadsPrivateBaseField();
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ReadsPrivateBaseField), property, null);
+
+            Assert.That(result, Is.Not.Null);
+            result!.SetValue(instance, 42);
+            Assert.That(property.GetValue(instance), Is.EqualTo(42));
+        }
+
+        [Test]
+        public void GetPropertyBackingField_ExplicitFieldName_PrivateBaseField_FindsFieldReadByGetter()
+        {
+            var property = typeof(ReadsCustomPrivateBaseField).GetProperty("Number")!;
+            var instance = new ReadsCustomPrivateBaseField();
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ReadsCustomPrivateBaseField), property, "_custom");
+
+            Assert.That(result, Is.Not.Null);
+            result!.SetValue(instance, 42);
+            Assert.That(property.GetValue(instance), Is.EqualTo(42));
         }
 
         [Test]
