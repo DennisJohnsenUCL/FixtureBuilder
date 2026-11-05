@@ -313,21 +313,26 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         {
             public Inner Inner { get; } = inner;
         }
+        public class DerivedInner : Inner { }
         [Test]
         public void AutoResolve_UnwrapAndLinkReturnsType_UsesLinkedTypeForRequest()
         {
+            var expected = new DerivedInner();
             var request = new FixtureRequest(typeof(LinkedParam));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-            _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(LinkedParam))).Returns(typeof(Inner));
+            _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(LinkedParam))).Returns(typeof(DerivedInner));
             _valueProviderMock
-                .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(Inner)),
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(NoResult.Instance);
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(DerivedInner)),
                     It.IsAny<IFixtureContext>()))
-                .Returns(new Inner());
+                .Returns(expected);
 
-            _sut.AutoResolve(request, _contextMock.Object);
+            var result = (LinkedParam)_sut.AutoResolve(request, _contextMock.Object);
 
-            _contextMock.Verify(c => c.UnwrapAndLink(typeof(Inner), typeof(LinkedParam)), Times.Once);
+            Assert.That(result.Inner, Is.SameAs(expected));
         }
 
         [Test]

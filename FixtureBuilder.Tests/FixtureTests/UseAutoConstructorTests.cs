@@ -291,6 +291,138 @@ namespace FixtureBuilder.Tests.FixtureTests
             Assert.That(result.Category.Parent, Is.Null);
         }
 
+        class CategoryParentProvider(Category parent) : ICustomProvider
+        {
+            public int Calls { get; private set; }
+
+            public object? ResolveValue(FixtureRequest request)
+            {
+                if (request.Type != typeof(Category) || request.Name != "parent") return NoResult.Instance;
+
+                Calls++;
+                return parent;
+            }
+        }
+        [Test]
+        public void NullableSelfParameter_NullsNotPreferred_ProviderForParameter_UsesProviderValue()
+        {
+            var parent = new Category("parent", null);
+            var factory = new FixtureFactory(new FixtureOptions { PreferNullParameterValues = false })
+                .AddProvider(new CategoryParentProvider(parent));
+
+            var fixture = factory.New<Category>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Parent, Is.SameAs(parent));
+        }
+
+        [Test]
+        public void SelfParameter_ResolvedByProvider_ProviderIsCalledOnce()
+        {
+            var provider = new CategoryParentProvider(new Category("parent", null));
+            var factory = new FixtureFactory(new FixtureOptions { PreferNullParameterValues = false })
+                .AddProvider(provider);
+
+            var fixture = factory.New<Category>()
+                .UseAutoConstructor();
+
+            TestHelper.GetFixture(fixture);
+
+            Assert.That(provider.Calls, Is.EqualTo(1));
+        }
+
+        interface INode { }
+        class Node : INode
+        {
+            public bool UsedLinkedSelfParameterConstructor { get; }
+
+#pragma warning disable IDE0060 // Remove unused parameter
+            public Node(INode? parent) { UsedLinkedSelfParameterConstructor = true; }
+            public Node(string first, string second) { }
+#pragma warning restore IDE0060 // Remove unused parameter
+        }
+        [Test]
+        public void LinkedSelfParameterConstructor_IsChosenAfterOtherConstructors()
+        {
+            var factory = new FixtureFactory()
+                .AddTypeLink<INode, Node>();
+
+            var fixture = factory.New<Node>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.UsedLinkedSelfParameterConstructor, Is.False);
+        }
+
+        class NodeWithDefault : INode
+        {
+            public bool UsedDefaultParameterConstructor { get; }
+
+#pragma warning disable IDE0060 // Remove unused parameter
+            public NodeWithDefault(INode parent) { }
+            public NodeWithDefault(string name, INode? parent = null) { UsedDefaultParameterConstructor = true; }
+#pragma warning restore IDE0060 // Remove unused parameter
+        }
+        [Test]
+        public void LinkedSelfParameter_NotResolved_ConstructorIsSkipped()
+        {
+            var factory = new FixtureFactory()
+                .AddTypeLink<INode, NodeWithDefault>();
+
+            var fixture = factory.New<NodeWithDefault>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.UsedDefaultParameterConstructor, Is.True);
+        }
+
+        class Holder
+        {
+            public Holder? Parent { get; }
+
+#pragma warning disable IDE0060 // Remove unused parameter
+            public Holder(Holder parent) { Parent = parent; }
+            public Holder(string first, string second) { }
+#pragma warning restore IDE0060 // Remove unused parameter
+        }
+        class SpecialHolder() : Holder("first", "second");
+        [Test]
+        public void SelfParameterLinkedToSubtype_IsNotTriedLast()
+        {
+            var factory = new FixtureFactory()
+                .AddTypeLink<Holder, SpecialHolder>();
+
+            var fixture = factory.New<Holder>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Parent, Is.InstanceOf<SpecialHolder>());
+        }
+
+        class Tree(Tree parent)
+        {
+            public Tree Parent { get; } = parent;
+        }
+        class SpecialTree() : Tree(null!);
+        [Test]
+        public void SelfParameterLinkedToSubtype_OnlyConstructor_IsNotSkipped()
+        {
+            var factory = new FixtureFactory()
+                .AddTypeLink<Tree, SpecialTree>();
+
+            var fixture = factory.New<Tree>()
+                .UseAutoConstructor();
+
+            var result = TestHelper.GetFixture(fixture);
+
+            Assert.That(result.Parent, Is.InstanceOf<SpecialTree>());
+        }
+
         class WithAsyncParameters(Task task, Task<int> taskOfInt, ValueTask valueTask, ValueTask<int> valueTaskOfInt)
         {
             public Task Task { get; } = task;

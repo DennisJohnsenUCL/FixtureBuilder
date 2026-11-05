@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Creation.AutoConstructingProviders
 {
@@ -15,9 +14,10 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// <para>
     /// The provider selects the simplest (fewest parameters) constructor available on the requested
     /// type, preferring public constructors over non-public ones unless <see cref="FixtureOptions.PreferSimplestConstructor"/>
-    /// is enabled. Constructors with a parameter of the
-    /// requested type are tried last, and skipped unless that parameter resolves to null or its default value.
-    /// Each constructor parameter is resolved recursively via <see cref="IFixtureContext.ValueProvider"/>.
+    /// is enabled. Constructors with a parameter whose type, after nullable unwrapping and type linking, is the
+    /// requested type are tried last, and skipped unless <see cref="IFixtureContext.ValueProvider"/> resolves that parameter.
+    /// Each constructor parameter is resolved recursively via <see cref="IFixtureContext.ValueProvider"/>,
+    /// and parameters already resolved while choosing the constructor are not resolved again.
     /// </para>
     /// <para>
     /// The following types cannot be auto-constructed and will throw an <see cref="InvalidOperationException"/>:
@@ -51,8 +51,8 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 return recursiveResolveContext.AddShell(request.Type);
             }
 
-            var constructor = GetConstructorInfo(request, context);
-            if (constructor is null)
+            var selectedConstructor = GetConstructor(request, context);
+            if (selectedConstructor is null)
             {
                 if (request.Type.IsValueType
                     && request.Type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -63,8 +63,10 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 throw new InvalidOperationException($"Failed to find a constructor for {request.Type.Name}.");
             }
 
+            var constructor = selectedConstructor.Constructor;
+
             var parameters = constructor.GetParameters();
-            var parameterValues = GetParameterValues(parameters, request.RootType, context, recursiveResolveContext);
+            var parameterValues = GetParameterValues(parameters, request.RootType, selectedConstructor.ResolvedValues, context, recursiveResolveContext);
 
             try
             {
@@ -78,12 +80,14 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             }
         }
 
-        private IEnumerable<object?> GetParameterValues(ParameterInfo[] parameters, Type rootType, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
+        private IEnumerable<object?> GetParameterValues(ParameterInfo[] parameters, Type rootType, IReadOnlyDictionary<int, object?> resolvedValues, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
         {
             return parameters.Select(p =>
             {
-                var type = context.UnwrapAndLink(p.ParameterType, rootType);
-                var request = new FixtureRequest(type, p, rootType);
+                if (resolvedValues.TryGetValue(p.Position, out var value)) return value;
+
+                var linked = context.UnwrapAndLink(p.ParameterType, rootType);
+                var request = new FixtureRequest(linked, p, rootType);
 
                 var result = context.ValueProvider.ResolveValue(request, context);
                 if (result is not NoResult) return result;
@@ -92,45 +96,58 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             });
         }
 
-        private static ConstructorInfo? GetConstructorInfo(FixtureRequest request, IFixtureContext context)
+        private static SelectedConstructor? GetConstructor(FixtureRequest request, IFixtureContext context)
         {
-            var type = request.Type;
             var options = context.OptionsFor(request.RootType);
-            ConstructorInfo? ctor;
+            SelectedConstructor? ctor;
 
             if (options.PreferSimplestConstructor && options.AllowPrivateConstructors)
             {
-                ctor = GetSimplestConstructor(type, options, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                ctor = GetSimplestConstructor(request, context, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             }
             else
             {
-                ctor = GetSimplestConstructor(type, options, BindingFlags.Instance | BindingFlags.Public);
+                ctor = GetSimplestConstructor(request, context, BindingFlags.Instance | BindingFlags.Public);
 
                 if (ctor == null && options.AllowPrivateConstructors)
-                    ctor = GetSimplestConstructor(type, options, BindingFlags.Instance | BindingFlags.NonPublic);
+                    ctor = GetSimplestConstructor(request, context, BindingFlags.Instance | BindingFlags.NonPublic);
             }
 
             return ctor;
         }
 
-        private static ConstructorInfo? GetSimplestConstructor(Type type, FixtureOptions options, BindingFlags bindingAttr)
+        private static SelectedConstructor? GetSimplestConstructor(FixtureRequest request, IFixtureContext context, BindingFlags bindingAttr)
         {
-            var nullsPreferred = options.PreferNullParameterValues;
-            var defaultPreferred = options.PreferDefaultParameterValues;
+            Dictionary<int, object?> resolvedValues = [];
 
-            return type
+            var constructor = request.Type
                 .GetConstructors(bindingAttr)
-                .Where(c => c.GetParameters().All(p =>
-                {
-                    if (p.ParameterType.Unwrap() != type) return true;
-                    var isNullAndNullsPreferred = nullsPreferred && new NullabilityInfoContext().Create(p).WriteState == NullabilityState.Nullable;
-                    var hasDefaultAndDefaultPreferred = defaultPreferred && p.HasDefaultValue;
-
-                    return isNullAndNullsPreferred || hasDefaultAndDefaultPreferred;
-                }))
-                .OrderBy(c => c.GetParameters().Any(p => p.ParameterType.Unwrap() == type))
+                .OrderBy(c => c.GetParameters().Any(p => context.UnwrapAndLink(p.ParameterType, request.RootType) == request.Type))
                 .ThenBy(c => c.GetParameters().Length)
-                .FirstOrDefault();
+                .FirstOrDefault(c => TryResolveSelfParameters(c, request, context, out resolvedValues));
+
+            return constructor is null ? null : new SelectedConstructor(constructor, resolvedValues);
         }
+
+        private static bool TryResolveSelfParameters(ConstructorInfo constructor, FixtureRequest request, IFixtureContext context, out Dictionary<int, object?> resolvedValues)
+        {
+            resolvedValues = [];
+
+            foreach (var parameter in constructor.GetParameters())
+            {
+                var linked = context.UnwrapAndLink(parameter.ParameterType, request.RootType);
+                if (linked != request.Type) continue;
+
+                var parameterRequest = new FixtureRequest(linked, parameter, request.RootType);
+                var value = context.ValueProvider.ResolveValue(parameterRequest, context);
+
+                if (value is NoResult) return false;
+                resolvedValues[parameter.Position] = value;
+            }
+
+            return true;
+        }
+
+        private record SelectedConstructor(ConstructorInfo Constructor, IReadOnlyDictionary<int, object?> ResolvedValues);
     }
 }
