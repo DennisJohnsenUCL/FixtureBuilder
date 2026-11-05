@@ -113,6 +113,23 @@ namespace FixtureBuilder.Extensions
             }
 
             /// <summary>
+            /// Returns the specified type followed by each of its base types, walking up the inheritance chain.
+            /// </summary>
+            /// <returns>
+            /// An <see cref="IEnumerable{Type}"/> starting with <paramref name="type"/> itself, followed by its base types
+            /// in order from most to least derived.
+            /// </returns>
+            public IEnumerable<Type> GetSelfAndBaseTypes()
+            {
+                var currentType = type;
+                while (currentType != null)
+                {
+                    yield return currentType;
+                    currentType = currentType.BaseType;
+                }
+            }
+
+            /// <summary>
             /// Retrieves the element type of a type that implements <see cref="IEnumerable{T}"/>.
             /// </summary>
             /// <returns>

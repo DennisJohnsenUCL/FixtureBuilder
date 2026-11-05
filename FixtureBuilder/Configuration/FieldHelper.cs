@@ -98,26 +98,18 @@ namespace FixtureBuilder.Configuration
             string[] fieldNames = fieldName is not null ? [fieldName] : [GetAutoBackingFieldName(property), .. commonFieldNames];
             var getMethod = property.GetMethod?.GetBaseDefinition();
 
-            var currentType = propertyParentType;
-            while (currentType != null && currentType != typeof(object))
-            {
-                if (currentType.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) is { } declaringProperty
-                    && getMethod == declaringProperty.GetMethod?.GetBaseDefinition())
-                {
-                    break;
-                }
-                currentType = currentType.BaseType;
-            }
+            var declaringType = propertyParentType.GetSelfAndBaseTypes().FirstOrDefault(type =>
+                type.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) is { } declaringProperty
+                    && getMethod == declaringProperty.GetMethod?.GetBaseDefinition());
 
-            if (currentType == null || currentType == typeof(object)) return null;
+            if (declaringType is null) return null;
 
-            while (currentType != null && currentType != typeof(object))
+            foreach (var type in declaringType.GetSelfAndBaseTypes())
             {
-                if (GetField(currentType, fieldNames) is { } fieldInfo)
+                if (GetField(type, fieldNames) is { } fieldInfo)
                 {
                     return fieldInfo;
                 }
-                currentType = currentType.BaseType;
             }
 
             return null;

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Creation
 {
@@ -47,11 +48,9 @@ namespace FixtureBuilder.Creation
             if (shells.Count == 0) return;
             _shells.RemoveAll(x => x.Type == type);
 
-            var currentType = obj.GetType();
-
-            while (currentType != null && currentType != typeof(object))
+            foreach (var declaringType in obj.GetType().GetSelfAndBaseTypes())
             {
-                foreach (var field in currentType.GetFields(
+                foreach (var field in declaringType.GetFields(
                     BindingFlags.Instance |
                     BindingFlags.Public |
                     BindingFlags.NonPublic |
@@ -64,8 +63,6 @@ namespace FixtureBuilder.Creation
                         field.SetValue(shell.Shell, value);
                     }
                 }
-
-                currentType = currentType.BaseType;
             }
         }
     }

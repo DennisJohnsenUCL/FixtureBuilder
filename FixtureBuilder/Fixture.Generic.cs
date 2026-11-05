@@ -162,14 +162,12 @@ namespace FixtureBuilder
 
         private Fixture<T> WithFieldInternal(string fieldName, Type dataMemberType, object? value, object instance)
         {
-            var type = dataMemberType;
             FieldInfo? fieldInfo = null;
 
-            while (type != null && type != typeof(object))
+            foreach (var type in dataMemberType.GetSelfAndBaseTypes())
             {
                 fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 if (fieldInfo is not null) break;
-                type = type.BaseType;
             }
 
             if (fieldInfo is null)
@@ -289,12 +287,11 @@ namespace FixtureBuilder
 
         private static void InvokePrivateInternal(Type parentType, object instance, string methodName, params object?[] args)
         {
-            var currentType = parentType;
-            while (currentType != null && currentType != typeof(object))
+            foreach (var type in parentType.GetSelfAndBaseTypes())
             {
                 try
                 {
-                    currentType.InvokeMember(
+                    type.InvokeMember(
                        methodName,
                        BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly,
                        null,
@@ -302,10 +299,7 @@ namespace FixtureBuilder
                        args);
                     return;
                 }
-                catch (MissingMethodException)
-                {
-                    currentType = currentType.BaseType;
-                }
+                catch (MissingMethodException) { }
                 catch (TargetInvocationException ex)
                 {
                     ExceptionDispatchInfo.Throw(ex.InnerException!);

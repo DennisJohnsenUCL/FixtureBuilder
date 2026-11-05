@@ -30,14 +30,13 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
         public void InitializeMembers(object instance, InitializeMembers initializeMembers, Type rootType, IFixtureContext context, RecursiveResolveContext recursiveResolveContext)
         {
-            var currentType = instance.GetType();
-            var dataMembers = currentType.GetDataMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic).ToList();
-            currentType = currentType.BaseType;
-            while (currentType != null && currentType != typeof(object))
+            var instanceType = instance.GetType();
+            var dataMembers = instanceType.GetDataMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic).ToList();
+
+            foreach (var baseType in instanceType.GetSelfAndBaseTypes().Skip(1))
             {
-                dataMembers.AddRange(currentType.GetDataMembers(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                dataMembers.AddRange(baseType.GetDataMembers(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
                     .Where(m => m.IsFieldInfo ? m.Field.IsPrivate : m.Property.GetAccessors(true).All(a => a.IsPrivate)));
-                currentType = currentType.BaseType;
             }
 
             foreach (var dataMember in dataMembers)
