@@ -10,7 +10,9 @@ namespace FixtureBuilder.Bogus
     /// Choose a construction method to control how the fixture is instantiated, then configure it via the returned <see cref="IBogusFixtureConfigurator{T}"/>.
     /// Inherits from <see cref="IBogusFixtureConfigurator{T}"/> to allow configuration without explicitly choosing a construction method,
     /// using the <see cref="FixtureOptions.DefaultFixtureInstantiationMethod"/> instead if allowed via <see cref="FixtureOptions.AllowImplicitConstruction"/>.
-    /// Construction is deferred until the fixture is built, so exceptions documented on the construction methods are thrown when building.
+    /// Construction is deferred until the fixture is built, so exceptions documented on the construction methods are thrown when building,
+    /// except when a construction method is called more than once, or after any configuration method, <see cref="IBogusFixtureConfigurator{T}.CastTo{TTarget}"/> or a successful build.
+    /// That throws an <see cref="InvalidOperationException"/> immediately.
     /// </summary>
     /// <typeparam name="T">The type of the object to construct. Must be a reference type.</typeparam>
     public interface IBogusFixtureConstructor<T> : IBogusFixtureConfigurator<T> where T : class

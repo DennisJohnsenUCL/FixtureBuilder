@@ -11,6 +11,7 @@ namespace FixtureBuilder.Bogus
 
         private Func<IFixtureConfigurator<T>>? _constructionCommand = null;
         private readonly List<Action<IFixtureConfigurator<T>>> _configurationCommands = [];
+        private bool _built = false;
 
         public Randomizer Random { get => _faker.Random; }
         public string Locale { get => _faker.Locale; }
@@ -61,6 +62,7 @@ namespace FixtureBuilder.Bogus
                 fixtures.Add(fixture.Build());
             }
 
+            _built = true;
             return fixtures;
         }
 
@@ -80,6 +82,12 @@ namespace FixtureBuilder.Bogus
 
         private BogusFixture<T> AddConstruction(Func<IFixtureConstructor<T>, IFixtureConfigurator<T>> func)
         {
+            if (_constructionCommand is not null || _configurationCommands.Count > 0 || _built)
+            {
+                throw new InvalidOperationException(
+                    $"The {typeof(T).Name} Bogus fixture is already constructed. Construction methods can only be called once, before any configuration method or Build.");
+            }
+
             _constructionCommand = () => func(GetFixtureConstructor());
             return this;
         }
@@ -201,6 +209,7 @@ namespace FixtureBuilder.Bogus
                 },
                 instance: _instance as TTarget);
 
+            _built = true;
             return newBogusFixture;
         }
 
