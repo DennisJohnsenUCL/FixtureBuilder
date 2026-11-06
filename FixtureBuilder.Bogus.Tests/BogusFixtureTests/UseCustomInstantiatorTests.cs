@@ -27,7 +27,10 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void UseCustomInstantiator_BuildMultiple_ProducesDifferentValues()
         {
-            var results = Fixture.WithBogus<Person>()
+            var factory = FixtureFactory.WithBogus();
+            factory.Random = new Randomizer(42);
+
+            var results = factory.New<Person>()
                 .UseCustomInstantiator(f => new Person(f.Name.FirstName(), f.Random.Int(18, 65)))
                 .Build(2)
                 .ToList();

@@ -1,4 +1,5 @@
-﻿using FixtureBuilder.Core;
+﻿using Bogus;
+using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfigurationBuilderTests
 {
@@ -37,6 +38,7 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfiguratio
         [Test]
         public void With_Faker_ProducesUniqueValues()
         {
+            _factory.Random = new Randomizer(42);
             _factory.WhenBuilding<ConstructorClass>(b => b.With<string>(f => f.Name.FirstName()));
 
             var result1 = _factory.Build<ConstructorClass>();
@@ -99,6 +101,7 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusRootConfiguratio
         [Test]
         public void WithPropertyOrField_Faker_ProducesUniqueValues()
         {
+            _factory.Random = new Randomizer(42);
             _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
             _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
 

@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
+﻿using Bogus;
+
+namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class FakerConfigurationTests
     {
@@ -41,7 +43,10 @@
         [Test]
         public void With_Faker_BuildMultiple_ProducesDifferentValues()
         {
-            var results = Fixture.WithBogus<SimpleClass>()
+            var factory = FixtureFactory.WithBogus();
+            factory.Random = new Randomizer(42);
+
+            var results = factory.New<SimpleClass>()
                 .With(x => x.Name, f => f.Name.FirstName())
                 .Build(2)
                 .ToList();

@@ -50,7 +50,10 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void Instantiate_WithBogusConstructor_BuildMultiple_ProducesDifferentValues()
         {
-            var results = Fixture.WithBogus<Parent>()
+            var factory = FixtureFactory.WithBogus();
+            factory.Random = new Randomizer(42);
+
+            var results = factory.New<Parent>()
                 .Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()]))
                 .Build(2)
                 .ToList();

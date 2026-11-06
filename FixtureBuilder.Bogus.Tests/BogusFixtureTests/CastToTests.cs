@@ -1,5 +1,7 @@
 ﻿#pragma warning disable CS0649
 
+using Bogus;
+
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class CastToTests
@@ -108,7 +110,10 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void CastTo_BuildMultiple_FakerValuesBeforeCast_AreDifferent()
         {
-            var results = Fixture.WithBogus<Dog>()
+            var factory = FixtureFactory.WithBogus();
+            factory.Random = new Randomizer(42);
+
+            var results = factory.New<Dog>()
                 .With(d => d.Breed, f => f.Random.Word())
                 .CastTo<IAnimal>()
                 .Build(2)
@@ -123,7 +128,10 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void CastTo_BuildMultiple_FakerValuesAfterCast_AreDifferent()
         {
-            var results = Fixture.WithBogus<Dog>()
+            var factory = FixtureFactory.WithBogus();
+            factory.Random = new Randomizer(42);
+
+            var results = factory.New<Dog>()
                 .CastTo<IAnimal>()
                 .WithBackingField(a => a.Name, f => f.Name.FirstName())
                 .Build(2)
@@ -220,7 +228,10 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
         [Test]
         public void CastTo_DoubleCast_BuildMultiple_AllFakerValuesAreFresh()
         {
-            var results = Fixture.WithBogus<Dog>()
+            var factory = FixtureFactory.WithBogus();
+            factory.Random = new Randomizer(42);
+
+            var results = factory.New<Dog>()
                 .With(d => d.Breed, f => f.Random.Word())
                 .CastTo<IAnimal>()
                 .WithBackingField(a => a.Name, f => f.Name.FirstName())
