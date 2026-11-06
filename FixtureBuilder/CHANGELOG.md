@@ -1,3 +1,21 @@
+#### 3.1.0
+
+- Added NoResult.Instance, a shared instance for custom providers and converters to return when they do not handle a request.
+- Deprecated the public NoResult constructor in favor of NoResult.Instance. It will be removed in 4.0.0.
+- FixtureRequest.RequestSource is now non-nullable, as it is always the PropertyInfo, FieldInfo or ParameterInfo the request is for.
+- Custom converters returning a value that is not assignable to the target type now throw an InvalidCastException.
+  - Backing field assignments previously threw an InvalidOperationException saying the value could not be converted.
+- Fixed custom converters returning null for a non-nullable value type silently setting the default value. They now throw an InvalidCastException.
+- Fixed backing field assignment failing when the value can be widened to the field's type, e.g. an int property backed by a long field.
+  - This affected WithBackingField, WithBackingFieldUntyped, and With for properties without a setter.
+- Fixed delegates with a Task or Task<T> return type returning null, which threw when awaited.
+  - They now return a completed task, holding the default value of T for Task<T>.
+- Fixed UseAutoConstructor crashing the process for delegate types, including in .Instantiate. It now throws an InvalidOperationException.
+- Fixed UseAutoConstructor skipping constructors with a parameter of their own type when a registered provider gives a value for that parameter.
+  - Such constructors are still tried last, but are now used whenever the resolution pipeline provides a value for that parameter, not only null or a default value.
+- Fixed UseAutoConstructor checking for parameters of the type being built before applying type links.
+  - A parameter whose type is linked to the type being built, e.g. INode on Node with INode linked to Node, now counts as one of its own type. A parameter of its own type linked to a subtype no longer does.
+
 #### 3.0.1
 
 - Deprecated the FixtureRequest.Type setter, as requests should not be modified. It will be removed in 4.0.0.
