@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_DateTime_ReturnsDateTimeInstance()
         {
-            var request = new FixtureRequest(typeof(DateTime));
+            var request = TestHelper.MakeRequest(typeof(DateTime));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_DateTime_ReturnsUtcNow()
         {
-            var request = new FixtureRequest(typeof(DateTime));
+            var request = TestHelper.MakeRequest(typeof(DateTime));
             var before = DateTime.UtcNow;
 
             var result = (DateTime)_sut.ResolveValue(request, _contextMock.Object)!;
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_String_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_DateTimeOffset_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(DateTimeOffset));
+            var request = TestHelper.MakeRequest(typeof(DateTimeOffset));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_NullableDateTime_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(DateTime?));
+            var request = TestHelper.MakeRequest(typeof(DateTime?));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

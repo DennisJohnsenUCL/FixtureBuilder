@@ -31,37 +31,13 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
             public string Value { get; } = value;
         }
 
-        #region Null guard tests
-
-        [Test]
-        public void AutoResolve_NullRequest_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() =>
-                _sut.AutoResolve(null!, _contextMock.Object));
-        }
-
-        public class Parameterless
-        {
-            public bool Constructed { get; } = true;
-        }
-        [Test]
-        public void AutoResolve_NullContext_ThrowsArgumentNullException()
-        {
-            var request = new FixtureRequest(typeof(Parameterless));
-
-            Assert.Throws<ArgumentNullException>(() =>
-                _sut.AutoResolve(request, null!));
-        }
-
-        #endregion
-
         #region Interface and abstract type tests
 
         public interface IInterfaceType { }
         [Test]
         public void AutoResolve_InterfaceType_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(IInterfaceType));
+            var request = new TypeRequest(typeof(IInterfaceType), typeof(IInterfaceType));
 
             var ex = Assert.Throws<InvalidOperationException>(() =>
                 _sut.AutoResolve(request, _contextMock.Object));
@@ -73,7 +49,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_AbstractType_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(AbstractType));
+            var request = new TypeRequest(typeof(AbstractType), typeof(AbstractType));
 
             var ex = Assert.Throws<InvalidOperationException>(() =>
                 _sut.AutoResolve(request, _contextMock.Object));
@@ -88,7 +64,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_SingleParameter_ResolvesViaContext()
         {
-            var request = new FixtureRequest(typeof(SingleParam));
+            var request = new TypeRequest(typeof(SingleParam), typeof(SingleParam));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -109,7 +85,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_MultipleParameters_ResolvesEachViaContext()
         {
-            var request = new FixtureRequest(typeof(TwoParams));
+            var request = new TypeRequest(typeof(TwoParams), typeof(TwoParams));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(string), typeof(TwoParams))).Returns(typeof(string));
@@ -145,7 +121,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_MultiplePublicConstructors_SelectsSimplest()
         {
-            var request = new FixtureRequest(typeof(MultipleConstructors));
+            var request = new TypeRequest(typeof(MultipleConstructors), typeof(MultipleConstructors));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -165,7 +141,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_AllowPrivate_PreferSimplest_SelectsPrivateCtor()
         {
-            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var request = new TypeRequest(typeof(PublicAndPrivateCtors), typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -177,7 +153,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_AllowPrivate_DoNotPreferSimplest_SelectsPublicCtor()
         {
-            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var request = new TypeRequest(typeof(PublicAndPrivateCtors), typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = true, PreferSimplestConstructor = false };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -192,7 +168,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_DoNotAllowPrivate_PreferSimplest_SelectsPublicCtor()
         {
-            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var request = new TypeRequest(typeof(PublicAndPrivateCtors), typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -207,7 +183,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_DoNotAllowPrivate_DoNotPreferSimplest_SelectsPublicCtor()
         {
-            var request = new FixtureRequest(typeof(PublicAndPrivateCtors));
+            var request = new TypeRequest(typeof(PublicAndPrivateCtors), typeof(PublicAndPrivateCtors));
             var options = new FixtureOptions { AllowPrivateConstructors = false, PreferSimplestConstructor = false };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -228,7 +204,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_OnlyPrivate_DoNotAllowPrivate_ThrowsException()
         {
-            var request = new FixtureRequest(typeof(OnlyPrivateCtor));
+            var request = new TypeRequest(typeof(OnlyPrivateCtor), typeof(OnlyPrivateCtor));
             var options = new FixtureOptions { AllowPrivateConstructors = false };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -238,7 +214,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_OnlyPrivate_AllowPrivate_SelectsPrivateCtor()
         {
-            var request = new FixtureRequest(typeof(OnlyPrivateCtor));
+            var request = new TypeRequest(typeof(OnlyPrivateCtor), typeof(OnlyPrivateCtor));
             var options = new FixtureOptions { AllowPrivateConstructors = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -254,7 +230,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_StructWithoutConstructors_DoNotAllowPrivate_ReturnsZeroedStruct()
         {
-            var request = new FixtureRequest(typeof(NoCtorStruct));
+            var request = new TypeRequest(typeof(NoCtorStruct), typeof(NoCtorStruct));
             var options = new FixtureOptions { AllowPrivateConstructors = false };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
 
@@ -276,7 +252,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_ParameterReturnsNoResult_FallsBackToAutoResolve()
         {
-            var request = new FixtureRequest(typeof(Outer));
+            var request = new TypeRequest(typeof(Outer), typeof(Outer));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(Outer))).Returns(typeof(Inner));
@@ -293,7 +269,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         public void AutoResolve_ParameterReturnsValue_DoesNotAutoResolveParameter()
         {
             var expected = new Inner();
-            var request = new FixtureRequest(typeof(Outer));
+            var request = new TypeRequest(typeof(Outer), typeof(Outer));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -318,7 +294,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         public void AutoResolve_UnwrapAndLinkReturnsType_UsesLinkedTypeForRequest()
         {
             var expected = new DerivedInner();
-            var request = new FixtureRequest(typeof(LinkedParam));
+            var request = new TypeRequest(typeof(LinkedParam), typeof(LinkedParam));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(LinkedParam))).Returns(typeof(DerivedInner));
@@ -336,9 +312,25 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         }
 
         [Test]
+        public void AutoResolve_ParameterReturnsNoResult_AutoResolvesLinkedType()
+        {
+            var request = new TypeRequest(typeof(LinkedParam), typeof(LinkedParam));
+            var options = new FixtureOptions();
+            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(LinkedParam))).Returns(typeof(DerivedInner));
+            _valueProviderMock
+                .Setup(c => c.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(NoResult.Instance);
+
+            var result = (LinkedParam)_sut.AutoResolve(request, _contextMock.Object);
+
+            Assert.That(result.Inner, Is.TypeOf<DerivedInner>());
+        }
+
+        [Test]
         public void AutoResolve_UnwrapAndLinkReturnsOriginalType_UsesOriginalParameterType()
         {
-            var request = new FixtureRequest(typeof(LinkedParam));
+            var request = new TypeRequest(typeof(LinkedParam), typeof(LinkedParam));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _contextMock.Setup(c => c.UnwrapAndLink(typeof(Inner), typeof(LinkedParam))).Returns(typeof(Inner));
@@ -362,7 +354,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_CircularDependency_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(CircularA));
+            var request = new TypeRequest(typeof(CircularA), typeof(CircularA));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -377,7 +369,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_SelfReferencingType_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(SelfReferencing));
+            var request = new TypeRequest(typeof(SelfReferencing), typeof(SelfReferencing));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -391,7 +383,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_CircularDependency_ResolvesWithShell()
         {
-            var request = new FixtureRequest(typeof(CircularA));
+            var request = new TypeRequest(typeof(CircularA), typeof(CircularA));
             var options = new FixtureOptions { AllowResolveCircularDependencies = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -424,7 +416,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_ThreeWayCircularDependency_ResolvesWithShell()
         {
-            var request = new FixtureRequest(typeof(TriA));
+            var request = new TypeRequest(typeof(TriA), typeof(TriA));
             var options = new FixtureOptions { AllowResolveCircularDependencies = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -462,7 +454,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_TwoBranchesCyclingToSameAncestor_ResolvesWithShell()
         {
-            var request = new FixtureRequest(typeof(BranchRoot));
+            var request = new TypeRequest(typeof(BranchRoot), typeof(BranchRoot));
             var options = new FixtureOptions { AllowResolveCircularDependencies = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -499,7 +491,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_CircularDependencyWithBaseClass_ShellReceivesBaseClassPrivateFields()
         {
-            var request = new FixtureRequest(typeof(DerivedA));
+            var request = new TypeRequest(typeof(DerivedA), typeof(DerivedA));
             var options = new FixtureOptions { AllowResolveCircularDependencies = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -525,7 +517,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_SiblingsCyclingToSameType_EachShellMirrorsItsOwnInstance()
         {
-            var request = new FixtureRequest(typeof(TwinRoot));
+            var request = new TypeRequest(typeof(TwinRoot), typeof(TwinRoot));
             var options = new FixtureOptions { AllowResolveCircularDependencies = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -548,7 +540,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_CircularDependencyWithGetHashCodeOverride_DoesNotThrow()
         {
-            var request = new FixtureRequest(typeof(HashedP));
+            var request = new TypeRequest(typeof(HashedP), typeof(HashedP));
             var options = new FixtureOptions { AllowResolveCircularDependencies = true };
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock
@@ -570,7 +562,7 @@ namespace FixtureBuilder.Tests.Creation.AutoConstructingProviders
         [Test]
         public void AutoResolve_ParameterRequest_CarriesRootType()
         {
-            var request = new FixtureRequest(typeof(SingleParam));
+            var request = new TypeRequest(typeof(SingleParam), typeof(SingleParam));
             var options = new FixtureOptions();
             _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
             _valueProviderMock

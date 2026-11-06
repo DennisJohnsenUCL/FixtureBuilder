@@ -52,10 +52,11 @@ namespace FixtureBuilder.Core.FixtureContexts
             var result = ValueProvider.ResolveValue(request, this);
             if (result is not NoResult) return result;
 
-            return InstantiateWithStrategy(request, instantiationMethod, initializeMembers);
+            var typeRequest = new TypeRequest(request.Type, request.RootType);
+            return InstantiateWithStrategy(typeRequest, instantiationMethod, initializeMembers);
         }
 
-        public object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
+        public object InstantiateWithStrategy(TypeRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers)
         {
             return instantiationMethod switch
             {

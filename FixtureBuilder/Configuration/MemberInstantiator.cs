@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
@@ -7,13 +6,11 @@ namespace FixtureBuilder.Configuration
 {
     internal class MemberInstantiator<T> : IConstructor<T>
     {
-        private readonly MemberInfo _requestSource;
         private readonly Type _rootType;
         private readonly IFixtureContext _context;
 
-        internal MemberInstantiator(MemberInfo requestSource, Type rootType, IFixtureContext context)
+        internal MemberInstantiator(Type rootType, IFixtureContext context)
         {
-            _requestSource = requestSource;
             _rootType = rootType;
             _context = context;
         }
@@ -21,7 +18,7 @@ namespace FixtureBuilder.Configuration
         public T UseAutoConstructor()
         {
             var type = _context.UnwrapAndLink(typeof(T), _rootType);
-            var request = new FixtureRequest(type, _requestSource, _rootType);
+            var request = new TypeRequest(type, _rootType);
 
             return (T)_context.AutoConstructingProvider.AutoResolve(request, _context);
         }
@@ -39,12 +36,12 @@ namespace FixtureBuilder.Configuration
         public T CreateUninitialized(InitializeMembers initializeMembers)
         {
             var type = _context.UnwrapAndLink(typeof(T), _rootType);
-            var request = new FixtureRequest(type, _requestSource, _rootType);
+            var request = new TypeRequest(type, _rootType);
 
             var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
 
             if (instance is NoResult)
-                throw new InvalidOperationException($"Failed to instantiate {type.Name} uninitialized for member {_requestSource.DeclaringType!.Name}.{_requestSource.Name}.");
+                throw new InvalidOperationException($"Failed to instantiate {type.Name} uninitialized for root type {_rootType.Name}.");
 
             return (T)instance;
         }

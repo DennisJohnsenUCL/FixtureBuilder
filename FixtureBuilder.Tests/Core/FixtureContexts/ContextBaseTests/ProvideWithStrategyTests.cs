@@ -38,7 +38,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public void ProvideWithStrategy_ProviderHasValue_ReturnsProvidedValue()
         {
             var expected = "Provided value";
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
             var context = CreateContext();
@@ -51,20 +51,20 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void ProvideWithStrategy_ProviderHasValue_DoesNotCallInstantiate()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns("Provided value");
             var context = CreateContext();
 
             context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
 
-            _autoConstructingMock.Verify(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
+            _autoConstructingMock.Verify(r => r.AutoResolve(It.IsAny<TypeRequest>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
         public void ProvideWithStrategy_ProviderReturnsNull_ReturnsNull()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(null!);
             var context = CreateContext();
@@ -78,16 +78,29 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public void ProvideWithStrategy_NoProvider_FallsBackToInstantiate()
         {
             var expected = "Instantiated value";
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(NoResult.Instance);
-            _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+            _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<TypeRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
             var context = CreateContext();
 
             var result = context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
 
             Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ProvideWithStrategy_NoProvider_InstantiatesWithRequestTypeAndRootType()
+        {
+            var request = TestHelper.MakeRequest(typeof(string), typeof(object));
+            _valueProviderMock.Setup(r => r.ResolveValue(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+                .Returns(NoResult.Instance);
+            var context = CreateContext();
+
+            context.ProvideWithStrategy(request, InstantiationMethod.UseAutoConstructor, InitializeMembers.None);
+
+            _autoConstructingMock.Verify(r => r.AutoResolve(new TypeRequest(typeof(string), typeof(object)), It.IsAny<IFixtureContext>()), Times.Once);
         }
     }
 }

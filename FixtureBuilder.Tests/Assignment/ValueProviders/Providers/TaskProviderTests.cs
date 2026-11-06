@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Task_ReturnsCompletedTask()
         {
-            var request = new FixtureRequest(typeof(Task));
+            var request = TestHelper.MakeRequest(typeof(Task));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -42,7 +42,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(string), TestName = "Resolve_String_ReturnsNoResult")]
         public void Resolve_OtherType_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(type);
+            var request = TestHelper.MakeRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

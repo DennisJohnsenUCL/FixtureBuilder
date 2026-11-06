@@ -45,7 +45,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_NoName_ReturnsFalse()
         {
             var sut = new NameRule("FirstName");
-            var request = new FixtureRequest(typeof(string));
+            var request = new FixtureRequest(typeof(string), TestHelper.UnnamedParameter(typeof(string)), _rootType);
 
             Assert.That(sut.IsMatch(request), Is.False);
         }

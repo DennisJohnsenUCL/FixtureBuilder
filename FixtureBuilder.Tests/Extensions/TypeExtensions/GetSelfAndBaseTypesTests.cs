@@ -28,7 +28,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(object).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(object) }));
+            Assert.That(result, Is.EqualTo([typeof(object)]));
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(Base).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(Base), typeof(object) }));
+            Assert.That(result, Is.EqualTo([typeof(Base), typeof(object)]));
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(Derived).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(Derived), typeof(Middle), typeof(Base), typeof(object) }));
+            Assert.That(result, Is.EqualTo([typeof(Derived), typeof(Middle), typeof(Base), typeof(object)]));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(ClosedGenericDerived).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(ClosedGenericDerived), typeof(GenericBase<int>), typeof(object) }));
+            Assert.That(result, Is.EqualTo([typeof(ClosedGenericDerived), typeof(GenericBase<int>), typeof(object)]));
         }
 
         #endregion
@@ -64,7 +64,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(IDerivedInterface).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(IDerivedInterface) }));
+            Assert.That(result, Is.EqualTo([typeof(IDerivedInterface)]));
         }
 
         #endregion
@@ -76,7 +76,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(SimpleStruct).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(SimpleStruct), typeof(ValueType), typeof(object) }));
+            Assert.That(result, Is.EqualTo([typeof(SimpleStruct), typeof(ValueType), typeof(object)]));
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(SimpleEnum).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[] { typeof(SimpleEnum), typeof(Enum), typeof(ValueType), typeof(object) }));
+            Assert.That(result, Is.EqualTo([typeof(SimpleEnum), typeof(Enum), typeof(ValueType), typeof(object)]));
         }
 
         #endregion
@@ -96,14 +96,14 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         {
             var result = typeof(ArgumentNullException).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo(new[]
-            {
+            Assert.That(result, Is.EqualTo(
+            [
                 typeof(ArgumentNullException),
                 typeof(ArgumentException),
                 typeof(SystemException),
                 typeof(Exception),
                 typeof(object)
-            }));
+            ]));
         }
 
         #endregion

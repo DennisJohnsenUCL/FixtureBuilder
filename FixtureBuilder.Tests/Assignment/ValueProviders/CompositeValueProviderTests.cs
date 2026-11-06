@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         public void SetUp()
         {
             _contextMock = new Mock<IFixtureContext>();
-            _request = new FixtureRequest(typeof(string));
+            _request = TestHelper.MakeRequest(typeof(string));
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         [Test]
         public void Resolve_WhenProviderReturnsNullForNonNullableValueType_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
             var provider = new Mock<IValueProvider>();
             provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
             var sut = new CompositeValueProvider([provider.Object]);
@@ -122,7 +122,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         [Test]
         public void Resolve_WhenProviderReturnsNullForNullableValueType_ReturnsNull()
         {
-            var request = new FixtureRequest(typeof(int?));
+            var request = TestHelper.MakeRequest(typeof(int?));
             var provider = new Mock<IValueProvider>();
             provider.Setup(p => p.ResolveValue(request, _contextMock.Object)).Returns(null!);
             var sut = new CompositeValueProvider([provider.Object]);
@@ -163,7 +163,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         [Test]
         public void AddProvider_AddedProviderIsUsedByResolveValue()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             var expected = "from-added";
 
             var addedProvider = new Mock<IValueProvider>();
@@ -180,7 +180,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
         [Test]
         public void AddProvider_PrependedBeforeExistingProviders()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             var addedResult = "from-added";
             var originalResult = "from-original";
 

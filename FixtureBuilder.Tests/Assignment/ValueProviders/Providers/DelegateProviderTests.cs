@@ -29,7 +29,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_FuncWithValueTypeReturn_ReturnsDelegateReturningDefault()
         {
-            var request = new FixtureRequest(typeof(Func<string, int>));
+            var request = TestHelper.MakeRequest(typeof(Func<string, int>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -43,7 +43,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_FuncWithReferenceTypeReturn_ReturnsDelegateReturningNull()
         {
-            var request = new FixtureRequest(typeof(Func<string>));
+            var request = TestHelper.MakeRequest(typeof(Func<string>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -57,7 +57,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_FuncWithTaskReturn_ReturnsDelegateReturningCompletedTask()
         {
-            var request = new FixtureRequest(typeof(Func<string, Task>));
+            var request = TestHelper.MakeRequest(typeof(Func<string, Task>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -71,7 +71,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_FuncWithTaskOfValueTypeReturn_ReturnsDelegateReturningCompletedTaskWithDefault()
         {
-            var request = new FixtureRequest(typeof(Func<string, Task<int>>));
+            var request = TestHelper.MakeRequest(typeof(Func<string, Task<int>>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -87,7 +87,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_FuncWithTaskOfReferenceTypeReturn_ReturnsDelegateReturningCompletedTaskWithNull()
         {
-            var request = new FixtureRequest(typeof(Func<Task<string>>));
+            var request = TestHelper.MakeRequest(typeof(Func<Task<string>>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -103,7 +103,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Action_ReturnsInvokableDelegate()
         {
-            var request = new FixtureRequest(typeof(Action<int, string>));
+            var request = TestHelper.MakeRequest(typeof(Action<int, string>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -114,7 +114,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_DelegateWithOutParameter_LeavesOutParameterDefault()
         {
-            var request = new FixtureRequest(typeof(TryParse));
+            var request = TestHelper.MakeRequest(typeof(TryParse));
 
             var result = (TryParse)_sut.ResolveValue(request, _contextMock.Object)!;
             var returned = result("1", out var value);
@@ -129,7 +129,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_RefReturnDelegate_ThrowsInvalidOperationException()
         {
-            var request = new FixtureRequest(typeof(RefReturn));
+            var request = TestHelper.MakeRequest(typeof(RefReturn));
 
             var ex = Assert.Throws<InvalidOperationException>(() => _sut.ResolveValue(request, _contextMock.Object));
 
@@ -141,7 +141,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(string), TestName = "Resolve_String_ReturnsNoResult")]
         public void Resolve_NonDelegateOrAbstractDelegate_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(type);
+            var request = TestHelper.MakeRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

@@ -39,7 +39,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(ImmutableSortedDictionary<string, int>), TestName = "Resolve_ImmutableSortedDictionary_ReturnsEmptyInstance")]
         public void Resolve_ExactTypedCollection_ReturnsEmptyInstance(Type collectionType)
         {
-            var request = new FixtureRequest(collectionType);
+            var request = TestHelper.MakeRequest(collectionType);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -55,7 +55,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(FrozenDictionary<string, int>), TestName = "Resolve_FrozenDictionary_ReturnsEmptyInstance")]
         public void Resolve_AssignableCollection_ReturnsEmptyInstance(Type collectionType)
         {
-            var request = new FixtureRequest(collectionType);
+            var request = TestHelper.MakeRequest(collectionType);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(int), TestName = "Resolve_NonGenericType_ReturnsNoResult")]
         public void Resolve_UnsupportedType_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(type);
+            var request = TestHelper.MakeRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

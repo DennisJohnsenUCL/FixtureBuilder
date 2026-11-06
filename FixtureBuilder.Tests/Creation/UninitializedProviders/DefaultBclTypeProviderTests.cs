@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_SystemInt32_ReturnsDefaultInt()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_SystemGuid_ReturnsEmptyGuid()
         {
-            var request = new FixtureRequest(typeof(Guid));
+            var request = TestHelper.MakeRequest(typeof(Guid));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -67,7 +67,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_SystemBoolean_ReturnsDefaultBool()
         {
-            var request = new FixtureRequest(typeof(bool));
+            var request = TestHelper.MakeRequest(typeof(bool));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -82,7 +82,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_SystemCollectionsGenericList_ReturnsEmptyList()
         {
-            var request = new FixtureRequest(typeof(List<int>));
+            var request = TestHelper.MakeRequest(typeof(List<int>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -97,7 +97,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_SystemTimeSpan_ReturnsDefaultTimeSpan()
         {
-            var request = new FixtureRequest(typeof(TimeSpan));
+            var request = TestHelper.MakeRequest(typeof(TimeSpan));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -112,7 +112,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_NonSystemNamespace_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(DefaultBclTypeProvider));
+            var request = TestHelper.MakeRequest(typeof(DefaultBclTypeProvider));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -122,7 +122,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void Resolve_UserDefinedClass_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(FixtureRequest));
+            var request = TestHelper.MakeRequest(typeof(FixtureRequest));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -136,7 +136,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void RequestOfTypeInNamespaceStartingWithSystem_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(SystemUnderTest.Invoice));
+            var request = TestHelper.MakeRequest(typeof(SystemUnderTest.Invoice));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

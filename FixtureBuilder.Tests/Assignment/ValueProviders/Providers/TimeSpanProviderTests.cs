@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_TimeSpan_ReturnsTimeSpanInstance()
         {
-            var request = new FixtureRequest(typeof(TimeSpan));
+            var request = TestHelper.MakeRequest(typeof(TimeSpan));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -41,7 +41,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_TimeSpan_ReturnsSameValuePerCall()
         {
-            var request = new FixtureRequest(typeof(TimeSpan));
+            var request = TestHelper.MakeRequest(typeof(TimeSpan));
 
             var first = _sut.ResolveValue(request, _contextMock.Object);
             var second = _sut.ResolveValue(request, _contextMock.Object);
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_DateTime_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(DateTime));
+            var request = TestHelper.MakeRequest(typeof(DateTime));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_NullableTimeSpan_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(TimeSpan?));
+            var request = TestHelper.MakeRequest(typeof(TimeSpan?));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Int_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

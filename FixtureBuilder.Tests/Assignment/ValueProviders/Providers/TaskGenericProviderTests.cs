@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_TaskOfValueType_ReturnsCompletedTaskWithDefault()
         {
-            var request = new FixtureRequest(typeof(Task<int>));
+            var request = TestHelper.MakeRequest(typeof(Task<int>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -42,7 +42,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_TaskOfReferenceType_ReturnsCompletedTaskWithNull()
         {
-            var request = new FixtureRequest(typeof(Task<string>));
+            var request = TestHelper.MakeRequest(typeof(Task<string>));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -60,7 +60,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(List<int>), TestName = "Resolve_OtherGenericType_ReturnsNoResult")]
         public void Resolve_OtherType_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(type);
+            var request = TestHelper.MakeRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

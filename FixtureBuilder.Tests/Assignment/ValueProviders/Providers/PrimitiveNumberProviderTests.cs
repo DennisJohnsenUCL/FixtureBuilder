@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(decimal), TestName = "Resolve_Decimal_ReturnsNonZeroValue")]
         public void Resolve_NumericType_ReturnsNonZeroValue(Type numericType)
         {
-            var request = new FixtureRequest(numericType);
+            var request = TestHelper.MakeRequest(numericType);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(char), TestName = "Resolve_Char_ReturnsNoResult")]
         public void Resolve_UnsupportedType_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(type);
+            var request = TestHelper.MakeRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

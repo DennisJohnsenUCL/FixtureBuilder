@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Bool_ReturnsTrue()
         {
-            var request = new FixtureRequest(typeof(bool));
+            var request = TestHelper.MakeRequest(typeof(bool));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -41,7 +41,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Bool_ReturnsSameValuePerCall()
         {
-            var request = new FixtureRequest(typeof(bool));
+            var request = TestHelper.MakeRequest(typeof(bool));
 
             var first = _sut.ResolveValue(request, _contextMock.Object);
             var second = _sut.ResolveValue(request, _contextMock.Object);
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_String_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_NullableBool_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(bool?));
+            var request = TestHelper.MakeRequest(typeof(bool?));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -72,7 +72,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Int_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

@@ -3,7 +3,7 @@
 namespace FixtureBuilder.Core
 {
     /// <summary>
-    /// Represents a request to create an object of a specific type, containing metadata about the creation context.
+    /// Represents a request for a value for a constructor parameter, property, or field, containing metadata about the creation context.
     /// </summary>
     public sealed class FixtureRequest
     {
@@ -14,14 +14,14 @@ namespace FixtureBuilder.Core
 
         /// <summary>
         /// Gets the declared type of the parameter, property or field in <see cref="RequestSource"/>, with by-ref removed
-        /// but before nullable unwrapping and linking. Any other request uses the type it was created with.
+        /// but before nullable unwrapping and linking.
         /// </summary>
         public Type OriginalType { get; }
 
         /// <summary>
-        /// Gets the source object that initiated the request, such as the <see cref="System.Reflection.PropertyInfo"/>, <see cref="System.Reflection.FieldInfo"/>, or <see cref="System.Reflection.ParameterInfo"/>.
+        /// Gets the source object that initiated the request, which is a <see cref="System.Reflection.PropertyInfo"/>, <see cref="System.Reflection.FieldInfo"/>, or <see cref="System.Reflection.ParameterInfo"/>.
         /// </summary>
-        public object? RequestSource { get; }
+        public object RequestSource { get; }
 
         /// <summary>
         /// Gets the root type of the object graph currently being created.
@@ -29,24 +29,19 @@ namespace FixtureBuilder.Core
         public Type RootType { get; }
 
         /// <summary>
-        /// Gets the name associated with the request, such as a property, field, or parameter name.
+        /// Gets the name of the property, field, or parameter in <see cref="RequestSource"/>. This is <see langword="null"/>
+        /// for parameters without a name, such as those of multi-dimensional array constructors.
         /// </summary>
         public string? Name { get; }
 
-        internal FixtureRequest(Type type)
+        internal FixtureRequest(Type type, object requestSource, Type rootType)
         {
             ArgumentNullException.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(requestSource);
+            ArgumentNullException.ThrowIfNull(rootType);
 #pragma warning disable CS0618 // Type or member is obsolete
             Type = type;
 #pragma warning restore CS0618 // Type or member is obsolete
-            RootType = type;
-            OriginalType = type;
-        }
-
-        internal FixtureRequest(Type type, object requestSource, Type rootType) : this(type)
-        {
-            ArgumentNullException.ThrowIfNull(requestSource);
-            ArgumentNullException.ThrowIfNull(rootType);
             RequestSource = requestSource;
             RootType = rootType;
 

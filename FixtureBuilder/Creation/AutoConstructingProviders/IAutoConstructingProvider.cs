@@ -5,6 +5,6 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
 {
     internal interface IAutoConstructingProvider
     {
-        object AutoResolve(FixtureRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null);
+        object AutoResolve(TypeRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null);
     }
 }

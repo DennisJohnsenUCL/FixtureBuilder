@@ -31,11 +31,8 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
     /// </remarks>
     internal class AutoConstructingProvider : IAutoConstructingProvider
     {
-        public object AutoResolve(FixtureRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
+        public object AutoResolve(TypeRequest request, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
-            ArgumentNullException.ThrowIfNull(request);
-            ArgumentNullException.ThrowIfNull(context);
-
             if (request.Type.IsInterface || request.Type.IsAbstract)
                 throw new InvalidOperationException($"Cannot construct types that are interfaces or abstract {request.Type.Name}.");
 
@@ -92,11 +89,12 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
                 var result = context.ValueProvider.ResolveValue(request, context);
                 if (result is not NoResult) return result;
 
-                return AutoResolve(request, context, recursiveResolveContext.Branch());
+                var typeRequest = new TypeRequest(linked, rootType);
+                return AutoResolve(typeRequest, context, recursiveResolveContext.Branch());
             });
         }
 
-        private static SelectedConstructor? GetConstructor(FixtureRequest request, IFixtureContext context)
+        private static SelectedConstructor? GetConstructor(TypeRequest request, IFixtureContext context)
         {
             var options = context.OptionsFor(request.RootType);
             SelectedConstructor? ctor;
@@ -116,7 +114,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             return ctor;
         }
 
-        private static SelectedConstructor? GetSimplestConstructor(FixtureRequest request, IFixtureContext context, BindingFlags bindingAttr)
+        private static SelectedConstructor? GetSimplestConstructor(TypeRequest request, IFixtureContext context, BindingFlags bindingAttr)
         {
             Dictionary<int, object?> resolvedValues = [];
 
@@ -129,7 +127,7 @@ namespace FixtureBuilder.Creation.AutoConstructingProviders
             return constructor is null ? null : new SelectedConstructor(constructor, resolvedValues);
         }
 
-        private static bool TryResolveSelfParameters(ConstructorInfo constructor, FixtureRequest request, IFixtureContext context, out Dictionary<int, object?> resolvedValues)
+        private static bool TryResolveSelfParameters(ConstructorInfo constructor, TypeRequest request, IFixtureContext context, out Dictionary<int, object?> resolvedValues)
         {
             resolvedValues = [];
 

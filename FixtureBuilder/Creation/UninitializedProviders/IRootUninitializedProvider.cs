@@ -5,6 +5,6 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 {
     internal interface IRootUninitializedProvider
     {
-        object ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null);
+        object ResolveUninitialized(TypeRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null);
     }
 }

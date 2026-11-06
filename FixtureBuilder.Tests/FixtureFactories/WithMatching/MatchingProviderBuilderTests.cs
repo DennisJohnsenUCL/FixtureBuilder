@@ -29,7 +29,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         {
             var builder = new MatchingProviderBuilder();
             var provider = builder.With("hello");
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -41,7 +41,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         {
             var builder = new MatchingProviderBuilder();
             var provider = builder.With("hello");
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -85,7 +85,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         {
             var builder = new MatchingProviderBuilder();
             var provider = builder.With(() => "hello");
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -97,7 +97,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         {
             var builder = new MatchingProviderBuilder();
             var provider = builder.With(() => "hello");
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -144,7 +144,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder([baseRule.Object]);
             var provider = builder.With("hello");
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 
@@ -159,7 +159,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
 
             var builder = new MatchingProviderBuilder([baseRule.Object]);
             var provider = builder.With("hello");
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = provider.ResolveValue(request, _contextMock.Object);
 

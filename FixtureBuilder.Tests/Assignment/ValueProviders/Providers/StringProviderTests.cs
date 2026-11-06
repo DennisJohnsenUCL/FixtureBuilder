@@ -47,22 +47,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_StringWithNullName_ReturnsEmptyString()
         {
-            var request = new FixtureRequest(typeof(string));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<string>());
-                Assert.That(result, Is.Empty);
-            }
-        }
-
-        [Test]
-        public void Resolve_StringWithoutName_ReturnsEmptyString()
-        {
-            var request = new FixtureRequest(typeof(string));
+            var request = new FixtureRequest(typeof(string), TestHelper.UnnamedParameter(typeof(string)), typeof(object));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -77,7 +62,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Int_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -87,7 +72,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Char_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(char));
+            var request = TestHelper.MakeRequest(typeof(char));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -97,7 +82,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Object_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(object));
+            var request = TestHelper.MakeRequest(typeof(object));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

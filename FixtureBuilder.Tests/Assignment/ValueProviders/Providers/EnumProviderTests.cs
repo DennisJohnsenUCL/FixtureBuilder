@@ -35,7 +35,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Enum_ReturnsFirstDefinedValue()
         {
-            var request = new FixtureRequest(typeof(Color));
+            var request = TestHelper.MakeRequest(typeof(Color));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -50,7 +50,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_EnumWithCustomValues_ReturnsFirstDefinedValue()
         {
-            var request = new FixtureRequest(typeof(Priority));
+            var request = TestHelper.MakeRequest(typeof(Priority));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -65,7 +65,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_FlagsEnum_ReturnsFirstDefinedValue()
         {
-            var request = new FixtureRequest(typeof(Permissions));
+            var request = TestHelper.MakeRequest(typeof(Permissions));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -80,7 +80,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_EnumWithoutMembers_ReturnsZeroValue()
         {
-            var request = new FixtureRequest(typeof(Empty));
+            var request = TestHelper.MakeRequest(typeof(Empty));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -95,7 +95,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_String_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -105,7 +105,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Int_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

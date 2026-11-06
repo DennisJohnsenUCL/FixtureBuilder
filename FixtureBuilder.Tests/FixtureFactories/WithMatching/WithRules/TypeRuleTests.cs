@@ -20,7 +20,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_SameType_ReturnsTrue()
         {
             var sut = new TypeRule(typeof(string));
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             Assert.That(sut.IsMatch(request), Is.True);
         }
@@ -29,7 +29,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_DifferentType_ReturnsFalse()
         {
             var sut = new TypeRule(typeof(string));
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             Assert.That(sut.IsMatch(request), Is.False);
         }
@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         public void IsMatch_DerivedType_ReturnsFalse()
         {
             var sut = new TypeRule(typeof(object));
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             Assert.That(sut.IsMatch(request), Is.False);
         }

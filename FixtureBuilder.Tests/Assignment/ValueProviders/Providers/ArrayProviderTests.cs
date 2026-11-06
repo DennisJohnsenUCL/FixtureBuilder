@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_IntArray_ReturnsIntArrayOfLength10()
         {
-            var request = new FixtureRequest(typeof(int[]));
+            var request = TestHelper.MakeRequest(typeof(int[]));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -41,7 +41,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_StringArray_ReturnsStringArrayOfLength10()
         {
-            var request = new FixtureRequest(typeof(string[]));
+            var request = TestHelper.MakeRequest(typeof(string[]));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -56,7 +56,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_IntArray_ReturnsArrayWithDefaultValues()
         {
-            var request = new FixtureRequest(typeof(int[]));
+            var request = TestHelper.MakeRequest(typeof(int[]));
 
             var result = (int[])_sut.ResolveValue(request, _contextMock.Object)!;
 
@@ -66,7 +66,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_StringArray_ReturnsArrayWithNullElements()
         {
-            var request = new FixtureRequest(typeof(string[]));
+            var request = TestHelper.MakeRequest(typeof(string[]));
 
             var result = (string?[])_sut.ResolveValue(request, _contextMock.Object)!;
 
@@ -76,7 +76,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_NonArrayType_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(int));
+            var request = TestHelper.MakeRequest(typeof(int));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -86,7 +86,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_ClassType_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -96,7 +96,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_MultidimensionalArray_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(int[,]));
+            var request = TestHelper.MakeRequest(typeof(int[,]));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -106,7 +106,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_JaggedArray_ReturnsOuterArrayOfLength10()
         {
-            var request = new FixtureRequest(typeof(int[][]));
+            var request = TestHelper.MakeRequest(typeof(int[][]));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

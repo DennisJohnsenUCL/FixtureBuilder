@@ -14,7 +14,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching
         public void SetUp()
         {
             _contextMock = new Mock<IFixtureContext>();
-            _request = new FixtureRequest(typeof(string));
+            _request = TestHelper.MakeRequest(typeof(string));
         }
 
         [Test]

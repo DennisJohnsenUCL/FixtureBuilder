@@ -41,8 +41,8 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public void InstantiateWithStrategy_UseAutoConstructor_ResolvesWithAutoConstructor()
         {
             var expected = "Test string value";
-            var request = new FixtureRequest(typeof(string));
-            _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<FixtureRequest>(), It.IsAny<IFixtureContext>()))
+            var request = new TypeRequest(typeof(string), typeof(string));
+            _autoConstructingMock.Setup(r => r.AutoResolve(It.IsAny<TypeRequest>(), It.IsAny<IFixtureContext>()))
                 .Returns(expected);
             var context = CreateContext();
 
@@ -55,7 +55,7 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public void InstantiateWithStrategy_UseDefaultConstructor_ResolvesWithDefaultConstructor()
         {
             var expected = "Test string value";
-            var request = new FixtureRequest(typeof(string));
+            var request = new TypeRequest(typeof(string), typeof(string));
             _constructingMock
                 .Setup(r => r.ResolveWithArguments(typeof(string), It.IsAny<object?[]>()))
                 .Returns(expected);
@@ -70,10 +70,10 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         public void InstantiateWithStrategy_CreateUninitialized_ResolvesWithUninitializedProvider()
         {
             var expected = "Test string value";
-            var request = new FixtureRequest(typeof(string));
+            var request = new TypeRequest(typeof(string), typeof(string));
             var capturedInitMembers = InitializeMembers.None;
-            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
-                .Callback<FixtureRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((_, init, _, _) => capturedInitMembers = init)
+            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<TypeRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
+                .Callback<TypeRequest, InitializeMembers, IFixtureContext, RecursiveResolveContext>((_, init, _, _) => capturedInitMembers = init)
                 .Returns(expected);
             var context = CreateContext();
 
@@ -89,8 +89,8 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
         [Test]
         public void InstantiateWithStrategy_CreateUninitialized_NoResult_Throws()
         {
-            var request = new FixtureRequest(typeof(string));
-            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<FixtureRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
+            var request = new TypeRequest(typeof(string), typeof(string));
+            _uninitializedMock.Setup(r => r.ResolveUninitialized(It.IsAny<TypeRequest>(), It.IsAny<InitializeMembers>(), It.IsAny<IFixtureContext>()))
                 .Returns(NoResult.Instance);
             var context = CreateContext();
 

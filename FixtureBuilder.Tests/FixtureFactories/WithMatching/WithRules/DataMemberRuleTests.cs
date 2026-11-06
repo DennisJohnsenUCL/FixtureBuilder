@@ -48,15 +48,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.WithMatching.WithRules
         }
 
         [Test]
-        public void IsMatch_RequestSourceIsNull_ReturnsFalse()
-        {
-            var request = new FixtureRequest(typeof(string));
-            var sut = new DataMemberRule();
-
-            Assert.That(sut.IsMatch(request), Is.False);
-        }
-
-        [Test]
         public void IsMatch_RequestSourceIsParameterInfo_ReturnsFalse()
         {
             var paramInfo = typeof(SampleClass).GetConstructors()[0].GetParameters()[0];

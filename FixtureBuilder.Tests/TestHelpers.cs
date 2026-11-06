@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1822 // Mark members as static
 
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -56,6 +57,34 @@ namespace FixtureBuilder.Tests
         {
             return fixture.Build();
             //return (T)fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+        }
+
+        /// <summary>
+        /// Creates a request for <paramref name="type"/> whose source is a field named <c>Value</c> declared as
+        /// <paramref name="type"/>, with <paramref name="type"/> as the root type.
+        /// </summary>
+        internal static FixtureRequest MakeRequest(Type type)
+            => MakeRequest(type, type);
+
+        /// <summary>
+        /// Creates a request for <paramref name="type"/> whose source is a field named <c>Value</c> declared as
+        /// <paramref name="type"/>.
+        /// </summary>
+        internal static FixtureRequest MakeRequest(Type type, Type rootType)
+        {
+            var source = typeof(RequestSource<>).MakeGenericType(type).GetField(nameof(RequestSource<>.Value))!;
+            return new FixtureRequest(type, source, rootType);
+        }
+
+        /// <summary>
+        /// Gets a parameter of type <paramref name="type"/> that has no name.
+        /// </summary>
+        internal static ParameterInfo UnnamedParameter(Type type)
+            => new DynamicMethod("Unnamed", null, [type]).GetParameters()[0];
+
+        private class RequestSource<T>
+        {
+            public T Value = default!;
         }
     }
 

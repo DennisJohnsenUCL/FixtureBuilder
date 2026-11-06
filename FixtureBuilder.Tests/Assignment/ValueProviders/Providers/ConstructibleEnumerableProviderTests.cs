@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(SortedList), TestName = "Resolve_NonGenericSortedList_ReturnsEmptyInstance")]
         public void Resolve_SupportedCollectionType_ReturnsEmptyInstance(Type collectionType)
         {
-            var request = new FixtureRequest(collectionType);
+            var request = TestHelper.MakeRequest(collectionType);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -66,7 +66,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [TestCase(typeof(IList<int>), TestName = "Resolve_Interface_ReturnsNoResult")]
         public void Resolve_UnsupportedType_ReturnsNoResult(Type type)
         {
-            var request = new FixtureRequest(type);
+            var request = TestHelper.MakeRequest(type);
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

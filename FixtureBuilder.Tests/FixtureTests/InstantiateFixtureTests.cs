@@ -23,7 +23,7 @@ namespace FixtureBuilder.Tests.FixtureTests
             ((Fixture<string>)fixture).InstantiateFixture();
 
             contextMock.Verify(c => c.InstantiateWithStrategy(
-                It.Is<FixtureRequest>(r => r.Type == typeof(string)),
+                It.Is<TypeRequest>(r => r.Type == typeof(string)),
                 It.Is<InstantiationMethod>(i => i == InstantiationMethod.CreateUninitialized),
                 It.Is<InitializeMembers>(i => i == InitializeMembers.All)),
                 Times.Once);
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.FixtureTests
             var options = new FixtureOptions();
             var contextMock = new Mock<IFixtureContext>();
             contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-            contextMock.Setup(c => c.InstantiateWithStrategy(It.IsAny<FixtureRequest>(), It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
+            contextMock.Setup(c => c.InstantiateWithStrategy(It.IsAny<TypeRequest>(), It.IsAny<InstantiationMethod>(), It.IsAny<InitializeMembers>()))
                 .Returns(expected);
             var fixture = Fixture.New<string>();
             TestHelper.SetContext(fixture, contextMock.Object);

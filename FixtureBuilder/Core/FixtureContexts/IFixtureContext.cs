@@ -18,6 +18,6 @@ namespace FixtureBuilder.Core.FixtureContexts
 
         Type UnwrapAndLink(Type type, Type rootType);
         object? ProvideWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
-        object InstantiateWithStrategy(FixtureRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
+        object InstantiateWithStrategy(TypeRequest request, InstantiationMethod instantiationMethod, InitializeMembers initializeMembers);
     }
 }

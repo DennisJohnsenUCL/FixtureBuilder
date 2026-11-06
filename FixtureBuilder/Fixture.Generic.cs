@@ -60,7 +60,7 @@ namespace FixtureBuilder
         {
             ValidateNullFixture();
 
-            var request = new FixtureRequest(typeof(T));
+            var request = new TypeRequest(typeof(T), typeof(T));
             var instance = _context.UninitializedProvider.ResolveUninitialized(request, initializeMembers, _context);
             if (instance is NoResult)
                 throw new InvalidOperationException($"Failed to instantiate {typeof(T).Name} uninitialized.");
@@ -85,7 +85,7 @@ namespace FixtureBuilder
         {
             ValidateNullFixture();
 
-            var request = new FixtureRequest(typeof(T));
+            var request = new TypeRequest(typeof(T), typeof(T));
             var instance = _context.AutoConstructingProvider.AutoResolve(request, _context);
 
             _fixture = (T)instance;
@@ -133,8 +133,7 @@ namespace FixtureBuilder
             _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
-            var source = ((MemberExpression)expr.Body).Member;
-            var value = func(new MemberInstantiator<TProp>(source, typeof(T), _context));
+            var value = func(new MemberInstantiator<TProp>(typeof(T), _context));
 
             return WithInternal(expr, value);
         }
@@ -321,7 +320,7 @@ namespace FixtureBuilder
                     $"Please use UseAutoConstructor, UseConstructor, or CreateUninitialized before calling any configuration methods. " +
                     $"Explicit instantiation can be allowed via AllowImplicitConstruction option.");
 
-            var request = new FixtureRequest(typeof(T));
+            var request = new TypeRequest(typeof(T), typeof(T));
 
             return (T)_context.InstantiateWithStrategy(request, _context.OptionsFor(typeof(T)).DefaultFixtureInstantiationMethod, _context.OptionsFor(typeof(T)).DefaultInitializeMembers);
         }

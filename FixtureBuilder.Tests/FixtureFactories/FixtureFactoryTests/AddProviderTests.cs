@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         public void AddProvider_FixtureUsesAddedProvider()
         {
             var factory = new FixtureFactory();
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
             var expected = "from-added";
 
             var provider = new Mock<ICustomProvider>();

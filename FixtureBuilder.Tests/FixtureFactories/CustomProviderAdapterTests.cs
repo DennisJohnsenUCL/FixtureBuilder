@@ -16,7 +16,7 @@ namespace FixtureBuilder.Tests.FixtureFactories
         {
             _adapteeMock = new Mock<ICustomProvider>();
             _contextMock = new Mock<IFixtureContext>();
-            _request = new FixtureRequest(typeof(string));
+            _request = TestHelper.MakeRequest(typeof(string));
         }
 
         [Test]

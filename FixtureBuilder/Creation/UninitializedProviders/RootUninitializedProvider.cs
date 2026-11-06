@@ -20,11 +20,8 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             _memberInitializer = memberInitializer;
         }
 
-        public object ResolveUninitialized(FixtureRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
+        public object ResolveUninitialized(TypeRequest request, InitializeMembers initializeMembers, IFixtureContext context, RecursiveResolveContext? recursiveResolveContext = null)
         {
-            ArgumentNullException.ThrowIfNull(request);
-            ArgumentNullException.ThrowIfNull(context);
-
             recursiveResolveContext ??= new();
             if (!recursiveResolveContext.Add(request.Type))
             {

@@ -100,7 +100,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_NonParameterSource_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 

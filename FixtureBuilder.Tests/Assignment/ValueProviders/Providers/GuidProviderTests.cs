@@ -26,7 +26,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Guid_ReturnsGuidInstance()
         {
-            var request = new FixtureRequest(typeof(Guid));
+            var request = TestHelper.MakeRequest(typeof(Guid));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -41,7 +41,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_Guid_ReturnsUniqueValuesPerCall()
         {
-            var request = new FixtureRequest(typeof(Guid));
+            var request = TestHelper.MakeRequest(typeof(Guid));
 
             var first = _sut.ResolveValue(request, _contextMock.Object);
             var second = _sut.ResolveValue(request, _contextMock.Object);
@@ -52,7 +52,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_String_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(string));
+            var request = TestHelper.MakeRequest(typeof(string));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         [Test]
         public void Resolve_NullableGuid_ReturnsNoResult()
         {
-            var request = new FixtureRequest(typeof(Guid?));
+            var request = TestHelper.MakeRequest(typeof(Guid?));
 
             var result = _sut.ResolveValue(request, _contextMock.Object);
 
