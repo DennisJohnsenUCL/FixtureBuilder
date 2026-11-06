@@ -61,7 +61,7 @@ namespace FixtureBuilder.Bogus
         }
 
         /// <summary>
-        /// Creates and returns an instance of <typeparamref name="T"/> using the <see cref="FixtureOptions.DefaultInstantiationMethod"/> with no additional configuration.
+        /// Creates and returns an instance of <typeparamref name="T"/> using the <see cref="FixtureOptions.DefaultFixtureInstantiationMethod"/> with no additional configuration.
         /// </summary>
         /// <typeparam name="T">The type of the object to build. Must be a reference type.</typeparam>
         /// <returns>The constructed instance of type <typeparamref name="T"/>.</returns>

@@ -18,7 +18,7 @@ namespace FixtureBuilder.Bogus.BogusFixtureFactories
         /// </summary>
         /// <remarks>
         /// The provider receives a <see cref="Faker"/> instance for data generation.
-        /// The provider must return new <see cref="NoResult"/>() for requests it does not handle. A <see langword="null"/> return is treated as an explicit null assignment.
+        /// The provider must return <see cref="NoResult.Instance"/> for requests it does not handle. A <see langword="null"/> return is treated as an explicit null assignment.
         /// </remarks>
         TReturn AddBogusProvider(IBogusCustomProvider provider);
 

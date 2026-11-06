@@ -27,6 +27,7 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="factory">A function that receives a <see cref="Faker"/> and returns the fully constructed instance of <typeparamref name="TReturn"/>.</param>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
+        /// <exception cref="InvalidOperationException"/>
         TReturn UseCustomInstantiator(Func<Faker, TReturn> factory);
 
         #endregion
@@ -34,7 +35,7 @@ namespace FixtureBuilder.Bogus
         #region IConstructor
 
         /// <summary>
-        /// Creates an uninitialized instance without invoking a constructor, using the <see cref="FixtureOptions.DefaultInitializeMembers"/> option.
+        /// Creates an uninitialized instance without invoking a constructor, using <see cref="InitializeMembers.None"/>.
         /// </summary>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="InvalidOperationException"/>
@@ -62,8 +63,9 @@ namespace FixtureBuilder.Bogus
         /// <remarks>
         /// Selects the simplest available constructor and resolves each parameter through the fixture's resolution pipeline.
         /// Uses the <see cref="FixtureOptions.PreferSimplestConstructor"/> and <see cref="FixtureOptions.AllowPrivateConstructors"/> options.
-        /// Constructors with a parameter of the type being built are tried last, and skipped unless that parameter is nullable and
-        /// <see cref="FixtureOptions.PreferNullParameterValues"/> is enabled, or has a default value and <see cref="FixtureOptions.PreferDefaultParameterValues"/> is enabled.
+        /// Constructors with a parameter of the type being built, after type links are applied, are tried last, and skipped unless the resolution pipeline
+        /// provides a value for that parameter, for example null when it is nullable and <see cref="FixtureOptions.PreferNullParameterValues"/> is enabled,
+        /// its default value when it has one and <see cref="FixtureOptions.PreferDefaultParameterValues"/> is enabled, or a value from a registered provider.
         /// </remarks>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="InvalidOperationException"/>
@@ -74,6 +76,7 @@ namespace FixtureBuilder.Bogus
         /// </summary>
         /// <param name="instantiator">A function that returns the fully constructed instance of <typeparamref name="TReturn"/>.</param>
         /// <returns>The instantiated member of type <typeparamref name="TReturn"/>.</returns>
+        /// <exception cref="InvalidOperationException"/>
         TReturn UseCustomInstantiator(Func<TReturn> instantiator);
 
         #endregion
