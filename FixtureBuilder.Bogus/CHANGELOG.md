@@ -1,3 +1,11 @@
+#### 2.1.0
+
+- Updated FixtureBuilder to 3.1.0.
+  - Custom Bogus providers should now return NoResult.Instance for requests they do not handle, as the NoResult constructor is deprecated.
+- Fixed construction methods silently replacing the previous construction method when called more than once on the same BogusFixture.
+  - They now throw an InvalidOperationException instead, as they also do when called after a configuration method, CastTo or a successful Build.
+- Fixed errors and outdated information in XML documentation.
+
 #### 2.0.0
 
 - Updated FixtureBuilder to 3.0.0.
