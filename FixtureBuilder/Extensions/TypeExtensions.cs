@@ -76,15 +76,10 @@ namespace FixtureBuilder.Extensions
             /// <exception cref="ArgumentNullException">
             /// Thrown when <paramref name="type"/> or <paramref name="target"/> is <see langword="null"/>.
             /// </exception>
-            /// <exception cref="ArgumentException">
-            /// Thrown when <paramref name="target"/> is not an interface type.
-            /// </exception>
             public bool Implements(Type target)
             {
                 ArgumentNullException.ThrowIfNull(type);
                 ArgumentNullException.ThrowIfNull(target);
-
-                if (!target.IsInterface) throw new ArgumentException("Target type must be an interface", nameof(target));
 
                 return type.GetInterfaces().Any(i =>
                 i == target

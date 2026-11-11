@@ -20,14 +20,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
             Assert.Throws<ArgumentNullException>(() => typeof(string).Implements(null!));
         }
 
-        [Test]
-        public void TargetNotInterface_ThrowsArgumentException()
-        {
-            var ex = Assert.Throws<ArgumentException>(() => typeof(string).Implements(typeof(object)));
-
-            Assert.That(ex.ParamName, Is.EqualTo("target"));
-        }
-
         #endregion
 
         #region Matching
