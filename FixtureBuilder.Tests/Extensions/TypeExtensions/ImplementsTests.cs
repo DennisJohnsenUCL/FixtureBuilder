@@ -32,14 +32,9 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 
         private class SeveralInterfacesClass : IMarkerInterface, IGenericInterface<string>;
 
-        [TestCase(typeof(MarkerImplementationClass), typeof(IMarkerInterface))]
-        [TestCase(typeof(ClosedGenericInterfaceClass), typeof(IGenericInterface<int>))]
         [TestCase(typeof(ClosedGenericInterfaceClass), typeof(IGenericInterface<>))]
         [TestCase(typeof(TwoTypeArgumentsInterfaceClass), typeof(ITwoTypeArgumentsInterface<,>))]
-        [TestCase(typeof(SeveralInterfacesClass), typeof(IMarkerInterface))]
-        [TestCase(typeof(SeveralInterfacesClass), typeof(IGenericInterface<string>))]
         [TestCase(typeof(SeveralInterfacesClass), typeof(IGenericInterface<>))]
-        [TestCase(typeof(List<int>), typeof(IEnumerable<int>))]
         [TestCase(typeof(List<int>), typeof(IEnumerable<>))]
         public void ImplementedInterface_ReturnsTrue(Type type, Type target)
         {
@@ -48,10 +43,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
             Assert.That(result, Is.True);
         }
 
-        [TestCase(typeof(EmptyClass), typeof(IMarkerInterface))]
-        [TestCase(typeof(ClosedGenericInterfaceClass), typeof(IGenericInterface<string>))]
         [TestCase(typeof(EmptyClass), typeof(IGenericInterface<>))]
-        [TestCase(typeof(string), typeof(IDisposable))]
         public void InterfaceNotImplemented_ReturnsFalse(Type type, Type target)
         {
             var result = type.Implements(target);

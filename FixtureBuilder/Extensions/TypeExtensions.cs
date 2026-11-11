@@ -61,13 +61,12 @@ namespace FixtureBuilder.Extensions
             }
 
             /// <summary>
-            /// Determines whether the specified type implements a given interface, supporting both
-            /// closed and open generic interface definitions.
+            /// Determines whether the specified type implements a constructed form of the given
+            /// open generic interface definition.
             /// </summary>
             /// <param name="target">
-            /// The interface type to check for. This can be a concrete interface (e.g., <see cref="IDisposable"/>),
-            /// a closed generic interface (e.g., <c>IEnumerable&lt;string&gt;</c>), or an open generic type
-            /// definition (e.g., <c>IEnumerable&lt;&gt;</c>).
+            /// An open generic interface definition, e.g., <c>IEnumerable&lt;&gt;</c>. Any other type,
+            /// such as <see cref="IDisposable"/> or <c>IEnumerable&lt;string&gt;</c>, gives <see langword="false"/>.
             /// </param>
             /// <returns>
             /// <see langword="true"/> if <paramref name="type"/> implements <paramref name="target"/>;
@@ -81,10 +80,7 @@ namespace FixtureBuilder.Extensions
                 ArgumentNullException.ThrowIfNull(type);
                 ArgumentNullException.ThrowIfNull(target);
 
-                return type.GetInterfaces().Any(i =>
-                i == target
-                || (target.IsGenericTypeDefinition
-                && i.GetGenericTypeDefinitionOrDefault() == target));
+                return type.GetInterfaces().Any(i => i.GetGenericTypeDefinitionOrDefault() == target);
             }
 
             /// <summary>
