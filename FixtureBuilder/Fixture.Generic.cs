@@ -33,8 +33,6 @@ namespace FixtureBuilder
             if (typeof(T).IsAbstract)
                 throw new InvalidOperationException($"Cannot create fixtures of abstract types: {typeof(T).Name}. Please use concrete types for fixtures.");
 
-            if (typeof(T).GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
-
             _context = context;
             _expressionResolver = InitializeExpressionResolver();
         }

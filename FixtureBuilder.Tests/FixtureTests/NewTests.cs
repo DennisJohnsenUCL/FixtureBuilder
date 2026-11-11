@@ -45,12 +45,6 @@
         }
 
         [Test]
-        public void FixtureType_ThrowsInvalidOperationException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<Fixture<EmptyClass>>());
-        }
-
-        [Test]
         public void NullInstance_ThrowsArgumentNullException()
         {
             EmptyClass instance = null!;
