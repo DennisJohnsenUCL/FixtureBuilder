@@ -231,16 +231,6 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
             Assert.That(result?.Name, Is.EqualTo("<Id>k__BackingField"));
         }
 
-        [Test]
-        public void InterfacePropertyNotImplementedByParent_ReturnsNull()
-        {
-            var property = typeof(IIdInterface).GetProperty(nameof(IIdInterface.Id))!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(NamedFieldAndAutoPropertyClass), property, null);
-
-            Assert.That(result, Is.Null);
-        }
-
         private class ExplicitNameClass : INameInterface
         {
             string INameInterface.Name { get; } = null!;

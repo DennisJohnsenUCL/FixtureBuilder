@@ -83,7 +83,7 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <returns>
         /// The <see cref="FieldInfo"/> for the backing field if found; otherwise, <see langword="null"/>, including when
-        /// <paramref name="propertyParentType"/> does not declare, inherit or implement the property.
+        /// <paramref name="propertyParentType"/> does not declare or inherit the property.
         /// </returns>
         public static FieldInfo? GetPropertyBackingField(Type propertyParentType, PropertyInfo property, string? fieldName)
         {
@@ -91,8 +91,7 @@ namespace FixtureBuilder.Configuration
 
             if (property.DeclaringType is { IsInterface: true })
             {
-                if (GetPropertyImplementation(propertyParentType, property) is not { } implementation) return null;
-                property = implementation;
+                property = GetPropertyImplementation(propertyParentType, property);
             }
 
             string[] fieldNames = fieldName is not null ? [fieldName] : [GetAutoBackingFieldName(property), .. commonFieldNames];
@@ -115,16 +114,15 @@ namespace FixtureBuilder.Configuration
             return null;
         }
 
-        private static PropertyInfo? GetPropertyImplementation(Type propertyParentType, PropertyInfo interfaceProperty)
+        private static PropertyInfo GetPropertyImplementation(Type propertyParentType, PropertyInfo interfaceProperty)
         {
             var iface = interfaceProperty.DeclaringType!;
-            if (!iface.IsAssignableFrom(propertyParentType)) return null;
 
             var ifaceMap = propertyParentType.GetInterfaceMap(iface);
             var getterIndex = Array.FindIndex(ifaceMap.InterfaceMethods, m => m.HasSameMetadataDefinitionAs(interfaceProperty.GetMethod!));
             var target = ifaceMap.TargetMethods[getterIndex];
 
-            return target.DeclaringType?
+            return target.DeclaringType!
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
                 .First(p => p.GetMethod?.HasSameMetadataDefinitionAs(target) == true);
         }
