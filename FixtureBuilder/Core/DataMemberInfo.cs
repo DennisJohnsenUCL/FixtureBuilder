@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using FixtureBuilder.Extensions;
 
 /// <summary>
@@ -50,9 +51,12 @@ internal class DataMemberInfo : MemberInfo
 
     public static DataMemberInfo FromMemberInfo(MemberInfo memberInfo)
     {
-        if (memberInfo is PropertyInfo pi) return new(pi);
-        if (memberInfo is FieldInfo fi) return new(fi);
-        throw new InvalidOperationException("MemberInfo must be a PropertyInfo or FieldInfo to be a valid DataMemberInfo.");
+        return memberInfo switch
+        {
+            PropertyInfo pi => new(pi),
+            FieldInfo fi => new(fi),
+            _ => throw new UnreachableException()
+        };
     }
 
     /// <summary>

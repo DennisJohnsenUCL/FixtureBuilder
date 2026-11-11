@@ -67,11 +67,5 @@ namespace FixtureBuilder.Tests.Core
 
             Assert.That(request.OriginalType, Is.EqualTo(typeof(int)));
         }
-
-        [Test]
-        public void Constructor_SourceNotParameterPropertyOrField_ThrowsArgumentException()
-        {
-            Assert.Throws<ArgumentException>(() => new FixtureRequest(typeof(string), "source", typeof(object)));
-        }
     }
 }

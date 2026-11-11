@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace FixtureBuilder.Core
 {
@@ -50,7 +51,7 @@ namespace FixtureBuilder.Core
                 ParameterInfo pa => (pa.ParameterType, pa.Name),
                 PropertyInfo pr => (pr.PropertyType, pr.Name),
                 FieldInfo fi => (fi.FieldType, fi.Name),
-                _ => throw new ArgumentException($"Invalid RequestSource in FixtureRequest: {requestSource.GetType().Name}", nameof(requestSource))
+                _ => throw new UnreachableException()
             };
 
             OriginalType = declared.IsByRef ? declared.GetElementType()! : declared;
