@@ -10,7 +10,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
 
         public MatchingProviderBuilder(IEnumerable<IWithRule> baseRules)
         {
-            ArgumentNullException.ThrowIfNull(baseRules);
             _baseRules = baseRules;
         }
 

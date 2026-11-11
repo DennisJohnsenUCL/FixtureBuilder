@@ -8,18 +8,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetDictionaryEnumerableTypesTests
     {
-        #region Arguments
-
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.GetDictionaryEnumerableTypes());
-        }
-
-        #endregion
-
         #region Generic dictionaries
 
         [TestCase(typeof(Dictionary<string, int>), typeof(string), typeof(int))]

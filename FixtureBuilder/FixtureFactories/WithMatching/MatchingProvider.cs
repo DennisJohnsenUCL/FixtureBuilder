@@ -14,8 +14,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching
 
         public MatchingProvider(IEnumerable<IWithRule> withRules, Func<object?> func)
         {
-            ArgumentNullException.ThrowIfNull(withRules);
-            ArgumentNullException.ThrowIfNull(func);
             _withRules = withRules;
             _func = func;
         }

@@ -17,7 +17,6 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
         public RootUninitializedProvider(IMemberInitializer memberInitializer)
         {
-            ArgumentNullException.ThrowIfNull(memberInitializer);
             _memberInitializer = memberInitializer;
         }
 

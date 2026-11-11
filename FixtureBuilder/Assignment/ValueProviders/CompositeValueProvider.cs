@@ -18,8 +18,6 @@ namespace FixtureBuilder.Assignment.ValueProviders
 
         public CompositeValueProvider(IEnumerable<IValueProvider> providers)
         {
-            ArgumentNullException.ThrowIfNull(providers);
-
             _providers = [.. providers];
             _rootProviders = [];
         }

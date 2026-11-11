@@ -117,14 +117,6 @@
         }
 
         [Test]
-        public void WithNamed_NullName_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.With("injected", null!));
-        }
-
-        [Test]
         public void WithNamedFunc_MatchingTypeAndName_AppliesFuncValue()
         {
             var factory = new FixtureFactory().With(() => "injected", "value");

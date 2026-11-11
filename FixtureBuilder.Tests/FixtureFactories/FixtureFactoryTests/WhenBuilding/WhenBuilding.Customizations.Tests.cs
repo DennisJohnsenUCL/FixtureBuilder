@@ -1,6 +1,4 @@
-﻿using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
+﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
 {
     internal sealed class WhenBuildingCustomizationsTests
     {
@@ -50,14 +48,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
             var result = factory.New<StringConstructorClass>().Build();
 
             Assert.That(result.Value, Is.EqualTo("later"));
-        }
-
-        [Test]
-        public void AddProvider_Null_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddProvider(null!)));
         }
 
         #endregion
@@ -112,14 +102,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
             var result = fixture.WithBackingField(x => x.Value, 123).Build();
 
             Assert.That(result.Value, Is.EqualTo(2));
-        }
-
-        [Test]
-        public void AddConverter_Null_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddConverter(null!)));
         }
 
         #endregion
@@ -193,14 +175,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
             var result = factory.New<InterfaceParameterClass>().Build();
 
             Assert.That(result.Dependency, Is.TypeOf<OtherMarkerImplementationClass>());
-        }
-
-        [Test]
-        public void AddTypeLink_NullCustomTypeLink_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddTypeLink((ICustomTypeLink)null!)));
         }
 
         #endregion

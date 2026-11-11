@@ -39,13 +39,5 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             Assert.Throws<InvalidOperationException>(() => fixture.Build());
         }
-
-        [Test]
-        public void NullProvider_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.AddProvider(null!));
-        }
     }
 }

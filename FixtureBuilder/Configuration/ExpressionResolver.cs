@@ -12,8 +12,6 @@ namespace FixtureBuilder.Configuration
 
         public ExpressionResolver(Type rootType, IFixtureContext context)
         {
-            ArgumentNullException.ThrowIfNull(rootType);
-            ArgumentNullException.ThrowIfNull(context);
             _rootType = rootType;
             _context = context;
         }

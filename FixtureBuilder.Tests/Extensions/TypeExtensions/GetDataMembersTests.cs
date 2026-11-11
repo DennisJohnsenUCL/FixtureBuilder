@@ -5,14 +5,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetDataMembersTests
     {
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.GetDataMembers(BindingFlags.Public | BindingFlags.Instance));
-        }
-
         private class PublicPropertyAndFieldClass
         {
             public string Property { get; set; } = null!;

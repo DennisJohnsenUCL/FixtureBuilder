@@ -5,14 +5,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetEnumerableElementTypeTests
     {
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.GetEnumerableElementType());
-        }
-
         private class DoubleEnumerableClass : IEnumerable<double>
         {
             public IEnumerator<double> GetEnumerator() => throw new NotSupportedException();

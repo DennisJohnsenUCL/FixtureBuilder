@@ -8,7 +8,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching.WithRules
 
         public TypeRule(Type type)
         {
-            ArgumentNullException.ThrowIfNull(type);
             _type = type;
         }
 

@@ -33,7 +33,6 @@ namespace FixtureBuilder
 
         internal RootConfigurationBuilder(IFixtureContext context)
         {
-            ArgumentNullException.ThrowIfNull(context);
             _context = context;
         }
 

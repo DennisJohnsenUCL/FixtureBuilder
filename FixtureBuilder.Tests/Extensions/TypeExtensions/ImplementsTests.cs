@@ -4,26 +4,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class ImplementsTests
     {
-        #region Arguments
-
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.Implements(typeof(IDisposable)));
-        }
-
-        [Test]
-        public void NullTarget_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => typeof(string).Implements(null!));
-        }
-
-        #endregion
-
-        #region Matching
-
         private interface ITwoTypeArgumentsInterface<T1, T2>;
 
         private class ClosedGenericInterfaceClass : IGenericInterface<int>;
@@ -50,7 +30,5 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 
             Assert.That(result, Is.False);
         }
-
-        #endregion
     }
 }

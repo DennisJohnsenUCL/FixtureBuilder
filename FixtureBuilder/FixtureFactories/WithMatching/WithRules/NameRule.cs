@@ -8,7 +8,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching.WithRules
 
         public NameRule(string name)
         {
-            ArgumentNullException.ThrowIfNull(name);
             _name = name;
         }
 

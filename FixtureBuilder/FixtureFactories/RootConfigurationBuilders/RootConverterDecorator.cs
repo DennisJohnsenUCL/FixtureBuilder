@@ -11,8 +11,6 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 
         public RootConverterDecorator(IValueConverter converter, Type rootType)
         {
-            ArgumentNullException.ThrowIfNull(converter);
-            ArgumentNullException.ThrowIfNull(rootType);
             _inner = converter;
             _rootType = rootType;
         }

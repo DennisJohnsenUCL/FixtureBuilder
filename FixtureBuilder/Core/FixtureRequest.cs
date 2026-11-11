@@ -37,9 +37,6 @@ namespace FixtureBuilder.Core
 
         internal FixtureRequest(Type type, object requestSource, Type rootType)
         {
-            ArgumentNullException.ThrowIfNull(type);
-            ArgumentNullException.ThrowIfNull(requestSource);
-            ArgumentNullException.ThrowIfNull(rootType);
 #pragma warning disable CS0618 // Type or member is obsolete
             Type = type;
 #pragma warning restore CS0618 // Type or member is obsolete

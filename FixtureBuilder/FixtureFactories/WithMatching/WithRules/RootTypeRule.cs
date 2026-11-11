@@ -8,7 +8,6 @@ namespace FixtureBuilder.FixtureFactories.WithMatching.WithRules
 
         public RootTypeRule(Type rootType)
         {
-            ArgumentNullException.ThrowIfNull(rootType);
             _rootType = rootType;
         }
 

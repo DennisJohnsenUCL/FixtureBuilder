@@ -11,8 +11,6 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 
         public RootProviderDecorator(IValueProvider provider, Type rootType)
         {
-            ArgumentNullException.ThrowIfNull(provider);
-            ArgumentNullException.ThrowIfNull(rootType);
             _inner = provider;
             _rootType = rootType;
         }

@@ -9,7 +9,6 @@ namespace FixtureBuilder.FixtureFactories.Customizations
 
         public CustomTypeLinkAdapter(ICustomTypeLink typeLink)
         {
-            ArgumentNullException.ThrowIfNull(typeLink);
             _typeLink = typeLink;
         }
 

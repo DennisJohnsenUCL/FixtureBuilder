@@ -10,8 +10,6 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
 
         public RootTypeLinkDecorator(ITypeLink typeLink, Type rootType)
         {
-            ArgumentNullException.ThrowIfNull(typeLink);
-            ArgumentNullException.ThrowIfNull(rootType);
             _inner = typeLink;
             _rootType = rootType;
         }

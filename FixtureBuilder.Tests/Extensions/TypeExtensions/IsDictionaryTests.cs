@@ -8,14 +8,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class IsDictionaryTests
     {
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.IsDictionary());
-        }
-
         [TestCase(typeof(Dictionary<string, int>))]
         [TestCase(typeof(SortedDictionary<string, int>))]
         [TestCase(typeof(ConcurrentDictionary<string, int>))]

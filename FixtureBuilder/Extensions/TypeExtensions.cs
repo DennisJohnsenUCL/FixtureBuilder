@@ -21,11 +21,8 @@ namespace FixtureBuilder.Extensions
             /// An <see cref="IEnumerable{DataMemberInfo}"/> containing the type's matching properties and
             /// its matching fields, each wrapped in a <see cref="DataMemberInfo"/>.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public IEnumerable<DataMemberInfo> GetDataMembers(BindingFlags bindingAttr)
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 return type.GetProperties(bindingAttr).Select(p => new DataMemberInfo(p))
                     .Concat(type.GetFields(bindingAttr).Select(f => new DataMemberInfo(f)));
             }
@@ -36,11 +33,8 @@ namespace FixtureBuilder.Extensions
             /// <returns>
             /// The generic type definition if <paramref name="type"/> is a generic type; otherwise, <see langword="null"/>.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public Type? GetGenericTypeDefinitionOrDefault()
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 return type.IsGenericType ? type.GetGenericTypeDefinition() : null;
             }
 
@@ -51,11 +45,8 @@ namespace FixtureBuilder.Extensions
             /// The type wrapped by <paramref name="type"/> if it is a by-ref type, a <see cref="Nullable{T}"/>,
             /// or a by-ref <see cref="Nullable{T}"/>; otherwise, <paramref name="type"/> itself.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public Type Unwrap()
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 var unwrappedByRef = type.IsByRef ? type.GetElementType()! : type;
                 var unwrappedNullable = Nullable.GetUnderlyingType(unwrappedByRef) ?? unwrappedByRef;
                 return unwrappedNullable;
@@ -73,14 +64,8 @@ namespace FixtureBuilder.Extensions
             /// <see langword="true"/> if <paramref name="type"/> implements <paramref name="target"/>;
             /// otherwise, <see langword="false"/>.
             /// </returns>
-            /// <exception cref="ArgumentNullException">
-            /// Thrown when <paramref name="type"/> or <paramref name="target"/> is <see langword="null"/>.
-            /// </exception>
             public bool Implements(Type target)
             {
-                ArgumentNullException.ThrowIfNull(type);
-                ArgumentNullException.ThrowIfNull(target);
-
                 return type.GetInterfaces().Any(i => i.GetGenericTypeDefinitionOrDefault() == target);
             }
 
@@ -94,11 +79,8 @@ namespace FixtureBuilder.Extensions
             /// <see langword="null"/>. This includes <see cref="Nullable{T}"/>, reference types, and by-ref types,
             /// which do not count as value types even when their element type is one.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public object? GetDefaultValue()
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 return type.IsValueType && Nullable.GetUnderlyingType(type) is null
                     ? RuntimeHelpers.GetUninitializedObject(type)
                     : null;
@@ -128,11 +110,8 @@ namespace FixtureBuilder.Extensions
             /// The element type <c>T</c> if <paramref name="type"/> implements <see cref="IEnumerable{T}"/>;
             /// otherwise, <see langword="null"/>.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public Type? GetEnumerableElementType()
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 return type.GetInterfaces()
                     .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                     ?.GenericTypeArguments[0];
@@ -147,11 +126,8 @@ namespace FixtureBuilder.Extensions
             /// <returns>
             /// <see langword="true"/> if <paramref name="type"/> is a dictionary type; otherwise, <see langword="false"/>.
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public bool IsDictionary()
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 if (typeof(IDictionary).IsAssignableFrom(type))
                 {
                     return true;
@@ -180,11 +156,8 @@ namespace FixtureBuilder.Extensions
             /// Returns <c>(typeof(object), typeof(object))</c> if the type is a dictionary but does not
             /// implement <see cref="IEnumerable{T}"/> (e.g., non-generic dictionaries such as <see cref="Hashtable"/>).
             /// </returns>
-            /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
             public (Type? KeyType, Type? ValueType) GetDictionaryEnumerableTypes()
             {
-                ArgumentNullException.ThrowIfNull(type);
-
                 if (!type.IsDictionary()) return (null, null);
 
                 if (!type.Implements(typeof(IEnumerable<>))) return (typeof(object), typeof(object));

@@ -7,9 +7,6 @@
 
         public TypeRequest(Type type, Type rootType)
         {
-            ArgumentNullException.ThrowIfNull(type);
-            ArgumentNullException.ThrowIfNull(rootType);
-
             Type = type;
             RootType = rootType;
         }

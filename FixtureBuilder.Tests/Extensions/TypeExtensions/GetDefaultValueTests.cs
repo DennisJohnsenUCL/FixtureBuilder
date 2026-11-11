@@ -4,18 +4,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetDefaultValueTests
     {
-        #region Arguments
-
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.GetDefaultValue());
-        }
-
-        #endregion
-
         #region Value types
 
         [Test]

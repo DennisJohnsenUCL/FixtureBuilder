@@ -23,8 +23,6 @@ namespace FixtureBuilder.Creation.UninitializedProviders.MemberInitialization
 
         public MemberInitializer(IDataMemberSkipFilter skipFilter, ICompositeUninitializedProvider uninitializedProvider)
         {
-            ArgumentNullException.ThrowIfNull(skipFilter);
-            ArgumentNullException.ThrowIfNull(uninitializedProvider);
             _skipFilter = skipFilter;
             _uninitializedProvider = uninitializedProvider;
         }

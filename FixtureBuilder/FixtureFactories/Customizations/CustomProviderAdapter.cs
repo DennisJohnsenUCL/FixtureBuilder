@@ -10,7 +10,6 @@ namespace FixtureBuilder.FixtureFactories.Customizations
 
         public CustomProviderAdapter(ICustomProvider provider)
         {
-            ArgumentNullException.ThrowIfNull(provider);
             _provider = provider;
         }
 

@@ -9,9 +9,6 @@ namespace FixtureBuilder.Assignment.TypeLinks
 
         public TypeLink(Type inType, Type outType)
         {
-            ArgumentNullException.ThrowIfNull(inType);
-            ArgumentNullException.ThrowIfNull(outType);
-
             if (inType.IsGenericTypeDefinition != outType.IsGenericTypeDefinition)
                 throw new ArgumentException("Both TypeLink types must be either generic type definitions or concrete types.");
 

@@ -15,8 +15,6 @@ namespace FixtureBuilder.Assignment.TypeLinks
 
         public CompositeTypeLink(IEnumerable<ITypeLink> typeLinks)
         {
-            ArgumentNullException.ThrowIfNull(typeLinks);
-
             _typeLinks = [.. typeLinks];
             _rootTypeLinks = [];
         }

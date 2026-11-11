@@ -1,6 +1,4 @@
-﻿using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
+﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class AddTypeLinkTests
     {
@@ -70,30 +68,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         #endregion
 
         #region Validation
-
-        [Test]
-        public void NullInType_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.AddTypeLink(null!, typeof(MarkerImplementationClass)));
-        }
-
-        [Test]
-        public void NullOutType_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.AddTypeLink(typeof(IMarkerInterface), null!));
-        }
-
-        [Test]
-        public void NullCustomTypeLink_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.AddTypeLink((ICustomTypeLink)null!));
-        }
 
         [Test]
         public void UnassignableTypes_ThrowsArgumentException()

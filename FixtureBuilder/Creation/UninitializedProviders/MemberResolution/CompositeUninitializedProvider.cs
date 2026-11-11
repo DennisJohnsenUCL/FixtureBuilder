@@ -19,8 +19,6 @@ namespace FixtureBuilder.Creation.UninitializedProviders.MemberResolution
 
         public CompositeUninitializedProvider(DefaultBclTypeProvider defaultBclTypeProvider)
         {
-            ArgumentNullException.ThrowIfNull(defaultBclTypeProvider);
-
             _defaultBclTypeProvider = defaultBclTypeProvider;
         }
 

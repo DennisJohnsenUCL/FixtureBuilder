@@ -25,7 +25,6 @@ namespace FixtureBuilder.Core.FixtureContexts
 
         public void SetOptions(Action<FixtureOptions> action)
         {
-            ArgumentNullException.ThrowIfNull(action);
             action.Invoke(Options);
         }
 

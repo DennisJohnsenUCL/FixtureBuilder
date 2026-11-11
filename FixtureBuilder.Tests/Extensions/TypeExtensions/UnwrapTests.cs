@@ -4,14 +4,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class UnwrapTests
     {
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.Unwrap());
-        }
-
         [TestCase(typeof(int))]
         [TestCase(typeof(string))]
         [TestCase(typeof(int?[]))]

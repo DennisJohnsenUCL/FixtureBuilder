@@ -25,8 +25,6 @@ namespace FixtureBuilder
 
         internal Fixture(IFixtureContext context)
         {
-            ArgumentNullException.ThrowIfNull(context);
-
             if (typeof(T).IsInterface)
                 throw new InvalidOperationException($"Cannot create fixtures of interface types: {typeof(T).Name}. Please use concrete types for fixtures.");
 
@@ -41,9 +39,6 @@ namespace FixtureBuilder
 
         internal Fixture(T instance, IFixtureContext context)
         {
-            ArgumentNullException.ThrowIfNull(instance);
-            ArgumentNullException.ThrowIfNull(context);
-
             if (instance.GetType().GetGenericTypeDefinitionOrDefault() == typeof(Fixture<>)) throw new InvalidOperationException("Please do not use FixtureBuilder to instantiate FixtureBuilder.");
 
             _context = context;

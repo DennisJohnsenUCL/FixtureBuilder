@@ -4,14 +4,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetGenericTypeDefinitionOrDefaultTests
     {
-        [Test]
-        public void NullType_ThrowsArgumentNullException()
-        {
-            Type type = null!;
-
-            Assert.Throws<ArgumentNullException>(() => type.GetGenericTypeDefinitionOrDefault());
-        }
-
         [TestCase(typeof(List<int>), typeof(List<>))]
         [TestCase(typeof(Dictionary<,>), typeof(Dictionary<,>))]
         [TestCase(typeof(int?), typeof(Nullable<>))]

@@ -10,7 +10,6 @@ namespace FixtureBuilder.FixtureFactories.Customizations
 
         public CustomConverterAdapter(ICustomConverter converter)
         {
-            ArgumentNullException.ThrowIfNull(converter);
             _converter = converter;
         }
 
