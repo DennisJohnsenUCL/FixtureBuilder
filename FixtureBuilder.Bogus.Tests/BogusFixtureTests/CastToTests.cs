@@ -1,272 +1,207 @@
-﻿#pragma warning disable CS0649
-
-using Bogus;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class CastToTests
     {
-        private interface IAnimal
+        private interface IFirstValue
         {
-            string Name { get; }
-            int Age { get; }
+            string First { get; }
         }
 
-        private class Dog : IAnimal, ILiving
+        private interface ISecondValue
         {
-            public string Breed { get; set; } = string.Empty;
+            string Second { get; }
+        }
 
-            string ILiving.Name => _name;
+        private class TwoInterfacesClass : IFirstValue, ISecondValue
+        {
+            private readonly string _first = null!;
+            private readonly string _second = null!;
 
-            string IAnimal.Name => _name;
-            int IAnimal.Age => _age;
+            public string Own { get; set; } = null!;
+            string IFirstValue.First => _first;
+            string ISecondValue.Second => _second;
+        }
 
-            private readonly string _name = string.Empty;
-            private readonly int _age;
+        #region Single cast
+
+        [Test]
+        public void BuildsInstanceOfOriginalType()
+        {
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().CastTo<IFirstValue>();
+
+            var result = fixture.Build();
+
+            Assert.That(result, Is.TypeOf<TwoInterfacesClass>());
         }
 
         [Test]
-        public void CastTo_ReturnsCorrectType()
+        public void ConfigurationBeforeCast_IsApplied()
         {
-            var result = Fixture.WithBogus<Dog>()
-                .CastTo<IAnimal>()
-                .Build();
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().With(x => x.Own, "own").CastTo<IFirstValue>();
 
-            Assert.That(result, Is.InstanceOf<IAnimal>());
+            var result = (TwoInterfacesClass)fixture.Build();
+
+            Assert.That(result.Own, Is.EqualTo("own"));
         }
 
         [Test]
-        public void CastTo_ConfigurationBeforeCast_IsApplied()
+        public void ConfigurationAfterCast_IsApplied()
         {
-            var result = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, "Labrador")
-                .CastTo<IAnimal>()
-                .Build();
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().CastTo<IFirstValue>().WithBackingField(x => x.First, "first");
 
-            var dog = (Dog)result;
-            Assert.That(dog.Breed, Is.EqualTo("Labrador"));
+            var result = fixture.Build();
+
+            Assert.That(result.First, Is.EqualTo("first"));
         }
 
         [Test]
-        public void CastTo_ConfigurationAfterCast_IsApplied()
+        public void FakerConfigurationBeforeAndAfterCast_UsesFixtureFaker()
         {
-            var result = Fixture.WithBogus<Dog>()
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, "Rex")
-                .Build();
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>("de")
+                .With(x => x.Own, faker => faker.Locale)
+                .CastTo<IFirstValue>()
+                .WithBackingField(x => x.First, faker => faker.Locale);
 
-            Assert.That(result.Name, Is.EqualTo("Rex"));
-        }
+            var result = fixture.Build();
 
-        [Test]
-        public void CastTo_ConfigurationBeforeAndAfterCast_BothApplied()
-        {
-            var result = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, "Poodle")
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, "Fido")
-                .Build();
-
-            var dog = (Dog)result;
-
+            var own = ((TwoInterfacesClass)result).Own;
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(dog.Breed, Is.EqualTo("Poodle"));
-                Assert.That(result.Name, Is.EqualTo("Fido"));
+                Assert.That(own, Is.EqualTo("de"));
+                Assert.That(result.First, Is.EqualTo("de"));
             }
         }
 
         [Test]
-        public void CastTo_WithFaker_BeforeAndAfterCast()
+        public void UnrelatedType_Build_ThrowsInvalidCastException()
         {
-            var result = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, f => f.Random.Word())
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, f => f.Name.FirstName())
-                .Build();
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().CastTo<string>();
 
-            var dog = (Dog)result;
+            Assert.Throws<InvalidCastException>(() => fixture.Build());
+        }
 
+        #endregion
+
+        #region Several instances
+
+        [Test]
+        public void Count_ReturnsDistinctInstances()
+        {
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().CastTo<IFirstValue>();
+
+            var result = fixture.Build(3);
+
+            Assert.That(result, Is.Unique);
+        }
+
+        [Test]
+        public void Count_AppliesConfigurationBeforeAndAfterCastToEachInstance()
+        {
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>()
+                .With(x => x.Own, "own")
+                .CastTo<IFirstValue>()
+                .WithBackingField(x => x.First, "first");
+
+            var result = fixture.Build(2);
+
+            var owns = result.Select(instance => ((TwoInterfacesClass)instance).Own);
+            var firsts = result.Select(instance => instance.First);
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(dog.Breed, Is.Not.Empty);
-                Assert.That(result.Name, Is.Not.Empty);
+                Assert.That(owns, Is.EqualTo(["own", "own"]));
+                Assert.That(firsts, Is.EqualTo(["first", "first"]));
             }
         }
 
         [Test]
-        public void CastTo_BuildMultiple_ProducesDistinctInstances()
+        public void Count_FakerConfigurationBeforeCast_IsInvokedForEachBuild()
         {
-            var results = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, f => f.Random.Word())
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, f => f.Name.FirstName())
-                .Build(2)
-                .ToList();
+            var calls = 0;
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().With(x => x.Own, _ => $"own {++calls}").CastTo<IFirstValue>();
 
-            Assert.That(results[0], Is.Not.SameAs(results[1]));
+            var result = fixture.Build(2);
+
+            var owns = result.Select(instance => ((TwoInterfacesClass)instance).Own);
+            Assert.That(owns, Is.EqualTo(["own 1", "own 2"]));
         }
 
         [Test]
-        public void CastTo_BuildMultiple_FakerValuesBeforeCast_AreDifferent()
+        public void Count_FakerConfigurationAfterCast_IsInvokedForEachBuild()
         {
-            var factory = FixtureFactory.WithBogus();
-            factory.Random = new Randomizer(42);
+            var calls = 0;
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>().CastTo<IFirstValue>().WithBackingField(x => x.First, _ => $"first {++calls}");
 
-            var results = factory.New<Dog>()
-                .With(d => d.Breed, f => f.Random.Word())
-                .CastTo<IAnimal>()
-                .Build(2)
-                .ToList();
+            var result = fixture.Build(2);
 
-            var dog0 = (Dog)results[0];
-            var dog1 = (Dog)results[1];
-
-            Assert.That(dog0.Breed, Is.Not.EqualTo(dog1.Breed));
+            var firsts = result.Select(instance => instance.First);
+            Assert.That(firsts, Is.EqualTo(["first 1", "first 2"]));
         }
 
         [Test]
-        public void CastTo_BuildMultiple_FakerValuesAfterCast_AreDifferent()
+        public void Instance_CountAboveOne_ThrowsInvalidOperationException()
         {
-            var factory = FixtureFactory.WithBogus();
-            factory.Random = new Randomizer(42);
+            var fixture = Fixture.WithBogus(new TwoInterfacesClass()).CastTo<IFirstValue>();
 
-            var results = factory.New<Dog>()
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, f => f.Name.FirstName())
-                .Build(2)
-                .ToList();
-
-            Assert.That(results[0].Name, Is.Not.EqualTo(results[1].Name));
+            Assert.Throws<InvalidOperationException>(() => fixture.Build(2));
         }
 
         [Test]
-        public void CastTo_BuildMultiple_AllConfigurationAppliedToEach()
+        public void Instance_UnrelatedType_CountAboveOne_ThrowsInvalidCastException()
         {
-            var results = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, f => f.Random.Word())
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, f => f.Name.FirstName())
-                .WithBackingField(a => a.Age, f => f.Random.Int(1, 15))
-                .Build(3)
-                .ToList();
+            var fixture = Fixture.WithBogus(new TwoInterfacesClass()).CastTo<string>();
 
-            foreach (var animal in results)
-            {
-                var dog = (Dog)animal;
-
-                using (Assert.EnterMultipleScope())
-                {
-                    Assert.That(dog.Breed, Is.Not.Empty);
-                    Assert.That(animal.Name, Is.Not.Empty);
-                    Assert.That(animal.Age, Is.InRange(1, 15));
-                }
-            }
+            Assert.Throws<InvalidCastException>(() => fixture.Build(2));
         }
+
+        #endregion
+
+        #region Cast twice
 
         [Test]
-        public void CastTo_InvalidCast_Throws()
+        public void CastTwice_AppliesConfigurationFromEveryStage()
         {
-            Assert.That(() => Fixture.WithBogus<Dog>()
-                .CastTo<string>()
-                .Build(),
-                Throws.TypeOf<InvalidCastException>());
-        }
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>()
+                .With(x => x.Own, "own")
+                .CastTo<IFirstValue>()
+                .WithBackingField(x => x.First, "first")
+                .CastTo<ISecondValue>()
+                .WithBackingField(x => x.Second, "second");
 
-        [Test]
-        public void CastTo_FromInstance_BuildMultiple_Throws()
-        {
-            var bogus = Fixture.WithBogus(new Dog()).CastTo<IAnimal>();
+            var result = fixture.Build();
 
-            Assert.That(() => bogus.Build(2), Throws.TypeOf<InvalidOperationException>());
-        }
-
-        [Test]
-        public void CastTo_FromInstance_InvalidCast_BuildMultiple_Throws()
-        {
-            var bogus = Fixture.WithBogus(new Dog()).CastTo<string>();
-
-            Assert.That(() => bogus.Build(2), Throws.TypeOf<InvalidCastException>());
-        }
-
-        private interface ILiving
-        {
-            string Name { get; }
-        }
-
-        [Test]
-        public void CastTo_DoubleCast_AllConfigurationApplied()
-        {
-            var results = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, f => f.Random.Word())
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, f => f.Name.FirstName())
-                .WithBackingField(a => a.Age, f => f.Random.Int(1, 15))
-                .CastTo<ILiving>()
-                .Build(3)
-                .ToList();
-
+            var instance = (TwoInterfacesClass)result;
+            var first = ((IFirstValue)instance).First;
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(results[0], Is.Not.SameAs(results[1]));
-                Assert.That(results[1], Is.Not.SameAs(results[2]));
-            }
-
-            foreach (var living in results)
-            {
-                var dog = (Dog)living;
-
-                using (Assert.EnterMultipleScope())
-                {
-                    Assert.That(dog.Breed, Is.Not.Empty);
-                    Assert.That(living.Name, Is.Not.Empty);
-                    Assert.That(((IAnimal)dog).Age, Is.InRange(1, 15));
-                }
+                Assert.That(instance.Own, Is.EqualTo("own"));
+                Assert.That(first, Is.EqualTo("first"));
+                Assert.That(result.Second, Is.EqualTo("second"));
             }
         }
 
         [Test]
-        public void CastTo_DoubleCast_BuildMultiple_AllFakerValuesAreFresh()
+        public void CastTwice_Count_FakerConfigurationOfEveryStageIsInvokedForEachBuild()
         {
-            var factory = FixtureFactory.WithBogus();
-            factory.Random = new Randomizer(42);
+            var ownCalls = 0;
+            var firstCalls = 0;
+            var fixture = Fixture.WithBogus<TwoInterfacesClass>()
+                .With(x => x.Own, _ => $"own {++ownCalls}")
+                .CastTo<IFirstValue>()
+                .WithBackingField(x => x.First, _ => $"first {++firstCalls}")
+                .CastTo<ISecondValue>();
 
-            var results = factory.New<Dog>()
-                .With(d => d.Breed, f => f.Random.Word())
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Name, f => f.Name.FirstName())
-                .CastTo<ILiving>()
-                .Build(2)
-                .ToList();
+            var result = fixture.Build(2);
 
-            var dog0 = (Dog)results[0];
-            var dog1 = (Dog)results[1];
-
+            var owns = result.Select(instance => ((TwoInterfacesClass)instance).Own);
+            var firsts = result.Select(instance => ((IFirstValue)instance).First);
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(dog0.Breed, Is.Not.EqualTo(dog1.Breed));
-                Assert.That(results[0].Name, Is.Not.EqualTo(results[1].Name));
+                Assert.That(result, Is.Unique);
+                Assert.That(owns, Is.EqualTo(["own 1", "own 2"]));
+                Assert.That(firsts, Is.EqualTo(["first 1", "first 2"]));
             }
         }
 
-        [Test]
-        public void CastTo_DoubleCast_ConfigurationAfterSecondCast_IsApplied()
-        {
-            var result = Fixture.WithBogus<Dog>()
-                .With(d => d.Breed, "Husky")
-                .CastTo<IAnimal>()
-                .WithBackingField(a => a.Age, 5)
-                .CastTo<ILiving>()
-                .Build();
-
-            var dog = (Dog)result;
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(dog.Breed, Is.EqualTo("Husky"));
-                Assert.That(((IAnimal)dog).Age, Is.EqualTo(5));
-                Assert.That(result.Name, Is.Empty);
-            }
-        }
+        #endregion
     }
 }

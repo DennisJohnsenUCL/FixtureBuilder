@@ -11,12 +11,11 @@
         }
 
         [Test]
-        public void WithBogus_WithLocale_UsesLocale()
+        public void WithBogus_Locale_UsesLocale()
         {
             var factory = FixtureFactory.WithBogus("de");
 
             Assert.That(factory.Locale, Is.EqualTo("de"));
         }
     }
-
 }

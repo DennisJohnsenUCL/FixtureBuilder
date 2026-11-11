@@ -1,0 +1,38 @@
+# Inherits the solution .editorconfig. Test-project settings only.
+
+[*.cs]
+
+# Sample types exist to be inspected and changed through FixtureBuilder (reflection, backing fields, constructor
+# selection), so members that look unused, unassigned, unread or needlessly mutable are intentional in tests.
+
+# CS0169: Field is never used
+dotnet_diagnostic.CS0169.severity = none
+# CS0414: Field is assigned but its value is never used
+dotnet_diagnostic.CS0414.severity = none
+# CS0649: Field is never assigned to, and will always have its default value
+dotnet_diagnostic.CS0649.severity = none
+# CS9113: Parameter is unread
+dotnet_diagnostic.CS9113.severity = none
+# IDE0032: Use auto property
+dotnet_diagnostic.IDE0032.severity = none
+# IDE0044: Add readonly modifier
+dotnet_diagnostic.IDE0044.severity = none
+# IDE0051: Remove unused private member
+dotnet_diagnostic.IDE0051.severity = none
+# IDE0052: Remove unread private member
+dotnet_diagnostic.IDE0052.severity = none
+# IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = none
+# IDE0250: Make struct 'readonly'
+dotnet_diagnostic.IDE0250.severity = none
+# IDE0251: Make member 'readonly'
+dotnet_diagnostic.IDE0251.severity = none
+# RCS1085: Use auto-implemented property
+dotnet_diagnostic.RCS1085.severity = none
+# CA1822: Mark members as static
+dotnet_diagnostic.CA1822.severity = none
+
+# Inline arrays as arguments are the normal way to write test input.
+
+# CA1861: Avoid constant arrays as arguments
+dotnet_diagnostic.CA1861.severity = none

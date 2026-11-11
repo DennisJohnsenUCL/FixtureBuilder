@@ -1,30 +1,23 @@
-﻿using Bogus;
-using FixtureBuilder.Core;
-using Moq;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
 {
-    internal sealed class AddBogusProviderTests
+    internal sealed class FakerConfigurationBuilderTests
     {
-        public class ConstructorClass(string name)
+        [Test]
+        public void AddBogusProvider_ProviderResolvesWithFactoryFaker()
         {
-            public string Name { get; } = name;
+            var factory = FixtureFactory.WithBogus("de").AddBogusProvider(new FakerLocaleProvider());
+
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void AddBogusProvider_ProviderIsUsedByFixture()
+        public void AddBogusProvider_NullProvider_ThrowsArgumentNullException()
         {
             var factory = FixtureFactory.WithBogus();
 
-            var provider = new Mock<IBogusCustomProvider>();
-            provider.Setup(p => p.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(string)), It.IsAny<Faker>()))
-                .Returns("from-bogus-provider");
-
-            factory.AddBogusProvider(provider.Object);
-
-            var result = factory.Build<ConstructorClass>();
-
-            Assert.That(result.Name, Is.EqualTo("from-bogus-provider"));
+            Assert.Throws<ArgumentNullException>(() => factory.AddBogusProvider(null!));
         }
     }
 }

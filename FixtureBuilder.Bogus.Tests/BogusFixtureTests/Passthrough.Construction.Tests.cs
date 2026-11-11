@@ -1,98 +1,74 @@
-﻿using FixtureBuilder.Creation.UninitializedProviders;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class PassthroughConstructionTests
     {
-        private class SimpleClass
+        [Test]
+        public void UseAutoConstructor_ConstructsWithAutoConstructor()
         {
-            public string Name { get; set; } = string.Empty;
-            public int Value { get; set; }
-        }
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
 
-        private class ClassWithParameterizedConstructor(string name, int value)
-        {
-            public string Name { get; } = name;
-            public int Value { get; } = value;
+            var result = fixture.UseAutoConstructor().Build();
+
+            Assert.That(result.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void UseAutoConstructor_ReturnsInstance()
+        public void UseConstructor_Arguments_UsesMatchingConstructor()
         {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .UseAutoConstructor()
-                .Build();
+            var fixture = Fixture.WithBogus<StringConstructorClass>();
 
-            Assert.That(result, Is.Not.Null);
+            var result = fixture.UseConstructor("provided").Build();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
-        public void UseConstructor_WithArgs_SetsValues()
+        public void CreateUninitialized_BypassesConstructor()
         {
-            var result = Fixture.WithBogus<ClassWithParameterizedConstructor>()
-                .UseConstructor("Alice", 42)
-                .Build();
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+
+            var result = fixture.CreateUninitialized().Build();
+
+            Assert.That(result.Value, Is.Null);
+        }
+
+        [Test]
+        public void CreateUninitialized_InitializeMembers_InitializesMembers()
+        {
+            var fixture = Fixture.WithBogus<PropertyHolder<string>>();
+
+            var result = fixture.CreateUninitialized(InitializeMembers.All).Build();
+
+            Assert.That(result.Value, Is.EqualTo("Value"));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_UsesCreatedInstance()
+        {
+            var fixture = Fixture.WithBogus<StringConstructorClass>();
+
+            var result = fixture.UseCustomInstantiator(() => new StringConstructorClass("provided")).Build();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
+        }
+
+        private class TwoPropertiesClass
+        {
+            public string First { get; set; } = null!;
+            public string Second { get; set; } = null!;
+        }
+
+        [Test]
+        public void ConstructionThenConfiguration_AppliesBoth()
+        {
+            var fixture = Fixture.WithBogus<TwoPropertiesClass>();
+
+            var result = fixture.UseCustomInstantiator(() => new TwoPropertiesClass { First = "first" }).With(x => x.Second, "second").Build();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result.Name, Is.EqualTo("Alice"));
-                Assert.That(result.Value, Is.EqualTo(42));
-            }
-        }
-
-        [Test]
-        public void CreateUninitialized_ReturnsInstance()
-        {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .CreateUninitialized()
-                .Build();
-
-            Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        public void CreateUninitialized_WithInitializeMembers_ReturnsInstance()
-        {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .CreateUninitialized(InitializeMembers.None)
-                .Build();
-
-            Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        public void UseAutoConstructor_FollowedByConfiguration_AppliesBoth()
-        {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .UseAutoConstructor()
-                .With(x => x.Name, "Bob")
-                .Build();
-
-            Assert.That(result.Name, Is.EqualTo("Bob"));
-        }
-
-        [Test]
-        public void UseCustomInstantiator_ReturnsInstance()
-        {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass { Name = "Custom" })
-                .Build();
-
-            Assert.That(result.Name, Is.EqualTo("Custom"));
-        }
-
-        [Test]
-        public void UseCustomInstantiator_FollowedByConfiguration_AppliesBoth()
-        {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass { Name = "Custom" })
-                .With(x => x.Value, 99)
-                .Build();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Name, Is.EqualTo("Custom"));
-                Assert.That(result.Value, Is.EqualTo(99));
+                Assert.That(result.First, Is.EqualTo("first"));
+                Assert.That(result.Second, Is.EqualTo("second"));
             }
         }
     }

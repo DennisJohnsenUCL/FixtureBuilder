@@ -1,131 +1,95 @@
-﻿#pragma warning disable CS0649
-
-using FixtureBuilder.Core;
-using FixtureBuilder.FixtureFactories;
-using Moq;
+﻿using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
 {
     internal sealed class PassthroughConfigurationBuilderTests
     {
-        private BogusFixtureFactory _factory = null!;
-
-        public class TestClass(string name, ITestInterface child)
-        {
-            public string Name { get; set; } = name;
-            public ITestInterface Child { get; set; } = child;
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _factory = FixtureFactory.WithBogus();
-        }
-
         #region Options
 
         [Test]
-        public void Options_Set_UpdatesOptions()
+        public void Options_Set_FixturesUseOptions()
         {
-            var options = new FixtureOptions { AllowPrivateConstructors = false };
+            var factory = FixtureFactory.WithBogus();
 
-            _factory.Options = options;
+            factory.Options = new FixtureOptions { AllowPrivateConstructors = false };
 
-            Assert.That(_factory.Options.AllowPrivateConstructors, Is.False);
+            Assert.Throws<InvalidOperationException>(() => factory.Build<PrivateConstructorClass>());
         }
 
         [Test]
-        public void SetOptions_Action_UpdatesOptions()
+        public void SetOptions_ChangesOptions()
         {
-            _factory.SetOptions(o => o.AllowPrivateConstructors = false);
+            var factory = FixtureFactory.WithBogus();
 
-            Assert.That(_factory.Options.AllowPrivateConstructors, Is.False);
+            factory.SetOptions(options => options.AllowPrivateConstructors = false);
+
+            Assert.That(factory.Options.AllowPrivateConstructors, Is.False);
+        }
+
+        [Test]
+        public void SetOptions_FixturesUseChangedOptions()
+        {
+            var factory = FixtureFactory.WithBogus();
+
+            factory.SetOptions(options => options.AllowPrivateConstructors = false);
+
+            Assert.Throws<InvalidOperationException>(() => factory.Build<PrivateConstructorClass>());
         }
 
         #endregion
 
-        #region AddProvider
+        #region Customizations
 
         [Test]
-        public void AddProvider_ProviderIsUsedByFixture()
+        public void AddProvider_FixturesUseProvider()
         {
-            var provider = new Mock<ICustomProvider>();
-            provider.Setup(p => p.ResolveValue(It.Is<FixtureRequest>(r => r.Type == typeof(string))))
-                .Returns("from-provider");
+            var factory = FixtureFactory.WithBogus().AddProvider(new FixedStringProvider("provided"));
 
-            _factory.AddProvider(provider.Object);
+            var result = factory.Build<StringConstructorClass>();
 
-            var result = _factory.Build<TestClass>();
-
-            Assert.That(result.Name, Is.EqualTo("from-provider"));
-        }
-
-        #endregion
-
-        #region AddConverter
-
-        class NeedsConversion
-        {
-            public int _count;
-            public string Count => _count.ToString();
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
-        public void AddConverter_ConverterIsUsedByFixture()
+        public void AddConverter_FixturesUseConverter()
         {
-            var converter = new Mock<ICustomConverter>();
-            converter.Setup(c => c.Convert(typeof(int), "42")).Returns(42);
+            var factory = FixtureFactory.WithBogus().AddConverter(new FixedLongConverter(456));
 
-            _factory.AddConverter(converter.Object);
+            var result = factory.New<WiderBackingFieldClass>().WithBackingField(x => x.Value, 123).Build();
 
-            var result = _factory.New<NeedsConversion>()
-                .UseAutoConstructor()
-                .WithBackingField(x => x.Count, "42")
-                .Build();
-
-            Assert.That(result._count, Is.EqualTo(42));
-        }
-
-        #endregion
-
-        #region AddTypeLink
-
-        public interface ITestInterface;
-        public class TestImplementation : ITestInterface;
-
-        [Test]
-        public void AddTypeLink_TypeParams_FixtureUsesLink()
-        {
-            _factory.AddTypeLink<ITestInterface, TestImplementation>();
-
-            var result = _factory.Build<TestClass>();
-
-            Assert.That(result.Child, Is.InstanceOf<TestImplementation>());
+            Assert.That(result.Value, Is.EqualTo(456));
         }
 
         [Test]
-        public void AddTypeLink_TypeArguments_FixtureUsesLink()
+        public void AddTypeLink_TypeParameters_FixturesUseLink()
+        {
+            var factory = FixtureFactory.WithBogus().AddTypeLink<IMarkerInterface, MarkerImplementationClass>();
+
+            var result = factory.Build<InterfaceParameterClass>();
+
+            Assert.That(result.Dependency, Is.TypeOf<MarkerImplementationClass>());
+        }
+
+        [Test]
+        public void AddTypeLink_TypeArguments_FixturesUseLink()
         {
 #pragma warning disable CA2263 // Prefer generic overload when type is known
-            _factory.AddTypeLink(typeof(ITestInterface), typeof(TestImplementation));
+            var factory = FixtureFactory.WithBogus().AddTypeLink(typeof(IMarkerInterface), typeof(MarkerImplementationClass));
 #pragma warning restore CA2263 // Prefer generic overload when type is known
 
-            var result = _factory.Build<TestClass>();
+            var result = factory.Build<InterfaceParameterClass>();
 
-            Assert.That(result.Child, Is.InstanceOf<TestImplementation>());
+            Assert.That(result.Dependency, Is.TypeOf<MarkerImplementationClass>());
         }
 
         [Test]
-        public void AddTypeLink_CustomTypeLink_FixtureUsesLink()
+        public void AddTypeLink_CustomTypeLink_FixturesUseLink()
         {
-            var link = new Mock<ICustomTypeLink>();
-            link.Setup(l => l.Link(typeof(ITestInterface))).Returns(typeof(TestImplementation));
+            var factory = FixtureFactory.WithBogus().AddTypeLink(new MarkerInterfaceTypeLink());
 
-            _factory.AddTypeLink(link.Object);
+            var result = factory.Build<InterfaceParameterClass>();
 
-            var result = _factory.Build<TestClass>();
-
-            Assert.That(result.Child, Is.InstanceOf<TestImplementation>());
+            Assert.That(result.Dependency, Is.TypeOf<MarkerImplementationClass>());
         }
 
         #endregion

@@ -1,197 +1,145 @@
-﻿using Bogus;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class FakerConfigurationTests
     {
-        private class SimpleClass
-        {
-            public string Name { get; set; } = string.Empty;
-            public int Value { get; set; }
-        }
+        #region Values
 
-        private class ClassWithField
+        [Test]
+        public void With_Faker_SetsValueFromFixtureFaker()
         {
-            public string _name = string.Empty;
-            public string Name => _name;
-        }
+            var fixture = Fixture.WithBogus<PropertyHolder<string>>("de");
 
-        private class ClassWithBackingField
-        {
-            private readonly string _name = string.Empty;
-#pragma warning disable RCS1085 // Use auto-implemented property
-            public string Name => _name;
-#pragma warning restore RCS1085 // Use auto-implemented property
-        }
+            var result = fixture.With(x => x.Value, faker => faker.Locale).Build();
 
-        private class ClassWithMethod
-        {
-            public string LastArg { get; private set; } = string.Empty;
-            public void SetArg(string arg) => LastArg = arg;
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void With_Faker_SetsPropertyValue()
+        public void With_Faker_IsInvokedForEachBuild()
         {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .With(x => x.Name, f => f.Name.FirstName())
-                .Build();
+            var calls = 0;
+            var fixture = Fixture.WithBogus<PropertyHolder<string>>().With(x => x.Value, _ => $"value {++calls}");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.Build(2);
+
+            var values = result.Select(holder => holder.Value);
+            Assert.That(values, Is.EqualTo(["value 1", "value 2"]));
         }
 
         [Test]
-        public void With_Faker_BuildMultiple_ProducesDifferentValues()
+        public void WithSetter_Faker_SetsValueFromFixtureFaker()
         {
-            var factory = FixtureFactory.WithBogus();
-            factory.Random = new Randomizer(42);
+            var fixture = Fixture.WithBogus<PropertyHolder<string>>("de");
 
-            var results = factory.New<SimpleClass>()
-                .With(x => x.Name, f => f.Name.FirstName())
-                .Build(2)
-                .ToList();
+            var result = fixture.WithSetter(x => x.Value, faker => faker.Locale).Build();
 
-            Assert.That(results[0].Name, Is.Not.EqualTo(results[1].Name));
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithSetter_Faker_SetsPropertyValue()
+        public void WithField_Faker_SetsFieldFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .WithSetter(x => x.Name, f => f.Name.LastName())
-                .Build();
+            var fixture = Fixture.WithBogus<FieldHolder<string>>("de");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.WithField("Value", faker => faker.Locale).Build();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithField_Faker_SetsFieldValue()
+        public void WithField_FakerAndMemberExpression_SetsFieldOfMemberFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<ClassWithField>()
-                .WithField("_name", f => f.Name.FirstName())
-                .Build();
+            var fixture = Fixture.WithBogus<PropertyHolder<FieldHolder<string>>>("de");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.WithField(x => x.Value, "Value", faker => faker.Locale).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithBackingField_Faker_SetsBackingFieldValue()
+        public void WithBackingField_Faker_SetsBackingFieldFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<ClassWithBackingField>()
-                .WithBackingField(x => x.Name, f => f.Name.FirstName())
-                .Build();
+            var fixture = Fixture.WithBogus<ReadOnlyPropertyHolder<string>>("de");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.WithBackingField(x => x.Value, faker => faker.Locale).Build();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void InvokePrivate_Faker_PassesGeneratedArgs()
+        public void WithBackingField_FakerAndFieldName_SetsNamedFieldFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<ClassWithMethod>()
-                .InvokePrivate("SetArg", f => [f.Name.FirstName()])
-                .Build();
+            var fixture = Fixture.WithBogus<ReadOnlyPropertyHolder<string>>("de");
 
-            Assert.That(result.LastArg, Is.Not.Empty);
+            var result = fixture.WithBackingField(x => x.Value, faker => faker.Locale, "_value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void MultipleFakerCommands_AllApplied()
+        public void WithBackingFieldUntyped_Faker_SetsBackingFieldFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .With(x => x.Name, f => f.Name.FirstName())
-                .With(x => x.Value, f => f.Random.Int(1, 100))
-                .Build();
+            var fixture = Fixture.WithBogus<ReadOnlyPropertyHolder<string>>("de");
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Name, Is.Not.Empty);
-                Assert.That(result.Value, Is.InRange(1, 100));
-            }
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, faker => faker.Locale).Build();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void MixedFakerAndPassthrough_AllApplied()
+        public void WithBackingFieldUntyped_FakerAndFieldName_SetsNamedFieldFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<SimpleClass>()
-                .With(x => x.Name, f => f.Name.FirstName())
-                .With(x => x.Value, 42)
-                .Build();
+            var fixture = Fixture.WithBogus<ReadOnlyPropertyHolder<string>>("de");
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Name, Is.Not.Empty);
-                Assert.That(result.Value, Is.EqualTo(42));
-            }
-        }
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, faker => faker.Locale, "_value").Build();
 
-        private class ClassWithNestedField
-        {
-            public ClassWithField Child { get; set; } = new();
-        }
-
-        private class ClassWithNestedMethod
-        {
-            public ClassWithMethod Child { get; set; } = new();
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithField_Faker_Nested_SetsFieldValue()
+        public void FakerAndPassthroughMethods_AppliesBoth()
         {
-            var result = Fixture.WithBogus<ClassWithNestedField>()
-                .WithField<ClassWithField, string>(x => x.Child, "_name", f => f.Name.FirstName())
-                .Build();
+            var fixture = Fixture.WithBogus<PropertyHolder<PropertyHolder<string>>>("de");
 
-            Assert.That(result.Child.Name, Is.Not.Empty);
+            var result = fixture.With(x => x.Value, new PropertyHolder<string>()).With(x => x.Value.Value, faker => faker.Locale).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("de"));
+        }
+
+        #endregion
+
+        #region Methods
+
+        [Test]
+        public void Invoke_Faker_CallsMethodWithFixtureFaker()
+        {
+            var fixture = Fixture.WithBogus<RecordingMethodClass>("de");
+
+            var result = fixture.Invoke(faker => x => x.Record(faker.Locale)).Build();
+
+            Assert.That(result.Recorded, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithBackingField_Faker_WithFieldName_SetsValue()
+        public void InvokePrivate_Faker_PassesArgumentsFromFixtureFaker()
         {
-            var result = Fixture.WithBogus<ClassWithBackingField>()
-                .WithBackingField(x => x.Name, f => f.Name.FirstName(), "_name")
-                .Build();
+            var fixture = Fixture.WithBogus<RecordingMethodClass>("de");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.InvokePrivate("Record", faker => [faker.Locale]).Build();
+
+            Assert.That(result.Recorded, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithBackingFieldUntyped_Faker_SetsValue()
+        public void InvokePrivate_FakerAndMemberExpression_PassesArgumentsFromFixtureFakerToMember()
         {
-            var result = Fixture.WithBogus<ClassWithBackingField>()
-                .WithBackingFieldUntyped(x => x.Name, f => f.Name.FirstName())
-                .Build();
+            var fixture = Fixture.WithBogus<PropertyHolder<RecordingMethodClass>>("de");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.InvokePrivate(x => x.Value, "Record", faker => [faker.Locale]).Build();
+
+            Assert.That(result.Value.Recorded, Is.EqualTo("de"));
         }
 
-        [Test]
-        public void WithBackingFieldUntyped_Faker_WithFieldName_SetsValue()
-        {
-            var result = Fixture.WithBogus<ClassWithBackingField>()
-                .WithBackingFieldUntyped(x => x.Name, f => f.Name.FirstName(), "_name")
-                .Build();
-
-            Assert.That(result.Name, Is.Not.Empty);
-        }
-
-        [Test]
-        public void Invoke_Faker_ExecutesMethod()
-        {
-            var result = Fixture.WithBogus<ClassWithMethod>()
-                .Invoke(f => x => x.SetArg(f.Name.FirstName()))
-                .Build();
-
-            Assert.That(result.LastArg, Is.Not.Empty);
-        }
-
-        [Test]
-        public void InvokePrivate_Faker_Nested_PassesGeneratedArgs()
-        {
-            var result = Fixture.WithBogus<ClassWithNestedMethod>()
-                .InvokePrivate(x => x.Child, "SetArg", f => [f.Name.FirstName()])
-                .Build();
-
-            Assert.That(result.Child.LastArg, Is.Not.Empty);
-        }
+        #endregion
     }
 }

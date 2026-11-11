@@ -1,74 +1,57 @@
-﻿#pragma warning disable CS0649
-
-using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
 {
-    internal sealed class PassthroughWithTests
+    internal sealed class PassthroughProviderBuilderTests
     {
-        private BogusFixtureFactory _factory = null!;
-
-        public class ConstructorClass(string name)
-        {
-            public string Name { get; } = name;
-        }
-
-        public class PropertyClass
-        {
-            public string Name { get; set; } = "";
-        }
-
-        public class FieldClass
-        {
-            public int Value;
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _factory = FixtureFactory.WithBogus();
-        }
-
         #region With
 
         [Test]
         public void With_Value_AppliesValue()
         {
-            var result = _factory.With("injected").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().With("provided");
 
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void With_Func_AppliesValue()
         {
-            var result = _factory.With(() => "injected").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().With(() => "provided");
 
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void With_ValueAndName_AppliesValue()
         {
-            var result = _factory.With("injected", "name").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().With("provided", "value");
 
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void With_FuncAndName_AppliesValue()
         {
-            var result = _factory.With(() => "injected", "name").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().With(() => "provided", "value");
 
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
-        public void With_ReturnsFactoryForChaining()
+        public void With_ReturnsSameFactory()
         {
-            var result = _factory.With("hello");
+            var factory = FixtureFactory.WithBogus();
 
-            Assert.That(result, Is.SameAs(_factory));
+            var result = factory.With("value");
+
+            Assert.That(result, Is.SameAs(factory));
         }
 
         #endregion
@@ -78,33 +61,41 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTe
         [Test]
         public void WithParameter_Value_AppliesValue()
         {
-            var result = _factory.WithParameter("param-injected").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().WithParameter("provided");
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void WithParameter_Func_AppliesValue()
         {
-            var result = _factory.WithParameter(() => "param-injected").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().WithParameter(() => "provided");
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void WithParameter_ValueAndName_AppliesValue()
         {
-            var result = _factory.WithParameter("param-injected", "name").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().WithParameter("provided", "value");
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void WithParameter_FuncAndName_AppliesValue()
         {
-            var result = _factory.WithParameter(() => "param-injected", "name").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus().WithParameter(() => "provided", "value");
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         #endregion
@@ -114,56 +105,41 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTe
         [Test]
         public void WithPropertyOrField_Value_AppliesValue()
         {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
+            var factory = FixtureFactory.WithBogus().WithPropertyOrField("provided");
 
-            var result = _factory.WithPropertyOrField("prop-injected").Build<PropertyClass>();
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void WithPropertyOrField_Func_AppliesValue()
         {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
+            var factory = FixtureFactory.WithBogus().WithPropertyOrField(() => "provided");
 
-            var result = _factory.WithPropertyOrField(() => "prop-injected").Build<PropertyClass>();
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void WithPropertyOrField_ValueAndName_AppliesValue()
         {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
+            var factory = FixtureFactory.WithBogus().WithPropertyOrField("provided", "Value");
 
-            var result = _factory.WithPropertyOrField("prop-injected", "Name").Build<PropertyClass>();
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
         public void WithPropertyOrField_FuncAndName_AppliesValue()
         {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
+            var factory = FixtureFactory.WithBogus().WithPropertyOrField(() => "provided", "Value");
 
-            var result = _factory.WithPropertyOrField(() => "prop-injected", "Name").Build<PropertyClass>();
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
-        }
-
-        [Test]
-        public void WithPropertyOrField_Field_AppliesValue()
-        {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
-
-            var result = _factory.WithPropertyOrField(42).Build<FieldClass>();
-
-            Assert.That(result.Value, Is.EqualTo(42));
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         #endregion

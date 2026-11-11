@@ -4,92 +4,70 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTe
 {
     internal sealed class NewTests
     {
-        private class SimpleClass
-        {
-            public string Name { get; set; } = string.Empty;
-        }
-
-        private BogusFixtureFactory _factory = null!;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _factory = FixtureFactory.WithBogus();
-        }
-
         [Test]
-        public void New_ReturnsConstructor()
+        public void CalledTwice_ReturnsIndependentFixtures()
         {
-            var constructor = _factory.New<SimpleClass>();
+            var factory = FixtureFactory.WithBogus();
 
-            Assert.That(constructor, Is.InstanceOf<IBogusFixtureConstructor<SimpleClass>>());
-        }
-
-        [Test]
-        public void New_MultipleCallsProduceIndependentFixtures()
-        {
-            var result1 = _factory.New<SimpleClass>()
-                .With(x => x.Name, "First")
-                .Build();
-
-            var result2 = _factory.New<SimpleClass>()
-                .With(x => x.Name, "Second")
-                .Build();
+            var first = factory.New<PropertyHolder<string>>().With(x => x.Value, "first").Build();
+            var second = factory.New<PropertyHolder<string>>().With(x => x.Value, "second").Build();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result1.Name, Is.EqualTo("First"));
-                Assert.That(result2.Name, Is.EqualTo("Second"));
+                Assert.That(first.Value, Is.EqualTo("first"));
+                Assert.That(second.Value, Is.EqualTo("second"));
             }
         }
 
         [Test]
-        public void New_SharesLocaleWithFactory()
+        public void UsesFactoryLocale()
         {
             var factory = FixtureFactory.WithBogus("de");
 
-            var constructor = factory.New<SimpleClass>();
+            var fixture = factory.New<EmptyClass>();
 
-            Assert.That(constructor.Locale, Is.EqualTo(factory.Locale));
+            Assert.That(fixture.Locale, Is.EqualTo("de"));
         }
 
         [Test]
-        public void New_SharesRandomWithFactory()
+        public void UsesFactoryRandom()
         {
             var factory = FixtureFactory.WithBogus();
-            var randomizer = new Randomizer(42);
-            factory.Random = randomizer;
+            factory.Random = new Randomizer(42);
 
-            var constructor = factory.New<SimpleClass>();
+            var fixture = factory.New<EmptyClass>();
 
-            Assert.That(constructor.Random, Is.SameAs(factory.Random));
+            Assert.That(fixture.Random, Is.SameAs(factory.Random));
         }
 
         [Test]
-        public void New_WithInstance_BuildReturnsSameInstance()
+        public void Instance_BuildReturnsInstance()
         {
-            var instance = new SimpleClass();
+            var factory = FixtureFactory.WithBogus();
+            var instance = new EmptyClass();
 
-            var result = _factory.New(instance).Build();
+            var result = factory.New(instance).Build();
 
             Assert.That(result, Is.SameAs(instance));
         }
 
         [Test]
-        public void New_WithInstance_UsesFactoryLocale()
+        public void Instance_UsesFactoryLocale()
         {
             var factory = FixtureFactory.WithBogus("de");
-            var instance = new SimpleClass();
+            var instance = new EmptyClass();
 
-            var configurator = factory.New(instance);
+            var fixture = factory.New(instance);
 
-            Assert.That(configurator.Locale, Is.EqualTo("de"));
+            Assert.That(fixture.Locale, Is.EqualTo("de"));
         }
 
         [Test]
-        public void New_WithInstance_Null_Throws()
+        public void NullInstance_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => _factory.New<SimpleClass>(null!));
+            var factory = FixtureFactory.WithBogus();
+
+            Assert.Throws<ArgumentNullException>(() => factory.New<EmptyClass>(null!));
         }
     }
 }

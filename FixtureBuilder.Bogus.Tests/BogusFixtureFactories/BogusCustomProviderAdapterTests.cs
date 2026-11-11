@@ -1,22 +1,15 @@
-﻿using Bogus;
-using FixtureBuilder.Bogus.BogusFixtureFactories.Customizations;
-using Moq;
+﻿using FixtureBuilder.Bogus.BogusFixtureFactories.Customizations;
 
 namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories
 {
     internal sealed class BogusCustomProviderAdapterTests
     {
         [Test]
-        public void Constructor_NullProvider_Throws()
+        public void Constructor_NullFaker_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new BogusCustomProviderAdapter(null!, new Faker()));
-        }
+            var provider = new FakerLocaleProvider();
 
-        [Test]
-        public void Constructor_NullFaker_Throws()
-        {
-            var provider = new Mock<IBogusCustomProvider>();
-            Assert.Throws<ArgumentNullException>(() => new BogusCustomProviderAdapter(provider.Object, null!));
+            Assert.Throws<ArgumentNullException>(() => new BogusCustomProviderAdapter(provider, null!));
         }
     }
 }

@@ -1,91 +1,110 @@
-﻿using Bogus;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class InstantiateTests
     {
-        private class Parent
+        #region Without constructor function
+
+        [Test]
+        public void NoConstructorFunction_SetsAutoConstructedInstance()
         {
-            public Child Child { get; set; } = null!;
+            var fixture = Fixture.WithBogus<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
         }
 
-        private class Child
-        {
-            public string Name { get; set; } = string.Empty;
+        #endregion
 
-            public Child() { }
-            public Child(string name) => Name = name;
+        #region Faker constructor functions
+
+        [Test]
+        public void UseConstructorWithFaker_PassesArgumentsFromFixtureFaker()
+        {
+            var fixture = Fixture.WithBogus<PropertyHolder<StringConstructorClass>>("de");
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseConstructor(faker => [faker.Locale])).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void Instantiate_Passthrough_CreatesInstance()
+        public void UseConstructorWithFaker_IsInvokedForEachBuild()
         {
-            var result = Fixture.WithBogus<Parent>()
-                .Instantiate(x => x.Child)
-                .Build();
+            var calls = 0;
+            var fixture = Fixture.WithBogus<PropertyHolder<StringConstructorClass>>()
+                .Instantiate(x => x.Value, constructor => constructor.UseConstructor(_ => [$"value {++calls}"]));
 
-            Assert.That(result.Child, Is.Not.Null);
+            var result = fixture.Build(2);
+
+            var values = result.Select(holder => holder.Value.Value);
+            Assert.That(values, Is.EqualTo(["value 1", "value 2"]));
         }
 
         [Test]
-        public void Instantiate_WithConstructor_PassesArgs()
+        public void UseCustomInstantiatorWithFaker_SetsInstanceCreatedWithFixtureFaker()
         {
-            var result = Fixture.WithBogus<Parent>()
-                .Instantiate(x => x.Child, c => c.UseConstructor("Alice"))
-                .Build();
+            var fixture = Fixture.WithBogus<PropertyHolder<StringConstructorClass>>("de");
 
-            Assert.That(result.Child.Name, Is.EqualTo("Alice"));
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseCustomInstantiator(faker => new StringConstructorClass(faker.Locale))).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("de"));
+        }
+
+        #endregion
+
+        #region Passthrough constructor functions
+
+        [Test]
+        public void UseAutoConstructor_SetsAutoConstructedInstance()
+        {
+            var fixture = Fixture.WithBogus<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor()).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Instantiate_WithBogusConstructor_UsesFaker()
+        public void UseConstructor_SetsInstanceConstructedWithArguments()
         {
-            var result = Fixture.WithBogus<Parent>()
-                .Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()]))
-                .Build();
+            var fixture = Fixture.WithBogus<PropertyHolder<StringConstructorClass>>();
 
-            Assert.That(result.Child.Name, Is.Not.Empty);
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseConstructor("provided")).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("provided"));
         }
 
         [Test]
-        public void Instantiate_WithBogusConstructor_BuildMultiple_ProducesDifferentValues()
+        public void CreateUninitialized_SetsUninitializedInstance()
         {
-            var factory = FixtureFactory.WithBogus();
-            factory.Random = new Randomizer(42);
+            var fixture = Fixture.WithBogus<PropertyHolder<ConstructorSetsValueClass>>();
 
-            var results = factory.New<Parent>()
-                .Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()]))
-                .Build(2)
-                .ToList();
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.CreateUninitialized()).Build();
 
-            Assert.That(results[0].Child.Name, Is.Not.EqualTo(results[1].Child.Name));
+            Assert.That(result.Value.Value, Is.Null);
         }
 
         [Test]
-        public void Instantiate_WithBogusConstructor_Seeded_ProducesRepeatableResults()
+        public void CreateUninitializedWithMembers_SetsInstanceWithInitializedMembers()
         {
-            var firstFactory = FixtureFactory.WithBogus();
-            firstFactory.Random = new Randomizer(42);
-            var first = firstFactory.New<Parent>();
+            var fixture = Fixture.WithBogus<PropertyHolder<ConstructorSetsValueClass>>();
 
-            var secondFactory = FixtureFactory.WithBogus();
-            secondFactory.Random = new Randomizer(42);
-            var second = secondFactory.New<Parent>();
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.CreateUninitialized(InitializeMembers.All)).Build();
 
-            var result1 = first.Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()])).Build();
-            var result2 = second.Instantiate(x => x.Child, c => c.UseConstructor(f => [f.Name.FirstName()])).Build();
-
-            Assert.That(result1.Child.Name, Is.EqualTo(result2.Child.Name));
+            Assert.That(result.Value.Value, Is.EqualTo("Value"));
         }
 
         [Test]
-        public void Instantiate_WithCustomInstantiator_UsesFactory()
+        public void UseCustomInstantiator_SetsCreatedInstance()
         {
-            var result = Fixture.WithBogus<Parent>()
-                .Instantiate(x => x.Child, c => c.UseCustomInstantiator(f => new Child(f.Name.FirstName())))
-                .Build();
+            var fixture = Fixture.WithBogus<PropertyHolder<StringConstructorClass>>();
 
-            Assert.That(result.Child.Name, Is.Not.Empty);
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseCustomInstantiator(() => new StringConstructorClass("provided"))).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("provided"));
         }
+
+        #endregion
     }
 }

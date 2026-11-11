@@ -1,56 +1,43 @@
-﻿using Bogus;
-using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTests
 {
-    internal sealed class FakerWithTests
+    internal sealed class FakerProviderBuilderTests
     {
-        private BogusFixtureFactory _factory = null!;
-
-        public class ConstructorClass(string name)
-        {
-            public string Name { get; } = name;
-        }
-
-        public class PropertyClass
-        {
-            public string Name { get; set; } = "";
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _factory = FixtureFactory.WithBogus();
-        }
-
         #region With
 
         [Test]
-        public void With_Faker_AppliesValue()
+        public void With_Faker_AppliesValueFromFactoryFaker()
         {
-            var result = _factory.With(f => f.Name.FirstName()).Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus("de").With(faker => faker.Locale);
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void With_Faker_ProducesUniqueValues()
+        public void With_Faker_IsInvokedForEachValue()
         {
-            _factory.Random = new Randomizer(42);
-            _factory.With(f => f.Name.FirstName());
+            var calls = 0;
+            var factory = FixtureFactory.WithBogus().With(_ => $"value {++calls}");
 
-            var result1 = _factory.Build<ConstructorClass>();
-            var result2 = _factory.Build<ConstructorClass>();
+            var first = factory.Build<StringConstructorClass>();
+            var second = factory.Build<StringConstructorClass>();
 
-            Assert.That(result1.Name, Is.Not.EqualTo(result2.Name));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(first.Value, Is.EqualTo("value 1"));
+                Assert.That(second.Value, Is.EqualTo("value 2"));
+            }
         }
 
         [Test]
-        public void With_FakerAndName_AppliesValue()
+        public void With_FakerAndName_AppliesValueFromFactoryFaker()
         {
-            var result = _factory.With(f => f.Name.FirstName(), "name").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus("de").With(faker => faker.Locale, "value");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         #endregion
@@ -58,19 +45,23 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTe
         #region WithParameter
 
         [Test]
-        public void WithParameter_Faker_AppliesValue()
+        public void WithParameter_Faker_AppliesValueFromFactoryFaker()
         {
-            var result = _factory.WithParameter(f => f.Name.FirstName()).Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus("de").WithParameter(faker => faker.Locale);
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithParameter_FakerAndName_AppliesValue()
+        public void WithParameter_FakerAndName_AppliesValueFromFactoryFaker()
         {
-            var result = _factory.WithParameter(f => f.Name.FirstName(), "name").Build<ConstructorClass>();
+            var factory = FixtureFactory.WithBogus("de").WithParameter(faker => faker.Locale, "value");
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         #endregion
@@ -78,39 +69,39 @@ namespace FixtureBuilder.Bogus.Tests.BogusFixtureFactories.BogusFixtureFactoryTe
         #region WithPropertyOrField
 
         [Test]
-        public void WithPropertyOrField_Faker_AppliesValue()
+        public void WithPropertyOrField_Faker_AppliesValueFromFactoryFaker()
         {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
+            var factory = FixtureFactory.WithBogus("de").WithPropertyOrField(faker => faker.Locale);
 
-            var result = _factory.WithPropertyOrField<string>(f => f.Name.FirstName()).Build<PropertyClass>();
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.Not.Empty);
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithPropertyOrField_Faker_ProducesUniqueValues()
+        public void WithPropertyOrField_Faker_IsInvokedForEachValue()
         {
-            _factory.Random = new Randomizer(42);
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
-            _factory.WithPropertyOrField(f => f.Name.FirstName());
+            var calls = 0;
+            var factory = FixtureFactory.WithBogus().WithPropertyOrField(_ => $"value {++calls}");
 
-            var result1 = _factory.Build<PropertyClass>();
-            var result2 = _factory.Build<PropertyClass>();
+            var first = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
+            var second = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result1.Name, Is.Not.EqualTo(result2.Name));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(first.Value, Is.EqualTo("value 1"));
+                Assert.That(second.Value, Is.EqualTo("value 2"));
+            }
         }
 
         [Test]
-        public void WithPropertyOrField_FakerAndName_AppliesValue()
+        public void WithPropertyOrField_FakerAndName_AppliesValueFromFactoryFaker()
         {
-            _factory.SetOptions(o => o.DefaultInstantiationMethod = InstantiationMethod.CreateUninitialized);
-            _factory.SetOptions(o => o.DefaultInitializeMembers = InitializeMembers.All);
+            var factory = FixtureFactory.WithBogus("de").WithPropertyOrField(faker => faker.Locale, "Value");
 
-            var result = _factory.WithPropertyOrField(f => f.Name.FirstName(), "Name").Build<PropertyClass>();
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.Not.Empty);
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         #endregion

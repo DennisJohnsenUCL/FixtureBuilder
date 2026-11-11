@@ -2,35 +2,32 @@
 {
     internal sealed class BuildTests
     {
-        private BogusFixtureFactory _factory = null!;
-
-        public class TestClass;
-        public interface ITestInterface;
-        public abstract class AbstractTestClass;
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void ConstructsFixtureImplicitly()
         {
-            _factory = FixtureFactory.WithBogus();
+            var factory = FixtureFactory.WithBogus();
+
+            var result = factory.Build<ConstructorSetsValueClass>();
+
+            Assert.That(result.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Build_ReturnsInstance()
+        public void Interface_ThrowsInvalidOperationException()
         {
-            var result = _factory.Build<TestClass>();
-            Assert.That(result, Is.InstanceOf<TestClass>());
+            var factory = FixtureFactory.WithBogus();
+
+            Assert.Throws<InvalidOperationException>(() => factory.Build<IMarkerInterface>());
         }
 
-        [Test]
-        public void Build_InterfaceType_Throws()
-        {
-            Assert.Throws<InvalidOperationException>(() => _factory.Build<ITestInterface>());
-        }
+        private abstract class AbstractClass;
 
         [Test]
-        public void Build_AbstractType_Throws()
+        public void AbstractClass_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => _factory.Build<AbstractTestClass>());
+            var factory = FixtureFactory.WithBogus();
+
+            Assert.Throws<InvalidOperationException>(() => factory.Build<AbstractClass>());
         }
     }
 }

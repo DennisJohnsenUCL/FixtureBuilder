@@ -2,89 +2,140 @@
 {
     internal sealed class ConstructionOrderTests
     {
-        private interface INamed
-        {
-            string Name { get; }
-        }
+        #region Construction method after construction method
 
-        public class SimpleClass : INamed
+        [Test]
+        public void UseConstructorWithFaker_AlreadyConstructed_ThrowsInvalidOperationException()
         {
-            public string Name { get; set; } = string.Empty;
-        }
-
-        private class ThrowingConstructorClass
-        {
-            public ThrowingConstructorClass() => throw new InvalidOperationException("Constructor failed.");
-        }
-
-        private static TestCaseData ConstructionCase(string name, Func<IBogusFixtureConstructor<SimpleClass>, IBogusFixtureConfigurator<SimpleClass>> construct)
-            => new TestCaseData(construct).SetArgDisplayNames(name);
-
-        private static IEnumerable<TestCaseData> ConstructionMethods()
-        {
-            yield return ConstructionCase("UseConstructor(Faker)", c => c.UseConstructor(_ => []));
-            yield return ConstructionCase("UseCustomInstantiator(Faker)", c => c.UseCustomInstantiator(_ => new SimpleClass()));
-            yield return ConstructionCase("CreateUninitialized()", c => c.CreateUninitialized());
-            yield return ConstructionCase("CreateUninitialized(InitializeMembers)", c => c.CreateUninitialized(InitializeMembers.None));
-            yield return ConstructionCase("UseConstructor(args)", c => c.UseConstructor());
-            yield return ConstructionCase("UseAutoConstructor()", c => c.UseAutoConstructor());
-            yield return ConstructionCase("UseCustomInstantiator()", c => c.UseCustomInstantiator(() => new SimpleClass()));
-        }
-
-        [TestCaseSource(nameof(ConstructionMethods))]
-        public void ConstructionMethod_AfterConstructionMethod_ThrowsInvalidOperationException(
-            Func<IBogusFixtureConstructor<SimpleClass>, IBogusFixtureConfigurator<SimpleClass>> construct)
-        {
-            var fixture = Fixture.WithBogus<SimpleClass>();
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
             fixture.UseAutoConstructor();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => construct(fixture));
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor(_ => []));
 
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
 
         [Test]
-        public void ConstructionMethod_AfterConfiguration_ThrowsInvalidOperationException()
+        public void UseCustomInstantiatorWithFaker_AlreadyConstructed_ThrowsInvalidOperationException()
         {
-            var fixture = Fixture.WithBogus<SimpleClass>();
-            fixture.With(x => x.Name, "Configured");
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.UseAutoConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseCustomInstantiator(_ => new ConstructorSetsValueClass()));
+
+            Assert.That(ex.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
+        public void CreateUninitialized_AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.UseAutoConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.CreateUninitialized());
+
+            Assert.That(ex.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
+        public void CreateUninitializedWithMembers_AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.UseAutoConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.CreateUninitialized(InitializeMembers.None));
+
+            Assert.That(ex.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
+        public void UseConstructor_AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.UseAutoConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor());
+
+            Assert.That(ex.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
+        public void UseAutoConstructor_AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.UseAutoConstructor();
 
             var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseAutoConstructor());
 
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
+            Assert.That(ex.Message, Does.Contain("already constructed"));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_AlreadyConstructed_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.UseAutoConstructor();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseCustomInstantiator(() => new ConstructorSetsValueClass()));
+
+            Assert.That(ex.Message, Does.Contain("already constructed"));
+        }
+
+        #endregion
+
+        #region Construction method after other calls
+
+        [Test]
+        public void ConstructionMethod_AfterConfigurationMethod_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+            fixture.With(x => x.Value, "value");
+
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseAutoConstructor());
+
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
 
         [Test]
         public void ConstructionMethod_AfterBuild_ThrowsInvalidOperationException()
         {
-            var fixture = Fixture.WithBogus<SimpleClass>();
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
             fixture.Build();
 
             var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseAutoConstructor());
 
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
-        }
-
-        [Test]
-        public void ConstructionMethod_AfterFailedBuild_IsAllowed()
-        {
-            var fixture = Fixture.WithBogus<ThrowingConstructorClass>();
-            Assert.Catch(() => fixture.Build());
-
-            var result = fixture.CreateUninitialized().Build();
-
-            Assert.That(result, Is.Not.Null);
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
 
         [Test]
         public void ConstructionMethod_AfterCastTo_ThrowsInvalidOperationException()
         {
-            var fixture = Fixture.WithBogus<SimpleClass>();
-            fixture.CastTo<INamed>();
+            var fixture = Fixture.WithBogus<MarkerImplementationClass>();
+            fixture.CastTo<IMarkerInterface>();
 
             var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseAutoConstructor());
 
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
+
+        private class ThrowingConstructorClass
+        {
+            public string Value { get; } = "initializer";
+
+            public ThrowingConstructorClass() => throw new FormatException();
+        }
+
+        [Test]
+        public void ConstructionMethod_AfterFailedBuild_ConstructsFixture()
+        {
+            var fixture = Fixture.WithBogus<ThrowingConstructorClass>();
+            Assert.Throws<InvalidOperationException>(() => fixture.Build());
+
+            var result = fixture.CreateUninitialized().Build();
+
+            Assert.That(result.Value, Is.Null);
+        }
+
+        #endregion
     }
 }

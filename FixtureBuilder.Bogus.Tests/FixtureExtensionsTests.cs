@@ -2,38 +2,26 @@
 {
     internal sealed class FixtureExtensionsTests
     {
-        class SimpleClass;
-
-        [Test]
-        public void WithBogus_WithLocale_UsesLocale()
-        {
-            var bogus = Fixture.WithBogus<SimpleClass>("de");
-
-            Assert.That(bogus.Locale, Is.EqualTo("de"));
-        }
-
         [Test]
         public void WithBogus_DefaultLocale_IsEnglish()
         {
-            var bogus = Fixture.WithBogus<SimpleClass>();
+            var fixture = Fixture.WithBogus<EmptyClass>();
 
-            Assert.That(bogus.Locale, Is.EqualTo("en"));
+            Assert.That(fixture.Locale, Is.EqualTo("en"));
         }
 
         [Test]
-        public void WithBogus_Instance_ReturnsConfigurator()
+        public void WithBogus_Locale_UsesLocale()
         {
-            var instance = new SimpleClass();
+            var fixture = Fixture.WithBogus<EmptyClass>("de");
 
-            var bogus = Fixture.WithBogus(instance);
-
-            Assert.That(bogus, Is.InstanceOf<IBogusFixtureConfigurator<SimpleClass>>());
+            Assert.That(fixture.Locale, Is.EqualTo("de"));
         }
 
         [Test]
-        public void WithBogus_Instance_BuildReturnsSameInstance()
+        public void WithBogus_Instance_BuildReturnsInstance()
         {
-            var instance = new SimpleClass();
+            var instance = new EmptyClass();
 
             var result = Fixture.WithBogus(instance).Build();
 
@@ -41,13 +29,23 @@
         }
 
         [Test]
-        public void WithBogus_InstanceWithLocale_UsesLocale()
+        public void WithBogus_InstanceDefaultLocale_IsEnglish()
         {
-            var instance = new SimpleClass();
+            var instance = new EmptyClass();
 
-            var bogus = Fixture.WithBogus(instance, "de");
+            var fixture = Fixture.WithBogus(instance);
 
-            Assert.That(bogus.Locale, Is.EqualTo("de"));
+            Assert.That(fixture.Locale, Is.EqualTo("en"));
+        }
+
+        [Test]
+        public void WithBogus_InstanceAndLocale_UsesLocale()
+        {
+            var instance = new EmptyClass();
+
+            var fixture = Fixture.WithBogus(instance, "de");
+
+            Assert.That(fixture.Locale, Is.EqualTo("de"));
         }
     }
 }

@@ -1,36 +1,58 @@
-﻿using Bogus;
-
-namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
+﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
     internal sealed class FakerConstructionTests
     {
-        private class ClassWithParameterizedConstructor(string name)
+        #region UseConstructor
+
+        [Test]
+        public void UseConstructor_Faker_PassesArgumentsFromFixtureFaker()
         {
-            public string Name { get; } = name;
+            var fixture = Fixture.WithBogus<StringConstructorClass>("de");
+
+            var result = fixture.UseConstructor(faker => [faker.Locale]).Build();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void UseConstructor_Faker_PassesGeneratedArgs()
+        public void UseConstructor_Faker_IsInvokedForEachBuild()
         {
-            var result = Fixture.WithBogus<ClassWithParameterizedConstructor>()
-                .UseConstructor(f => [f.Name.FirstName()])
-                .Build();
+            var calls = 0;
+            var fixture = Fixture.WithBogus<StringConstructorClass>().UseConstructor(_ => [$"value {++calls}"]);
 
-            Assert.That(result.Name, Is.Not.Empty);
+            var result = fixture.Build(2);
+
+            var values = result.Select(instance => instance.Value);
+            Assert.That(values, Is.EqualTo(["value 1", "value 2"]));
+        }
+
+        #endregion
+
+        #region UseCustomInstantiator
+
+        [Test]
+        public void UseCustomInstantiator_Faker_UsesInstanceCreatedWithFixtureFaker()
+        {
+            var fixture = Fixture.WithBogus<StringConstructorClass>("de");
+
+            var result = fixture.UseCustomInstantiator(faker => new StringConstructorClass(faker.Locale)).Build();
+
+            Assert.That(result.Value, Is.EqualTo("de"));
         }
 
         [Test]
-        public void UseConstructor_Faker_BuildMultiple_ProducesDifferentValues()
+        public void UseCustomInstantiator_Faker_IsInvokedForEachBuild()
         {
-            var factory = FixtureFactory.WithBogus();
-            factory.Random = new Randomizer(42);
+            var calls = 0;
+            var fixture = Fixture.WithBogus<StringConstructorClass>()
+                .UseCustomInstantiator(_ => new StringConstructorClass($"value {++calls}"));
 
-            var results = factory.New<ClassWithParameterizedConstructor>()
-                .UseConstructor(f => [f.Name.FirstName()])
-                .Build(2)
-                .ToList();
+            var result = fixture.Build(2);
 
-            Assert.That(results[0].Name, Is.Not.EqualTo(results[1].Name));
+            var values = result.Select(instance => instance.Value);
+            Assert.That(values, Is.EqualTo(["value 1", "value 2"]));
         }
+
+        #endregion
     }
 }

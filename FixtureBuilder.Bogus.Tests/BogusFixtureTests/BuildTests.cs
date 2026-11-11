@@ -1,132 +1,109 @@
 ﻿namespace FixtureBuilder.Bogus.Tests.BogusFixtureTests
 {
-    internal sealed class BogusFixtureBuildTests
+    internal sealed class BuildTests
     {
-        private class SimpleClass
+        #region Without instance
+
+        [Test]
+        public void ConstructsFixtureImplicitly()
         {
-            public string Name { get; set; } = string.Empty;
-            public int Value { get; set; }
+            var fixture = Fixture.WithBogus<ConstructorSetsValueClass>();
+
+            var result = fixture.Build();
+
+            Assert.That(result.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Build_ReturnsNonNullInstance()
+        public void Count_ReturnsThatManyInstances()
         {
-            var result = Fixture.WithBogus<SimpleClass>().Build();
+            var fixture = Fixture.WithBogus<EmptyClass>();
 
-            Assert.That(result, Is.Not.Null);
+            var result = fixture.Build(3);
+
+            Assert.That(result, Has.Exactly(3).Items);
         }
 
         [Test]
-        public void Build_ReturnsInstanceOfCorrectType()
+        public void Count_ReturnsDistinctInstances()
         {
-            var result = Fixture.WithBogus<SimpleClass>().Build();
+            var fixture = Fixture.WithBogus<EmptyClass>();
 
-            Assert.That(result, Is.InstanceOf<SimpleClass>());
+            var result = fixture.Build(3);
+
+            Assert.That(result, Is.Unique);
         }
 
         [Test]
-        public void Build_WithCount_ReturnsCorrectNumberOfInstances()
+        public void Count_EnumeratedTwice_ReturnsSameInstances()
         {
-            var results = Fixture.WithBogus<SimpleClass>().Build(3);
+            var fixture = Fixture.WithBogus<EmptyClass>();
+            var result = fixture.Build(2);
 
-            Assert.That(results.Count(), Is.EqualTo(3));
+            var first = result.ToList();
+            var second = result.ToList();
+
+            Assert.That(second, Is.EqualTo(first));
         }
 
         [Test]
-        public void Build_WithCount_ReturnsDistinctInstances()
+        public void Count_AppliesConfigurationToEachInstance()
         {
-            var results = Fixture.WithBogus<SimpleClass>().Build(3).ToList();
+            var fixture = Fixture.WithBogus<PropertyHolder<string>>().With(x => x.Value, "value");
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(results[0], Is.Not.SameAs(results[1]));
-                Assert.That(results[1], Is.Not.SameAs(results[2]));
-            }
+            var result = fixture.Build(2);
+
+            var values = result.Select(holder => holder.Value);
+            Assert.That(values, Is.EqualTo(["value", "value"]));
         }
 
         [Test]
-        public void Build_WithCount_ReturnsStableResults()
+        public void ZeroCount_ThrowsArgumentOutOfRangeException()
         {
-            var bogus = Fixture.WithBogus<SimpleClass>();
-            var results = bogus.Build(2);
+            var fixture = Fixture.WithBogus<EmptyClass>();
 
-            var first = results.ToList();
-            var second = results.ToList();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(first[0], Is.SameAs(second[0]));
-                Assert.That(first[1], Is.SameAs(second[1]));
-            }
+            Assert.Throws<ArgumentOutOfRangeException>(() => fixture.Build(0));
         }
 
         [Test]
-        public void Build_WithCount_AppliesConfigurationToAll()
+        public void NegativeCount_ThrowsArgumentOutOfRangeException()
         {
-            var results = Fixture.WithBogus<SimpleClass>()
-                .With(x => x.Name, "Alice")
-                .Build(2)
-                .ToList();
+            var fixture = Fixture.WithBogus<EmptyClass>();
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(results[0].Name, Is.EqualTo("Alice"));
-                Assert.That(results[1].Name, Is.EqualTo("Alice"));
-            }
+            Assert.Throws<ArgumentOutOfRangeException>(() => fixture.Build(-1));
+        }
+
+        #endregion
+
+        #region With instance
+
+        [Test]
+        public void Instance_CountOne_ReturnsInstance()
+        {
+            var instance = new EmptyClass();
+            var fixture = Fixture.WithBogus(instance);
+
+            var result = fixture.Build(1);
+
+            Assert.That(result, Is.EqualTo([instance]));
         }
 
         [Test]
-        public void Build_WithZero_Throws()
+        public void Instance_CountAboveOne_ThrowsInvalidOperationException()
         {
-            var bogus = Fixture.WithBogus<SimpleClass>();
+            var fixture = Fixture.WithBogus(new EmptyClass());
 
-            Assert.That(() => bogus.Build(0), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Assert.Throws<InvalidOperationException>(() => fixture.Build(2));
         }
 
         [Test]
-        public void Build_WithNegative_Throws()
+        public void Instance_ZeroCount_ThrowsArgumentOutOfRangeException()
         {
-            var bogus = Fixture.WithBogus<SimpleClass>();
+            var fixture = Fixture.WithBogus(new EmptyClass());
 
-            Assert.That(() => bogus.Build(-1), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Assert.Throws<ArgumentOutOfRangeException>(() => fixture.Build(0));
         }
 
-        [Test]
-        public void Build_WithInstance_ReturnsSameInstance()
-        {
-            var instance = new SimpleClass();
-
-            var result = Fixture.WithBogus(instance).Build();
-
-            Assert.That(result, Is.SameAs(instance));
-        }
-
-        [Test]
-        public void Build_WithInstance_CountOne_ReturnsSameInstance()
-        {
-            var instance = new SimpleClass();
-
-            var results = Fixture.WithBogus(instance).Build(1).ToList();
-
-            Assert.That(results[0], Is.SameAs(instance));
-        }
-
-        [Test]
-        public void Build_WithInstance_CountGreaterThanOne_Throws()
-        {
-            var instance = new SimpleClass();
-            var bogus = Fixture.WithBogus(instance);
-
-            Assert.That(() => bogus.Build(2), Throws.TypeOf<InvalidOperationException>());
-        }
-
-        [Test]
-        public void Build_WithInstance_Zero_Throws()
-        {
-            var instance = new SimpleClass();
-            var bogus = Fixture.WithBogus(instance);
-
-            Assert.That(() => bogus.Build(0), Throws.TypeOf<ArgumentOutOfRangeException>());
-        }
+        #endregion
     }
 }
