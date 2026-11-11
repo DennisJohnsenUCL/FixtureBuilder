@@ -41,14 +41,6 @@ namespace FixtureBuilder.Tests.Core
         }
 
         [Test]
-        public void Property_FieldMember_ThrowsInvalidOperationException()
-        {
-            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
-
-            Assert.Throws<InvalidOperationException>(() => _ = member.Property);
-        }
-
-        [Test]
         public void Field_FieldMember_ReturnsFieldInfo()
         {
             var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
@@ -56,14 +48,6 @@ namespace FixtureBuilder.Tests.Core
             var result = member.Field;
 
             Assert.That(result, Is.EqualTo(typeof(FieldHolder<int>).GetField("Value")));
-        }
-
-        [Test]
-        public void Field_PropertyMember_ThrowsInvalidOperationException()
-        {
-            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
-
-            Assert.Throws<InvalidOperationException>(() => _ = member.Field);
         }
 
         #endregion

@@ -7,10 +7,10 @@ using FixtureBuilder.Extensions;
 /// Inherits from <see cref="MemberInfo"/> so it can be used wherever reflection metadata is expected.
 /// </summary>
 /// <remarks>
-/// Each instance wraps exactly one of the two backing types. Accessing the wrong typed
-/// accessor (e.g. <see cref="Property"/> on a field-backed instance) throws
-/// <see cref="InvalidOperationException"/>. All other members delegate transparently
-/// to whichever backing member is present.
+/// Each instance wraps exactly one of the two backing types. Check <see cref="IsPropertyInfo"/>
+/// or <see cref="IsFieldInfo"/> before using the typed accessors, as the wrong one
+/// (e.g. <see cref="Property"/> on a field-backed instance) returns <see langword="null"/>.
+/// All other members delegate transparently to whichever backing member is present.
 /// </remarks>
 internal class DataMemberInfo : MemberInfo
 {
@@ -19,16 +19,14 @@ internal class DataMemberInfo : MemberInfo
     /// <summary>
     /// Gets the underlying <see cref="PropertyInfo"/>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">This instance wraps a field, not a property.</exception>
-    public PropertyInfo Property => _property ?? throw new InvalidOperationException("This DataMember is a Field.");
+    public PropertyInfo Property => _property!;
 
     private readonly FieldInfo? _field;
 
     /// <summary>
     /// Gets the underlying <see cref="FieldInfo"/>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">This instance wraps a property, not a field.</exception>
-    public FieldInfo Field => _field ?? throw new InvalidOperationException("This DataMember is a Property.");
+    public FieldInfo Field => _field!;
 
     public MemberInfo MemberInfo => IsPropertyInfo ? _property! : _field!;
 
