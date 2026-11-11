@@ -93,12 +93,6 @@ namespace FixtureBuilder.Tests
 
     #region Members
 
-    internal class StaticMembersClass
-    {
-        public static string StaticProperty { get; set; } = null!;
-        public static string StaticField = null!;
-    }
-
     internal class WriteOnlyPropertyClass
     {
         public PropertyHolder<string> Value { set { } }

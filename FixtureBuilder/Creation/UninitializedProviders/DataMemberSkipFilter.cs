@@ -35,7 +35,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
         private static bool IsFromSkippedNamespace(DataMemberInfo dataMember)
         {
-            var ns = dataMember.DeclaringType?.Namespace;
+            var ns = dataMember.MemberInfo.DeclaringType?.Namespace;
             return ns != null && _skippedNamespacePrefixes.Any(prefix => ns == prefix || ns.StartsWith(prefix + "."));
         }
 
@@ -62,7 +62,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
         private static bool IsCompilerGeneratedField(DataMemberInfo dataMember)
         {
             return dataMember.IsFieldInfo
-                && dataMember.IsDefined(typeof(CompilerGeneratedAttribute), false);
+                && dataMember.Field.IsDefined(typeof(CompilerGeneratedAttribute), false);
         }
 
         private static bool IsNullable(DataMemberInfo dataMember)

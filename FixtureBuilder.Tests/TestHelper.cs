@@ -30,16 +30,9 @@ namespace FixtureBuilder.Tests
         /// <paramref name="type"/>, with <paramref name="type"/> as the root type.
         /// </summary>
         internal static FixtureRequest MakeRequest(Type type)
-            => MakeRequest(type, type);
-
-        /// <summary>
-        /// Creates a request for <paramref name="type"/> whose source is a field named <c>Value</c> declared as
-        /// <paramref name="type"/>.
-        /// </summary>
-        internal static FixtureRequest MakeRequest(Type type, Type rootType)
         {
             var source = typeof(RequestSource<>).MakeGenericType(type).GetField(nameof(RequestSource<>.Value))!;
-            return new FixtureRequest(type, source, rootType);
+            return new FixtureRequest(type, source, type);
         }
 
         /// <summary>
@@ -49,16 +42,16 @@ namespace FixtureBuilder.Tests
             => new(parameter.ParameterType, parameter, parameter.Member.DeclaringType!);
 
         /// <summary>
-        /// Gets the public instance or static property <paramref name="name"/> of <paramref name="type"/> as a data member.
+        /// Gets the public instance property <paramref name="name"/> of <paramref name="type"/> as a data member.
         /// </summary>
         internal static DataMemberInfo PropertyMember(Type type, string name)
-            => new(type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)!);
+            => new(type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance)!);
 
         /// <summary>
-        /// Gets the public instance or static field <paramref name="name"/> of <paramref name="type"/> as a data member.
+        /// Gets the public instance field <paramref name="name"/> of <paramref name="type"/> as a data member.
         /// </summary>
         internal static DataMemberInfo FieldMember(Type type, string name)
-            => new(type.GetField(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)!);
+            => new(type.GetField(name, BindingFlags.Public | BindingFlags.Instance)!);
 
         /// <summary>
         /// Gets the first parameter of <paramref name="method"/>.
