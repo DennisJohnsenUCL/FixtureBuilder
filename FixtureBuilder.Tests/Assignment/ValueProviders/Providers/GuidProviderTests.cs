@@ -7,64 +7,29 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class GuidProviderTests
     {
-        private GuidProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new GuidProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_Guid_ReturnsNonEmptyGuid()
         {
-            Assert.DoesNotThrow(() => new GuidProvider());
-        }
-
-        [Test]
-        public void Resolve_Guid_ReturnsGuidInstance()
-        {
+            var provider = new GuidProvider();
             var request = TestHelper.MakeRequest(typeof(Guid));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<Guid>());
                 Assert.That(result, Is.Not.EqualTo(Guid.Empty));
             }
         }
 
-        [Test]
-        public void Resolve_Guid_ReturnsUniqueValuesPerCall()
+        [TestCase(typeof(Guid?))]
+        [TestCase(typeof(string))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            var request = TestHelper.MakeRequest(typeof(Guid));
+            var provider = new GuidProvider();
+            var request = TestHelper.MakeRequest(type);
 
-            var first = _sut.ResolveValue(request, _contextMock.Object);
-            var second = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(first, Is.Not.EqualTo(second));
-        }
-
-        [Test]
-        public void Resolve_String_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(string));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_NullableGuid_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(Guid?));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

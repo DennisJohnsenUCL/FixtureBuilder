@@ -1,4 +1,4 @@
-using FixtureBuilder.Configuration.ValueConverters;
+﻿using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.Casters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -9,43 +9,19 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
     internal sealed class ElementConverterTests
     {
         [Test]
-        public void Convert_UnwrapAndLinkReturnsLinkedType_PassesLinkedTypeToConverter()
+        public void Convert_ItemNotAssignable_ReturnsItemConvertedToLinkedTargetType()
         {
-            var targetType = typeof(IList<int>);
-            var linkedType = typeof(List<int>);
-            var item = new HashSet<int> { 1, 2, 3 };
-
+            HashSet<int> item = [1, 2, 3];
+            List<int> converted = [1, 2, 3];
             var converter = new Mock<ICompositeConverter>();
-            converter.Setup(x => x.Convert(It.Is<TypeRequest>(r => r.Type == linkedType), item, It.IsAny<Type>(), It.IsAny<IFixtureContext>())).Returns(new List<int> { 1, 2, 3 });
-
+            converter.Setup(x => x.Convert(new TypeRequest(typeof(List<int>), typeof(object)), item, typeof(IList<int>), It.IsAny<IFixtureContext>())).Returns(converted);
             var context = new Mock<IFixtureContext>();
-            context.Setup(c => c.Converter).Returns(converter.Object);
-            context.Setup(c => c.UnwrapAndLink(targetType, targetType)).Returns(linkedType);
+            context.Setup(x => x.UnwrapAndLink(typeof(IList<int>), typeof(object))).Returns(typeof(List<int>));
+            context.Setup(x => x.Converter).Returns(converter.Object);
 
-            ElementConverter.Convert(item, targetType, targetType, context.Object);
+            var result = ElementConverter.Convert(item, typeof(IList<int>), typeof(object), context.Object);
 
-            converter.Verify(x => x.Convert(It.Is<TypeRequest>(r => r.Type == linkedType), item, targetType, context.Object), Times.Once);
-            converter.Verify(x => x.Convert(It.Is<TypeRequest>(r => r.Type == targetType), It.IsAny<object>(), It.IsAny<Type>(), It.IsAny<IFixtureContext>()), Times.Never);
-        }
-
-        [Test]
-        public void Convert_UnwrapAndLinkReturnsLinkedType_ReturnsResult()
-        {
-            var targetType = typeof(IList<int>);
-            var linkedType = typeof(List<int>);
-            var item = new HashSet<int> { 1, 2, 3 };
-            var expectedResult = new List<int> { 1, 2, 3 };
-
-            var converter = new Mock<ICompositeConverter>();
-            converter.Setup(x => x.Convert(It.Is<TypeRequest>(r => r.Type == linkedType), item, It.IsAny<Type>(), It.IsAny<IFixtureContext>())).Returns(expectedResult);
-
-            var context = new Mock<IFixtureContext>();
-            context.Setup(c => c.Converter).Returns(converter.Object);
-            context.Setup(c => c.UnwrapAndLink(targetType, targetType)).Returns(linkedType);
-
-            var result = ElementConverter.Convert(item, targetType, targetType, context.Object);
-
-            Assert.That(result, Is.EqualTo(expectedResult));
+            Assert.That(result, Is.SameAs(converted));
         }
     }
 }

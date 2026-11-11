@@ -1,36 +1,30 @@
-using FixtureBuilder.Extensions;
+﻿using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class UnwrapTests
     {
         [Test]
-        public void Unwrap_NullType_ThrowsArgumentNullException()
+        public void NullType_ThrowsArgumentNullException()
         {
             Type type = null!;
 
-            Assert.Throws<ArgumentNullException>(() =>
-                type.Unwrap());
+            Assert.Throws<ArgumentNullException>(() => type.Unwrap());
         }
 
-        [Test]
-        public void Unwrap_PlainValueType_ReturnsSameType()
+        [TestCase(typeof(int))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(int?[]))]
+        [TestCase(typeof(List<int?>))]
+        public void NeitherByRefNorNullable_ReturnsSameType(Type type)
         {
-            var result = typeof(int).Unwrap();
+            var result = type.Unwrap();
 
-            Assert.That(result, Is.EqualTo(typeof(int)));
+            Assert.That(result, Is.EqualTo(type));
         }
 
         [Test]
-        public void Unwrap_PlainReferenceType_ReturnsSameType()
-        {
-            var result = typeof(string).Unwrap();
-
-            Assert.That(result, Is.EqualTo(typeof(string)));
-        }
-
-        [Test]
-        public void Unwrap_NullableValueType_ReturnsUnderlyingType()
+        public void NullableValueType_ReturnsUnderlyingType()
         {
             var result = typeof(int?).Unwrap();
 
@@ -38,43 +32,33 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void Unwrap_ByRefValueType_ReturnsElementType()
+        public void ByRefValueType_ReturnsElementType()
         {
-            var result = typeof(int).MakeByRefType().Unwrap();
+            var type = typeof(int).MakeByRefType();
+
+            var result = type.Unwrap();
 
             Assert.That(result, Is.EqualTo(typeof(int)));
         }
 
         [Test]
-        public void Unwrap_ByRefReferenceType_ReturnsElementType()
+        public void ByRefReferenceType_ReturnsElementType()
         {
-            var result = typeof(string).MakeByRefType().Unwrap();
+            var type = typeof(string).MakeByRefType();
+
+            var result = type.Unwrap();
 
             Assert.That(result, Is.EqualTo(typeof(string)));
         }
 
         [Test]
-        public void Unwrap_ByRefNullableValueType_ReturnsUnderlyingType()
+        public void ByRefNullableValueType_ReturnsUnderlyingType()
         {
-            var result = typeof(int?).MakeByRefType().Unwrap();
+            var type = typeof(int?).MakeByRefType();
+
+            var result = type.Unwrap();
 
             Assert.That(result, Is.EqualTo(typeof(int)));
-        }
-
-        [Test]
-        public void Unwrap_ArrayOfNullable_ReturnsSameType()
-        {
-            var result = typeof(int?[]).Unwrap();
-
-            Assert.That(result, Is.EqualTo(typeof(int?[])));
-        }
-
-        [Test]
-        public void Unwrap_GenericTypeWithNullableArgument_ReturnsSameType()
-        {
-            var result = typeof(List<int?>).Unwrap();
-
-            Assert.That(result, Is.EqualTo(typeof(List<int?>)));
         }
     }
 }

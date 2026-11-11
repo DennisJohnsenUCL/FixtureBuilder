@@ -2,6 +2,7 @@
 using FixtureBuilder.Assignment.ValueProviders;
 using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
+using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.AutoConstructingProviders;
 using FixtureBuilder.Creation.ConstructingProviders;
 using FixtureBuilder.Creation.UninitializedProviders;
@@ -11,45 +12,19 @@ namespace FixtureBuilder.Tests.Core.FixtureContexts.ContextBaseTests
 {
     internal sealed class SetOptionsTests
     {
-        private FixtureOptions _options;
-        private TestableContext _sut;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _options = FixtureOptions.Default;
-            _sut = new TestableContext(
-                _options,
-                new Mock<ICompositeConverter>().Object,
-                new Mock<ICompositeTypeLink>().Object,
-                new Mock<IRootUninitializedProvider>().Object,
-                new Mock<ICompositeValueProvider>().Object,
-                new Mock<IAutoConstructingProvider>().Object,
-                new Mock<IConstructingProvider>().Object);
-        }
-
         [Test]
-        public void SetOptions_SetsOptions()
+        public void NullAction_ThrowsArgumentNullException()
         {
-            var options = FixtureOptions.Default;
+            var context = new EagerContext(
+                new FixtureOptions(),
+                Mock.Of<ICompositeConverter>(),
+                Mock.Of<ICompositeTypeLink>(),
+                Mock.Of<IRootUninitializedProvider>(),
+                Mock.Of<ICompositeValueProvider>(),
+                Mock.Of<IAutoConstructingProvider>(),
+                Mock.Of<IConstructingProvider>());
 
-            _sut.Options = options;
-
-            Assert.That(_sut.GetBaseOptions(), Is.SameAs(options));
-        }
-
-        [Test]
-        public void SetOptions_Action_SetsOptions()
-        {
-            _sut.SetOptions(o => o.AllowPrivateConstructors = false);
-
-            Assert.That(_sut.GetBaseOptions().AllowPrivateConstructors, Is.False);
-        }
-
-        [Test]
-        public void SetOptions_Action_NullAction_ThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() => _sut.SetOptions(null!));
+            Assert.Throws<ArgumentNullException>(() => context.SetOptions(null!));
         }
     }
 }

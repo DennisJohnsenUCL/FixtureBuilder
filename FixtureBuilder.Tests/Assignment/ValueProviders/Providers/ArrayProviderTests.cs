@@ -7,115 +7,62 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class ArrayProviderTests
     {
-        private ArrayProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new ArrayProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_ValueTypeArray_ReturnsTenDefaultElements()
         {
-            Assert.DoesNotThrow(() => new ArrayProvider());
-        }
-
-        [Test]
-        public void Resolve_IntArray_ReturnsIntArrayOfLength10()
-        {
+            var provider = new ArrayProvider();
             var request = TestHelper.MakeRequest(typeof(int[]));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<int[]>());
-                Assert.That(result, Has.Length.EqualTo(10));
+                Assert.That(result, Is.EqualTo(new int[10]));
             }
         }
 
         [Test]
-        public void Resolve_StringArray_ReturnsStringArrayOfLength10()
+        public void ResolveValue_ReferenceTypeArray_ReturnsTenNullElements()
         {
+            var provider = new ArrayProvider();
             var request = TestHelper.MakeRequest(typeof(string[]));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<string[]>());
-                Assert.That(result, Has.Length.EqualTo(10));
+                Assert.That(result, Is.EqualTo(new string?[10]));
             }
         }
 
         [Test]
-        public void Resolve_IntArray_ReturnsArrayWithDefaultValues()
+        public void ResolveValue_JaggedArray_ReturnsTenNullInnerArrays()
         {
-            var request = TestHelper.MakeRequest(typeof(int[]));
-
-            var result = (int[])_sut.ResolveValue(request, _contextMock.Object)!;
-
-            Assert.That(result, Is.All.EqualTo(0));
-        }
-
-        [Test]
-        public void Resolve_StringArray_ReturnsArrayWithNullElements()
-        {
-            var request = TestHelper.MakeRequest(typeof(string[]));
-
-            var result = (string?[])_sut.ResolveValue(request, _contextMock.Object)!;
-
-            Assert.That(result, Is.All.Null);
-        }
-
-        [Test]
-        public void Resolve_NonArrayType_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(int));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_ClassType_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(string));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_MultidimensionalArray_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(int[,]));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_JaggedArray_ReturnsOuterArrayOfLength10()
-        {
+            var provider = new ArrayProvider();
             var request = TestHelper.MakeRequest(typeof(int[][]));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<int[][]>());
-                Assert.That(result, Has.Length.EqualTo(10));
+                Assert.That(result, Is.EqualTo(new int[10][]));
             }
+        }
+
+        [TestCase(typeof(int[,]))]
+        [TestCase(typeof(int))]
+        [TestCase(typeof(string))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
+        {
+            var provider = new ArrayProvider();
+            var request = TestHelper.MakeRequest(type);
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
+
+            Assert.That(result, Is.TypeOf<NoResult>());
         }
     }
 }

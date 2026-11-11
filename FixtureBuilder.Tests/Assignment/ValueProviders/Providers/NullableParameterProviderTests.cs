@@ -1,7 +1,4 @@
-﻿#pragma warning disable IDE0060
-
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
 using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -11,126 +8,88 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class NullableParameterProviderTests
     {
-        private NullableParameterProvider _sut;
-        private readonly Type _rootType = typeof(object);
-        private Mock<IFixtureContext> _contextMock;
-
-        private static ParameterInfo GetParameterInfo(string methodName, string paramName)
-        {
-            return typeof(SampleMethods)
-                .GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic)!
-                .GetParameters()
-                .First(p => p.Name == paramName);
-        }
-
-        private static class SampleMethods
-        {
-            internal static void NullableString(string? value) { }
-            internal static void NonNullableString(string value) { }
-            internal static void NullableInt(int? value) { }
-            internal static void NonNullableInt(int value) { }
-            internal static void AllowNullString([AllowNull] string value) { }
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new NullableParameterProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_NullableReferenceTypeParameter_ReturnsNull()
         {
-            Assert.DoesNotThrow(() => new NullableParameterProvider());
-        }
+            static void Method(string? value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new NullableParameterProvider();
 
-        [Test]
-        public void Resolve_NullableReferenceParameter_OptionEnabled_ReturnsNull()
-        {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
-        public void Resolve_NullableValueTypeParameter_OptionEnabled_ReturnsNull()
+        public void ResolveValue_NullableValueTypeParameter_ReturnsNull()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableInt), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            static void Method(int? value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new NullableParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
-        public void Resolve_NullableParameter_OptionDisabled_ReturnsNoResult()
+        public void ResolveValue_AllowNullParameter_ReturnsNull()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.NullableString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
+            static void Method([AllowNull] string value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new NullableParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void ResolveValue_NullsNotPreferred_ReturnsNoResult()
+        {
+            static void Method(string? value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
             var options = new FixtureOptions { PreferNullParameterValues = false };
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            var provider = new NullableParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_NonNullableParameter_OptionEnabled_ReturnsNoResult()
+        public void ResolveValue_NonNullableReferenceTypeParameter_ReturnsNoResult()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.NonNullableString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            static void Method(string value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new NullableParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
         [Test]
-        public void Resolve_NonParameterSource_ReturnsNoResult()
+        public void ResolveValue_NonNullableValueTypeParameter_ReturnsNoResult()
+        {
+            static void Method(int value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new NullableParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void ResolveValue_SourceIsNotParameter_ReturnsNoResult()
         {
             var request = TestHelper.MakeRequest(typeof(string));
+            var provider = new NullableParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_NonNullableValueType_OptionEnabled_ReturnsNoResult()
-        {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.NonNullableInt), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_AllowNullParameter_OptionEnabled_ReturnsNull()
-        {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.AllowNullString), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.Null);
         }
     }
 }

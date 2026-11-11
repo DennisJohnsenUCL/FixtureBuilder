@@ -1,302 +1,304 @@
-﻿#pragma warning disable IDE0079
-#pragma warning disable CA1822
+﻿using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Tests.FixtureTests
 {
-    internal class InstantiateTests
+    internal sealed class InstantiateTests
     {
-        class Inner
-        {
-            public string Value { get; set; } = "constructed";
-        }
+        #region Default instantiation
 
-        class InnerWithParam(string value)
+        [Test]
+        public void Property_SetsAutoConstructedInstance()
         {
-            public string Value { get; } = value;
-        }
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
 
-        class Outer
-        {
-            public Inner Nested { get; set; } = null!;
-        }
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-        class OuterReadOnly
-        {
-            public Inner Nested { get; } = null!;
-        }
-
-        class OuterWithParamNested
-        {
-            public InnerWithParam Nested { get; set; } = null!;
-        }
-
-        class DeeperOuter
-        {
-            public Outer Nested { get; set; } = null!;
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Instantiate_SetsProperty()
+        public void PropertyWithoutSetter_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<ConstructorSetsValueClass>>();
 
-            fixture.Instantiate(o => o.Nested);
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested, Is.Not.Null);
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Instantiate_AutoConstructsInstance()
+        public void Field_SetsField()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<ConstructorSetsValueClass>>();
 
-            fixture.Instantiate(o => o.Nested);
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested.Value, Is.EqualTo("constructed"));
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Instantiate_ReadOnlyProperty_SetsBackingField()
+        public void FieldChain_SetsLastField()
         {
-            var fixture = TestHelper.MakeFixture<OuterReadOnly>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<FieldHolder<ConstructorSetsValueClass>>>();
 
-            fixture.Instantiate(o => o.Nested);
+            var result = fixture.Instantiate(x => x.Value.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested, Is.Not.Null);
+            Assert.That(result.Value.Value.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Instantiate_InstantiatesFixture()
+        public void PropertyOfStructInProperty_SetsProperty()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolderStruct<ConstructorSetsValueClass>>>();
 
-            fixture.Instantiate(o => o.Nested);
+            var result = fixture.Instantiate(x => x.Value.Value).Build();
 
-            Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
+            Assert.That(result.Value.Value.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Instantiate_UseAutoConstructor_SetsProperty()
+        public void RootTypeLink_InstantiatesLinkedType()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var factory = new FixtureFactory()
+                .WhenBuilding<PropertyHolder<IMarkerInterface>>(builder => builder.AddTypeLink<IMarkerInterface, MarkerImplementationClass>());
+            var fixture = TestHelper.MakeFixture<PropertyHolder<IMarkerInterface>>(factory);
 
-            fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor());
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Nested, Is.Not.Null);
-                Assert.That(result.Nested.Value, Is.EqualTo("constructed"));
-            }
+            Assert.That(result.Value, Is.TypeOf<MarkerImplementationClass>());
         }
 
         [Test]
-        public void Instantiate_UseConstructor_SetsProperty()
+        public void ProvidedValueForMemberType_SetsProvidedValue()
         {
-            var fixture = TestHelper.MakeFixture<OuterWithParamNested>();
+            var provided = new ConstructorSetsValueClass();
+            var factory = new FixtureFactory().With(provided);
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>(factory);
 
-            fixture.Instantiate(o => o.Nested, m => m.UseConstructor("hello"));
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested.Value, Is.EqualTo("hello"));
+            Assert.That(result.Value, Is.SameAs(provided));
         }
 
         [Test]
-        public void Instantiate_CreateUninitialized_SetsProperty()
+        public void RootScopedParameterValue_ConstructsInstanceWithIt()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var factory = new FixtureFactory()
+                .WhenBuilding<PropertyHolder<StringConstructorClass>>(builder => builder.WithParameter("scoped"));
+            var fixture = TestHelper.MakeFixture<PropertyHolder<StringConstructorClass>>(factory);
 
-            fixture.Instantiate(o => o.Nested, m => m.CreateUninitialized());
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested, Is.Not.Null);
+            Assert.That(result.Value.Value, Is.EqualTo("scoped"));
         }
 
         [Test]
-        public void Instantiate_CreateUninitialized_DoesNotInitializeMembers()
+        public void CreateUninitializedOption_SetsUninitializedInstance()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var options = new FixtureOptions { DefaultInstantiateInstantiationMethod = InstantiationMethod.CreateUninitialized };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>(factory);
 
-            fixture.Instantiate(o => o.Nested, m => m.CreateUninitialized());
+            var result = fixture.Instantiate(x => x.Value).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested.Value, Is.Null);
-        }
-
-        interface IInner;
-        class LinkedInner : IInner;
-        class OuterWithInterface
-        {
-            public IInner Nested { get; set; } = null!;
+            Assert.That(result.Value.Value, Is.Null);
         }
 
         [Test]
-        public void Instantiate_AppliesTypeLinkForRootType()
+        public void MethodCall_ThrowsInvalidOperationException()
         {
-            var fixture = new FixtureFactory()
-                .WhenBuilding<OuterWithInterface>(b => b.AddTypeLink<IInner, LinkedInner>())
-                .New(new OuterWithInterface());
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
 
-            var result = fixture.Instantiate(o => o.Nested).Build();
-
-            Assert.That(result.Nested, Is.TypeOf<LinkedInner>());
+            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(x => x.Value.GetHashCode()));
         }
 
         [Test]
-        public void Instantiate_UseAutoConstructor_AppliesTypeLink()
+        public void ReturnsSameFixture()
         {
-            var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
 
-            var result = fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor()).Build();
-
-            Assert.That(result.Nested, Is.TypeOf<LinkedInner>());
-        }
-
-        [Test]
-        public void Instantiate_UseConstructor_DoesNotApplyTypeLink()
-        {
-            var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());
-
-            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(o => o.Nested, m => m.UseConstructor()));
-        }
-
-        [Test]
-        public void Instantiate_CreateUninitialized_AppliesTypeLink()
-        {
-            var fixture = new FixtureFactory().AddTypeLink<IInner, LinkedInner>().New(new OuterWithInterface());
-
-            var result = fixture.Instantiate(o => o.Nested, m => m.CreateUninitialized()).Build();
-
-            Assert.That(result.Nested, Is.TypeOf<LinkedInner>());
-        }
-
-        [Test]
-        public void Instantiate_WithFunc_ReadOnlyProperty_SetsBackingField()
-        {
-            var fixture = TestHelper.MakeFixture<OuterReadOnly>();
-
-            fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor());
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested, Is.Not.Null);
-        }
-
-        [Test]
-        public void Instantiate_ReturnsConfigurator_ForChaining()
-        {
-            var fixture = TestHelper.MakeFixture<Outer>();
-
-            var result = fixture.Instantiate(o => o.Nested);
+            var result = fixture.Instantiate(x => x.Value);
 
             Assert.That(result, Is.SameAs(fixture));
         }
 
         [Test]
-        public void Instantiate_WithFunc_ReturnsConfigurator_ForChaining()
+        public void NotConstructed_ConstructsImplicitlyAndSetsProperty()
         {
-            var fixture = TestHelper.MakeFixture<Outer>();
+            var fixture = Fixture.New<PropertyHolder<ConstructorSetsValueClass>>();
 
-            var result = fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor());
+            var result = fixture.Instantiate(x => x.Value).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
+        }
+
+        #endregion
+
+        #region With constructor function
+
+        [Test]
+        public void UseAutoConstructor_SetsAutoConstructedInstance()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor()).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
+        }
+
+        [Test]
+        public void UseConstructor_SetsInstanceConstructedWithArguments()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<StringConstructorClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseConstructor("value")).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void CreateUninitialized_SetsUninitializedInstance()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.CreateUninitialized()).Build();
+
+            Assert.That(result.Value.Value, Is.Null);
+        }
+
+        [Test]
+        public void CreateUninitializedWithAllMembers_SetsInstanceWithInitializedMembers()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.CreateUninitialized(InitializeMembers.All)).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("Value"));
+        }
+
+        [Test]
+        public void CreateUninitialized_TypeThatCannotBeCreatedUninitialized_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(x => x.Value, constructor => constructor.CreateUninitialized()));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_SetsInstantiatorInstance()
+        {
+            var instance = new ConstructorSetsValueClass();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseCustomInstantiator(() => instance)).Build();
+
+            Assert.That(result.Value, Is.SameAs(instance));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_ReturnsNull_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(x => x.Value, constructor => constructor.UseCustomInstantiator(() => null!)));
+        }
+
+        [Test]
+        public void UseAutoConstructor_PropertyWithoutSetter_SetsBackingField()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor()).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
+        }
+
+        [Test]
+        public void UseAutoConstructor_Field_SetsField()
+        {
+            var fixture = TestHelper.MakeFixture<FieldHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor()).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("constructor"));
+        }
+
+        private struct StringConstructorStruct(string value)
+        {
+            public string Value { get; } = value;
+        }
+
+        [Test]
+        public void UseConstructor_NullableStructProperty_SetsProperty()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<StringConstructorStruct?>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseConstructor("value")).Build();
+
+            Assert.That(result.Value?.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void UseAutoConstructor_TypeLink_InstantiatesLinkedType()
+        {
+            var factory = new FixtureFactory().AddTypeLink<IMarkerInterface, MarkerImplementationClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<IMarkerInterface>>(factory);
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor()).Build();
+
+            Assert.That(result.Value, Is.TypeOf<MarkerImplementationClass>());
+        }
+
+        [Test]
+        public void UseAutoConstructor_RootTypeLink_InstantiatesLinkedType()
+        {
+            var factory = new FixtureFactory()
+                .WhenBuilding<PropertyHolder<IMarkerInterface>>(builder => builder.AddTypeLink<IMarkerInterface, MarkerImplementationClass>());
+            var fixture = TestHelper.MakeFixture<PropertyHolder<IMarkerInterface>>(factory);
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor()).Build();
+
+            Assert.That(result.Value, Is.TypeOf<MarkerImplementationClass>());
+        }
+
+        [Test]
+        public void CreateUninitialized_TypeLink_InstantiatesLinkedType()
+        {
+            var factory = new FixtureFactory().AddTypeLink<IMarkerInterface, MarkerImplementationClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<IMarkerInterface>>(factory);
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.CreateUninitialized()).Build();
+
+            Assert.That(result.Value, Is.TypeOf<MarkerImplementationClass>());
+        }
+
+        [Test]
+        public void UseConstructor_TypeLink_IgnoresLinkAndThrowsInvalidOperationException()
+        {
+            var factory = new FixtureFactory().AddTypeLink<IMarkerInterface, MarkerImplementationClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<IMarkerInterface>>(factory);
+
+            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(x => x.Value, constructor => constructor.UseConstructor()));
+        }
+
+        [Test]
+        public void UseAutoConstructor_MethodCall_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.Instantiate(x => x.Value.GetHashCode(), constructor => constructor.UseAutoConstructor()));
+        }
+
+        [Test]
+        public void UseAutoConstructor_ReturnsSameFixture()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var result = fixture.Instantiate(x => x.Value, constructor => constructor.UseAutoConstructor());
 
             Assert.That(result, Is.SameAs(fixture));
         }
 
-        class OuterWithField
-        {
-            public Inner Nested = null!;
-        }
-
-        [Test]
-        public void Instantiate_FieldTarget_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<OuterWithField>();
-
-            fixture.Instantiate(o => o.Nested);
-
-            var result = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Nested, Is.Not.Null);
-                Assert.That(result.Nested.Value, Is.EqualTo("constructed"));
-            }
-        }
-
-        [Test]
-        public void Instantiate_WithFunc_FieldTarget_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<OuterWithField>();
-
-            fixture.Instantiate(o => o.Nested, m => m.UseAutoConstructor());
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested, Is.Not.Null);
-        }
-
-        class OuterWithNestedField
-        {
-            public MiddleWithField Middle = null!;
-        }
-        class MiddleWithField
-        {
-            public Inner Nested = null!;
-        }
-        [Test]
-        public void Instantiate_DoublyNestedFieldTarget_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<OuterWithNestedField>();
-
-            fixture.Instantiate(o => o.Middle.Nested);
-
-            var result = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Middle, Is.Not.Null);
-                Assert.That(result.Middle.Nested, Is.Not.Null);
-                Assert.That(result.Middle.Nested.Value, Is.EqualTo("constructed"));
-            }
-        }
-
-        struct InnerHolder
-        {
-            public Inner Nested { get; set; }
-        }
-        class OuterWithStructProperty
-        {
-            public InnerHolder Holder { get; set; }
-        }
-        [Test]
-        public void Instantiate_MemberOfStructProperty_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<OuterWithStructProperty>();
-
-            fixture.Instantiate(o => o.Holder.Nested);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Holder.Nested.Value, Is.EqualTo("constructed"));
-        }
-
-#pragma warning disable IDE0250 // Make struct 'readonly'
-        struct InnerStructWithParam(string value)
-#pragma warning restore IDE0250 // Make struct 'readonly'
-        {
-            public string Value { get; } = value;
-        }
-        class OuterWithNullableStruct
-        {
-            public InnerStructWithParam? Nested { get; set; }
-        }
-        [Test]
-        public void Instantiate_UseConstructor_NullableStructProperty_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<OuterWithNullableStruct>();
-
-            fixture.Instantiate(o => o.Nested, m => m.UseConstructor("hello"));
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nested?.Value, Is.EqualTo("hello"));
-        }
+        #endregion
     }
 }

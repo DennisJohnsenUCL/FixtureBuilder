@@ -2,132 +2,72 @@
 {
     internal sealed class InvokeTests
     {
-        private class TestEntity
+        [Test]
+        public void Method_InvokesMethod()
         {
-            public bool WasCalled { get; private set; }
-            public bool WasCalledElse { get; private set; }
-            public ChildEntity Child { get; set; } = null!;
-            public void DoSomething() => WasCalled = true;
-            public void DoSomethingElse() => WasCalledElse = true;
-        }
+            var fixture = TestHelper.MakeFixture<PublicMethodClass>();
 
-        private class ChildEntity
-        {
-            public bool WasCalled { get; private set; }
-            public void DoSomething() => WasCalled = true;
+            var result = fixture.Invoke(x => x.Call()).Build();
+
+            Assert.That(result.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void Invoke_ExecutesAction()
+        public void CalledTwice_InvokesOnSameInstance()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = Fixture.New<PublicMethodClass>();
 
-            fixture = fixture.Invoke(x => x.DoSomething());
+            var result = fixture.Invoke(x => x.Call()).Invoke(x => x.Call()).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.WasCalled, Is.True);
+            Assert.That(result.Calls, Is.EqualTo(2));
         }
 
         [Test]
-        public void Invoke_WithNestedPath_InitializesIntermediates()
+        public void MethodOnPropertyChain_InitializesChainAndInvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PublicMethodClass>>();
 
-            fixture = fixture.Invoke(x => x.Child.DoSomething());
+            var result = fixture.Invoke(x => x.Value.Call()).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child, Is.Not.Null);
-            Assert.That(result.Child.WasCalled, Is.True);
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void Invoke_InitializesFixtureOnFirstCall()
+        public void MethodOnFieldChain_InitializesChainAndInvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<PublicMethodClass>>();
 
-            fixture = fixture.Invoke(x => x.DoSomething());
+            var result = fixture.Invoke(x => x.Value.Call()).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void Invoke_CalledMultipleTimes_DoesNotReinstantiate()
+        public void MethodOnClassInStructProperty_InitializesChainAndInvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolderStruct<PublicMethodClass>>>();
 
-            fixture.Invoke(x => x.DoSomething());
-            var first = TestHelper.GetFixture(fixture);
+            var result = fixture.Invoke(x => x.Value.Value.Call()).Build();
 
-            fixture.Invoke(x => x.DoSomethingElse());
-            var second = TestHelper.GetFixture(fixture);
-
-            Assert.That(second, Is.SameAs(first));
+            Assert.That(result.Value.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void Invoke_ConstantExpression_ThrowsException()
+        public void MethodNotOnFixture_ThrowsInvalidOperationException()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PublicMethodClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.Invoke(x => Console.WriteLine()));
         }
 
         [Test]
-        public void Invoke_InstantiatesFixture()
+        public void NotConstructed_ConstructsImplicitlyAndInvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = Fixture.New<PublicMethodClass>();
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.Invoke(x => x.DoSomething()));
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
-        }
+            var result = fixture.Invoke(x => x.Call()).Build();
 
-        private class FieldIntermediateEntity
-        {
-            public ChildEntity Child = null!;
-        }
-
-        [Test]
-        public void FieldIntermediate_InitializesAndInvokes()
-        {
-            var fixture = TestHelper.MakeFixture<FieldIntermediateEntity>();
-
-            fixture.Invoke(x => x.Child.DoSomething());
-
-            var result = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Child, Is.Not.Null);
-                Assert.That(result.Child.WasCalled, Is.True);
-            }
-        }
-
-        private struct ChildHolder
-        {
-            public ChildEntity Child { get; set; }
-        }
-
-        private class StructIntermediateEntity
-        {
-            public ChildHolder Holder { get; set; }
-        }
-
-        [Test]
-        public void NullMemberInsideStructIntermediate_InitializesAndInvokes()
-        {
-            var fixture = TestHelper.MakeFixture<StructIntermediateEntity>();
-
-            fixture.Invoke(x => x.Holder.Child.DoSomething());
-
-            var result = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Holder.Child, Is.Not.Null);
-                Assert.That(result.Holder.Child.WasCalled, Is.True);
-            }
+            Assert.That(result.Calls, Is.EqualTo(1));
         }
     }
 }

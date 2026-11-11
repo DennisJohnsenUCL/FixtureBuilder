@@ -1,4 +1,4 @@
-using FixtureBuilder.Assignment.ValueProviders.Providers;
+﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -7,44 +7,27 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class TaskProviderTests
     {
-        private TaskProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new TaskProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_Task_ReturnsCompletedTask()
         {
-            Assert.DoesNotThrow(() => new TaskProvider());
-        }
-
-        [Test]
-        public void Resolve_Task_ReturnsCompletedTask()
-        {
+            var provider = new TaskProvider();
             var request = TestHelper.MakeRequest(typeof(Task));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.InstanceOf<Task>());
-                Assert.That(((Task)result!).IsCompletedSuccessfully, Is.True);
-            }
+            var task = (Task)result!;
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
 
-        [TestCase(typeof(Task<int>), TestName = "Resolve_GenericTask_ReturnsNoResult")]
-        [TestCase(typeof(ValueTask), TestName = "Resolve_ValueTask_ReturnsNoResult")]
-        [TestCase(typeof(string), TestName = "Resolve_String_ReturnsNoResult")]
-        public void Resolve_OtherType_ReturnsNoResult(Type type)
+        [TestCase(typeof(Task<int>))]
+        [TestCase(typeof(ValueTask))]
+        [TestCase(typeof(string))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
+            var provider = new TaskProvider();
             var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

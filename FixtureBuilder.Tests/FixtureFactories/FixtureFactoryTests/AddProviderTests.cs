@@ -1,33 +1,47 @@
 ﻿using FixtureBuilder.Core;
-using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class AddProviderTests
     {
-        public class TestClass { }
-
         [Test]
-        public void AddProvider_FixtureUsesAddedProvider()
+        public void AddedProvider_SuppliesValues()
         {
-            var factory = new FixtureFactory();
-            var request = TestHelper.MakeRequest(typeof(string));
-            var expected = "from-added";
+            var factory = new FixtureFactory().AddProvider(new FixedStringProvider("provided"));
 
-            var provider = new Mock<ICustomProvider>();
-            provider.Setup(p => p.ResolveValue(It.Is<FixtureRequest>(r => r.Type == request.Type))).Returns(expected);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            factory.AddProvider(provider.Object);
-
-            var fixture = factory.New<TestClass>();
-            var context = TestHelper.GetContext(fixture);
-            var result = context.ValueProvider.ResolveValue(request, context);
-
-            Assert.That(result, Is.SameAs(expected));
+            Assert.That(result.Value, Is.EqualTo("provided"));
         }
 
         [Test]
-        public void AddProvider_NullProvider_Throws()
+        public void LaterProvider_WinsOverEarlierProvider()
+        {
+            var factory = new FixtureFactory()
+                .AddProvider(new FixedStringProvider("first"))
+                .AddProvider(new FixedStringProvider("second"));
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("second"));
+        }
+
+        private class NullForIntProvider : ICustomProvider
+        {
+            public object? ResolveValue(FixtureRequest request) => request.Type == typeof(int) ? null : NoResult.Instance;
+        }
+
+        [Test]
+        public void ProviderReturnsNullForNonNullableValueType_ThrowsInvalidOperationException()
+        {
+            var factory = new FixtureFactory().AddProvider(new NullForIntProvider());
+            var fixture = factory.New<StringAndIntConstructorClass>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.Build());
+        }
+
+        [Test]
+        public void NullProvider_ThrowsArgumentNullException()
         {
             var factory = new FixtureFactory();
 

@@ -1,88 +1,63 @@
-﻿#pragma warning disable CS0649
-#pragma warning disable CS0169
-
-using System.Reflection;
+﻿using System.Reflection;
 using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetDataMembersTests
     {
-        private const BindingFlags PublicInstance =
-            BindingFlags.Public | BindingFlags.Instance;
-
-        private const BindingFlags NonPublicInstance =
-            BindingFlags.NonPublic | BindingFlags.Instance;
-
-        private const BindingFlags PublicStatic =
-            BindingFlags.Public | BindingFlags.Static;
-
-
-        private class SampleClass
-        {
-            public string PublicProperty { get; set; } = null!;
-            public int PublicField;
-
-            private string PrivateProperty { get; set; } = null!;
-            private readonly int _privateField;
-
-            public static string StaticProperty { get; set; } = null!;
-            public static int StaticField;
-        }
-
-        private class EmptyClass { }
-
         [Test]
-        public void GetDataMembers_NullType_ThrowsArgumentNullException()
+        public void NullType_ThrowsArgumentNullException()
         {
             Type type = null!;
 
-            Assert.Throws<ArgumentNullException>(() =>
-                type.GetDataMembers(PublicInstance).ToList());
+            Assert.Throws<ArgumentNullException>(() => type.GetDataMembers(BindingFlags.Public | BindingFlags.Instance));
+        }
+
+        private class PublicPropertyAndFieldClass
+        {
+            public string Property { get; set; } = null!;
+            public int Field;
         }
 
         [Test]
-        public void GetDataMembers_PublicInstance_ReturnsPublicPropertiesAndFields()
+        public void PublicInstance_ReturnsPublicPropertiesThenFields()
         {
-            var members = typeof(SampleClass).GetDataMembers(PublicInstance).ToList();
+            var result = typeof(PublicPropertyAndFieldClass).GetDataMembers(BindingFlags.Public | BindingFlags.Instance);
 
-            var memberNames = members.Select(m => m.Name).ToList();
+            var names = result.Select(member => member.Name);
+            Assert.That(names, Is.EqualTo(["Property", "Field"]));
+        }
 
-            Assert.That(memberNames, Does.Contain(nameof(SampleClass.PublicProperty)));
-            Assert.That(memberNames, Does.Contain(nameof(SampleClass.PublicField)));
-            Assert.That(memberNames, Does.Not.Contain(nameof(SampleClass.StaticProperty)));
-            Assert.That(memberNames, Does.Not.Contain(nameof(SampleClass.StaticField)));
+        private class PrivatePropertyAndFieldClass
+        {
+            private readonly string _field = null!;
+            private string Property => _field;
         }
 
         [Test]
-        public void GetDataMembers_NonPublicInstance_ReturnsPrivateMembers()
+        public void NonPublicInstance_ReturnsPrivatePropertiesThenFields()
         {
-            var members = typeof(SampleClass).GetDataMembers(NonPublicInstance).ToList();
+            var result = typeof(PrivatePropertyAndFieldClass).GetDataMembers(BindingFlags.NonPublic | BindingFlags.Instance);
 
-            var memberNames = members.Select(m => m.Name).ToList();
-
-            Assert.That(memberNames, Does.Contain("PrivateProperty"));
-            Assert.That(memberNames, Does.Contain("_privateField"));
+            var names = result.Select(member => member.Name);
+            Assert.That(names, Is.EqualTo(["Property", "_field"]));
         }
 
         [Test]
-        public void GetDataMembers_PublicStatic_ReturnsStaticMembers()
+        public void PublicStatic_ReturnsStaticPropertiesThenFields()
         {
-            var members = typeof(SampleClass).GetDataMembers(PublicStatic).ToList();
+            var result = typeof(StaticMembersClass).GetDataMembers(BindingFlags.Public | BindingFlags.Static);
 
-            var memberNames = members.Select(m => m.Name).ToList();
-
-            Assert.That(memberNames, Does.Contain(nameof(SampleClass.StaticProperty)));
-            Assert.That(memberNames, Does.Contain(nameof(SampleClass.StaticField)));
-            Assert.That(memberNames, Does.Not.Contain(nameof(SampleClass.PublicProperty)));
+            var names = result.Select(member => member.Name);
+            Assert.That(names, Is.EqualTo(["StaticProperty", "StaticField"]));
         }
 
         [Test]
-        public void GetDataMembers_EmptyClass_ReturnsEmpty()
+        public void EmptyClass_ReturnsEmpty()
         {
-            var members = typeof(EmptyClass).GetDataMembers(PublicInstance).ToList();
+            var result = typeof(EmptyClass).GetDataMembers(BindingFlags.Public | BindingFlags.Instance);
 
-            Assert.That(members, Is.Empty);
+            Assert.That(result, Is.Empty);
         }
     }
 }

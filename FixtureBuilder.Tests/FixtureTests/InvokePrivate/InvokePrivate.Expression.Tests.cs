@@ -2,229 +2,137 @@
 {
     internal sealed class InvokePrivateExpressionTests
     {
-        private class TestEntity
+        [Test]
+        public void PrivateMethodOnProperty_InvokesMethod()
         {
-            public ChildEntity Child { get; set; } = null!;
-        }
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodClass>>();
 
-        private class ChildEntity
-        {
-            public bool PublicWasCalled { get; private set; }
-            public bool PrivateWasCalled { get; private set; }
-            public string ReceivedValue { get; private set; } = null!;
-            public GrandchildEntity Grandchild { get; set; } = null!;
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
 
-            public void PublicMethod() => PublicWasCalled = true;
-            public void PublicMethod(string value) => ReceivedValue = value;
-            private void PrivateMethod() => PrivateWasCalled = true;
-            private void MethodWithArgs(string value) => ReceivedValue = value;
-        }
-
-        private class GrandchildEntity
-        {
-            public bool PrivateWasCalled { get; private set; }
-            private void PrivateMethod() => PrivateWasCalled = true;
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void InvokePrivate_CallsPrivateMethodOnProperty()
+        public void PublicMethodOnProperty_InvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PublicMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child.PrivateWasCalled, Is.True);
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void InvokePrivate_CallsPublicMethodOnProperty()
+        public void Arguments_InvokesMatchingOverloadWithArguments()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<OverloadedPrivateMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "PublicMethod");
+            var result = fixture.InvokePrivate(x => x.Value, "Receive", "value").Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child.PublicWasCalled, Is.True);
+            Assert.That(result.Value.Received, Is.EqualTo("value"));
         }
 
         [Test]
-        public void InvokePrivate_CallsPublicMethodOverloadOnProperty()
+        public void ArgumentsMatchNoOverload_ThrowsMissingMethodException()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<OverloadedPrivateMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "PublicMethod", "hello");
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child.ReceivedValue, Is.EqualTo("hello"));
+            Assert.Throws<MissingMethodException>(() => fixture.InvokePrivate(x => x.Value, "Receive", 42));
         }
 
         [Test]
-        public void InvokePrivate_PassesArgumentsToMethod()
+        public void UnknownMethod_ThrowsMissingMethodException()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "MethodWithArgs", "hello");
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child.ReceivedValue, Is.EqualTo("hello"));
+            Assert.Throws<MissingMethodException>(() => fixture.InvokePrivate(x => x.Value, "Unknown"));
         }
 
         [Test]
-        public void InvokePrivate_InitializesIntermediateProperty()
+        public void MethodCallInExpression_ThrowsInvalidOperationException()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child, Is.Not.Null);
+            Assert.Throws<InvalidOperationException>(() => fixture.InvokePrivate(x => x.Value.GetHashCode(), "Call"));
         }
 
         [Test]
-        public void InvokePrivate_WorksWithNestedPath()
+        public void PropertyChain_InitializesChainAndInvokesMethodOnLastMember()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolder<PrivateMethodClass>>>();
 
-            fixture.InvokePrivate(x => x.Child.Grandchild, "PrivateMethod");
+            var result = fixture.InvokePrivate(x => x.Value.Value, "Call").Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child, Is.Not.Null);
-            Assert.That(result.Child.Grandchild, Is.Not.Null);
-            Assert.That(result.Child.Grandchild.PrivateWasCalled, Is.True);
+            Assert.That(result.Value.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void InvokePrivate_NonExistentMethod_ThrowsException()
+        public void Field_InvokesMethodOnField()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<PrivateMethodClass>>();
 
-            Assert.Throws<MissingMethodException>(() =>
-                fixture.InvokePrivate(x => x.Child, "NonExistent"));
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
+
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
+        }
+
+        private struct PrivateMethodStruct
+        {
+            public int Calls { get; private set; }
+
+            private void Call() => Calls++;
         }
 
         [Test]
-        public void InvokePrivate_IncorrectArguments_ThrowsException()
+        public void StructProperty_InvokesMethodAndWritesStructBack()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodStruct>>();
 
-            Assert.Throws<MissingMethodException>(() =>
-                fixture.InvokePrivate(x => x.Child, "MethodWithArgs", 42));
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
+
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void InvokePrivate_InitializesFixtureOnFirstCall()
+        public void PrivateMethodDeclaredOnBaseClassOfMember_InvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<DerivedFromPrivateMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void InvokePrivate_CalledMultipleTimes_DoesNotReinstantiate()
+        public void PrivateMethodDeclaredOnRuntimeTypeOfMember_InvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<object>>();
+            fixture.With(x => x.Value, new PrivateMethodClass());
 
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
-            var first = TestHelper.GetFixture(fixture);
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
 
-            fixture.InvokePrivate(x => x.Child, "PublicMethod");
-            var second = TestHelper.GetFixture(fixture);
-
-            Assert.That(second, Is.SameAs(first));
+            var value = (PrivateMethodClass)result.Value;
+            Assert.That(value.Calls, Is.EqualTo(1));
         }
 
         [Test]
-        public void InvokePrivate_InstantiatesFixture()
+        public void CalledTwice_InvokesOnSameInstance()
         {
-            var fixture = TestHelper.MakeFixture<TestEntity>();
+            var fixture = Fixture.New<PropertyHolder<PrivateMethodClass>>();
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.InvokePrivate(x => x.Child, "PublicMethod"));
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
-        }
+            var result = fixture.InvokePrivate(x => x.Value, "Call").InvokePrivate(x => x.Value, "Call").Build();
 
-        private class FieldTerminatorEntity
-        {
-            public ChildEntity Child = null!;
+            Assert.That(result.Value.Calls, Is.EqualTo(2));
         }
 
         [Test]
-        public void FieldTerminator_CallsMethodOnField()
+        public void NotConstructed_ConstructsImplicitlyAndInvokesMethod()
         {
-            var fixture = TestHelper.MakeFixture<FieldTerminatorEntity>();
+            var fixture = Fixture.New<PropertyHolder<PrivateMethodClass>>();
 
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
+            var result = fixture.InvokePrivate(x => x.Value, "Call").Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Child, Is.Not.Null);
-                Assert.That(result.Child.PrivateWasCalled, Is.True);
-            }
-        }
-
-        private class DerivedChildEntity : ChildEntity;
-
-        private class DerivedChildHolder
-        {
-            public DerivedChildEntity Child { get; set; } = null!;
-        }
-
-        [Test]
-        public void InvokePrivate_CallsPrivateMethodDeclaredOnBaseClassOfProperty()
-        {
-            var fixture = TestHelper.MakeFixture<DerivedChildHolder>();
-
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child.PrivateWasCalled, Is.True);
-        }
-
-        private class ChildWithOwnPrivateMethod : ChildEntity
-        {
-            public bool OwnPrivateWasCalled { get; private set; }
-            private void OwnPrivateMethod() => OwnPrivateWasCalled = true;
-        }
-
-        [Test]
-        public void InvokePrivate_CallsPrivateMethodDeclaredOnRuntimeTypeOfProperty()
-        {
-            var fixture = TestHelper.MakeFixture<TestEntity>()
-                .With(x => x.Child, new ChildWithOwnPrivateMethod());
-
-            fixture.InvokePrivate(x => x.Child, "OwnPrivateMethod");
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(((ChildWithOwnPrivateMethod)result.Child).OwnPrivateWasCalled, Is.True);
-        }
-
-        private struct StructChildEntity
-        {
-            public bool PrivateWasCalled { get; private set; }
-            private void PrivateMethod() => PrivateWasCalled = true;
-        }
-
-        private class StructChildHolder
-        {
-            public StructChildEntity Child { get; set; }
-        }
-
-        [Test]
-        public void InvokePrivate_CallsPrivateMethodOnStructProperty()
-        {
-            var fixture = TestHelper.MakeFixture<StructChildHolder>();
-
-            fixture.InvokePrivate(x => x.Child, "PrivateMethod");
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Child.PrivateWasCalled, Is.True);
+            Assert.That(result.Value.Calls, Is.EqualTo(1));
         }
     }
 }

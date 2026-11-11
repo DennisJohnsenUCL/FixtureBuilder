@@ -1,168 +1,103 @@
-﻿#pragma warning disable CS0649
-#pragma warning disable IDE0044 // Add readonly modifier
-
-namespace FixtureBuilder.Tests.FixtureTests.WithField
+﻿namespace FixtureBuilder.Tests.FixtureTests.WithField
 {
-    internal class WithFieldExpressionTests
+    internal sealed class WithFieldExpressionTests
     {
-        private const string _text = "Test string";
-
-        class BaseClass
+        [Test]
+        public void Property_SetsFieldOnPropertyValue()
         {
-            public NestedClass NestedClass { get; set; } = null!;
-        }
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ReadOnlyPropertyHolder<string>>>();
 
-        class NestedClass
-        {
-            public TwiceNestedClass TwiceNestedClass { get; set; } = null!;
-        }
+            var result = fixture.WithField(x => x.Value, "_value", "value").Build();
 
-        class TwiceNestedClass : InheritedClass
-        {
-            private readonly string _field = null!;
-            public string GetField => _field;
-        }
-
-        class InheritedClass
-        {
-            protected readonly string _inheritedField = null!;
-            public string GetInheritedField => _inheritedField;
-            private readonly string _privateInheritedField = null!;
-            public string GetPrivateInheritedField => _privateInheritedField;
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void NestedProperty_SetsField()
+        public void PropertyChain_InitializesChainAndSetsFieldOnLastMember()
         {
-            var fieldName = "_field";
-            var fixture = TestHelper.MakeFixture<BaseClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolder<ReadOnlyPropertyHolder<string>>>>();
 
-            fixture.WithField(c => c.NestedClass.TwiceNestedClass, fieldName, _text);
+            var result = fixture.WithField(x => x.Value.Value, "_value", "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.TwiceNestedClass.GetField, Is.EqualTo(_text));
+            Assert.That(result.Value.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void InheritedField_SetsField()
+        public void Field_SetsFieldOnFieldValue()
         {
-            var fieldName = "_inheritedField";
-            var fixture = TestHelper.MakeFixture<BaseClass>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<ReadOnlyPropertyHolder<string>>>();
 
-            fixture.WithField(c => c.NestedClass.TwiceNestedClass, fieldName, _text);
+            var result = fixture.WithField(x => x.Value, "_value", "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.TwiceNestedClass.GetInheritedField, Is.EqualTo(_text));
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void InheritedPrivateField_SetsField()
+        public void StructField_SetsFieldOnStructAndWritesItBack()
         {
-            var fieldName = "_privateInheritedField";
-            var fixture = TestHelper.MakeFixture<BaseClass>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<ReadOnlyPropertyHolderStruct<int>>>();
 
-            fixture.WithField(c => c.NestedClass.TwiceNestedClass, fieldName, _text);
+            var result = fixture.WithField(x => x.Value, "_value", 5).Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.TwiceNestedClass.GetPrivateInheritedField, Is.EqualTo(_text));
+            Assert.That(result.Value.Value, Is.EqualTo(5));
         }
 
         [Test]
-        public void ComputedProperty_ThrowsException()
+        public void InheritedProtectedField_SetsField()
         {
-            var fieldName = "_field";
-            var fixture = TestHelper.MakeFixture<BaseClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<DerivedFromProtectedFieldClass>>();
 
-            Assert.Throws<InvalidOperationException>(
-                () => fixture.WithField(c => c.NestedClass.TwiceNestedClass.GetField.Length, fieldName, _text));
+            var result = fixture.WithField(x => x.Value, "_value", "value").Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void MethodAccessor_ThrowsException()
+        public void PrivateFieldInheritedTwoLevelsUp_SetsField()
         {
-            var fieldName = "_field";
-            var fixture = TestHelper.MakeFixture<BaseClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<GrandchildOfPrivateFieldClass>>();
 
-            Assert.Throws<InvalidOperationException>(
-                () => fixture.WithField(c => c.NestedClass.TwiceNestedClass.GetHashCode(), fieldName, _text));
-        }
+            var result = fixture.WithField(x => x.Value, "_value", "value").Build();
 
-        [Test]
-        public void WithField_InstantiatesFixture()
-        {
-            var fieldName = "_field";
-
-            var fixture = TestHelper.MakeFixture<BaseClass>();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.WithField(c => c.NestedClass.TwiceNestedClass, fieldName, "Hello"));
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
-        }
-
-        class BaseClassWithFieldIntermediate
-        {
-            public NestedClassWithField NestedClass = null!;
-        }
-
-        class NestedClassWithField
-        {
-            private readonly string _field = null!;
-            public string GetField => _field;
-        }
-
-        [Test]
-        public void FieldTerminator_SetsField()
-        {
-            var fieldName = "_field";
-            var fixture = TestHelper.MakeFixture<BaseClassWithFieldIntermediate>();
-
-            fixture.WithField(c => c.NestedClass, fieldName, _text);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.NestedClass.GetField, Is.EqualTo(_text));
-        }
-
-        class DeclaredAsBaseHolder
-        {
-            public InheritedClass Member { get; set; } = null!;
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
         public void MemberHoldingDerivedInstance_SetsFieldDeclaredOnRuntimeType()
         {
-            var fieldName = "_field";
-            var fixture = TestHelper.MakeFixture<DeclaredAsBaseHolder>()
-                .With(c => c.Member, new TwiceNestedClass());
+            var fixture = TestHelper.MakeFixture<PropertyHolder<object>>();
+            fixture.With(x => x.Value, new ReadOnlyPropertyHolder<string>());
 
-            fixture.WithField(c => c.Member, fieldName, _text);
+            var result = fixture.WithField(x => x.Value, "_value", "value").Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(((TwiceNestedClass)result.Member).GetField, Is.EqualTo(_text));
-        }
-
-        struct Point
-        {
-            private int _z;
-            public readonly int Z => _z;
-        }
-
-        class StructFieldTerminatorClass
-        {
-            public Point Origin;
+            var value = (ReadOnlyPropertyHolder<string>)result.Value;
+            Assert.That(value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void StructFieldTerminator_SetsField()
+        public void ComputedProperty_ThrowsInvalidOperationException()
         {
-            var fieldName = "_z";
-            var fixture = TestHelper.MakeFixture<StructFieldTerminatorClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
 
-            fixture.WithField(c => c.Origin, fieldName, 5);
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField(x => x.Value.Length, "_value", "value"));
+        }
 
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Origin.Z, Is.EqualTo(5));
+        [Test]
+        public void MethodCall_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ReadOnlyPropertyHolder<string>>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField(x => x.Value.GetHashCode(), "_value", "value"));
+        }
+
+        [Test]
+        public void NotConstructed_ConstructsImplicitlyAndSetsField()
+        {
+            var fixture = Fixture.New<PropertyHolder<ReadOnlyPropertyHolder<string>>>();
+
+            var result = fixture.WithField(x => x.Value, "_value", "value").Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
     }
 }

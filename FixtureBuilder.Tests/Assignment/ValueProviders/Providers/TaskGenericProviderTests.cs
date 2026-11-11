@@ -1,4 +1,4 @@
-using FixtureBuilder.Assignment.ValueProviders.Providers;
+﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -7,30 +7,14 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class TaskGenericProviderTests
     {
-        private TaskGenericProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new TaskGenericProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_TaskOfValueType_ReturnsCompletedTaskWithDefault()
         {
-            Assert.DoesNotThrow(() => new TaskGenericProvider());
-        }
-
-        [Test]
-        public void Resolve_TaskOfValueType_ReturnsCompletedTaskWithDefault()
-        {
+            var provider = new TaskGenericProvider();
             var request = TestHelper.MakeRequest(typeof(Task<int>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            Assert.That(result, Is.InstanceOf<Task<int>>());
             var task = (Task<int>)result!;
             using (Assert.EnterMultipleScope())
             {
@@ -40,13 +24,13 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
         }
 
         [Test]
-        public void Resolve_TaskOfReferenceType_ReturnsCompletedTaskWithNull()
+        public void ResolveValue_TaskOfReferenceType_ReturnsCompletedTaskWithNull()
         {
+            var provider = new TaskGenericProvider();
             var request = TestHelper.MakeRequest(typeof(Task<string>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            Assert.That(result, Is.InstanceOf<Task<string>>());
             var task = (Task<string>)result!;
             using (Assert.EnterMultipleScope())
             {
@@ -55,14 +39,15 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             }
         }
 
-        [TestCase(typeof(Task), TestName = "Resolve_NonGenericTask_ReturnsNoResult")]
-        [TestCase(typeof(ValueTask<int>), TestName = "Resolve_GenericValueTask_ReturnsNoResult")]
-        [TestCase(typeof(List<int>), TestName = "Resolve_OtherGenericType_ReturnsNoResult")]
-        public void Resolve_OtherType_ReturnsNoResult(Type type)
+        [TestCase(typeof(Task))]
+        [TestCase(typeof(ValueTask<int>))]
+        [TestCase(typeof(List<int>))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
+            var provider = new TaskGenericProvider();
             var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

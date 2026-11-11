@@ -1,6 +1,4 @@
-﻿#pragma warning disable CS0649
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Creation.UninitializedProviders;
 
@@ -8,9 +6,9 @@ using FixtureBuilder.Creation.UninitializedProviders;
 namespace Microsoft.Contoso
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
-    public class Widget
+    internal class Widget
     {
-        public string Name { get; set; } = "";
+        public string Name { get; set; } = null!;
     }
 }
 
@@ -18,9 +16,9 @@ namespace Microsoft.Contoso
 namespace MicrosoftGraphClient
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 {
-    public class GraphUser
+    internal class GraphUser
     {
-        public string Name { get; set; } = "";
+        public string Name { get; set; } = null!;
     }
 }
 
@@ -28,66 +26,15 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal sealed class DataMemberSkipFilterTests
     {
-        #region Test types
-
-        private static DataMemberInfo PropertyMember<T>(string name)
-        {
-            return new DataMemberInfo(typeof(T).GetProperty(name)!);
-        }
-
-        private static DataMemberInfo FieldMember<T>(string name)
-        {
-            return new DataMemberInfo(typeof(T).GetField(name)!);
-        }
-
-        private class StandardClass
-        {
-            public string NonNullableString { get; set; } = "";
-            public string? NullableString { get; set; }
-            public int NonNullableInt { get; set; }
-            public int? NullableInt { get; set; }
-            public string ReadOnly { get; } = null!;
-#pragma warning disable CA1822 // Mark members as static
-            public string ReadOnlyWithoutBackingField => "";
-            public string WriteOnly { set { } }
-#pragma warning restore CA1822 // Mark members as static
-            public string this[int index] { get => ""; set { } }
-            private int[] _spanValues = [];
-            public Span<int> RefStructProperty { get => _spanValues; set => _spanValues = value.ToArray(); }
-            public static string StaticProperty { get; set; } = "";
-            public int RegularField;
-            public static int StaticField;
-        }
-
-        private class CompilerGeneratedBackingFieldClass
-        {
-            public string AutoProp { get; set; } = "";
-        }
-
-        #endregion
-
-        private DataMemberSkipFilter _sut;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new DataMemberSkipFilter();
-        }
-
-        [Test]
-        public void DefaultConstructor_CreatesInstance()
-        {
-            Assert.DoesNotThrow(() => new DataMemberSkipFilter());
-        }
-
-        #region Namespace skipping
+        #region Namespaces
 
         [Test]
         public void ShouldSkip_PropertyFromSystemNamespace_ReturnsTrue()
         {
-            var member = PropertyMember<Exception>(nameof(Exception.Source));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(Exception), nameof(Exception.Source));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
@@ -95,9 +42,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromSystemChildNamespace_ReturnsTrue()
         {
-            var member = PropertyMember<List<int>>(nameof(List<>.Capacity));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(List<int>), nameof(List<>.Capacity));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
@@ -105,9 +53,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromMicrosoftChildNamespace_ReturnsTrue()
         {
-            var member = PropertyMember<Microsoft.Contoso.Widget>(nameof(Microsoft.Contoso.Widget.Name));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(Microsoft.Contoso.Widget), nameof(Microsoft.Contoso.Widget.Name));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
@@ -115,9 +64,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromNamespaceStartingWithSystem_ReturnsFalse()
         {
-            var member = PropertyMember<SystemUnderTest.Invoice>(nameof(SystemUnderTest.Invoice.Number));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(SystemUnderTest.Invoice), nameof(SystemUnderTest.Invoice.Number));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }
@@ -125,9 +75,21 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromNamespaceStartingWithMicrosoft_ReturnsFalse()
         {
-            var member = PropertyMember<MicrosoftGraphClient.GraphUser>(nameof(MicrosoftGraphClient.GraphUser.Name));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(MicrosoftGraphClient.GraphUser), nameof(MicrosoftGraphClient.GraphUser.Name));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void ShouldSkip_PropertyFromGlobalNamespace_ReturnsFalse()
+        {
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(GlobalNamespaceClass), nameof(GlobalNamespaceClass.Value));
+
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }
@@ -135,9 +97,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_PropertyFromUserNamespace_ReturnsFalse()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NonNullableString));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<string>), "Value");
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }
@@ -149,9 +112,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_StaticProperty_ReturnsTrue()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.StaticProperty));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(StaticMembersClass), nameof(StaticMembersClass.StaticProperty));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
@@ -159,9 +123,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_StaticField_ReturnsTrue()
         {
-            var member = FieldMember<StandardClass>(nameof(StandardClass.StaticField));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.FieldMember(typeof(StaticMembersClass), nameof(StaticMembersClass.StaticField));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
@@ -170,22 +135,29 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 
         #region Inaccessible properties
 
-        [Test]
-        public void ShouldSkip_ReadOnlyAutoProperty_ReturnsFalse()
+        private class GetOnlyAutoPropertyClass
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.ReadOnly));
+            public string Value { get; } = null!;
+        }
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+        [Test]
+        public void ShouldSkip_GetOnlyAutoProperty_ReturnsFalse()
+        {
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(GetOnlyAutoPropertyClass), nameof(GetOnlyAutoPropertyClass.Value));
+
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }
 
         [Test]
-        public void ShouldSkip_ReadOnlyPropertyWithoutBackingField_ReturnsTrue()
+        public void ShouldSkip_ReadOnlyPropertyWithoutAutoBackingField_ReturnsTrue()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.ReadOnlyWithoutBackingField));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(ReadOnlyPropertyHolder<string>), "Value");
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
@@ -193,82 +165,95 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_WriteOnlyProperty_ReturnsTrue()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.WriteOnly));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(WriteOnlyPropertyClass), nameof(WriteOnlyPropertyClass.Value));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
 
-        [Test]
-        public void ShouldSkip_IndexerProperty_ReturnsTrue()
+        private class IndexerClass
         {
-            var property = typeof(StandardClass).GetProperties()
-                .First(p => p.GetIndexParameters().Length > 0);
-            var member = new DataMemberInfo(property);
+            public string this[int index] { get => null!; set { } }
+        }
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+        [Test]
+        public void ShouldSkip_Indexer_ReturnsTrue()
+        {
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(IndexerClass), "Item");
+
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
+        }
+
+        private class SpanPropertyClass
+        {
+            private int[] _numbers = [];
+            public Span<int> Numbers { get => _numbers; set => _numbers = value.ToArray(); }
         }
 
         [Test]
         public void ShouldSkip_RefStructProperty_ReturnsTrue()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.RefStructProperty));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(SpanPropertyClass), nameof(SpanPropertyClass.Numbers));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
 
-        [Test]
-        public void ShouldSkip_ReadWriteProperty_ReturnsFalse()
-        {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NonNullableString));
+        #endregion
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+        #region Fields
+
+        [Test]
+        public void ShouldSkip_Field_ReturnsFalse()
+        {
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
+
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }
-
-        #endregion
-
-        #region Compiler-generated fields
 
         [Test]
         public void ShouldSkip_CompilerGeneratedBackingField_ReturnsTrue()
         {
-            var field = typeof(CompilerGeneratedBackingFieldClass)
+            var filter = new DataMemberSkipFilter();
+            var field = typeof(PropertyHolder<string>)
                 .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                .First(f => f.IsDefined(typeof(CompilerGeneratedAttribute), false));
+                .First(candidate => candidate.IsDefined(typeof(CompilerGeneratedAttribute), false));
             var member = new DataMemberInfo(field);
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.True);
         }
 
-        [Test]
-        public void ShouldSkip_RegularField_ReturnsFalse()
-        {
-            var member = FieldMember<StandardClass>(nameof(StandardClass.RegularField));
-
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
-
-            Assert.That(result, Is.False);
-        }
-
         #endregion
 
-        #region Nullable with InitializeMembers.NonNullables
+        #region Nullable members
+
+        private class NullableAndNonNullableMembersClass
+        {
+            public string NonNullableString { get; set; } = null!;
+            public string? NullableString { get; set; }
+            public int NonNullableInt { get; set; }
+            public int? NullableInt { get; set; }
+        }
 
         [Test]
         public void ShouldSkip_NonNullablesAndNullableValueType_ReturnsTrue()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NullableInt));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(NullableAndNonNullableMembersClass), nameof(NullableAndNonNullableMembersClass.NullableInt));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.NonNullables);
+            var result = filter.ShouldSkip(member, InitializeMembers.NonNullables);
 
             Assert.That(result, Is.True);
         }
@@ -276,9 +261,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_NonNullablesAndNonNullableValueType_ReturnsFalse()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NonNullableInt));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(NullableAndNonNullableMembersClass), nameof(NullableAndNonNullableMembersClass.NonNullableInt));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.NonNullables);
+            var result = filter.ShouldSkip(member, InitializeMembers.NonNullables);
 
             Assert.That(result, Is.False);
         }
@@ -286,9 +272,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_NonNullablesAndNullableReferenceType_ReturnsTrue()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NullableString));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(NullableAndNonNullableMembersClass), nameof(NullableAndNonNullableMembersClass.NullableString));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.NonNullables);
+            var result = filter.ShouldSkip(member, InitializeMembers.NonNullables);
 
             Assert.That(result, Is.True);
         }
@@ -296,23 +283,21 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_NonNullablesAndNonNullableReferenceType_ReturnsFalse()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NonNullableString));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(NullableAndNonNullableMembersClass), nameof(NullableAndNonNullableMembersClass.NonNullableString));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.NonNullables);
+            var result = filter.ShouldSkip(member, InitializeMembers.NonNullables);
 
             Assert.That(result, Is.False);
         }
 
-        #endregion
-
-        #region Nullable with InitializeMembers.All
-
         [Test]
         public void ShouldSkip_AllAndNullableValueType_ReturnsFalse()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NullableInt));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(NullableAndNonNullableMembersClass), nameof(NullableAndNonNullableMembersClass.NullableInt));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }
@@ -320,9 +305,10 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         [Test]
         public void ShouldSkip_AllAndNullableReferenceType_ReturnsFalse()
         {
-            var member = PropertyMember<StandardClass>(nameof(StandardClass.NullableString));
+            var filter = new DataMemberSkipFilter();
+            var member = TestHelper.PropertyMember(typeof(NullableAndNonNullableMembersClass), nameof(NullableAndNonNullableMembersClass.NullableString));
 
-            var result = _sut.ShouldSkip(member, InitializeMembers.All);
+            var result = filter.ShouldSkip(member, InitializeMembers.All);
 
             Assert.That(result, Is.False);
         }

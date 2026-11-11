@@ -5,46 +5,64 @@ namespace FixtureBuilder.Tests.Extensions
 {
     internal sealed class PropertyInfoExtensionsTests
     {
-        private class TestClass
-        {
-            public static int StaticProperty { get; set; }
-            public int InstanceProperty { get; set; }
-            public static int StaticGetOnly => 1;
-            private static int PrivateStaticProperty { get; set; }
-            public int PublicGetPrivateSet { get; private set; }
-        }
-
-        private static PropertyInfo GetProperty(string name) =>
-            typeof(TestClass).GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)!;
-
         [Test]
         public void IsStatic_StaticProperty_ReturnsTrue()
         {
-            Assert.That(GetProperty(nameof(TestClass.StaticProperty)).IsStatic(), Is.True);
+            var property = typeof(StaticMembersClass).GetProperty(nameof(StaticMembersClass.StaticProperty))!;
+
+            var result = property.IsStatic();
+
+            Assert.That(result, Is.True);
         }
 
         [Test]
         public void IsStatic_InstanceProperty_ReturnsFalse()
         {
-            Assert.That(GetProperty(nameof(TestClass.InstanceProperty)).IsStatic(), Is.False);
+            var property = typeof(PropertyHolder<int>).GetProperty("Value")!;
+
+            var result = property.IsStatic();
+
+            Assert.That(result, Is.False);
+        }
+
+        private class StaticGetOnlyPropertyClass
+        {
+            public static int Value => 1;
         }
 
         [Test]
         public void IsStatic_StaticGetOnlyProperty_ReturnsTrue()
         {
-            Assert.That(GetProperty(nameof(TestClass.StaticGetOnly)).IsStatic(), Is.True);
+            var property = typeof(StaticGetOnlyPropertyClass).GetProperty(nameof(StaticGetOnlyPropertyClass.Value))!;
+
+            var result = property.IsStatic();
+
+            Assert.That(result, Is.True);
+        }
+
+        private class PrivateStaticPropertyClass
+        {
+            private static int Value { get; set; }
         }
 
         [Test]
-        public void IsStatic_PrivateStaticProperty_WithNonPublicFalse_ReturnsFalse()
+        public void IsStatic_PrivateStaticPropertyWithoutNonPublic_ReturnsFalse()
         {
-            Assert.That(GetProperty("PrivateStaticProperty").IsStatic(nonPublic: false), Is.False);
+            var property = typeof(PrivateStaticPropertyClass).GetProperty("Value", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var result = property.IsStatic(nonPublic: false);
+
+            Assert.That(result, Is.False);
         }
 
         [Test]
-        public void IsStatic_PrivateStaticProperty_WithNonPublicTrue_ReturnsTrue()
+        public void IsStatic_PrivateStaticPropertyWithNonPublic_ReturnsTrue()
         {
-            Assert.That(GetProperty("PrivateStaticProperty").IsStatic(nonPublic: true), Is.True);
+            var property = typeof(PrivateStaticPropertyClass).GetProperty("Value", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var result = property.IsStatic(nonPublic: true);
+
+            Assert.That(result, Is.True);
         }
     }
 }

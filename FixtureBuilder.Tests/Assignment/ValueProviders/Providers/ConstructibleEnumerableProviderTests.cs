@@ -11,64 +11,50 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class ConstructibleEnumerableProviderTests
     {
-        private ConstructibleEnumerableProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
+        [TestCase(typeof(List<int>))]
+        [TestCase(typeof(Stack<string>))]
+        [TestCase(typeof(Queue<double>))]
+        [TestCase(typeof(SortedSet<int>))]
+        [TestCase(typeof(HashSet<int>))]
+        [TestCase(typeof(LinkedList<int>))]
+        [TestCase(typeof(Collection<int>))]
+        [TestCase(typeof(ConcurrentBag<int>))]
+        [TestCase(typeof(ConcurrentQueue<int>))]
+        [TestCase(typeof(ConcurrentStack<int>))]
+        [TestCase(typeof(Dictionary<string, int>))]
+        [TestCase(typeof(ConcurrentDictionary<string, int>))]
+        [TestCase(typeof(OrderedDictionary<string, int>))]
+        [TestCase(typeof(SortedDictionary<string, int>))]
+        [TestCase(typeof(SortedList<string, int>))]
+        [TestCase(typeof(ArrayList))]
+        [TestCase(typeof(Stack))]
+        [TestCase(typeof(Queue))]
+        [TestCase(typeof(Hashtable))]
+        [TestCase(typeof(SortedList))]
+        public void ResolveValue_SupportedCollectionType_ReturnsEmptyInstance(Type collectionType)
         {
-            _sut = new ConstructibleEnumerableProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
-        [Test]
-        public void DefaultConstructor_DoesNotThrow()
-        {
-            Assert.DoesNotThrow(() => new ConstructibleEnumerableProvider());
-        }
-
-        [TestCase(typeof(List<int>), TestName = "Resolve_List_ReturnsEmptyInstance")]
-        [TestCase(typeof(Stack<string>), TestName = "Resolve_GenericStack_ReturnsEmptyInstance")]
-        [TestCase(typeof(Queue<double>), TestName = "Resolve_GenericQueue_ReturnsEmptyInstance")]
-        [TestCase(typeof(SortedSet<int>), TestName = "Resolve_SortedSet_ReturnsEmptyInstance")]
-        [TestCase(typeof(HashSet<int>), TestName = "Resolve_HashSet_ReturnsEmptyInstance")]
-        [TestCase(typeof(LinkedList<int>), TestName = "Resolve_LinkedList_ReturnsEmptyInstance")]
-        [TestCase(typeof(Collection<int>), TestName = "Resolve_Collection_ReturnsEmptyInstance")]
-        [TestCase(typeof(ConcurrentBag<int>), TestName = "Resolve_ConcurrentBag_ReturnsEmptyInstance")]
-        [TestCase(typeof(ConcurrentQueue<int>), TestName = "Resolve_ConcurrentQueue_ReturnsEmptyInstance")]
-        [TestCase(typeof(ConcurrentStack<int>), TestName = "Resolve_ConcurrentStack_ReturnsEmptyInstance")]
-        [TestCase(typeof(Dictionary<string, int>), TestName = "Resolve_Dictionary_ReturnsEmptyInstance")]
-        [TestCase(typeof(ConcurrentDictionary<string, int>), TestName = "Resolve_ConcurrentDictionary_ReturnsEmptyInstance")]
-        [TestCase(typeof(OrderedDictionary<string, int>), TestName = "Resolve_OrderedDictionary_ReturnsEmptyInstance")]
-        [TestCase(typeof(SortedDictionary<string, int>), TestName = "Resolve_SortedDictionary_ReturnsEmptyInstance")]
-        [TestCase(typeof(SortedList<string, int>), TestName = "Resolve_GenericSortedList_ReturnsEmptyInstance")]
-        [TestCase(typeof(ArrayList), TestName = "Resolve_ArrayList_ReturnsEmptyInstance")]
-        [TestCase(typeof(Stack), TestName = "Resolve_NonGenericStack_ReturnsEmptyInstance")]
-        [TestCase(typeof(Queue), TestName = "Resolve_NonGenericQueue_ReturnsEmptyInstance")]
-        [TestCase(typeof(Hashtable), TestName = "Resolve_Hashtable_ReturnsEmptyInstance")]
-        [TestCase(typeof(SortedList), TestName = "Resolve_NonGenericSortedList_ReturnsEmptyInstance")]
-        public void Resolve_SupportedCollectionType_ReturnsEmptyInstance(Type collectionType)
-        {
+            var provider = new ConstructibleEnumerableProvider();
             var request = TestHelper.MakeRequest(collectionType);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
+            var collection = (IEnumerable)result!;
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf(collectionType));
-                Assert.That((IEnumerable)result!, Is.Empty);
+                Assert.That(collection, Is.TypeOf(collectionType));
+                Assert.That(collection, Is.Empty);
             }
         }
 
-        [TestCase(typeof(ImmutableList<int>), TestName = "Resolve_ImmutableList_ReturnsNoResult")]
-        [TestCase(typeof(string), TestName = "Resolve_PlainClass_ReturnsNoResult")]
-        [TestCase(typeof(IList<int>), TestName = "Resolve_Interface_ReturnsNoResult")]
-        public void Resolve_UnsupportedType_ReturnsNoResult(Type type)
+        [TestCase(typeof(ImmutableList<int>))]
+        [TestCase(typeof(IList<int>))]
+        [TestCase(typeof(string))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
+            var provider = new ConstructibleEnumerableProvider();
             var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

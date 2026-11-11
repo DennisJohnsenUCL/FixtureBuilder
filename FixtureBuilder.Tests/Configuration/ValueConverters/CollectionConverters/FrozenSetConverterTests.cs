@@ -10,22 +10,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
     internal sealed class FrozenSetConverterTests
     {
         [Test]
-        public void Constructor_Constructs()
-        {
-            Assert.DoesNotThrow(() => new FrozenSetConverter());
-        }
-
-        [Test]
         public void Convert_TargetFrozenSet_ValueGenericEnumerable_SameElementType_Converts()
         {
-            var target = new TypeRequest(typeof(FrozenSet<string>), typeof(FrozenSet<string>));
-            var value = new List<string> { "test1", "test2", "test3" };
+            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
+            List<string> value = ["test1", "test2", "test3"];
             var expected = FrozenSet.ToFrozenSet(["test1", "test2", "test3"], null);
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -33,13 +25,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetFrozenSet_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(FrozenSet<string>), typeof(FrozenSet<string>));
-            var value = new List<int> { 1, 2, 3 };
-            var context = new Mock<IFixtureContext>().Object;
-
+            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
+            List<int> value = [1, 2, 3];
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -47,13 +37,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotFrozenSet_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(List<string>), typeof(List<string>));
-            var value = new string[] { "test1", "test2", "test3" };
-            var context = new Mock<IFixtureContext>().Object;
-
+            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            string[] value = ["test1", "test2", "test3"];
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -61,13 +49,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(FrozenSet<string>), typeof(FrozenSet<string>));
+            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
             var value = 42;
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -75,13 +61,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(FrozenSet<string>), typeof(FrozenSet<string>));
+            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
             var value = new ArrayList { "test1", "test2", "test3" };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new FrozenSetConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

@@ -1,6 +1,4 @@
-﻿#pragma warning disable CA1861
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
@@ -12,74 +10,66 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
 {
     internal sealed class MutableGenericCollectionConverterTests
     {
-        private MutableGenericCollectionConverter _sut;
-        private IFixtureContext _context;
-
-        [SetUp]
-        public void SetUp()
+        [TestCase(typeof(List<string>))]
+        [TestCase(typeof(Queue<string>))]
+        [TestCase(typeof(SortedSet<string>))]
+        [TestCase(typeof(HashSet<string>))]
+        [TestCase(typeof(LinkedList<string>))]
+        public void Convert_OrderPreservingTarget_ReturnsCollectionWithElementsInOrder(Type targetType)
         {
-            _sut = new MutableGenericCollectionConverter();
-            _context = new Mock<IFixtureContext>().Object;
-        }
+            var request = new TypeRequest(targetType, typeof(object));
+            string[] value = ["test1", "test2", "test3"];
+            var converter = new MutableGenericCollectionConverter();
 
-        [Test]
-        public void Constructor_Constructs()
-        {
-            Assert.DoesNotThrow(() => new MutableGenericCollectionConverter());
-        }
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
-        [TestCase(typeof(List<string>), TestName = "Convert_TargetList_Converts")]
-        [TestCase(typeof(Queue<string>), TestName = "Convert_TargetQueue_Converts")]
-        [TestCase(typeof(SortedSet<string>), TestName = "Convert_TargetSortedSet_Converts")]
-        [TestCase(typeof(HashSet<string>), TestName = "Convert_TargetHashSet_Converts")]
-        [TestCase(typeof(LinkedList<string>), TestName = "Convert_TargetLinkedList_Converts")]
-        public void Convert_OrderPreservingTarget_Converts(Type target)
-        {
-            var request = new TypeRequest(target, target);
-            var value = new string[] { "test1", "test2", "test3" };
-
-            var result = _sut.Convert(request, value, _context);
-
+            var collection = (IEnumerable)result!;
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.AssignableTo(target));
-                Assert.That((IEnumerable)result!, Is.EqualTo(value));
+                Assert.That(collection, Is.TypeOf(targetType));
+                Assert.That(collection, Is.EqualTo(["test1", "test2", "test3"]));
             }
         }
 
-        [TestCase(typeof(Stack<string>), TestName = "Convert_TargetStack_Converts")]
-        [TestCase(typeof(ConcurrentStack<string>), TestName = "Convert_TargetConcurrentStack_Converts")]
-        [TestCase(typeof(ConcurrentBag<string>), TestName = "Convert_TargetConcurrentBag_Converts")]
-        public void Convert_ReverseOrderTarget_Converts(Type target)
+        [TestCase(typeof(Stack<string>))]
+        [TestCase(typeof(ConcurrentStack<string>))]
+        [TestCase(typeof(ConcurrentBag<string>))]
+        public void Convert_ReverseOrderTarget_ReturnsCollectionWithElementsReversed(Type targetType)
         {
-            var request = new TypeRequest(target, target);
-            IEnumerable<string> value = ["test1", "test2", "test3"];
+            var request = new TypeRequest(targetType, typeof(object));
+            string[] value = ["test1", "test2", "test3"];
+            var converter = new MutableGenericCollectionConverter();
 
-            var result = _sut.Convert(request, value, _context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
+            var collection = (IEnumerable)result!;
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.AssignableTo(target));
-                Assert.That((IEnumerable)result!, Is.EqualTo(value.Reverse()));
+                Assert.That(collection, Is.TypeOf(targetType));
+                Assert.That(collection, Is.EqualTo(["test3", "test2", "test1"]));
             }
         }
 
         [Test]
-        public void Convert_TargetList_ValueNotArray_Converts()
+        public void Convert_ValueThatIsNotArray_ReturnsList()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(List<string>));
-            var value = ImmutableList.CreateRange(["test1", "test2", "test3"]);
+            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            ImmutableList<string> value = ["test1", "test2", "test3"];
+            var converter = new MutableGenericCollectionConverter();
 
-            var result = _sut.Convert(request, value, _context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
-            Assert.That(result, Is.EqualTo(new List<string> { "test1", "test2", "test3" }));
+            Assert.That(result, Is.EqualTo(["test1", "test2", "test3"]));
         }
 
         [Test]
-        public void Convert_TargetList_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
+        public void Convert_DifferentElementType_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(List<string>));
-            var result = _sut.Convert(request, new int[] { 1, 2, 3 }, _context);
+            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            int[] value = [1, 2, 3];
+            var converter = new MutableGenericCollectionConverter();
+
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -87,8 +77,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotMutableGenericCollection_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(ImmutableList<string>), typeof(ImmutableList<string>));
-            var result = _sut.Convert(request, new string[] { "test1" }, _context);
+            var request = new TypeRequest(typeof(ImmutableList<string>), typeof(object));
+            string[] value = ["test1"];
+            var converter = new MutableGenericCollectionConverter();
+
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -96,8 +89,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(List<string>));
-            var result = _sut.Convert(request, 42, _context);
+            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var converter = new MutableGenericCollectionConverter();
+
+            var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -105,8 +100,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(List<string>));
-            var result = _sut.Convert(request, new ArrayList { "test1" }, _context);
+            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var value = new ArrayList { "test1" };
+            var converter = new MutableGenericCollectionConverter();
+
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

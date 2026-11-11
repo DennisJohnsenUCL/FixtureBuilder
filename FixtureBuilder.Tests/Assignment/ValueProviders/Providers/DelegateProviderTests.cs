@@ -1,4 +1,4 @@
-using FixtureBuilder.Assignment.ValueProviders.Providers;
+﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -7,118 +7,103 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class DelegateProviderTests
     {
-        private DelegateProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        private delegate bool TryParse(string text, out int value);
-        private delegate ref int RefReturn();
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new DelegateProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_ValueTypeReturn_ReturnsDelegateReturningDefault()
         {
-            Assert.DoesNotThrow(() => new DelegateProvider());
-        }
-
-        [Test]
-        public void Resolve_FuncWithValueTypeReturn_ReturnsDelegateReturningDefault()
-        {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(typeof(Func<string, int>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.TypeOf<Func<string, int>>());
-                Assert.That(((Func<string, int>)result!)("text"), Is.Zero);
-            }
+            var parse = (Func<string, int>)result!;
+            var returned = parse("text");
+            Assert.That(returned, Is.Zero);
         }
 
         [Test]
-        public void Resolve_FuncWithReferenceTypeReturn_ReturnsDelegateReturningNull()
+        public void ResolveValue_ReferenceTypeReturn_ReturnsDelegateReturningNull()
         {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(typeof(Func<string>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.TypeOf<Func<string>>());
-                Assert.That(((Func<string>)result!)(), Is.Null);
-            }
+            var create = (Func<string>)result!;
+            var returned = create();
+            Assert.That(returned, Is.Null);
         }
 
         [Test]
-        public void Resolve_FuncWithTaskReturn_ReturnsDelegateReturningCompletedTask()
+        public void ResolveValue_TaskReturn_ReturnsDelegateReturningCompletedTask()
         {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(typeof(Func<string, Task>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.TypeOf<Func<string, Task>>());
-                Assert.That(((Func<string, Task>)result!)("text").IsCompletedSuccessfully, Is.True);
-            }
+            var run = (Func<string, Task>)result!;
+            var returned = run("text");
+            Assert.That(returned.IsCompletedSuccessfully, Is.True);
         }
 
         [Test]
-        public void Resolve_FuncWithTaskOfValueTypeReturn_ReturnsDelegateReturningCompletedTaskWithDefault()
+        public void ResolveValue_TaskOfValueTypeReturn_ReturnsDelegateReturningCompletedTaskWithDefault()
         {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(typeof(Func<string, Task<int>>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            Assert.That(result, Is.TypeOf<Func<string, Task<int>>>());
-            var task = ((Func<string, Task<int>>)result!)("text");
+            var parse = (Func<string, Task<int>>)result!;
+            var returned = parse("text");
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(task.IsCompletedSuccessfully, Is.True);
-                Assert.That(task.Result, Is.Zero);
+                Assert.That(returned.IsCompletedSuccessfully, Is.True);
+                Assert.That(returned.Result, Is.Zero);
             }
         }
 
         [Test]
-        public void Resolve_FuncWithTaskOfReferenceTypeReturn_ReturnsDelegateReturningCompletedTaskWithNull()
+        public void ResolveValue_TaskOfReferenceTypeReturn_ReturnsDelegateReturningCompletedTaskWithNull()
         {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(typeof(Func<Task<string>>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            Assert.That(result, Is.TypeOf<Func<Task<string>>>());
-            var task = ((Func<Task<string>>)result!)();
+            var create = (Func<Task<string>>)result!;
+            var returned = create();
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(task.IsCompletedSuccessfully, Is.True);
-                Assert.That(task.Result, Is.Null);
+                Assert.That(returned.IsCompletedSuccessfully, Is.True);
+                Assert.That(returned.Result, Is.Null);
             }
         }
 
         [Test]
-        public void Resolve_Action_ReturnsInvokableDelegate()
+        public void ResolveValue_Action_ReturnsInvokableDelegate()
         {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(typeof(Action<int, string>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            Assert.That(result, Is.TypeOf<Action<int, string>>());
-            Assert.DoesNotThrow(() => ((Action<int, string>)result!)(1, "text"));
+            var action = (Action<int, string>)result!;
+            Assert.DoesNotThrow(() => action(1, "text"));
         }
 
+        private delegate bool TryParseDelegate(string text, out int value);
+
         [Test]
-        public void Resolve_DelegateWithOutParameter_LeavesOutParameterDefault()
+        public void ResolveValue_OutParameter_ReturnsDelegateLeavingOutParameterDefault()
         {
-            var request = TestHelper.MakeRequest(typeof(TryParse));
+            var provider = new DelegateProvider();
+            var request = TestHelper.MakeRequest(typeof(TryParseDelegate));
 
-            var result = (TryParse)_sut.ResolveValue(request, _contextMock.Object)!;
-            var returned = result("1", out var value);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
+            var tryParse = (TryParseDelegate)result!;
+            var returned = tryParse("1", out var value);
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(returned, Is.False);
@@ -126,24 +111,28 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
             }
         }
 
+        private delegate ref int RefReturnDelegate();
+
         [Test]
-        public void Resolve_RefReturnDelegate_ThrowsInvalidOperationException()
+        public void ResolveValue_RefReturn_ThrowsInvalidOperationException()
         {
-            var request = TestHelper.MakeRequest(typeof(RefReturn));
+            var provider = new DelegateProvider();
+            var request = TestHelper.MakeRequest(typeof(RefReturnDelegate));
 
-            var ex = Assert.Throws<InvalidOperationException>(() => _sut.ResolveValue(request, _contextMock.Object));
+            var ex = Assert.Throws<InvalidOperationException>(() => provider.ResolveValue(request, Mock.Of<IFixtureContext>()));
 
-            Assert.That(ex!.Message, Does.Contain(nameof(RefReturn)));
+            Assert.That(ex.Message, Does.Contain(nameof(RefReturnDelegate)));
         }
 
-        [TestCase(typeof(Delegate), TestName = "Resolve_DelegateBaseType_ReturnsNoResult")]
-        [TestCase(typeof(MulticastDelegate), TestName = "Resolve_MulticastDelegateBaseType_ReturnsNoResult")]
-        [TestCase(typeof(string), TestName = "Resolve_String_ReturnsNoResult")]
-        public void Resolve_NonDelegateOrAbstractDelegate_ReturnsNoResult(Type type)
+        [TestCase(typeof(Delegate))]
+        [TestCase(typeof(MulticastDelegate))]
+        [TestCase(typeof(string))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
+            var provider = new DelegateProvider();
             var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

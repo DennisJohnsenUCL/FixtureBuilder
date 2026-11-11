@@ -10,22 +10,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
     internal sealed class SpecializedGenericDictionaryConverterTests
     {
         [Test]
-        public void Constructor_Constructs()
-        {
-            Assert.DoesNotThrow(() => new SpecializedGenericDictionaryConverter());
-        }
-
-        [Test]
         public void Convert_TargetReadOnlyDictionary_ValueGenericDictionary_SameElementType_Converts()
         {
-            var target = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(ReadOnlyDictionary<string, int>));
+            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = new ReadOnlyDictionary<string, int>(value);
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -33,14 +25,12 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetReadOnlyDictionary_ValueGenericEnumerableKeyValuePair_SameElementType_Converts()
         {
-            var target = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(ReadOnlyDictionary<string, int>));
-            var value = new List<KeyValuePair<string, int>> { new("one", 1), new("two", 2), new("three", 3) };
+            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
+            List<KeyValuePair<string, int>> value = [new("one", 1), new("two", 2), new("three", 3)];
             var expected = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>(value));
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -48,14 +38,12 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetSortedDictionary_ValueGenericDictionary_SameElementType_Converts()
         {
-            var target = new TypeRequest(typeof(SortedDictionary<string, int>), typeof(SortedDictionary<string, int>));
+            var request = new TypeRequest(typeof(SortedDictionary<string, int>), typeof(object));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = new SortedDictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -63,14 +51,12 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetSortedList_ValueGenericDictionary_SameElementType_Converts()
         {
-            var target = new TypeRequest(typeof(SortedList<string, int>), typeof(SortedList<string, int>));
+            var request = new TypeRequest(typeof(SortedList<string, int>), typeof(object));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var expected = new SortedList<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -78,13 +64,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetReadOnlyDictionary_ValueGenericDictionary_DifferentElementType_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(ReadOnlyDictionary<string, int>));
+            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
             var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -92,13 +76,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_TargetNotSpecializedGenericDictionary_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(Dictionary<string, int>), typeof(Dictionary<string, int>));
+            var request = new TypeRequest(typeof(Dictionary<string, int>), typeof(object));
             var value = new OrderedDictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -106,13 +88,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_ValueNotGenericDictionaryOrEnumerableKeyValuePair_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(ReadOnlyDictionary<string, int>));
-            var value = new List<int>() { 42 };
-            var context = new Mock<IFixtureContext>().Object;
-
+            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
+            List<int> value = [42];
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -120,13 +100,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         [Test]
         public void Convert_ValueNotGenericDictionary_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(ReadOnlyDictionary<string, int>));
+            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
             var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new SpecializedGenericDictionaryConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

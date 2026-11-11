@@ -1,88 +1,69 @@
-﻿using System.Reflection;
-
-namespace FixtureBuilder.Tests.FixtureTests
+﻿namespace FixtureBuilder.Tests.FixtureTests
 {
-    internal class NewTests
+    internal sealed class NewTests
     {
         [Test]
-        public void ReturnsIFixtureConstructor()
+        public void WithoutInstance_ReturnsFixtureConstructor()
         {
-            var method = typeof(Fixture).GetMethod("New", []);
+            var method = typeof(Fixture).GetMethods().Single(candidate => candidate.Name == nameof(Fixture.New) && candidate.GetParameters().Length == 0);
 
-            Assert.That(method!.ReturnType.GetGenericTypeDefinition(), Is.EqualTo(typeof(IFixtureConstructor<>)));
+            var returnType = method.ReturnType.GetGenericTypeDefinition();
+
+            Assert.That(returnType, Is.EqualTo(typeof(IFixtureConstructor<>)));
         }
 
         [Test]
-        public void NoPrebuiltFixture_FixtureIsNull()
+        public void WithInstance_ReturnsFixtureConfigurator()
         {
-            var fixture = Fixture.New<TestClass>();
-            var field = fixture.GetType().GetField("_fixture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fixture)!;
+            var method = typeof(Fixture).GetMethods().Single(candidate => candidate.Name == nameof(Fixture.New) && candidate.GetParameters().Length == 1);
 
-            Assert.That(field, Is.Null);
-        }
+            var returnType = method.ReturnType.GetGenericTypeDefinition();
 
-        class ClassWithString
-        {
-            public string Text = null!;
-        }
-        [Test]
-        public void PreBuiltFixture_SetsFixture()
-        {
-            var text = "test string";
-
-            var preBuiltFixture = new ClassWithString() { Text = text };
-
-            var fixture = Fixture.New(preBuiltFixture);
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.Text, Is.EqualTo(text));
+            Assert.That(returnType, Is.EqualTo(typeof(IFixtureConfigurator<>)));
         }
 
         [Test]
-        public void GenericTypeRecord_DoesNotThrow()
+        public void WithInstance_BuildsThatInstance()
         {
-            Assert.DoesNotThrow(() => Fixture.New<TestRecord>());
+            var instance = new EmptyClass();
+
+            var result = Fixture.New(instance).Build();
+
+            Assert.That(result, Is.SameAs(instance));
         }
 
         [Test]
-        public void GenericTypeGenericClass_DoesNotThrow()
+        public void InterfaceType_ThrowsInvalidOperationException()
         {
-            Assert.DoesNotThrow(() => Fixture.New<GenericClass<string>>());
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<IMarkerInterface>());
         }
 
         [Test]
-        public void GenericTypeInterface_ThrowsException()
-        {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<IList<string>>());
-        }
-
-        abstract class AbstractClass;
-        [Test]
-        public void GenericTypeAbstract_ThrowsException()
+        public void AbstractType_ThrowsInvalidOperationException()
         {
             Assert.Throws<InvalidOperationException>(() => Fixture.New<AbstractClass>());
         }
 
         [Test]
-        public void PrebuiltFixtureNull_ThrowsException()
+        public void FixtureType_ThrowsInvalidOperationException()
         {
-            TestClass prebuilt = null!;
-
-            Assert.Throws<ArgumentNullException>(() => Fixture.New(prebuilt));
+            Assert.Throws<InvalidOperationException>(() => Fixture.New<Fixture<EmptyClass>>());
         }
 
         [Test]
-        public void PrebuiltFixture_TypeIsFixture_ThrowsException()
+        public void NullInstance_ThrowsArgumentNullException()
         {
-            var prebuilt = Fixture.New<TestClass>();
+            EmptyClass instance = null!;
 
-            Assert.Throws<InvalidOperationException>(() => Fixture.New(prebuilt));
+            Assert.Throws<ArgumentNullException>(() => Fixture.New(instance));
         }
 
         [Test]
-        public void NewFixture_TypeIsFixture_ThrowsException()
+        public void FixtureInstance_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<Fixture<TestClass>>());
+            var instance = Fixture.New<EmptyClass>();
+
+            Assert.Throws<InvalidOperationException>(() => Fixture.New(instance));
         }
     }
 }

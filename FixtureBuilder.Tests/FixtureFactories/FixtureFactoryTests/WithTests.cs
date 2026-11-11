@@ -1,329 +1,351 @@
-﻿#pragma warning disable CS0649
-
-using FixtureBuilder.Creation.UninitializedProviders;
-
-namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
+﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class WithTests
     {
-        private FixtureFactory _factory;
-
-        public class ConstructorClass(string name)
-        {
-            public string Name { get; } = name;
-        }
-
-        public class MultiParamClass(string name, int age)
-        {
-            public string Name { get; } = name;
-            public int Age { get; } = age;
-        }
-
-        public class PropertyClass
-        {
-            public string Name { get; set; } = "";
-        }
-
-        public class FieldClass
-        {
-            public int Value;
-        }
-
-        public class NullableClass(int? count)
-        {
-            public int? Count { get; } = count;
-        }
-
-        public class EnumerableClass(IEnumerable<int> items)
-        {
-            public IEnumerable<int> Items { get; } = items;
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _factory = new FixtureFactory();
-        }
-
-        // --- With<T>(value) ---
-
-        [Test]
-        public void With_ReturnsFactoryForChaining()
-        {
-            var result = _factory.With("hello");
-
-            Assert.That(result, Is.SameAs(_factory));
-        }
+        #region With
 
         [Test]
         public void With_MatchingType_AppliesValue()
         {
-            _factory.With("injected");
+            var factory = new FixtureFactory().With("injected");
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
         [Test]
-        public void With_NonMatchingType_DoesNotApply()
+        public void With_OtherType_DoesNotApply()
         {
-            _factory.With(99L);
+            var factory = new FixtureFactory().With(99L);
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.Not.EqualTo("99"));
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void With_BaseTypeOfMember_DoesNotApply()
+        {
+            var factory = new FixtureFactory().With<object>("injected");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        private class NullableIntConstructorClass(int? number)
+        {
+            public int? Number { get; } = number;
         }
 
         [Test]
         public void With_DeclaredNullableValueType_AppliesValue()
         {
-            _factory.With<int?>(42);
+            var factory = new FixtureFactory().With<int?>(42);
 
-            var fixture = _factory.New<NullableClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<NullableIntConstructorClass>().Build();
 
-            Assert.That(result.Count, Is.EqualTo(42));
+            Assert.That(result.Number, Is.EqualTo(42));
+        }
+
+        private class EnumerableConstructorClass(IEnumerable<int> numbers)
+        {
+            public IEnumerable<int> Numbers { get; } = numbers;
         }
 
         [Test]
-        public void With_DeclaredLinkedInterfaceType_AppliesValue()
+        public void With_DeclaredInterfaceType_AppliesValue()
         {
-            int[] items = [1, 2, 3];
-            _factory.With<IEnumerable<int>>(items);
+            int[] numbers = [1, 2, 3];
+            var factory = new FixtureFactory().With<IEnumerable<int>>(numbers);
 
-            var fixture = _factory.New<EnumerableClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<EnumerableConstructorClass>().Build();
 
-            Assert.That(result.Items, Is.SameAs(items));
-        }
-
-        // --- With<T>(value, name) ---
-
-        [Test]
-        public void WithName_MatchingTypeAndName_AppliesValue()
-        {
-            _factory.With("injected", "name");
-
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            Assert.That(result.Numbers, Is.SameAs(numbers));
         }
 
         [Test]
-        public void WithName_MatchingTypeWrongName_DoesNotApply()
+        public void With_NullValue_AppliesNull()
         {
-            _factory.With("injected", "other");
+            string? value = null;
+            var factory = new FixtureFactory().With(value);
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.Not.EqualTo("injected"));
+            Assert.That(result.Value, Is.Null);
         }
 
-        // --- WithParameter<T>(value) ---
+        [Test]
+        public void WithFunc_MatchingType_AppliesFuncValue()
+        {
+            var factory = new FixtureFactory().With(() => "injected");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
+
+        [Test]
+        public void WithNamed_MatchingTypeAndName_AppliesValue()
+        {
+            var factory = new FixtureFactory().With("injected", "value");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
+
+        [Test]
+        public void WithNamed_OtherName_DoesNotApply()
+        {
+            var factory = new FixtureFactory().With("injected", "other");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void WithNamed_NameInOtherCase_DoesNotApply()
+        {
+            var factory = new FixtureFactory().With("injected", "Value");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void WithNamed_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            Assert.Throws<ArgumentNullException>(() => factory.With("injected", null!));
+        }
+
+        [Test]
+        public void WithNamedFunc_MatchingTypeAndName_AppliesFuncValue()
+        {
+            var factory = new FixtureFactory().With(() => "injected", "value");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
+
+        #endregion
+
+        #region WithParameter
 
         [Test]
         public void WithParameter_MatchingParameterType_AppliesValue()
         {
-            _factory.WithParameter("param-injected");
+            var factory = new FixtureFactory().WithParameter("injected");
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
         [Test]
-        public void WithParameter_MatchingTypeButProperty_DoesNotApply()
+        public void WithParameter_PropertyOfMatchingType_DoesNotApply()
         {
-            _factory.WithParameter("param-injected");
+            var factory = new FixtureFactory().WithParameter("injected");
 
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.Not.EqualTo("param-injected"));
-        }
-
-        // --- WithParameter<T>(value, name) ---
-
-        [Test]
-        public void WithParameterName_MatchingTypeAndName_AppliesValue()
-        {
-            _factory.WithParameter("param-injected", "name");
-
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            Assert.That(result.Value, Is.EqualTo("Value"));
         }
 
         [Test]
-        public void WithParameterName_MatchingTypeWrongName_DoesNotApply()
+        public void WithParameterFunc_MatchingParameterType_AppliesFuncValue()
         {
-            _factory.WithParameter("param-injected", "other");
+            var factory = new FixtureFactory().WithParameter(() => "injected");
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.Not.EqualTo("param-injected"));
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
-        // --- WithPropertyOrField<T>(value) ---
+        [Test]
+        public void WithParameterNamed_MatchingTypeAndName_AppliesValue()
+        {
+            var factory = new FixtureFactory().WithParameter("injected", "value");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
+
+        [Test]
+        public void WithParameterNamed_OtherName_DoesNotApply()
+        {
+            var factory = new FixtureFactory().WithParameter("injected", "other");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void WithParameterNamedFunc_MatchingTypeAndName_AppliesFuncValue()
+        {
+            var factory = new FixtureFactory().WithParameter(() => "injected", "value");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
+
+        #endregion
+
+        #region WithPropertyOrField
 
         [Test]
         public void WithPropertyOrField_MatchingPropertyType_AppliesValue()
         {
-            _factory.WithPropertyOrField("prop-injected");
+            var factory = new FixtureFactory().WithPropertyOrField("injected");
 
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
         [Test]
         public void WithPropertyOrField_MatchingFieldType_AppliesValue()
         {
-            _factory.WithPropertyOrField(42);
+            var factory = new FixtureFactory().WithPropertyOrField(42);
 
-            var fixture = _factory.New<FieldClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<FieldHolder<int>>().CreateUninitialized(InitializeMembers.All).Build();
 
             Assert.That(result.Value, Is.EqualTo(42));
         }
 
         [Test]
-        public void WithPropertyOrField_MatchingTypeButParameter_DoesNotApply()
+        public void WithPropertyOrField_ParameterOfMatchingType_DoesNotApply()
         {
-            _factory.WithPropertyOrField("prop-injected");
+            var factory = new FixtureFactory().WithPropertyOrField("injected");
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.Not.EqualTo("prop-injected"));
-        }
-
-        // --- WithPropertyOrField<T>(value, name) ---
-
-        [Test]
-        public void WithPropertyOrFieldName_MatchingTypeAndName_AppliesValue()
-        {
-            _factory.WithPropertyOrField("prop-injected", "Name");
-
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void WithPropertyOrFieldName_MatchingTypeWrongName_DoesNotApply()
+        public void WithPropertyOrFieldFunc_MatchingPropertyType_AppliesFuncValue()
         {
-            _factory.WithPropertyOrField("prop-injected", "Other");
+            var factory = new FixtureFactory().WithPropertyOrField(() => "injected");
 
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
 
-            Assert.That(result.Name, Is.Not.EqualTo("prop-injected"));
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
-        // --- Chaining ---
+        [Test]
+        public void WithPropertyOrFieldNamed_MatchingTypeAndName_AppliesValue()
+        {
+            var factory = new FixtureFactory().WithPropertyOrField("injected", "Value");
+
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
 
         [Test]
-        public void Chaining_MultipleValues_AllApplied()
+        public void WithPropertyOrFieldNamed_OtherName_DoesNotApply()
         {
-            _factory.With("injected").With(42);
+            var factory = new FixtureFactory().WithPropertyOrField("injected", "Other");
 
-            var fixture = _factory.New<MultiParamClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
+
+            Assert.That(result.Value, Is.EqualTo("Value"));
+        }
+
+        [Test]
+        public void WithPropertyOrFieldNamedFunc_MatchingTypeAndName_AppliesFuncValue()
+        {
+            var factory = new FixtureFactory().WithPropertyOrField(() => "injected", "Value");
+
+            var result = factory.New<PropertyHolder<string>>().CreateUninitialized(InitializeMembers.All).Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
+        }
+
+        #endregion
+
+        #region Registration
+
+        [Test]
+        public void ReturnsSameFactory()
+        {
+            var factory = new FixtureFactory();
+
+            var result = factory.With("injected");
+
+            Assert.That(result, Is.SameAs(factory));
+        }
+
+        [Test]
+        public void ValuesOfDifferentTypes_AllApply()
+        {
+            var factory = new FixtureFactory().With("injected").With(42);
+
+            var result = factory.New<StringAndIntConstructorClass>().Build();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result.Name, Is.EqualTo("injected"));
-                Assert.That(result.Age, Is.EqualTo(42));
+                Assert.That(result.Text, Is.EqualTo("injected"));
+                Assert.That(result.Number, Is.EqualTo(42));
             }
         }
 
-        // --- With<T>(func) ---
-
         [Test]
-        public void With_Func_MatchingType_AppliesValue()
+        public void LaterValue_WinsOverEarlierValue()
         {
-            _factory.With(() => "injected");
+            var factory = new FixtureFactory().With("first").With("second");
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            Assert.That(result.Value, Is.EqualTo("second"));
         }
 
-        // --- With<T>(func, name) ---
-
-        [Test]
-        public void WithName_Func_MatchingTypeAndName_AppliesValue()
+        private class TwoStringsConstructorClass(string first, string second)
         {
-            _factory.With(() => "injected", "name");
-
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("injected"));
+            public string First { get; } = first;
+            public string Second { get; } = second;
         }
 
-        // --- WithParameter<T>(func) ---
-
         [Test]
-        public void WithParameter_Func_MatchingParameterType_AppliesValue()
+        public void Func_IsInvokedForEachMatchingMember()
         {
-            _factory.WithParameter(() => "param-injected");
+            var calls = 0;
+            var factory = new FixtureFactory().With(() => $"call {++calls}");
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            var result = factory.New<TwoStringsConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.First, Is.EqualTo("call 1"));
+                Assert.That(result.Second, Is.EqualTo("call 2"));
+            }
         }
 
-        // --- WithParameter<T>(func, name) ---
-
         [Test]
-        public void WithParameterName_Func_MatchingTypeAndName_AppliesValue()
+        public void Func_IsNotInvokedForNonMatchingMembers()
         {
-            _factory.WithParameter(() => "param-injected", "name");
+            var calls = 0;
+            var factory = new FixtureFactory().With(() =>
+            {
+                calls++;
+                return 1.5;
+            });
 
-            var fixture = _factory.New<ConstructorClass>();
-            var result = TestHelper.GetFixture(fixture);
+            factory.New<StringConstructorClass>().Build();
 
-            Assert.That(result.Name, Is.EqualTo("param-injected"));
+            Assert.That(calls, Is.Zero);
         }
 
-        // --- WithPropertyOrField<T>(func) ---
-
-        [Test]
-        public void WithPropertyOrField_Func_MatchingPropertyType_AppliesValue()
-        {
-            _factory.WithPropertyOrField(() => "prop-injected");
-
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
-        }
-
-        // --- WithPropertyOrField<T>(func, name) ---
-
-        [Test]
-        public void WithPropertyOrFieldName_Func_MatchingTypeAndName_AppliesValue()
-        {
-            _factory.WithPropertyOrField(() => "prop-injected", "Name");
-
-            var fixture = _factory.New<PropertyClass>().CreateUninitialized(InitializeMembers.All);
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result.Name, Is.EqualTo("prop-injected"));
-        }
+        #endregion
     }
 }

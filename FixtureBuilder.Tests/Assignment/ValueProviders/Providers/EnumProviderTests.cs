@@ -7,107 +7,82 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class EnumProviderTests
     {
-        private EnumProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        private enum Color { Red, Green, Blue }
-
-        private enum Priority { Low = 10, Medium = 20, High = 30 }
-
-        [Flags]
-        private enum Permissions { None = 0, Read = 1, Write = 2, Execute = 4 }
-
-        private enum Empty { }
-
-        [SetUp]
-        public void SetUp()
+        private enum Color
         {
-            _sut = new EnumProvider();
-            _contextMock = new Mock<IFixtureContext>();
+            Red,
+            Green,
+            Blue
         }
 
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_Enum_ReturnsFirstDefinedValue()
         {
-            Assert.DoesNotThrow(() => new EnumProvider());
-        }
-
-        [Test]
-        public void Resolve_Enum_ReturnsFirstDefinedValue()
-        {
+            var provider = new EnumProvider();
             var request = TestHelper.MakeRequest(typeof(Color));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<Color>());
-                Assert.That(result, Is.EqualTo(Color.Red));
-            }
+            Assert.That(result, Is.EqualTo(Color.Red));
+        }
+
+        private enum Priority
+        {
+            Low = 10,
+            Medium = 20,
+            High = 30
         }
 
         [Test]
-        public void Resolve_EnumWithCustomValues_ReturnsFirstDefinedValue()
+        public void ResolveValue_EnumWithCustomValues_ReturnsFirstDefinedValue()
         {
+            var provider = new EnumProvider();
             var request = TestHelper.MakeRequest(typeof(Priority));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<Priority>());
-                Assert.That(result, Is.EqualTo(Priority.Low));
-            }
+            Assert.That(result, Is.EqualTo(Priority.Low));
+        }
+
+        [Flags]
+        private enum Permissions
+        {
+            None = 0,
+            Read = 1,
+            Write = 2
         }
 
         [Test]
-        public void Resolve_FlagsEnum_ReturnsFirstDefinedValue()
+        public void ResolveValue_FlagsEnum_ReturnsFirstDefinedValue()
         {
+            var provider = new EnumProvider();
             var request = TestHelper.MakeRequest(typeof(Permissions));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<Permissions>());
-                Assert.That(result, Is.EqualTo(Permissions.None));
-            }
+            Assert.That(result, Is.EqualTo(Permissions.None));
         }
 
+        private enum EmptyEnum;
+
         [Test]
-        public void Resolve_EnumWithoutMembers_ReturnsZeroValue()
+        public void ResolveValue_EnumWithoutMembers_ReturnsZeroValue()
         {
-            var request = TestHelper.MakeRequest(typeof(Empty));
+            var provider = new EnumProvider();
+            var request = TestHelper.MakeRequest(typeof(EmptyEnum));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<Empty>());
-                Assert.That(result, Is.EqualTo(default(Empty)));
-            }
+            Assert.That(result, Is.EqualTo(default(EmptyEnum)));
         }
 
-        [Test]
-        public void Resolve_String_ReturnsNoResult()
+        [TestCase(typeof(string))]
+        [TestCase(typeof(int))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            var request = TestHelper.MakeRequest(typeof(string));
+            var provider = new EnumProvider();
+            var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_Int_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(int));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

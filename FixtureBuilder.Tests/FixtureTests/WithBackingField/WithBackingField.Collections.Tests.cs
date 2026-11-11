@@ -3,148 +3,210 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
-#pragma warning disable CS0649
-
 namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
-    internal sealed partial class WithBackingFieldCollectionsTests
+    internal sealed class WithBackingFieldCollectionsTests
     {
-        private readonly static string _text = "Test string";
-        private readonly static int _number = 123;
+        #region Field collection types
 
-        class ListClass
+        private class EnumerableOverFieldClass<TField> where TField : IEnumerable<string>
         {
-            private readonly List<string> _list = null!;
-            public IEnumerable<string> List => _list;
+            private readonly TField _values = default!;
+            public IEnumerable<string> Values => _values;
         }
+
         [Test]
-        public void ListField_SetsField()
+        public void ListField_SetsConvertedCollection()
         {
-            var fieldName = "_list";
-            var fixture = TestHelper.MakeFixture<ListClass>();
+            var fixture = TestHelper.MakeFixture<EnumerableOverFieldClass<List<string>>>();
 
-            fixture.WithBackingField(c => c.List, [_text], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, ["value"], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.List.Single(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
 
-        class ImmutableListClass
-        {
-            private readonly ImmutableList<string> _immutableList = null!;
-            public IEnumerable<string> ImmutableList => _immutableList;
-        }
         [Test]
-        public void ImmutableListField_SetsField()
+        public void ImmutableListField_SetsConvertedCollection()
         {
-            var fieldName = "_immutableList";
-            var fixture = TestHelper.MakeFixture<ImmutableListClass>();
+            var fixture = TestHelper.MakeFixture<EnumerableOverFieldClass<ImmutableList<string>>>();
 
-            fixture.WithBackingField(c => c.ImmutableList, [_text], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, ["value"], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.ImmutableList.Single(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
 
-        class FrozenSetClass
-        {
-            private readonly FrozenSet<string> _frozenSet = null!;
-            public IEnumerable<string> FrozenSet => _frozenSet;
-        }
         [Test]
-        public void FrozenSetField_SetsField()
+        public void FrozenSetField_SetsConvertedCollection()
         {
-            var fieldName = "_frozenSet";
-            var fixture = TestHelper.MakeFixture<FrozenSetClass>();
+            var fixture = TestHelper.MakeFixture<EnumerableOverFieldClass<FrozenSet<string>>>();
 
-            fixture.WithBackingField(c => c.FrozenSet, [_text], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, ["value"], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.FrozenSet.Single(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
 
-        class ArrayClass
-        {
-            private readonly string[] _stringArray = null!;
-            public IEnumerable<string> StringArray => _stringArray;
-        }
         [Test]
-        public void ArrayField_SetsField()
+        public void ArrayField_SetsConvertedCollection()
         {
-            var fieldName = "_stringArray";
-            var fixture = TestHelper.MakeFixture<ArrayClass>();
+            var fixture = TestHelper.MakeFixture<EnumerableOverFieldClass<string[]>>();
 
-            fixture.WithBackingField(c => c.StringArray, [_text], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, ["value"], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.StringArray.Single(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
 
-        class ArrayListClass
-        {
-            private readonly ArrayList _arrayList = null!;
-            public IEnumerable<object> ArrayList => _arrayList.Cast<object>();
-        }
         [Test]
-        public void ArrayListField_SetsField()
+        public void BlockingCollectionField_SetsConvertedCollection()
         {
-            var fieldName = "_arrayList";
-            var fixture = TestHelper.MakeFixture<ArrayListClass>();
+            var fixture = TestHelper.MakeFixture<EnumerableOverFieldClass<BlockingCollection<string>>>();
 
-            fixture.WithBackingField(c => c.ArrayList, [_number], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, ["value"], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.ArrayList.Single(), Is.EqualTo(_number));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
 
-        class ListArrayClass
+        private class ArrayListFieldClass
         {
-            private readonly List<string> _list = null!;
-            public string[] List => [.. _list];
+            private readonly ArrayList _values = null!;
+            public IEnumerable<object> Values => _values.Cast<object>();
         }
+
         [Test]
-        public void ListField_ArrayProperty_SetsField()
+        public void ArrayListField_SetsConvertedCollection()
         {
-            var fieldName = "_list";
-            var fixture = TestHelper.MakeFixture<ListArrayClass>();
+            var fixture = TestHelper.MakeFixture<ArrayListFieldClass>();
 
-            fixture.WithBackingField(c => c.List, [_text], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, [123], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.List.Single(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo([123]));
         }
 
-        class IListNonGenericStackClass
+        private class ArrayOverListFieldClass
         {
-            private readonly IList _iList = null!;
-            public Stack IList => new(_iList);
+            private readonly List<string> _values = null!;
+            public string[] Values => [.. _values];
         }
+
         [Test]
-        public void IListNonGenericField_StackProperty_SetsField()
+        public void ListField_ArrayProperty_SetsConvertedCollection()
         {
-            var fieldName = "_iList";
-            var fixture = TestHelper.MakeFixture<IListNonGenericStackClass>();
+            var fixture = TestHelper.MakeFixture<ArrayOverListFieldClass>();
 
-            fixture.WithBackingField(c => c.IList, new Stack(new List<string>([_text])), fieldName);
+            var result = fixture.WithBackingField(x => x.Values, ["value"], "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.IList.Peek(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
-        class BlockingCollectionClass
+
+        private class StackOverNonGenericListFieldClass
         {
-            private readonly BlockingCollection<string> _collection = null!;
-            public IEnumerable<string> Collection => _collection;
+            private readonly IList _values = null!;
+            public Stack Values => new(_values);
         }
+
         [Test]
-        public void BlockingCollectionField_SetsField()
+        public void NonGenericListField_StackProperty_SetsConvertedCollection()
         {
-            var fieldName = "_collection";
-            var fixture = TestHelper.MakeFixture<BlockingCollectionClass>();
+            var fixture = TestHelper.MakeFixture<StackOverNonGenericListFieldClass>();
+            string[] elements = ["value"];
+            var values = new Stack(elements);
 
-            fixture.WithBackingField(c => c.Collection, [_text], fieldName);
+            var result = fixture.WithBackingField(x => x.Values, values, "_values").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Collection.Single(), Is.EqualTo(_text));
+            Assert.That(result.Values, Is.EqualTo(["value"]));
         }
+
+        private class ReadOnlyListOverListFieldClass
+        {
+            private readonly List<string> _values = null!;
+            public IReadOnlyList<string> Values => _values;
+        }
+
+        [Test]
+        public void ConventionalFieldOfDifferentCollectionType_SetsConvertedCollection()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyListOverListFieldClass>();
+
+            var result = fixture.WithBackingField(x => x.Values, ["value"]).Build();
+
+            Assert.That(result.Values, Is.EqualTo(["value"]));
+        }
+
+        private class EnumerableOverListInterfaceFieldClass
+        {
+            private readonly IList<int> _values = null!;
+            public IEnumerable<int> Values => _values;
+        }
+
+        [Test]
+        public void InterfaceField_ValueOfOtherCollectionType_SetsDefaultImplementation()
+        {
+            var fixture = TestHelper.MakeFixture<EnumerableOverListInterfaceFieldClass>();
+            HashSet<int> values = [1, 2, 3];
+
+            var result = fixture.WithBackingField(x => x.Values, values, "_values").Build();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Values, Is.TypeOf<List<int>>());
+                Assert.That(result.Values, Is.EqualTo([1, 2, 3]));
+            }
+        }
+
+        #endregion
+
+        #region Element nullability
+
+        private class NullableValueElementsFieldClass
+        {
+            private readonly List<int?> _values = null!;
+            public IEnumerable<int> Values => _values.Cast<int>();
+        }
+
+        [Test]
+        public void NullableValueElementsField_NonNullableElements_SetsConvertedCollection()
+        {
+            var fixture = TestHelper.MakeFixture<NullableValueElementsFieldClass>();
+            List<int> values = [123];
+
+            var result = fixture.WithBackingField(x => x.Values, values, "_values").Build();
+
+            Assert.That(result.Values, Is.EqualTo([123]));
+        }
+
+        private class NullableReferenceElementsFieldClass
+        {
+            private readonly List<string?> _values = null!;
+            public IEnumerable<string> Values => _values.Cast<string>();
+        }
+
+        [Test]
+        public void NullableReferenceElementsField_NonNullableElements_SetsCollection()
+        {
+            var fixture = TestHelper.MakeFixture<NullableReferenceElementsFieldClass>();
+            List<string> values = ["value"];
+
+            var result = fixture.WithBackingField(x => x.Values, values, "_values").Build();
+
+            Assert.That(result.Values, Is.EqualTo(["value"]));
+        }
+
+        private class NonNullableReferenceElementsFieldClass
+        {
+            private readonly List<string> _values = null!;
+            public IEnumerable<string?> Values => _values.Cast<string?>();
+        }
+
+        [Test]
+        public void NonNullableReferenceElementsField_NullableElements_SetsCollection()
+        {
+            var fixture = TestHelper.MakeFixture<NonNullableReferenceElementsFieldClass>();
+            List<string?> values = ["value", null];
+
+            var result = fixture.WithBackingField(x => x.Values, values, "_values").Build();
+
+            Assert.That(result.Values, Is.EqualTo(["value", null]));
+        }
+
+        #endregion
     }
 }

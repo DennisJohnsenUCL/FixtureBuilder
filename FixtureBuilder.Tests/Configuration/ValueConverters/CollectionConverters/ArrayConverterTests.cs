@@ -9,22 +9,14 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
     internal sealed class ArrayConverterTests
     {
         [Test]
-        public void Constructor_Constructs()
-        {
-            Assert.DoesNotThrow(() => new ArrayConverter());
-        }
-
-        [Test]
         public void Convert_TargetArray_ValueEnumerable_Converts()
         {
-            var target = new TypeRequest(typeof(string[]), typeof(string[]));
+            var request = new TypeRequest(typeof(string[]), typeof(object));
             var value = new ArrayList { "test1", "test2", "test3" };
-            var expected = new string[] { "test1", "test2", "test3" };
-            var context = new Mock<IFixtureContext>().Object;
-
+            string[] expected = ["test1", "test2", "test3"];
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -32,14 +24,12 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArray_ValueGenericEnumerable_Converts()
         {
-            var target = new TypeRequest(typeof(string[]), typeof(string[]));
-            var value = new List<string> { "test1", "test2", "test3" };
-            var expected = new string[] { "test1", "test2", "test3" };
-            var context = new Mock<IFixtureContext>().Object;
-
+            var request = new TypeRequest(typeof(string[]), typeof(object));
+            List<string> value = ["test1", "test2", "test3"];
+            string[] expected = ["test1", "test2", "test3"];
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.EqualTo(expected));
         }
@@ -47,13 +37,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotArray_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(List<string>), typeof(List<string>));
+            var request = new TypeRequest(typeof(List<string>), typeof(object));
             var value = new ArrayList { "test1", "test2", "test3" };
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -61,13 +49,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(string[]), typeof(string[]));
+            var request = new TypeRequest(typeof(string[]), typeof(object));
             var value = 42;
-            var context = new Mock<IFixtureContext>().Object;
-
             var converter = new ArrayConverter();
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

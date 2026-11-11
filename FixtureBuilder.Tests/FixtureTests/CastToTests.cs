@@ -2,64 +2,50 @@
 {
     internal sealed class CastToTests
     {
-        class ClassOne;
-        class ClassTwo;
         [Test]
-        public void NotImplementedInterface_ThrowsException()
+        public void ImplementedInterface_ReturnsFixtureOfSameInstance()
         {
-            var fixture = TestHelper.MakeFixture<ClassOne>();
+            var instance = new MarkerImplementationClass();
+            var fixture = Fixture.New(instance);
 
-            Assert.Throws<InvalidCastException>(() => fixture.CastTo<ClassTwo>());
+            var result = fixture.CastTo<IMarkerInterface>().Build();
+
+            Assert.That(result, Is.SameAs(instance));
         }
 
-        interface IInterface;
-        class ClassWithInterface : IInterface;
+        private class UnrelatedClass;
+
         [Test]
-        public void ImplementedInterface_CastsToInterface()
+        public void UnrelatedType_ThrowsInvalidCastException()
         {
-            var fixture = TestHelper.MakeFixture<ClassWithInterface>();
+            var fixture = TestHelper.MakeFixture<MarkerImplementationClass>();
 
-            IFixtureConfigurator<IInterface> castFixture = null!;
-            Assert.DoesNotThrow(() => castFixture = fixture.CastTo<IInterface>());
-            var field = TestHelper.GetFixture(castFixture);
-
-            Assert.That(field, Is.Not.Null);
+            Assert.Throws<InvalidCastException>(() => fixture.CastTo<UnrelatedClass>());
         }
 
-        interface IInterfaceWithMember
+        private class ExplicitImplementationClass : IValueInterface
         {
-            string Text { get; set; }
-        }
-        class ExplicitInterfaceClass : IInterfaceWithMember
-        {
-            string IInterfaceWithMember.Text { get; set; } = null!;
-        }
-        [Test]
-        public void ImplementedInterface_ExplicitMembersCanBeSet()
-        {
-            var text = "Explicit interface member string";
-            var fixture = TestHelper.MakeFixture<ExplicitInterfaceClass>();
-
-            var castFixture = fixture.CastTo<IInterfaceWithMember>();
-            castFixture.WithSetter(t => t.Text, text);
-
-            var field = TestHelper.GetFixture(castFixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.Text, Is.EqualTo(text));
-            }
+            string IValueInterface.Value { get; set; } = null!;
         }
 
         [Test]
-        public void CastTo_InstantiatesFixture()
+        public void ExplicitInterfaceImplementation_MembersCanBeConfigured()
         {
-            var fixture = TestHelper.MakeFixture<ClassWithInterface>();
+            var fixture = TestHelper.MakeFixture<ExplicitImplementationClass>();
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.CastTo<IInterface>());
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
+            var result = fixture.CastTo<IValueInterface>().WithSetter(x => x.Value, "value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        [Test]
+        public void NotConstructed_ConstructsImplicitly()
+        {
+            var fixture = Fixture.New<MarkerImplementationClass>();
+
+            var result = fixture.CastTo<IMarkerInterface>().Build();
+
+            Assert.That(result, Is.TypeOf<MarkerImplementationClass>());
         }
     }
 }

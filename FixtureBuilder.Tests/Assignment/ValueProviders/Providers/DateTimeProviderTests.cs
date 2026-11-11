@@ -7,74 +7,33 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class DateTimeProviderTests
     {
-        private DateTimeProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new DateTimeProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_DateTime_ReturnsUtcNow()
         {
-            Assert.DoesNotThrow(() => new DateTimeProvider());
-        }
-
-        [Test]
-        public void Resolve_DateTime_ReturnsDateTimeInstance()
-        {
-            var request = TestHelper.MakeRequest(typeof(DateTime));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<DateTime>());
-        }
-
-        [Test]
-        public void Resolve_DateTime_ReturnsUtcNow()
-        {
+            var provider = new DateTimeProvider();
             var request = TestHelper.MakeRequest(typeof(DateTime));
             var before = DateTime.UtcNow;
 
-            var result = (DateTime)_sut.ResolveValue(request, _contextMock.Object)!;
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             var after = DateTime.UtcNow;
+            var dateTime = (DateTime)result!;
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result.Kind, Is.EqualTo(DateTimeKind.Utc));
-                Assert.That(result, Is.InRange(before, after));
+                Assert.That(dateTime.Kind, Is.EqualTo(DateTimeKind.Utc));
+                Assert.That(dateTime, Is.InRange(before, after));
             }
         }
 
-        [Test]
-        public void Resolve_String_ReturnsNoResult()
+        [TestCase(typeof(DateTime?))]
+        [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(string))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            var request = TestHelper.MakeRequest(typeof(string));
+            var provider = new DateTimeProvider();
+            var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_DateTimeOffset_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(DateTimeOffset));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_NullableDateTime_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(DateTime?));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

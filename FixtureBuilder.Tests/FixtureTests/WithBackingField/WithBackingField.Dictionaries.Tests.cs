@@ -4,129 +4,107 @@ using System.Collections.Immutable;
 
 namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
-    internal class WithBackingFieldDictionariesTests
+    internal sealed class WithBackingFieldDictionariesTests
     {
-        private readonly static string _text = "Test string";
-
-        class DictionaryClass
+        private class PairsOverFieldClass<TField> where TField : IEnumerable<KeyValuePair<int, string>>
         {
-            private readonly Dictionary<int, string> _dictionary = null!;
-            public List<KeyValuePair<int, string>> Dictionary => [.. _dictionary];
-        }
-        [Test]
-        public void DictionaryField_SetsField()
-        {
-            var fieldName = "_dictionary";
-            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
-            var fixture = TestHelper.MakeFixture<DictionaryClass>();
-
-            fixture.WithBackingField(c => c.Dictionary, dictionary, fieldName);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
-        }
-
-        class DictionaryObjectClass
-        {
-            private readonly Dictionary<object, object> _dictionary = null!;
-            public List<KeyValuePair<int, string>> Dictionary => [.. _dictionary.Select(kvp => new KeyValuePair<int, string>((int)kvp.Key, (string)kvp.Value))];
-        }
-        [Test]
-        public void DictionaryField_ObjectGenericParameters_SetsField()
-        {
-            var fieldName = "_dictionary";
-            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
-            var fixture = TestHelper.MakeFixture<DictionaryObjectClass>();
-
-            fixture.WithBackingField(c => c.Dictionary, dictionary, fieldName);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Dictionary.Single().Value, Is.EqualTo(_text));
+            private readonly TField _pairs = default!;
+            public List<KeyValuePair<int, string>> Pairs => [.. _pairs];
         }
 
         [Test]
-        public void DictionaryField_ObjectGenericParameters_EmptySource_SetsField()
+        public void DictionaryField_SetsConvertedDictionary()
         {
-            var fieldName = "_dictionary";
-            var dictionary = new List<KeyValuePair<int, string>>();
-            var fixture = TestHelper.MakeFixture<DictionaryObjectClass>();
+            var fixture = TestHelper.MakeFixture<PairsOverFieldClass<Dictionary<int, string>>>();
+            List<KeyValuePair<int, string>> pairs = [new(1, "value")];
 
-            fixture.WithBackingField(c => c.Dictionary, dictionary, fieldName);
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Dictionary, Is.Empty);
+            Assert.That(result.Pairs, Is.EqualTo(pairs));
         }
 
-        class ImmutableDictionaryClass
-        {
-            private readonly ImmutableDictionary<int, string> _immutableDictionary = null!;
-            public List<KeyValuePair<int, string>> ImmutableDictionary => [.. _immutableDictionary];
-        }
         [Test]
-        public void ImmutableDictionaryField_SetsField()
+        public void ImmutableDictionaryField_SetsConvertedDictionary()
         {
-            var fieldName = "_immutableDictionary";
-            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
-            var fixture = TestHelper.MakeFixture<ImmutableDictionaryClass>();
+            var fixture = TestHelper.MakeFixture<PairsOverFieldClass<ImmutableDictionary<int, string>>>();
+            List<KeyValuePair<int, string>> pairs = [new(1, "value")];
 
-            fixture.WithBackingField(c => c.ImmutableDictionary, dictionary, fieldName);
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.ImmutableDictionary.Single().Value, Is.EqualTo(_text));
+            Assert.That(result.Pairs, Is.EqualTo(pairs));
         }
 
-        class FrozenDictionaryClass
-        {
-            private readonly FrozenDictionary<int, string> _frozenDictionary = null!;
-            public List<KeyValuePair<int, string>> FrozenDictionary => [.. _frozenDictionary];
-        }
         [Test]
-        public void FrozenDictionaryField_SetsField()
+        public void FrozenDictionaryField_SetsConvertedDictionary()
         {
-            var fieldName = "_frozenDictionary";
-            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
-            var fixture = TestHelper.MakeFixture<FrozenDictionaryClass>();
+            var fixture = TestHelper.MakeFixture<PairsOverFieldClass<FrozenDictionary<int, string>>>();
+            List<KeyValuePair<int, string>> pairs = [new(1, "value")];
 
-            fixture.WithBackingField(c => c.FrozenDictionary, dictionary, fieldName);
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.FrozenDictionary.Single().Value, Is.EqualTo(_text));
+            Assert.That(result.Pairs, Is.EqualTo(pairs));
         }
 
-        class IDictionaryNonGenericClass
+        private class ObjectDictionaryFieldClass
         {
-            private readonly IDictionary _iDictionary = null!;
-            public List<KeyValuePair<int, string>> IDictionary => [.. _iDictionary.Cast<DictionaryEntry>().Select(de => new KeyValuePair<int, string>((int)de.Key, (string)de.Value!))];
+            private readonly Dictionary<object, object> _pairs = null!;
+            public List<KeyValuePair<int, string>> Pairs => [.. _pairs.Select(pair => new KeyValuePair<int, string>((int)pair.Key, (string)pair.Value))];
         }
+
         [Test]
-        public void IDictionaryNonGenericField_SetsField()
+        public void ObjectDictionaryField_SetsConvertedDictionary()
         {
-            var fieldName = "_iDictionary";
-            var dictionary = new List<KeyValuePair<int, string>>([new KeyValuePair<int, string>(1, _text)]);
-            var fixture = TestHelper.MakeFixture<IDictionaryNonGenericClass>();
+            var fixture = TestHelper.MakeFixture<ObjectDictionaryFieldClass>();
+            List<KeyValuePair<int, string>> pairs = [new(1, "value")];
 
-            fixture.WithBackingField(c => c.IDictionary, dictionary, fieldName);
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.IDictionary.Single().Value, Is.EqualTo(_text));
+            Assert.That(result.Pairs, Is.EqualTo(pairs));
         }
 
-        class DictionarySortedListClass
-        {
-            private readonly Dictionary<int, string> _dictionary = null!;
-            public SortedList Dictionary => new(_dictionary);
-        }
         [Test]
-        public void DictionaryField_SortedListProperty_SetsField()
+        public void ObjectDictionaryField_EmptySource_SetsEmptyDictionary()
         {
-            var fieldName = "_dictionary";
-            var dictionary = new SortedList() { { 1, _text } };
-            var fixture = TestHelper.MakeFixture<DictionarySortedListClass>();
+            var fixture = TestHelper.MakeFixture<ObjectDictionaryFieldClass>();
+            List<KeyValuePair<int, string>> pairs = [];
 
-            fixture.WithBackingField(c => c.Dictionary, dictionary, fieldName);
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Dictionary[1], Is.EqualTo(_text));
+            Assert.That(result.Pairs, Is.Empty);
+        }
+
+        private class NonGenericDictionaryFieldClass
+        {
+            private readonly IDictionary _pairs = null!;
+            public List<KeyValuePair<int, string>> Pairs => [.. _pairs.Cast<DictionaryEntry>().Select(entry => new KeyValuePair<int, string>((int)entry.Key, (string)entry.Value!))];
+        }
+
+        [Test]
+        public void NonGenericDictionaryField_SetsConvertedDictionary()
+        {
+            var fixture = TestHelper.MakeFixture<NonGenericDictionaryFieldClass>();
+            List<KeyValuePair<int, string>> pairs = [new(1, "value")];
+
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
+
+            Assert.That(result.Pairs, Is.EqualTo(pairs));
+        }
+
+        private class SortedListOverDictionaryFieldClass
+        {
+            private readonly Dictionary<int, string> _pairs = null!;
+            public SortedList Pairs => new(_pairs);
+        }
+
+        [Test]
+        public void DictionaryField_SortedListProperty_SetsConvertedDictionary()
+        {
+            var fixture = TestHelper.MakeFixture<SortedListOverDictionaryFieldClass>();
+            var pairs = new SortedList { [1] = "value" };
+
+            var result = fixture.WithBackingField(x => x.Pairs, pairs, "_pairs").Build();
+
+            Assert.That(result.Pairs[1], Is.EqualTo("value"));
         }
     }
 }

@@ -1,420 +1,391 @@
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace FixtureBuilder.Tests.Core;
-
-internal sealed class DataMemberInfoTests
+namespace FixtureBuilder.Tests.Core
 {
-    // ── Helper types used by reflection ──────────────────────────────
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    private sealed class MarkerAttribute : Attribute;
-
-    private class SampleClass
+    internal sealed class DataMemberInfoTests
     {
-        [Marker]
-        public string TaggedProperty { get; set; } = "prop-value";
+        #region Member kind
 
-        [Marker]
-        public string TaggedField = "field-value";
-
-        public int IntProperty { get; set; } = 42;
-
-        public int IntField = 99;
-
-        public static string StaticProperty { get; set; } = "static-prop";
-
-        public static string StaticField = "static-field";
-
-        public string InstanceProperty { get; set; } = "instance-prop";
-
-        public string InstanceField = "instance-field";
-    }
-
-    // ── Factory helpers ──────────────────────────────────────────────
-
-    private static DataMemberInfo FromProperty(string name) =>
-        new(typeof(SampleClass).GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)!);
-
-    private static DataMemberInfo FromField(string name) =>
-        new(typeof(SampleClass).GetField(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)!);
-
-    // ═════════════════════════════════════════════════════════════════
-    //  Constructor / IsPropertyInfo / IsFieldInfo
-    // ═════════════════════════════════════════════════════════════════
-
-    [Test]
-    public void Constructor_WithPropertyInfo_SetsIsPropertyInfoTrue()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
-
-        using (Assert.EnterMultipleScope())
+        [Test]
+        public void IsPropertyInfo_PropertyMember_ReturnsTrue()
         {
-            Assert.That(sut.IsPropertyInfo, Is.True);
-            Assert.That(sut.IsFieldInfo, Is.False);
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(member.IsPropertyInfo, Is.True);
+                Assert.That(member.IsFieldInfo, Is.False);
+            }
         }
-    }
 
-    [Test]
-    public void Constructor_WithFieldInfo_SetsIsFieldInfoTrue()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
-
-        using (Assert.EnterMultipleScope())
+        [Test]
+        public void IsFieldInfo_FieldMember_ReturnsTrue()
         {
-            Assert.That(sut.IsFieldInfo, Is.True);
-            Assert.That(sut.IsPropertyInfo, Is.False);
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(member.IsFieldInfo, Is.True);
+                Assert.That(member.IsPropertyInfo, Is.False);
+            }
         }
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  Property / Field accessor guards
-    // ═════════════════════════════════════════════════════════════════
-
-    [Test]
-    public void Property_WhenBackedByProperty_ReturnsPropertyInfo()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
-
-        Assert.That(sut.Property, Is.Not.Null);
-        Assert.That(sut.Property.Name, Is.EqualTo(nameof(SampleClass.TaggedProperty)));
-    }
-
-    [Test]
-    public void Property_WhenBackedByField_ThrowsInvalidOperationException()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
-
-        Assert.That(() => sut.Property, Throws.InvalidOperationException);
-    }
-
-    [Test]
-    public void Field_WhenBackedByField_ReturnsFieldInfo()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
-
-        Assert.That(sut.Field, Is.Not.Null);
-        Assert.That(sut.Field.Name, Is.EqualTo(nameof(SampleClass.TaggedField)));
-    }
-
-    [Test]
-    public void Field_WhenBackedByProperty_ThrowsInvalidOperationException()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
 
-        Assert.That(() => sut.Field, Throws.InvalidOperationException);
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  DataMemberType
-    // ═════════════════════════════════════════════════════════════════
-
-    [Test]
-    public void DataMemberType_WhenBackedByProperty_ReturnsPropertyType()
-    {
-        var sut = FromProperty(nameof(SampleClass.IntProperty));
+        [Test]
+        public void Property_PropertyMember_ReturnsPropertyInfo()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-        Assert.That(sut.DataMemberType, Is.EqualTo(typeof(int)));
-    }
-
-    [Test]
-    public void DataMemberType_WhenBackedByField_ReturnsFieldType()
-    {
-        var sut = FromField(nameof(SampleClass.IntField));
+            var result = member.Property;
 
-        Assert.That(sut.DataMemberType, Is.EqualTo(typeof(int)));
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  DeclaringType
-    // ═════════════════════════════════════════════════════════════════
-
-    [Test]
-    public void DeclaringType_WhenBackedByProperty_ReturnsSampleClass()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+            Assert.That(result, Is.EqualTo(typeof(PropertyHolder<int>).GetProperty("Value")));
+        }
 
-        Assert.That(sut.DeclaringType, Is.EqualTo(typeof(SampleClass)));
-    }
-
-    [Test]
-    public void DeclaringType_WhenBackedByField_ReturnsSampleClass()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+        [Test]
+        public void Property_FieldMember_ThrowsInvalidOperationException()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-        Assert.That(sut.DeclaringType, Is.EqualTo(typeof(SampleClass)));
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  GetValue / SetValue
-    // ═════════════════════════════════════════════════════════════════
-
-    [Test]
-    public void GetValue_WhenBackedByProperty_ReadsPropertyValue()
-    {
-        var obj = new SampleClass { IntProperty = 7 };
-        var sut = FromProperty(nameof(SampleClass.IntProperty));
-
-        Assert.That(sut.GetValue(obj), Is.EqualTo(7));
-    }
-
-    [Test]
-    public void GetValue_WhenBackedByField_ReadsFieldValue()
-    {
-        var obj = new SampleClass { IntField = 13 };
-        var sut = FromField(nameof(SampleClass.IntField));
-
-        Assert.That(sut.GetValue(obj), Is.EqualTo(13));
-    }
+            Assert.Throws<InvalidOperationException>(() => _ = member.Property);
+        }
 
-    [Test]
-    public void SetValue_WhenBackedByProperty_WritesPropertyValue()
-    {
-        var obj = new SampleClass();
-        var sut = FromProperty(nameof(SampleClass.IntProperty));
+        [Test]
+        public void Field_FieldMember_ReturnsFieldInfo()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-        sut.SetValue(obj, 123);
+            var result = member.Field;
 
-        Assert.That(obj.IntProperty, Is.EqualTo(123));
-    }
+            Assert.That(result, Is.EqualTo(typeof(FieldHolder<int>).GetField("Value")));
+        }
 
-    [Test]
-    public void SetValue_WhenBackedByField_WritesFieldValue()
-    {
-        var obj = new SampleClass();
-        var sut = FromField(nameof(SampleClass.IntField));
+        [Test]
+        public void Field_PropertyMember_ThrowsInvalidOperationException()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-        sut.SetValue(obj, 456);
+            Assert.Throws<InvalidOperationException>(() => _ = member.Field);
+        }
 
-        Assert.That(obj.IntField, Is.EqualTo(456));
-    }
+        #endregion
 
-    // ═════════════════════════════════════════════════════════════════
-    //  Name
-    // ═════════════════════════════════════════════════════════════════
+        #region Member information
 
-    [Test]
-    public void Name_WhenBackedByProperty_ReturnsPropertyName()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+        [Test]
+        public void Name_PropertyMember_ReturnsPropertyName()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-        Assert.That(sut.Name, Is.EqualTo(nameof(SampleClass.TaggedProperty)));
-    }
+            Assert.That(member.Name, Is.EqualTo("Value"));
+        }
 
-    [Test]
-    public void Name_WhenBackedByField_ReturnsFieldName()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+        [Test]
+        public void Name_FieldMember_ReturnsFieldName()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-        Assert.That(sut.Name, Is.EqualTo(nameof(SampleClass.TaggedField)));
-    }
+            Assert.That(member.Name, Is.EqualTo("Value"));
+        }
 
-    // ═════════════════════════════════════════════════════════════════
-    //  MemberType
-    // ═════════════════════════════════════════════════════════════════
+        [Test]
+        public void DataMemberType_PropertyMember_ReturnsPropertyType()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-    [Test]
-    public void MemberType_WhenBackedByProperty_ReturnsPropertyMemberType()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+            Assert.That(member.DataMemberType, Is.EqualTo(typeof(int)));
+        }
 
-        Assert.That(sut.MemberType, Is.EqualTo(MemberTypes.Property));
-    }
+        [Test]
+        public void DataMemberType_FieldMember_ReturnsFieldType()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-    [Test]
-    public void MemberType_WhenBackedByField_ReturnsFieldMemberType()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+            Assert.That(member.DataMemberType, Is.EqualTo(typeof(int)));
+        }
 
-        Assert.That(sut.MemberType, Is.EqualTo(MemberTypes.Field));
-    }
+        [Test]
+        public void DeclaringType_PropertyMember_ReturnsDeclaringType()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-    // ═════════════════════════════════════════════════════════════════
-    //  ReflectedType
-    // ═════════════════════════════════════════════════════════════════
+            Assert.That(member.DeclaringType, Is.EqualTo(typeof(PropertyHolder<int>)));
+        }
 
-    [Test]
-    public void ReflectedType_WhenBackedByProperty_ReturnsSampleClass()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+        [Test]
+        public void DeclaringType_FieldMember_ReturnsDeclaringType()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-        Assert.That(sut.ReflectedType, Is.EqualTo(typeof(SampleClass)));
-    }
+            Assert.That(member.DeclaringType, Is.EqualTo(typeof(FieldHolder<int>)));
+        }
 
-    [Test]
-    public void ReflectedType_WhenBackedByField_ReturnsSampleClass()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+        [Test]
+        public void ReflectedType_PropertyMember_ReturnsReflectedType()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-        Assert.That(sut.ReflectedType, Is.EqualTo(typeof(SampleClass)));
-    }
+            Assert.That(member.ReflectedType, Is.EqualTo(typeof(PropertyHolder<int>)));
+        }
 
-    // ═════════════════════════════════════════════════════════════════
-    //  Module
-    // ═════════════════════════════════════════════════════════════════
+        [Test]
+        public void ReflectedType_FieldMember_ReturnsReflectedType()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-    [Test]
-    public void Module_WhenBackedByProperty_ReturnsModule()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+            Assert.That(member.ReflectedType, Is.EqualTo(typeof(FieldHolder<int>)));
+        }
 
-        Assert.That(sut.Module, Is.EqualTo(typeof(SampleClass).Module));
-    }
+        [Test]
+        public void MemberType_PropertyMember_ReturnsProperty()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-    [Test]
-    public void Module_WhenBackedByField_ReturnsModule()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+            Assert.That(member.MemberType, Is.EqualTo(MemberTypes.Property));
+        }
 
-        Assert.That(sut.Module, Is.EqualTo(typeof(SampleClass).Module));
-    }
+        [Test]
+        public void MemberType_FieldMember_ReturnsField()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-    // ═════════════════════════════════════════════════════════════════
-    //  IsStatic
-    // ═════════════════════════════════════════════════════════════════
+            Assert.That(member.MemberType, Is.EqualTo(MemberTypes.Field));
+        }
 
-    [Test]
-    public void IsStatic_WhenBackedByStaticProperty_ReturnsTrue()
-    {
-        var sut = FromProperty(nameof(SampleClass.StaticProperty));
+        [Test]
+        public void Module_PropertyMember_ReturnsDeclaringModule()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-        Assert.That(sut.IsStatic, Is.True);
-    }
+            Assert.That(member.Module, Is.EqualTo(typeof(PropertyHolder<int>).Module));
+        }
 
-    [Test]
-    public void IsStatic_WhenBackedByInstanceProperty_ReturnsFalse()
-    {
-        var sut = FromProperty(nameof(SampleClass.InstanceProperty));
+        [Test]
+        public void Module_FieldMember_ReturnsDeclaringModule()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-        Assert.That(sut.IsStatic, Is.False);
-    }
+            Assert.That(member.Module, Is.EqualTo(typeof(FieldHolder<int>).Module));
+        }
 
-    [Test]
-    public void IsStatic_WhenBackedByStaticField_ReturnsTrue()
-    {
-        var sut = FromField(nameof(SampleClass.StaticField));
+        #endregion
 
-        Assert.That(sut.IsStatic, Is.True);
-    }
+        #region Values
 
-    [Test]
-    public void IsStatic_WhenBackedByInstanceField_ReturnsFalse()
-    {
-        var sut = FromField(nameof(SampleClass.InstanceField));
+        [Test]
+        public void GetValue_PropertyMember_ReturnsPropertyValue()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
+            var instance = new PropertyHolder<int> { Value = 7 };
 
-        Assert.That(sut.IsStatic, Is.False);
-    }
+            var result = member.GetValue(instance);
 
-    // ═════════════════════════════════════════════════════════════════
-    //  CustomAttributes
-    // ═════════════════════════════════════════════════════════════════
+            Assert.That(result, Is.EqualTo(7));
+        }
 
-    [Test]
-    public void CustomAttributes_WhenBackedByProperty_ReturnsPropertyAttributes()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+        [Test]
+        public void GetValue_FieldMember_ReturnsFieldValue()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
+            var instance = new FieldHolder<int> { Value = 13 };
 
-        Assert.That(sut.CustomAttributes,
-            Has.Some.Matches<CustomAttributeData>(a => a!.AttributeType == typeof(MarkerAttribute)));
-    }
+            var result = member.GetValue(instance);
 
-    [Test]
-    public void CustomAttributes_WhenBackedByField_ReturnsFieldAttributes()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+            Assert.That(result, Is.EqualTo(13));
+        }
 
-        Assert.That(sut.CustomAttributes,
-            Has.Some.Matches<CustomAttributeData>(a => a!.AttributeType == typeof(MarkerAttribute)));
-    }
+        [Test]
+        public void SetValue_PropertyMember_SetsProperty()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
+            var instance = new PropertyHolder<int>();
 
-    // ═════════════════════════════════════════════════════════════════
-    //  IsDefined
-    // ═════════════════════════════════════════════════════════════════
+            member.SetValue(instance, 123);
 
-    [Test]
-    public void IsDefined_WhenBackedByProperty_WithPresentAttribute_ReturnsTrue()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+            Assert.That(instance.Value, Is.EqualTo(123));
+        }
 
-        Assert.That(sut.IsDefined(typeof(MarkerAttribute), false), Is.True);
-    }
+        [Test]
+        public void SetValue_FieldMember_SetsField()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
+            var instance = new FieldHolder<int>();
 
-    [Test]
-    public void IsDefined_WhenBackedByProperty_WithAbsentAttribute_ReturnsFalse()
-    {
-        var sut = FromProperty(nameof(SampleClass.IntProperty));
+            member.SetValue(instance, 456);
 
-        Assert.That(sut.IsDefined(typeof(MarkerAttribute), false), Is.False);
-    }
+            Assert.That(instance.Value, Is.EqualTo(456));
+        }
 
-    [Test]
-    public void IsDefined_WhenBackedByField_WithPresentAttribute_ReturnsTrue()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+        #endregion
 
-        Assert.That(sut.IsDefined(typeof(MarkerAttribute), false), Is.True);
-    }
+        #region IsStatic
 
-    [Test]
-    public void IsDefined_WhenBackedByField_WithAbsentAttribute_ReturnsFalse()
-    {
-        var sut = FromField(nameof(SampleClass.IntField));
+        [Test]
+        public void IsStatic_StaticProperty_ReturnsTrue()
+        {
+            var member = TestHelper.PropertyMember(typeof(StaticMembersClass), nameof(StaticMembersClass.StaticProperty));
 
-        Assert.That(sut.IsDefined(typeof(MarkerAttribute), false), Is.False);
-    }
+            Assert.That(member.IsStatic, Is.True);
+        }
 
-    // ═════════════════════════════════════════════════════════════════
-    //  GetCustomAttributes(bool)
-    // ═════════════════════════════════════════════════════════════════
+        [Test]
+        public void IsStatic_InstanceProperty_ReturnsFalse()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
 
-    [Test]
-    public void GetCustomAttributes_Bool_WhenBackedByProperty_ReturnsAttributes()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+            Assert.That(member.IsStatic, Is.False);
+        }
 
-        Assert.That(sut.GetCustomAttributes(false), Has.Some.InstanceOf<MarkerAttribute>());
-    }
+        [Test]
+        public void IsStatic_StaticField_ReturnsTrue()
+        {
+            var member = TestHelper.FieldMember(typeof(StaticMembersClass), nameof(StaticMembersClass.StaticField));
 
-    [Test]
-    public void GetCustomAttributes_Bool_WhenBackedByField_ReturnsAttributes()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+            Assert.That(member.IsStatic, Is.True);
+        }
 
-        Assert.That(sut.GetCustomAttributes(false), Has.Some.InstanceOf<MarkerAttribute>());
-    }
+        [Test]
+        public void IsStatic_InstanceField_ReturnsFalse()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
 
-    // ═════════════════════════════════════════════════════════════════
-    //  GetCustomAttributes(Type, bool)
-    // ═════════════════════════════════════════════════════════════════
+            Assert.That(member.IsStatic, Is.False);
+        }
 
-    [Test]
-    public void GetCustomAttributes_TypeBool_WhenBackedByProperty_ReturnsMatchingAttributes()
-    {
-        var sut = FromProperty(nameof(SampleClass.TaggedProperty));
+        #endregion
 
-        Assert.That(sut.GetCustomAttributes(typeof(MarkerAttribute), false), Is.Not.Empty);
-    }
+        #region Attributes
 
-    [Test]
-    public void GetCustomAttributes_TypeBool_WhenBackedByProperty_WithAbsentType_ReturnsEmpty()
-    {
-        var sut = FromProperty(nameof(SampleClass.IntProperty));
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+        private sealed class MarkerAttribute : Attribute;
 
-        Assert.That(sut.GetCustomAttributes(typeof(MarkerAttribute), false), Is.Empty);
-    }
+        private class MarkedMembersClass
+        {
+            [Marker]
+            public string MarkedProperty { get; set; } = null!;
 
-    [Test]
-    public void GetCustomAttributes_TypeBool_WhenBackedByField_ReturnsMatchingAttributes()
-    {
-        var sut = FromField(nameof(SampleClass.TaggedField));
+            [Marker]
+            public string MarkedField = null!;
+        }
 
-        Assert.That(sut.GetCustomAttributes(typeof(MarkerAttribute), false), Is.Not.Empty);
-    }
+        [Test]
+        public void CustomAttributes_MarkedProperty_ContainsMarker()
+        {
+            var member = TestHelper.PropertyMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedProperty));
 
-    [Test]
-    public void GetCustomAttributes_TypeBool_WhenBackedByField_WithAbsentType_ReturnsEmpty()
-    {
-        var sut = FromField(nameof(SampleClass.IntField));
+            var attributeTypes = member.CustomAttributes.Select(attribute => attribute.AttributeType);
 
-        Assert.That(sut.GetCustomAttributes(typeof(MarkerAttribute), false), Is.Empty);
+            Assert.That(attributeTypes, Does.Contain(typeof(MarkerAttribute)));
+        }
+
+        [Test]
+        public void CustomAttributes_MarkedField_ContainsMarker()
+        {
+            var member = TestHelper.FieldMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedField));
+
+            var attributeTypes = member.CustomAttributes.Select(attribute => attribute.AttributeType);
+
+            Assert.That(attributeTypes, Does.Contain(typeof(MarkerAttribute)));
+        }
+
+        [Test]
+        public void IsDefined_MarkedProperty_ReturnsTrue()
+        {
+            var member = TestHelper.PropertyMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedProperty));
+
+            var result = member.IsDefined(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void IsDefined_UnmarkedProperty_ReturnsFalse()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
+
+            var result = member.IsDefined(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void IsDefined_MarkedField_ReturnsTrue()
+        {
+            var member = TestHelper.FieldMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedField));
+
+            var result = member.IsDefined(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void IsDefined_UnmarkedField_ReturnsFalse()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
+
+            var result = member.IsDefined(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void GetCustomAttributes_MarkedProperty_ReturnsMarker()
+        {
+            var member = TestHelper.PropertyMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedProperty));
+
+            var result = member.GetCustomAttributes(false);
+
+            Assert.That(result, Has.One.InstanceOf<MarkerAttribute>());
+        }
+
+        [Test]
+        public void GetCustomAttributes_MarkedField_ReturnsMarker()
+        {
+            var member = TestHelper.FieldMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedField));
+
+            var result = member.GetCustomAttributes(false);
+
+            Assert.That(result, Has.One.InstanceOf<MarkerAttribute>());
+        }
+
+        [Test]
+        public void GetCustomAttributesOfType_MarkedProperty_ReturnsMarker()
+        {
+            var member = TestHelper.PropertyMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedProperty));
+
+            var result = member.GetCustomAttributes(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Has.One.InstanceOf<MarkerAttribute>());
+        }
+
+        [Test]
+        public void GetCustomAttributesOfType_UnmarkedProperty_ReturnsEmpty()
+        {
+            var member = TestHelper.PropertyMember(typeof(PropertyHolder<int>), "Value");
+
+            var result = member.GetCustomAttributes(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public void GetCustomAttributesOfType_MarkedField_ReturnsMarker()
+        {
+            var member = TestHelper.FieldMember(typeof(MarkedMembersClass), nameof(MarkedMembersClass.MarkedField));
+
+            var result = member.GetCustomAttributes(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Has.One.InstanceOf<MarkerAttribute>());
+        }
+
+        [Test]
+        public void GetCustomAttributesOfType_UnmarkedField_ReturnsEmpty()
+        {
+            var member = TestHelper.FieldMember(typeof(FieldHolder<int>), "Value");
+
+            var result = member.GetCustomAttributes(typeof(MarkerAttribute), false);
+
+            Assert.That(result, Is.Empty);
+        }
+
+        #endregion
     }
 }

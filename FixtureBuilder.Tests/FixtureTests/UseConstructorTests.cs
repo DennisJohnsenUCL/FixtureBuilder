@@ -2,123 +2,117 @@
 {
     internal sealed class UseConstructorTests
     {
-        class PrivateConstructorClass
-        {
-            private PrivateConstructorClass() { }
-        }
         [Test]
-        public void PrivateConstructor_UsesConstructor()
+        public void NoArguments_UsesParameterlessConstructor()
         {
-            IFixtureConfigurator<PrivateConstructorClass> fixture = null!;
-            Assert.DoesNotThrow(() => fixture = Fixture.New<PrivateConstructorClass>().UseConstructor());
+            var fixture = Fixture.New<ConstructorSetsValueClass>();
 
-            Assert.That(fixture, Is.Not.Null);
-        }
+            var result = fixture.UseConstructor().Build();
 
-        class DefaultConstructorClass
-        {
-            public string Value { get; set; }
-            public DefaultConstructorClass() => Value = "Something";
-        }
-        [Test]
-        public void NoParameters_UsesDefaultConstructor()
-        {
-            var fixture = Fixture.New<DefaultConstructorClass>().UseConstructor();
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.Value, Is.EqualTo("Something"));
-        }
-
-        class NoDefaultConstructor
-        {
-            public string Value { get; set; }
-            public NoDefaultConstructor(string value) => Value = value;
-        }
-        [Test]
-        public void Parameters_UsesCorrectConstructor()
-        {
-            var text = "Test value";
-
-            var fixture = Fixture.New<NoDefaultConstructor>().UseConstructor(text);
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field.Value, Is.EqualTo(text));
+            Assert.That(result.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void NoParameters_NoDefaultConstructor_ThrowsException()
+        public void NoArguments_PrivateParameterlessConstructor_UsesIt()
         {
-            var fixture = Fixture.New<NoDefaultConstructor>();
+            var fixture = Fixture.New<PrivateConstructorClass>();
+
+            var result = fixture.UseConstructor().Build();
+
+            Assert.That(result.Value, Is.EqualTo("constructor"));
+        }
+
+        [Test]
+        public void Arguments_UsesMatchingConstructor()
+        {
+            var fixture = Fixture.New<StringConstructorClass>();
+
+            var result = fixture.UseConstructor("value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        private class NullableTextAndNumberClass(string? text, int number)
+        {
+            public string? Text { get; } = text;
+            public int Number { get; } = number;
+        }
+
+        [Test]
+        public void Arguments_NullArgument_UsesMatchingConstructor()
+        {
+            var fixture = Fixture.New<NullableTextAndNumberClass>();
+
+            var result = fixture.UseConstructor(null!, 7).Build();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Text, Is.Null);
+                Assert.That(result.Number, Is.EqualTo(7));
+            }
+        }
+
+        [Test]
+        public void NoArguments_NoParameterlessConstructor_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<StringConstructorClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor());
         }
 
         [Test]
-        public void Parameters_NoMatchingConstructor_ThrowsException()
+        public void ArgumentsMatchNoConstructor_ThrowsInvalidOperationException()
         {
-            var fixture = Fixture.New<NoDefaultConstructor>();
+            var fixture = Fixture.New<StringConstructorClass>();
 
-            Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor("Test value", 123));
+            Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor("value", 123));
+        }
+
+        private record InitializedPropertyRecord
+        {
+            public string Value { get; init; } = "constructor";
+        }
+
+        [Test]
+        public void Record_NoArguments_UsesParameterlessConstructorOverCopyConstructor()
+        {
+            var fixture = Fixture.New<InitializedPropertyRecord>();
+
+            var result = fixture.UseConstructor().Build();
+
+            Assert.That(result.Value, Is.EqualTo("constructor"));
+        }
+
+        [Test]
+        public void PositionalRecord_Arguments_UsesPrimaryConstructor()
+        {
+            var fixture = Fixture.New<PositionalRecord>();
+
+            var result = fixture.UseConstructor("value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
         public void AlreadyConstructed_ThrowsInvalidOperationException()
         {
-            var fixture = Fixture.New<DefaultConstructorClass>().UseConstructor();
-
-            var ex = Assert.Throws<InvalidOperationException>(() =>
-                ((IFixtureConstructor<DefaultConstructorClass>)fixture).UseConstructor());
-
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
-        }
-
-        [Test]
-        public void AfterImplicitConstruction_ThrowsInvalidOperationException()
-        {
-            var fixture = Fixture.New<DefaultConstructorClass>();
-            fixture.With(x => x.Value, "Configured");
+            var fixture = Fixture.New<ConstructorSetsValueClass>();
+            fixture.UseConstructor();
 
             var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor());
 
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
 
         [Test]
-        public void GenericClass_CanConstruct()
+        public void AfterConfigurationMethod_ThrowsInvalidOperationException()
         {
-            IFixtureConfigurator<GenericClass<string>> fixture = null!;
+            var fixture = Fixture.New<ConstructorSetsValueClass>();
+            fixture.With(x => x.Value, "value");
 
-            Assert.DoesNotThrow(() => fixture = Fixture.New<GenericClass<string>>().UseConstructor());
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor());
 
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field, Is.Not.Null);
-        }
-
-        record EmptyRecord;
-        [Test]
-        public void Record_CanConstruct()
-        {
-            IFixtureConfigurator<EmptyRecord> fixture = null!;
-
-            Assert.DoesNotThrow(() => fixture = Fixture.New<EmptyRecord>().UseConstructor());
-
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field, Is.Not.Null);
-        }
-
-        record StringRecord(string Text);
-        [Test]
-        public void RecordWithParameter_CanConstruct()
-        {
-            IFixtureConfigurator<StringRecord> fixture = null!;
-
-            Assert.DoesNotThrow(() => fixture = Fixture.New<StringRecord>().UseConstructor("Test"));
-
-            var field = TestHelper.GetFixture(fixture);
-
-            Assert.That(field, Is.Not.Null);
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
     }
 }

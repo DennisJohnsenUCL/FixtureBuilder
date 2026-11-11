@@ -1,39 +1,53 @@
 ﻿using FixtureBuilder.Core;
-using Moq;
 
 namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class AddConverterTests
     {
         [Test]
-        public void AddConverter_FixtureUsesAddedConverter()
+        public void AddedConverter_ConvertsValueForBackingField()
         {
-            var factory = new FixtureFactory();
-            var target = typeof(string);
-            var request = new TypeRequest(target, target);
-            var value = 42;
-            var expected = "converted";
+            var factory = new FixtureFactory().AddConverter(new FixedLongConverter(456));
+            var fixture = TestHelper.MakeFixture<WiderBackingFieldClass>(factory);
 
-            var converter = new Mock<ICustomConverter>();
-            converter.Setup(c => c.Convert(target, value)).Returns(expected);
+            var result = fixture.WithBackingField(x => x.Value, 123).Build();
 
-            factory.AddConverter(converter.Object);
-
-            var fixture = factory.New<TestClass>();
-            var context = TestHelper.GetContext(fixture);
-            var result = context.Converter.Convert(request, value, target, context);
-
-            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result.Value, Is.EqualTo(456));
         }
 
         [Test]
-        public void AddConverter_NullConverter_Throws()
+        public void LaterConverter_WinsOverEarlierConverter()
+        {
+            var factory = new FixtureFactory()
+                .AddConverter(new FixedLongConverter(1))
+                .AddConverter(new FixedLongConverter(2));
+            var fixture = TestHelper.MakeFixture<WiderBackingFieldClass>(factory);
+
+            var result = fixture.WithBackingField(x => x.Value, 123).Build();
+
+            Assert.That(result.Value, Is.EqualTo(2));
+        }
+
+        private class NullConverter : ICustomConverter
+        {
+            public object? Convert(Type target, object value) => null;
+        }
+
+        [Test]
+        public void ConverterReturnsNullForNonNullableValueTypeField_ThrowsInvalidCastException()
+        {
+            var factory = new FixtureFactory().AddConverter(new NullConverter());
+            var fixture = TestHelper.MakeFixture<WiderBackingFieldClass>(factory);
+
+            Assert.Throws<InvalidCastException>(() => fixture.WithBackingField(x => x.Value, 123));
+        }
+
+        [Test]
+        public void NullConverter_ThrowsArgumentNullException()
         {
             var factory = new FixtureFactory();
 
             Assert.Throws<ArgumentNullException>(() => factory.AddConverter(null!));
         }
-
-        public class TestClass { }
     }
 }

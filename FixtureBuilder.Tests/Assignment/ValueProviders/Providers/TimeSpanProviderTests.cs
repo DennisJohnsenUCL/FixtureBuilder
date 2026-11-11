@@ -7,74 +7,26 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class TimeSpanProviderTests
     {
-        private TimeSpanProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new TimeSpanProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_TimeSpan_ReturnsThirtyMinutes()
         {
-            Assert.DoesNotThrow(() => new TimeSpanProvider());
-        }
-
-        [Test]
-        public void Resolve_TimeSpan_ReturnsTimeSpanInstance()
-        {
+            var provider = new TimeSpanProvider();
             var request = TestHelper.MakeRequest(typeof(TimeSpan));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<TimeSpan>());
-                Assert.That(result, Is.EqualTo(TimeSpan.FromMinutes(30)));
-            }
+            Assert.That(result, Is.EqualTo(TimeSpan.FromMinutes(30)));
         }
 
-        [Test]
-        public void Resolve_TimeSpan_ReturnsSameValuePerCall()
+        [TestCase(typeof(TimeSpan?))]
+        [TestCase(typeof(DateTime))]
+        [TestCase(typeof(int))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            var request = TestHelper.MakeRequest(typeof(TimeSpan));
+            var provider = new TimeSpanProvider();
+            var request = TestHelper.MakeRequest(type);
 
-            var first = _sut.ResolveValue(request, _contextMock.Object);
-            var second = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(first, Is.EqualTo(second));
-        }
-
-        [Test]
-        public void Resolve_DateTime_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(DateTime));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_NullableTimeSpan_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(TimeSpan?));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_Int_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(int));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

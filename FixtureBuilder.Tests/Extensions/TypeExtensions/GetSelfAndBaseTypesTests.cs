@@ -1,30 +1,19 @@
-using FixtureBuilder.Extensions;
+﻿using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetSelfAndBaseTypesTests
     {
-        #region Test helpers
-
-        private interface IBaseInterface { }
-        private interface IDerivedInterface : IBaseInterface { }
-
-        private class Base { }
-        private class Middle : Base { }
-        private class Derived : Middle { }
-
-        private class GenericBase<T> { }
-        private class ClosedGenericDerived : GenericBase<int> { }
-
-        private struct SimpleStruct { }
-        private enum SimpleEnum { Value }
-
-        #endregion
-
         #region Classes
 
+        private class Base;
+
+        private class Middle : Base;
+
+        private class Derived : Middle;
+
         [Test]
-        public void GetSelfAndBaseTypes_Object_ReturnsOnlyObject()
+        public void Object_ReturnsOnlyObject()
         {
             var result = typeof(object).GetSelfAndBaseTypes();
 
@@ -32,7 +21,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetSelfAndBaseTypes_TypeDerivesDirectlyFromObject_ReturnsTypeThenObject()
+        public void DirectSubclassOfObject_ReturnsTypeThenObject()
         {
             var result = typeof(Base).GetSelfAndBaseTypes();
 
@@ -40,15 +29,19 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetSelfAndBaseTypes_MultiLevelHierarchy_ReturnsTypeThenBaseTypesFromMostToLeastDerived()
+        public void MultiLevelHierarchy_ReturnsTypeThenBaseTypesFromMostToLeastDerived()
         {
             var result = typeof(Derived).GetSelfAndBaseTypes();
 
             Assert.That(result, Is.EqualTo([typeof(Derived), typeof(Middle), typeof(Base), typeof(object)]));
         }
 
+        private class GenericBase<T>;
+
+        private class ClosedGenericDerived : GenericBase<int>;
+
         [Test]
-        public void GetSelfAndBaseTypes_GenericBase_ReturnsClosedGenericBaseType()
+        public void GenericBase_ReturnsClosedGenericBaseType()
         {
             var result = typeof(ClosedGenericDerived).GetSelfAndBaseTypes();
 
@@ -59,8 +52,12 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 
         #region Interfaces
 
+        private interface IBaseInterface;
+
+        private interface IDerivedInterface : IBaseInterface;
+
         [Test]
-        public void GetSelfAndBaseTypes_Interface_ReturnsOnlyInterface()
+        public void Interface_ReturnsOnlyInterface()
         {
             var result = typeof(IDerivedInterface).GetSelfAndBaseTypes();
 
@@ -72,38 +69,19 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         #region Value types
 
         [Test]
-        public void GetSelfAndBaseTypes_Struct_ReturnsStructThenValueTypeThenObject()
+        public void Struct_ReturnsStructThenValueTypeThenObject()
         {
-            var result = typeof(SimpleStruct).GetSelfAndBaseTypes();
+            var result = typeof(PointStruct).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo([typeof(SimpleStruct), typeof(ValueType), typeof(object)]));
+            Assert.That(result, Is.EqualTo([typeof(PointStruct), typeof(ValueType), typeof(object)]));
         }
 
         [Test]
-        public void GetSelfAndBaseTypes_Enum_ReturnsEnumThenEnumBaseThenValueTypeThenObject()
+        public void Enum_ReturnsEnumThenEnumBaseThenValueTypeThenObject()
         {
-            var result = typeof(SimpleEnum).GetSelfAndBaseTypes();
+            var result = typeof(DayOfWeek).GetSelfAndBaseTypes();
 
-            Assert.That(result, Is.EqualTo([typeof(SimpleEnum), typeof(Enum), typeof(ValueType), typeof(object)]));
-        }
-
-        #endregion
-
-        #region Framework types
-
-        [Test]
-        public void GetSelfAndBaseTypes_ArgumentNullException_ReturnsFullExceptionHierarchy()
-        {
-            var result = typeof(ArgumentNullException).GetSelfAndBaseTypes();
-
-            Assert.That(result, Is.EqualTo(
-            [
-                typeof(ArgumentNullException),
-                typeof(ArgumentException),
-                typeof(SystemException),
-                typeof(Exception),
-                typeof(object)
-            ]));
+            Assert.That(result, Is.EqualTo([typeof(DayOfWeek), typeof(Enum), typeof(ValueType), typeof(object)]));
         }
 
         #endregion

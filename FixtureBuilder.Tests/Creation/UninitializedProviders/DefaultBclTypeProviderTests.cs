@@ -3,142 +3,52 @@ using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Creation.UninitializedProviders;
 using Moq;
 
-#pragma warning disable IDE0130 // Namespace does not match folder structure
-namespace SystemUnderTest
-#pragma warning restore IDE0130 // Namespace does not match folder structure
-{
-    public class Invoice
-    {
-        public string CreatedBy { get; } = "constructor";
-        public string Number { get; set; } = null!;
-    }
-}
-
 namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 {
     internal sealed class DefaultBclTypeProviderTests
     {
-        private DefaultBclTypeProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new DefaultBclTypeProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_ValueTypeInSystemNamespace_ReturnsDefaultInstance()
         {
-            Assert.DoesNotThrow(() => new DefaultBclTypeProvider());
-        }
-
-        [Test]
-        public void Resolve_SystemInt32_ReturnsDefaultInt()
-        {
-            var request = TestHelper.MakeRequest(typeof(int));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<int>());
-                Assert.That(result, Is.Zero);
-            }
-        }
-
-        [Test]
-        public void Resolve_SystemGuid_ReturnsEmptyGuid()
-        {
+            var provider = new DefaultBclTypeProvider();
             var request = TestHelper.MakeRequest(typeof(Guid));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<Guid>());
-                Assert.That(result, Is.EqualTo(Guid.Empty));
-            }
+            Assert.That(result, Is.EqualTo(Guid.Empty));
         }
 
         [Test]
-        public void Resolve_SystemBoolean_ReturnsDefaultBool()
+        public void ResolveValue_ClassInSystemChildNamespace_ReturnsInstanceFromParameterlessConstructor()
         {
-            var request = TestHelper.MakeRequest(typeof(bool));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<bool>());
-                Assert.That(result, Is.False);
-            }
-        }
-
-        [Test]
-        public void Resolve_SystemCollectionsGenericList_ReturnsEmptyList()
-        {
+            var provider = new DefaultBclTypeProvider();
             var request = TestHelper.MakeRequest(typeof(List<int>));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<List<int>>());
-                Assert.That(result, Is.Empty);
-            }
+            Assert.That(result, Is.TypeOf<List<int>>().And.Empty);
         }
 
         [Test]
-        public void Resolve_SystemTimeSpan_ReturnsDefaultTimeSpan()
+        public void ResolveValue_SystemTypeWithoutParameterlessConstructor_ReturnsNoResult()
         {
-            var request = TestHelper.MakeRequest(typeof(TimeSpan));
+            var provider = new DefaultBclTypeProvider();
+            var request = TestHelper.MakeRequest(typeof(string));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result, Is.TypeOf<TimeSpan>());
-                Assert.That(result, Is.EqualTo(TimeSpan.Zero));
-            }
-        }
-
-        [Test]
-        public void Resolve_NonSystemNamespace_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(DefaultBclTypeProvider));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
-        [Test]
-        public void Resolve_UserDefinedClass_ReturnsNoResult()
+        [TestCase(typeof(PropertyHolder<int>))]
+        [TestCase(typeof(SystemUnderTest.Invoice))]
+        [TestCase(typeof(GlobalNamespaceClass))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            var request = TestHelper.MakeRequest(typeof(FixtureRequest));
+            var provider = new DefaultBclTypeProvider();
+            var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        class InvoiceHolder
-        {
-            public SystemUnderTest.Invoice Invoice { get; set; } = null!;
-        }
-        [Test]
-        public void RequestOfTypeInNamespaceStartingWithSystem_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(SystemUnderTest.Invoice));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

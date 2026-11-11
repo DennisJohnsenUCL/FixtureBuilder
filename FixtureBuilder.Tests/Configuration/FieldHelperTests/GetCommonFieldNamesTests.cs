@@ -5,43 +5,27 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
     internal sealed class GetCommonFieldNamesTests
     {
         [Test]
-        public void GetCommonFieldNames_ReturnsExpectedConventions()
+        public void PascalCaseName_ReturnsConventionalFieldNames()
         {
             var result = FieldHelper.GetCommonFieldNames("FirstName");
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Has.Length.EqualTo(3));
-                Assert.That(result[0], Is.EqualTo("_firstName"));
-                Assert.That(result[1], Is.EqualTo("firstName"));
-                Assert.That(result[2], Is.EqualTo("_FirstName"));
-            }
+            Assert.That(result, Is.EqualTo(["_firstName", "firstName", "_FirstName"]));
         }
 
         [Test]
-        public void GetCommonFieldNames_SingleCharName_ReturnsExpectedConventions()
+        public void SingleCharacterName_ReturnsConventionalFieldNames()
         {
             var result = FieldHelper.GetCommonFieldNames("X");
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result[0], Is.EqualTo("_x"));
-                Assert.That(result[1], Is.EqualTo("x"));
-                Assert.That(result[2], Is.EqualTo("_X"));
-            }
+            Assert.That(result, Is.EqualTo(["_x", "x", "_X"]));
         }
 
         [Test]
-        public void GetCommonFieldNames_AlreadyLowercase_UnderscorePrefixedAndCamelCaseMatch()
+        public void CamelCaseName_ReturnsConventionalFieldNames()
         {
             var result = FieldHelper.GetCommonFieldNames("age");
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result[0], Is.EqualTo("_age"));
-                Assert.That(result[1], Is.EqualTo("age"));
-                Assert.That(result[2], Is.EqualTo("_age"));
-            }
+            Assert.That(result, Is.EqualTo(["_age", "age", "_age"]));
         }
     }
 }

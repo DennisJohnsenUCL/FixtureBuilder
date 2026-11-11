@@ -2,35 +2,40 @@
 {
     internal sealed class BuildTests
     {
-        private FixtureFactory _factory;
-
-        public class TestClass { }
-        public interface ITestInterface { }
-        public abstract class AbstractTestClass { }
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void ConstructsInstance()
         {
-            _factory = new FixtureFactory();
+            var factory = new FixtureFactory();
+
+            var result = factory.Build<ConstructorSetsValueClass>();
+
+            Assert.That(result.Value, Is.EqualTo("constructor"));
         }
 
         [Test]
-        public void Build_ReturnsInstance()
+        public void UsesFactoryConfiguration()
         {
-            var result = _factory.Build<TestClass>();
-            Assert.That(result, Is.InstanceOf<TestClass>());
+            var factory = new FixtureFactory().With("injected");
+
+            var result = factory.Build<StringConstructorClass>();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
         [Test]
-        public void Build_InterfaceType_Throws()
+        public void InterfaceType_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => _factory.Build<ITestInterface>());
+            var factory = new FixtureFactory();
+
+            Assert.Throws<InvalidOperationException>(() => factory.Build<IMarkerInterface>());
         }
 
         [Test]
-        public void Build_AbstractType_Throws()
+        public void AbstractType_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => _factory.Build<AbstractTestClass>());
+            var factory = new FixtureFactory();
+
+            Assert.Throws<InvalidOperationException>(() => factory.Build<AbstractClass>());
         }
     }
 }

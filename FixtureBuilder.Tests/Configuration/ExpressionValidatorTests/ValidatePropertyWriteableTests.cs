@@ -5,51 +5,36 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidatePropertyWriteableTests
     {
-        private class Parent
+        [Test]
+        public void PropertyWithSetter_DoesNotThrow()
         {
-            public string Writable { get; set; } = "";
-            public int ReadOnly { get; } = 42;
-            public Child Child { get; set; } = new();
-        }
+            Expression<Func<PropertyHolder<string>, string>> expression = x => x.Value;
 
-        private class Child
-        {
-            public int Age { get; set; }
-            public int ReadOnly { get; } = 7;
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyWriteable(expression));
         }
 
         [Test]
-        public void WritableProperty_DoesNotThrow()
+        public void PropertyWithSetterAtEndOfChain_DoesNotThrow()
         {
-            Expression<Func<Parent, string>> expr = x => x.Writable;
+            Expression<Func<PropertyHolder<PropertyHolder<string>>, string>> expression = x => x.Value.Value;
 
-            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyWriteable(expr));
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyWriteable(expression));
         }
 
         [Test]
-        public void NestedWritableProperty_DoesNotThrow()
+        public void PropertyWithoutSetter_ThrowsInvalidOperationException()
         {
-            Expression<Func<Parent, int>> expr = x => x.Child.Age;
+            Expression<Func<ReadOnlyPropertyHolder<string>, string>> expression = x => x.Value;
 
-            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyWriteable(expr));
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyWriteable(expression));
         }
 
         [Test]
-        public void ReadOnlyProperty_ThrowsInvalidOperationException()
+        public void PropertyWithoutSetterAtEndOfChain_ThrowsInvalidOperationException()
         {
-            Expression<Func<Parent, int>> expr = x => x.ReadOnly;
+            Expression<Func<PropertyHolder<ReadOnlyPropertyHolder<string>>, string>> expression = x => x.Value.Value;
 
-            Assert.Throws<InvalidOperationException>(
-                () => ExpressionValidator.ValidatePropertyWriteable(expr));
-        }
-
-        [Test]
-        public void NestedReadOnlyProperty_ThrowsInvalidOperationException()
-        {
-            Expression<Func<Parent, int>> expr = x => x.Child.ReadOnly;
-
-            Assert.Throws<InvalidOperationException>(
-                () => ExpressionValidator.ValidatePropertyWriteable(expr));
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyWriteable(expression));
         }
     }
 }

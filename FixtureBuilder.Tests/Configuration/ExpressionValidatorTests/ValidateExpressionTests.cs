@@ -1,102 +1,99 @@
-﻿#pragma warning disable CA1822
-
+﻿using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 
 namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidateExpressionTests
     {
-        private class Outer
-        {
-            public Inner Prop { get; set; } = new();
-            public Inner Field = new();
-            public string Name { get; set; } = "";
-            public string NameField = "";
-            public Point? NullablePoint { get; set; }
-            public int GetValue() => 42;
-        }
+        #region Accepted
 
-        private class Inner
+        [Test]
+        public void Property_DoesNotThrow()
         {
-            public string Value { get; set; } = "";
-        }
+            Expression<Func<PropertyHolder<string>, string>> expression = x => x.Value;
 
-        private struct Point
-        {
-            public int X { get; set; }
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void SingleProperty_DoesNotThrow()
+        public void Field_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateExpression<Outer, string>(x => x.Name));
+            Expression<Func<FieldHolder<string>, string>> expression = x => x.Value;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void SingleField_DoesNotThrow()
+        public void PropertyChain_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateExpression<Outer, string>(x => x.NameField));
+            Expression<Func<PropertyHolder<PropertyHolder<string>>, string>> expression = x => x.Value.Value;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void NestedPropertyChain_DoesNotThrow()
+        public void FieldThenProperty_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateExpression<Outer, string>(x => x.Prop.Value));
+            Expression<Func<FieldHolder<PropertyHolder<string>>, string>> expression = x => x.Value.Value;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void MixedFieldThenProperty_DoesNotThrow()
+        public void NullableValueInMiddleOfChain_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateExpression<Outer, string>(x => x.Field.Value));
+            Expression<Func<PropertyHolder<PointStruct?>, int>> expression = x => x.Value!.Value.X;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateExpression(expression));
+        }
+
+        #endregion
+
+        #region Rejected
+
+        [Test]
+        public void MethodCall_ThrowsInvalidOperationException()
+        {
+            Expression<Func<PropertyHolder<string>, int>> expression = x => x.GetHashCode();
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void MethodCall_Throws()
+        public void Constant_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateExpression<Outer, int>(x => x.GetValue()));
+            Expression<Func<PropertyHolder<string>, string>> expression = x => "constant";
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void Constant_Throws()
+        public void Parameter_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateExpression<Outer, string>(x => "hello"));
+            Expression<Func<PropertyHolder<string>, PropertyHolder<string>>> expression = x => x;
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void BareParameter_Throws()
+        public void CapturedVariable_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateExpression<Outer, Outer>(x => x));
+            var holder = new PropertyHolder<string>();
+            Expression<Func<PropertyHolder<string>, string>> expression = x => holder.Value;
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
         }
 
         [Test]
-        public void CapturedVariable_Throws()
+        public void TrailingNullableValue_ThrowsInvalidOperationExceptionSuggestingNullableMember()
         {
-            var outer = new Outer();
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateExpression<Outer, string>(x => outer.Name));
+            Expression<Func<PropertyHolder<PointStruct?>, PointStruct>> expression = x => x.Value!.Value;
+
+            var ex = Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
+
+            Assert.That(ex.Message, Does.Contain("'x => x.Value'"));
         }
 
-        [Test]
-        public void TrailingNullableValue_ThrowsSuggestingNullableMember()
-        {
-            var ex = Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateExpression<Outer, Point>(x => x.NullablePoint!.Value));
-
-            Assert.That(ex.Message, Does.Contain("'x => x.NullablePoint'"));
-        }
-
-        [Test]
-        public void NullableValueMidChain_DoesNotThrow()
-        {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateExpression<Outer, int>(x => x.NullablePoint!.Value.X));
-        }
+        #endregion
     }
 }

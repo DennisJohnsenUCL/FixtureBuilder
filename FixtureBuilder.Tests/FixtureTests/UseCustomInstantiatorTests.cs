@@ -2,99 +2,82 @@
 {
     internal sealed class UseCustomInstantiatorTests
     {
-        private class SimpleClass
+        [Test]
+        public void BuildsInstantiatorInstance()
         {
-            public string Name { get; set; } = string.Empty;
-            public int Value { get; set; }
-        }
+            var instance = new PropertyHolder<string>();
+            var fixture = Fixture.New<PropertyHolder<string>>();
 
-        private class ClassWithParameterizedConstructor(string name, int age)
-        {
-            public string Name { get; } = name;
-            public int Age { get; } = age;
+            var result = fixture.UseCustomInstantiator(() => instance).Build();
+
+            Assert.That(result, Is.SameAs(instance));
         }
 
         [Test]
-        public void CreatesInstanceFromFactory()
+        public void BuildCalledTwice_ReturnsSameInstance()
         {
-            var fixture = Fixture.New<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass());
-
-            var result = TestHelper.GetFixture(fixture);
-
-            Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        public void FactoryValues_ArePreserved()
-        {
-            var fixture = Fixture.New<ClassWithParameterizedConstructor>()
-                .UseCustomInstantiator(() => new ClassWithParameterizedConstructor("Alice", 30));
-
-            var result = TestHelper.GetFixture(fixture);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Name, Is.EqualTo("Alice"));
-                Assert.That(result.Age, Is.EqualTo(30));
-            }
-        }
-
-        [Test]
-        public void FollowedByConfiguration_AppliesBoth()
-        {
-            var result = Fixture.New<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass { Name = "Alice" })
-                .With(x => x.Value, 42)
-                .Build();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result.Name, Is.EqualTo("Alice"));
-                Assert.That(result.Value, Is.EqualTo(42));
-            }
-        }
-
-        [Test]
-        public void Configuration_OverridesFactoryValue()
-        {
-            var result = Fixture.New<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass { Name = "Alice" })
-                .With(x => x.Name, "Bob")
-                .Build();
-
-            Assert.That(result.Name, Is.EqualTo("Bob"));
-        }
-
-        [Test]
-        public void SubsequentBuild_ReturnsSameInstance()
-        {
-            var fixture = Fixture.New<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass());
+            var fixture = Fixture.New<PropertyHolder<string>>();
+            fixture.UseCustomInstantiator(() => new PropertyHolder<string>());
 
             var first = fixture.Build();
             var second = fixture.Build();
 
-            Assert.That(first, Is.SameAs(second));
+            Assert.That(second, Is.SameAs(first));
+        }
+
+        private class TwoPropertiesClass
+        {
+            public string First { get; set; } = null!;
+            public string Second { get; set; } = null!;
         }
 
         [Test]
-        public void ThrowsExceptionForNullReturningInstantiators()
+        public void FollowedByConfiguration_KeepsInstantiatorValuesAndAppliesConfiguration()
         {
-            Assert.Throws<InvalidOperationException>(() => Fixture.New<SimpleClass>()
-                .UseCustomInstantiator(() => null!));
+            var fixture = Fixture.New<TwoPropertiesClass>();
+
+            var result = fixture
+                .UseCustomInstantiator(() => new TwoPropertiesClass { First = "instantiator" })
+                .With(x => x.Second, "configured")
+                .Build();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.First, Is.EqualTo("instantiator"));
+                Assert.That(result.Second, Is.EqualTo("configured"));
+            }
+        }
+
+        [Test]
+        public void FollowedByConfiguration_ConfigurationOverridesInstantiatorValue()
+        {
+            var fixture = Fixture.New<PropertyHolder<string>>();
+
+            var result = fixture
+                .UseCustomInstantiator(() => new PropertyHolder<string> { Value = "instantiator" })
+                .With(x => x.Value, "configured")
+                .Build();
+
+            Assert.That(result.Value, Is.EqualTo("configured"));
+        }
+
+        [Test]
+        public void InstantiatorReturnsNull_ThrowsInvalidOperationException()
+        {
+            var fixture = Fixture.New<PropertyHolder<string>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.UseCustomInstantiator(() => null!));
         }
 
         [Test]
         public void AlreadyConstructed_ThrowsInvalidOperationException()
         {
-            var fixture = Fixture.New<SimpleClass>()
-                .UseCustomInstantiator(() => new SimpleClass());
+            var fixture = Fixture.New<PropertyHolder<string>>();
+            fixture.UseCustomInstantiator(() => new PropertyHolder<string>());
 
-            var ex = Assert.Throws<InvalidOperationException>(() =>
-                ((IFixtureConstructor<SimpleClass>)fixture).UseCustomInstantiator(() => new SimpleClass()));
+            var ex = Assert.Throws<InvalidOperationException>(() => fixture.UseCustomInstantiator(() => new PropertyHolder<string>()));
 
-            Assert.That(ex!.Message, Does.Contain("already constructed"));
+            Assert.That(ex.Message, Does.Contain("already constructed"));
         }
     }
 }

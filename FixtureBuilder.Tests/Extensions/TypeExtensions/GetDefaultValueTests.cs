@@ -1,27 +1,25 @@
-using FixtureBuilder.Extensions;
+﻿using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetDefaultValueTests
     {
-        private struct StructWithInitializer
-        {
-            public int Value = 42;
-
-            public StructWithInitializer() { }
-        }
+        #region Arguments
 
         [Test]
-        public void GetDefaultValue_NullType_ThrowsArgumentNullException()
+        public void NullType_ThrowsArgumentNullException()
         {
             Type type = null!;
 
-            Assert.Throws<ArgumentNullException>(() =>
-                type.GetDefaultValue());
+            Assert.Throws<ArgumentNullException>(() => type.GetDefaultValue());
         }
 
+        #endregion
+
+        #region Value types
+
         [Test]
-        public void GetDefaultValue_PrimitiveValueType_ReturnsZero()
+        public void PrimitiveValueType_ReturnsZero()
         {
             var result = typeof(int).GetDefaultValue();
 
@@ -29,35 +27,42 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetDefaultValue_Enum_ReturnsZeroValue()
+        public void Enum_ReturnsZeroValue()
         {
             var result = typeof(DayOfWeek).GetDefaultValue();
 
-            Assert.That(result, Is.EqualTo(default(DayOfWeek)));
+            Assert.That(result, Is.EqualTo(DayOfWeek.Sunday));
         }
 
         [Test]
-        public void GetDefaultValue_Struct_ReturnsDefaultStruct()
+        public void Struct_ReturnsZeroedStruct()
         {
-            var result = typeof(CancellationToken).GetDefaultValue();
+            var result = typeof(PointStruct).GetDefaultValue();
 
-            Assert.That(result, Is.EqualTo(default(CancellationToken)));
+            Assert.That(result, Is.EqualTo(default(PointStruct)));
         }
 
-        [Test]
-        public void GetDefaultValue_StructWithInitializer_DoesNotRunConstructor()
+        private struct FieldInitializerStruct
         {
-            var result = typeof(StructWithInitializer).GetDefaultValue();
+            public int Value = 42;
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.TypeOf<StructWithInitializer>());
-                Assert.That(((StructWithInitializer)result!).Value, Is.Zero);
-            }
+            public FieldInitializerStruct() { }
         }
 
         [Test]
-        public void GetDefaultValue_NullableValueType_ReturnsNull()
+        public void StructWithFieldInitializer_ReturnsZeroedStructWithoutRunningConstructor()
+        {
+            var result = typeof(FieldInitializerStruct).GetDefaultValue();
+
+            Assert.That(result, Is.EqualTo(default(FieldInitializerStruct)));
+        }
+
+        #endregion
+
+        #region Types without a value-type default
+
+        [Test]
+        public void NullableValueType_ReturnsNull()
         {
             var result = typeof(int?).GetDefaultValue();
 
@@ -65,7 +70,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetDefaultValue_ReferenceType_ReturnsNull()
+        public void ReferenceType_ReturnsNull()
         {
             var result = typeof(string).GetDefaultValue();
 
@@ -73,7 +78,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetDefaultValue_Interface_ReturnsNull()
+        public void Interface_ReturnsNull()
         {
             var result = typeof(IDisposable).GetDefaultValue();
 
@@ -81,11 +86,15 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetDefaultValue_ByRefValueType_ReturnsNull()
+        public void ByRefValueType_ReturnsNull()
         {
-            var result = typeof(int).MakeByRefType().GetDefaultValue();
+            var type = typeof(int).MakeByRefType();
+
+            var result = type.GetDefaultValue();
 
             Assert.That(result, Is.Null);
         }
+
+        #endregion
     }
 }

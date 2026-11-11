@@ -8,45 +8,51 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 {
     internal sealed class GetDictionaryEnumerableTypesTests
     {
+        #region Arguments
+
         [Test]
-        public void GetDictionaryEnumerableTypes_NullType_ThrowsArgumentNullException()
+        public void NullType_ThrowsArgumentNullException()
         {
             Type type = null!;
 
-            Assert.Throws<ArgumentNullException>(() =>
-                type.GetDictionaryEnumerableTypes());
+            Assert.Throws<ArgumentNullException>(() => type.GetDictionaryEnumerableTypes());
         }
 
-        #region Non-dictionary types return (null, null)
+        #endregion
 
-        [Test]
-        public void GetDictionaryEnumerableTypes_List_ReturnsNulls()
+        #region Generic dictionaries
+
+        [TestCase(typeof(Dictionary<string, int>), typeof(string), typeof(int))]
+        [TestCase(typeof(SortedDictionary<Guid, DateTime>), typeof(Guid), typeof(DateTime))]
+        [TestCase(typeof(ConcurrentDictionary<int, string>), typeof(int), typeof(string))]
+        [TestCase(typeof(SortedList<string, double>), typeof(string), typeof(double))]
+        [TestCase(typeof(ImmutableDictionary<string, int>), typeof(string), typeof(int))]
+        [TestCase(typeof(ImmutableSortedDictionary<int, string>), typeof(int), typeof(string))]
+        [TestCase(typeof(IDictionary<string, int>), typeof(string), typeof(int))]
+        [TestCase(typeof(IReadOnlyDictionary<long, bool>), typeof(long), typeof(bool))]
+        [TestCase(typeof(IImmutableDictionary<string, object>), typeof(string), typeof(object))]
+        [TestCase(typeof(Dictionary<string, List<int>>), typeof(string), typeof(List<int>))]
+        [TestCase(typeof(Dictionary<string, Dictionary<int, bool>>), typeof(string), typeof(Dictionary<int, bool>))]
+        public void GenericDictionary_ReturnsKeyAndValueTypes(Type type, Type expectedKeyType, Type expectedValueType)
         {
-            var (keyType, valueType) = typeof(List<int>).GetDictionaryEnumerableTypes();
+            var (keyType, valueType) = type.GetDictionaryEnumerableTypes();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(keyType, Is.Null);
-                Assert.That(valueType, Is.Null);
+                Assert.That(keyType, Is.EqualTo(expectedKeyType));
+                Assert.That(valueType, Is.EqualTo(expectedValueType));
             }
         }
 
-        [Test]
-        public void GetDictionaryEnumerableTypes_String_ReturnsNulls()
+        private class StringEnumeratingHashtable : Hashtable, IEnumerable<string>
         {
-            var (keyType, valueType) = typeof(string).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.Null);
-                Assert.That(valueType, Is.Null);
-            }
+            IEnumerator<string> IEnumerable<string>.GetEnumerator() => throw new NotSupportedException();
         }
 
         [Test]
-        public void GetDictionaryEnumerableTypes_Int_ReturnsNulls()
+        public void DictionaryNotEnumeratingKeyValuePairs_ReturnsNulls()
         {
-            var (keyType, valueType) = typeof(int).GetDictionaryEnumerableTypes();
+            var (keyType, valueType) = typeof(StringEnumeratingHashtable).GetDictionaryEnumerableTypes();
 
             using (Assert.EnterMultipleScope())
             {
@@ -57,10 +63,10 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 
         #endregion
 
-        #region Non-generic dictionaries return (object, object)
+        #region Non-generic dictionaries
 
         [Test]
-        public void GetDictionaryEnumerableTypes_Hashtable_ReturnsObjectObject()
+        public void Hashtable_ReturnsObjects()
         {
             var (keyType, valueType) = typeof(Hashtable).GetDictionaryEnumerableTypes();
 
@@ -72,7 +78,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetDictionaryEnumerableTypes_OrderedDictionary_ReturnsObjectObject()
+        public void OrderedDictionary_ReturnsObjects()
         {
             var (keyType, valueType) = typeof(OrderedDictionary).GetDictionaryEnumerableTypes();
 
@@ -85,149 +91,41 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
 
         #endregion
 
-        #region Generic dictionary concrete types
+        #region Other types
 
         [Test]
-        public void GetDictionaryEnumerableTypes_DictionaryStringInt_ReturnsStringInt()
+        public void List_ReturnsNulls()
         {
-            var (keyType, valueType) = typeof(Dictionary<string, int>).GetDictionaryEnumerableTypes();
+            var (keyType, valueType) = typeof(List<int>).GetDictionaryEnumerableTypes();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(int)));
+                Assert.That(keyType, Is.Null);
+                Assert.That(valueType, Is.Null);
             }
         }
 
         [Test]
-        public void GetDictionaryEnumerableTypes_SortedDictionary_ReturnsCorrectTypes()
+        public void String_ReturnsNulls()
         {
-            var (keyType, valueType) = typeof(SortedDictionary<Guid, DateTime>).GetDictionaryEnumerableTypes();
+            var (keyType, valueType) = typeof(string).GetDictionaryEnumerableTypes();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(keyType, Is.EqualTo(typeof(Guid)));
-                Assert.That(valueType, Is.EqualTo(typeof(DateTime)));
+                Assert.That(keyType, Is.Null);
+                Assert.That(valueType, Is.Null);
             }
         }
 
         [Test]
-        public void GetDictionaryEnumerableTypes_ConcurrentDictionary_ReturnsCorrectTypes()
+        public void ValueType_ReturnsNulls()
         {
-            var (keyType, valueType) = typeof(ConcurrentDictionary<int, string>).GetDictionaryEnumerableTypes();
+            var (keyType, valueType) = typeof(int).GetDictionaryEnumerableTypes();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(keyType, Is.EqualTo(typeof(int)));
-                Assert.That(valueType, Is.EqualTo(typeof(string)));
-            }
-        }
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_SortedList_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(SortedList<string, double>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(double)));
-            }
-        }
-
-        #endregion
-
-        #region Generic dictionary interfaces
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_IDictionaryInterface_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(IDictionary<string, int>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(int)));
-            }
-        }
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_IReadOnlyDictionaryInterface_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(IReadOnlyDictionary<long, bool>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(long)));
-                Assert.That(valueType, Is.EqualTo(typeof(bool)));
-            }
-        }
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_IImmutableDictionaryInterface_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(IImmutableDictionary<string, object>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(object)));
-            }
-        }
-
-        #endregion
-
-        #region Immutable dictionary implementations
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_ImmutableDictionary_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(ImmutableDictionary<string, int>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(int)));
-            }
-        }
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_ImmutableSortedDictionary_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(ImmutableSortedDictionary<int, string>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(int)));
-                Assert.That(valueType, Is.EqualTo(typeof(string)));
-            }
-        }
-
-        #endregion
-
-        #region Nested generic types
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_NestedGenericValue_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(Dictionary<string, List<int>>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(List<int>)));
-            }
-        }
-
-        [Test]
-        public void GetDictionaryEnumerableTypes_DictionaryOfDictionaries_ReturnsCorrectTypes()
-        {
-            var (keyType, valueType) = typeof(Dictionary<string, Dictionary<int, bool>>).GetDictionaryEnumerableTypes();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(keyType, Is.EqualTo(typeof(string)));
-                Assert.That(valueType, Is.EqualTo(typeof(Dictionary<int, bool>)));
+                Assert.That(keyType, Is.Null);
+                Assert.That(valueType, Is.Null);
             }
         }
 

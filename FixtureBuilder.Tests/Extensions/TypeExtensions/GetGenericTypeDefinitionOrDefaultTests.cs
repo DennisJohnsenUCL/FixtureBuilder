@@ -5,32 +5,26 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
     internal sealed class GetGenericTypeDefinitionOrDefaultTests
     {
         [Test]
-        public void GetGenericTypeDefinitionOrDefault_NullType_ThrowsArgumentNullException()
+        public void NullType_ThrowsArgumentNullException()
         {
             Type type = null!;
 
-            Assert.Throws<ArgumentNullException>(() =>
-                type.GetGenericTypeDefinitionOrDefault());
+            Assert.Throws<ArgumentNullException>(() => type.GetGenericTypeDefinitionOrDefault());
         }
 
-        [Test]
-        public void GetGenericTypeDefinitionOrDefault_ClosedGenericType_ReturnsDefinition()
+        [TestCase(typeof(List<int>), typeof(List<>))]
+        [TestCase(typeof(Dictionary<,>), typeof(Dictionary<,>))]
+        [TestCase(typeof(int?), typeof(Nullable<>))]
+        [TestCase(typeof(IList<string>), typeof(IList<>))]
+        public void GenericType_ReturnsGenericTypeDefinition(Type type, Type expectedDefinition)
         {
-            var result = typeof(List<int>).GetGenericTypeDefinitionOrDefault();
+            var result = type.GetGenericTypeDefinitionOrDefault();
 
-            Assert.That(result, Is.EqualTo(typeof(List<>)));
+            Assert.That(result, Is.EqualTo(expectedDefinition));
         }
 
         [Test]
-        public void GetGenericTypeDefinitionOrDefault_OpenGenericType_ReturnsDefinition()
-        {
-            var result = typeof(Dictionary<,>).GetGenericTypeDefinitionOrDefault();
-
-            Assert.That(result, Is.EqualTo(typeof(Dictionary<,>)));
-        }
-
-        [Test]
-        public void GetGenericTypeDefinitionOrDefault_NonGenericClass_ReturnsNull()
+        public void NonGenericClass_ReturnsNull()
         {
             var result = typeof(string).GetGenericTypeDefinitionOrDefault();
 
@@ -38,7 +32,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetGenericTypeDefinitionOrDefault_NonGenericValueType_ReturnsNull()
+        public void NonGenericValueType_ReturnsNull()
         {
             var result = typeof(int).GetGenericTypeDefinitionOrDefault();
 
@@ -46,23 +40,7 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void GetGenericTypeDefinitionOrDefault_NullableValueType_ReturnsNullableDefinition()
-        {
-            var result = typeof(int?).GetGenericTypeDefinitionOrDefault();
-
-            Assert.That(result, Is.EqualTo(typeof(Nullable<>)));
-        }
-
-        [Test]
-        public void GetGenericTypeDefinitionOrDefault_GenericInterface_ReturnsDefinition()
-        {
-            var result = typeof(IList<string>).GetGenericTypeDefinitionOrDefault();
-
-            Assert.That(result, Is.EqualTo(typeof(IList<>)));
-        }
-
-        [Test]
-        public void GetGenericTypeDefinitionOrDefault_NonGenericInterface_ReturnsNull()
+        public void NonGenericInterface_ReturnsNull()
         {
             var result = typeof(IDisposable).GetGenericTypeDefinitionOrDefault();
 

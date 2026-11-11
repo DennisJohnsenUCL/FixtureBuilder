@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0060
-
-using FixtureBuilder.Configuration.ValueConverters.Converters;
+﻿using FixtureBuilder.Configuration.ValueConverters.Converters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -9,154 +7,127 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
 {
     internal sealed class ImplicitConverterTests
     {
-        private static Mock<IFixtureContext> CreateContext(bool allowImplicit)
+        private class ImplicitToIntClass
         {
-            var options = new FixtureOptions { AllowImplicitConversion = allowImplicit };
-            var context = new Mock<IFixtureContext>();
-            context.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-            return context;
-        }
+            public int Number;
 
-        private class SourceDefined
-        {
-            public int Value;
-            public static implicit operator int(SourceDefined s) => s.Value;
-        }
-
-        private struct TargetDefined
-        {
-            public int Value;
-            public static implicit operator TargetDefined(int v) => new() { Value = v };
+            public static implicit operator int(ImplicitToIntClass source) => source.Number;
         }
 
         [Test]
-        public void Constructor_Constructs()
+        public void Convert_OperatorOnSourceType_ReturnsConvertedValue()
         {
-            Assert.DoesNotThrow(() => new ImplicitConverter());
-        }
-
-        [Test]
-        public void Convert_ImplicitOnSourceType_Converts()
-        {
-            var target = new TypeRequest(typeof(int), typeof(int));
-            var value = new SourceDefined { Value = 42 };
-            var context = CreateContext(true).Object;
-
             var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(int), typeof(object));
+            var value = new ImplicitToIntClass { Number = 42 };
+            var options = new FixtureOptions { AllowImplicitConversion = true };
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
 
             Assert.That(result, Is.EqualTo(42));
         }
 
         [Test]
-        public void Convert_ImplicitOnTargetType_Converts()
+        public void Convert_ImplicitConversionNotAllowed_ReturnsNoResult()
         {
-            var target = new TypeRequest(typeof(TargetDefined), typeof(TargetDefined));
-            var value = 42;
-            var context = CreateContext(true).Object;
-
             var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(int), typeof(object));
+            var value = new ImplicitToIntClass { Number = 42 };
 
-            var result = converter.Convert(target, value, context);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.TypeOf<TargetDefined>());
-                Assert.That(((TargetDefined)result!).Value, Is.EqualTo(42));
-            }
-        }
-
-        [Test]
-        public void Convert_NoImplicitOperatorExists_ReturnsNoResult()
-        {
-            var target = new TypeRequest(typeof(string), typeof(string));
-            var value = 42;
-            var context = CreateContext(true).Object;
-
-            var converter = new ImplicitConverter();
-
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
-        [Test]
-        public void Convert_AllowImplicitConversionDisabled_ReturnsNoResult()
+        private struct ImplicitFromIntStruct
         {
-            var target = new TypeRequest(typeof(int), typeof(int));
-            var value = new SourceDefined { Value = 42 };
-            var context = CreateContext(false).Object;
+            public int Number;
 
-            var converter = new ImplicitConverter();
-
-            var result = converter.Convert(target, value, context);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
+            public static implicit operator ImplicitFromIntStruct(int number) => new() { Number = number };
         }
 
-        private class Wrapper<T>
+        [Test]
+        public void Convert_OperatorOnTargetType_ReturnsConvertedValue()
+        {
+            var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(ImplicitFromIntStruct), typeof(object));
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+
+            var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
+
+            var converted = (ImplicitFromIntStruct)result!;
+            Assert.That(converted.Number, Is.EqualTo(42));
+        }
+
+        private class ImplicitFromValueClass<T>
         {
             public T Value = default!;
-            public static implicit operator Wrapper<T>(T value) => new() { Value = value };
+
+            public static implicit operator ImplicitFromValueClass<T>(T value) => new() { Value = value };
         }
 
         [Test]
-        public void Convert_GenericTypeWithImplicit_Converts()
+        public void Convert_OperatorOnGenericTargetType_ReturnsConvertedValue()
         {
-            var target = new TypeRequest(typeof(Wrapper<int>), typeof(Wrapper<int>));
-            var value = 42;
-            var context = CreateContext(true).Object;
-
             var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(ImplicitFromValueClass<int>), typeof(object));
+            var options = new FixtureOptions { AllowImplicitConversion = true };
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.TypeOf<Wrapper<int>>());
-                Assert.That(((Wrapper<int>)result!).Value, Is.EqualTo(42));
-            }
+            var converted = (ImplicitFromValueClass<int>)result!;
+            Assert.That(converted.Value, Is.EqualTo(42));
         }
 
-        private class AcceptsBase
+        private class BaseClass;
+
+        private class DerivedClass : BaseClass;
+
+        private class ImplicitFromBaseClass
         {
-            public static implicit operator AcceptsBase(Base b) => new();
-        }
-
-        private class Base { }
-        private class Derived : Base { }
-
-        [Test]
-        public void Convert_ImplicitAcceptsBaseType_ValueIsDerived_Converts()
-        {
-            var target = new TypeRequest(typeof(AcceptsBase), typeof(AcceptsBase));
-            var value = new Derived();
-            var context = CreateContext(true).Object;
-
-            var converter = new ImplicitConverter();
-
-            var result = converter.Convert(target, value, context);
-
-            Assert.That(result, Is.TypeOf<AcceptsBase>());
-        }
-
-        private class ExplicitOnly
-        {
-            public int Value;
-            public static explicit operator int(ExplicitOnly e) => e.Value;
+            public static implicit operator ImplicitFromBaseClass(BaseClass value) => new();
         }
 
         [Test]
-        public void Convert_ExplicitConversionExists_ButNoImplicit_ReturnsNoResult()
+        public void Convert_OperatorAcceptsBaseOfValueType_ReturnsConvertedValue()
         {
-            var target = new TypeRequest(typeof(int), typeof(int));
-            var value = new ExplicitOnly { Value = 42 };
-            var context = CreateContext(true).Object;
-
             var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(ImplicitFromBaseClass), typeof(object));
+            var options = new FixtureOptions { AllowImplicitConversion = true };
 
-            var result = converter.Convert(target, value, context);
+            var result = converter.Convert(request, new DerivedClass(), Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
+
+            Assert.That(result, Is.TypeOf<ImplicitFromBaseClass>());
+        }
+
+        [Test]
+        public void Convert_NoOperator_ReturnsNoResult()
+        {
+            var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(string), typeof(object));
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+
+            var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        private class ExplicitToIntClass
+        {
+            public int Number;
+
+            public static explicit operator int(ExplicitToIntClass source) => source.Number;
+        }
+
+        [Test]
+        public void Convert_OnlyExplicitOperator_ReturnsNoResult()
+        {
+            var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(int), typeof(object));
+            var value = new ExplicitToIntClass { Number = 42 };
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

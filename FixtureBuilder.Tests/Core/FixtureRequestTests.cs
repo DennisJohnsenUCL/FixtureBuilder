@@ -1,68 +1,77 @@
-﻿#pragma warning disable CS0649
-
-using System.Reflection;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Tests.Core
 {
     internal sealed class FixtureRequestTests
     {
-        private class SampleClass
+        [Test]
+        public void Constructor_SetsRootType()
         {
-            public string Property { get; set; } = "";
-            public int Field;
+            var property = typeof(PropertyHolder<string>).GetProperty("Value")!;
 
-            public SampleClass(string parameter)
+            var request = new FixtureRequest(typeof(string), property, typeof(PropertyHolder<PropertyHolder<string>>));
+
+            Assert.That(request.RootType, Is.EqualTo(typeof(PropertyHolder<PropertyHolder<string>>)));
+        }
+
+        [Test]
+        public void Constructor_PropertySource_SetsNameAndOriginalTypeFromProperty()
+        {
+            var property = typeof(PropertyHolder<int?>).GetProperty("Value")!;
+
+            var request = new FixtureRequest(typeof(int), property, typeof(object));
+
+            using (Assert.EnterMultipleScope())
             {
-                Property = parameter;
+                Assert.That(request.Name, Is.EqualTo("Value"));
+                Assert.That(request.OriginalType, Is.EqualTo(typeof(int?)));
             }
         }
 
-        private static PropertyInfo GetPropertyInfo() =>
-            typeof(SampleClass).GetProperty(nameof(SampleClass.Property))!;
-
-        private static FieldInfo GetFieldInfo() =>
-            typeof(SampleClass).GetField(nameof(SampleClass.Field))!;
-
-        private static ParameterInfo GetParameterInfo() =>
-            typeof(SampleClass).GetConstructors()[0].GetParameters()[0];
-
         [Test]
-        public void Constructor_FullConstructor_SetsRootType()
+        public void Constructor_FieldSource_SetsNameAndOriginalTypeFromField()
         {
-            var request = new FixtureRequest(typeof(string), GetPropertyInfo(), typeof(double));
+            var field = typeof(FieldHolder<int?>).GetField("Value")!;
 
-            Assert.That(request.RootType, Is.EqualTo(typeof(double)));
+            var request = new FixtureRequest(typeof(int), field, typeof(object));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(request.Name, Is.EqualTo("Value"));
+                Assert.That(request.OriginalType, Is.EqualTo(typeof(int?)));
+            }
         }
 
         [Test]
-        public void Constructor_ParameterSource_SetsNameFromParameter()
+        public void Constructor_ParameterSource_SetsNameAndOriginalTypeFromParameter()
         {
-            var request = new FixtureRequest(typeof(string), GetParameterInfo(), typeof(double));
+            static void Method(int? parameter) { }
+            var parameter = TestHelper.FirstParameter(Method);
 
-            Assert.That(request.Name, Is.EqualTo("parameter"));
+            var request = new FixtureRequest(typeof(int), parameter, typeof(object));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(request.Name, Is.EqualTo("parameter"));
+                Assert.That(request.OriginalType, Is.EqualTo(typeof(int?)));
+            }
         }
 
         [Test]
-        public void Constructor_PropertySource_SetsNameFromProperty()
+        public void Constructor_ByRefParameterSource_SetsOriginalTypeToElementType()
         {
-            var request = new FixtureRequest(typeof(string), GetPropertyInfo(), typeof(double));
+            static void Method(in int parameter) { }
+            var parameter = TestHelper.FirstParameter(Method);
 
-            Assert.That(request.Name, Is.EqualTo(nameof(SampleClass.Property)));
+            var request = new FixtureRequest(typeof(int), parameter, typeof(object));
+
+            Assert.That(request.OriginalType, Is.EqualTo(typeof(int)));
         }
 
         [Test]
-        public void Constructor_FieldSource_SetsNameFromField()
+        public void Constructor_SourceNotParameterPropertyOrField_ThrowsArgumentException()
         {
-            var request = new FixtureRequest(typeof(int), GetFieldInfo(), typeof(double));
-
-            Assert.That(request.Name, Is.EqualTo(nameof(SampleClass.Field)));
-        }
-
-        [Test]
-        public void Constructor_UnsupportedSource_ThrowsArgumentException()
-        {
-            Assert.Throws<ArgumentException>(() => new FixtureRequest(typeof(string), "source", typeof(double)));
+            Assert.Throws<ArgumentException>(() => new FixtureRequest(typeof(string), "source", typeof(object)));
         }
     }
 }

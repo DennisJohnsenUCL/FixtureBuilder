@@ -7,50 +7,41 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class PrimitiveNumberProviderTests
     {
-        private PrimitiveNumberProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
+        [TestCase(typeof(byte))]
+        [TestCase(typeof(sbyte))]
+        [TestCase(typeof(short))]
+        [TestCase(typeof(ushort))]
+        [TestCase(typeof(int))]
+        [TestCase(typeof(uint))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(ulong))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(decimal))]
+        public void ResolveValue_NumberType_ReturnsNumberFromOneToTen(Type numberType)
         {
-            _sut = new PrimitiveNumberProvider();
-            _contextMock = new Mock<IFixtureContext>();
+            var provider = new PrimitiveNumberProvider();
+            var request = TestHelper.MakeRequest(numberType);
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf(numberType));
+                Assert.That(result, Is.InRange(1, 10));
+            }
         }
 
-        [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(char))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            Assert.DoesNotThrow(() => new PrimitiveNumberProvider());
-        }
-
-        [TestCase(typeof(byte), TestName = "Resolve_Byte_ReturnsNonZeroValue")]
-        [TestCase(typeof(sbyte), TestName = "Resolve_SByte_ReturnsNonZeroValue")]
-        [TestCase(typeof(short), TestName = "Resolve_Short_ReturnsNonZeroValue")]
-        [TestCase(typeof(ushort), TestName = "Resolve_UShort_ReturnsNonZeroValue")]
-        [TestCase(typeof(int), TestName = "Resolve_Int_ReturnsNonZeroValue")]
-        [TestCase(typeof(uint), TestName = "Resolve_UInt_ReturnsNonZeroValue")]
-        [TestCase(typeof(long), TestName = "Resolve_Long_ReturnsNonZeroValue")]
-        [TestCase(typeof(ulong), TestName = "Resolve_ULong_ReturnsNonZeroValue")]
-        [TestCase(typeof(float), TestName = "Resolve_Float_ReturnsNonZeroValue")]
-        [TestCase(typeof(double), TestName = "Resolve_Double_ReturnsNonZeroValue")]
-        [TestCase(typeof(decimal), TestName = "Resolve_Decimal_ReturnsNonZeroValue")]
-        public void Resolve_NumericType_ReturnsNonZeroValue(Type numericType)
-        {
-            var request = TestHelper.MakeRequest(numericType);
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.Not.EqualTo(Convert.ChangeType(0, numericType)));
-        }
-
-        [TestCase(typeof(string), TestName = "Resolve_String_ReturnsNoResult")]
-        [TestCase(typeof(bool), TestName = "Resolve_Bool_ReturnsNoResult")]
-        [TestCase(typeof(char), TestName = "Resolve_Char_ReturnsNoResult")]
-        public void Resolve_UnsupportedType_ReturnsNoResult(Type type)
-        {
+            var provider = new PrimitiveNumberProvider();
             var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

@@ -1,77 +1,82 @@
-﻿using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
+﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class NewTests
     {
-        private FixtureFactory _factory;
-
-        public class TestClass { }
-        public interface ITestInterface { }
-        public abstract class AbstractTestClass { }
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void WithoutInstance_ReturnsFixtureConstructor()
         {
-            _factory = new FixtureFactory();
+            var method = typeof(FixtureFactory).GetMethods().Single(candidate => candidate.Name == nameof(FixtureFactory.New) && candidate.GetParameters().Length == 0);
+
+            var returnType = method.ReturnType.GetGenericTypeDefinition();
+
+            Assert.That(returnType, Is.EqualTo(typeof(IFixtureConstructor<>)));
         }
 
         [Test]
-        public void New_ReturnsFixtureConstructor()
+        public void WithInstance_ReturnsFixtureConfigurator()
         {
-            var result = _factory.New<TestClass>();
-            Assert.That(result, Is.InstanceOf<IFixtureConstructor<TestClass>>());
+            var method = typeof(FixtureFactory).GetMethods().Single(candidate => candidate.Name == nameof(FixtureFactory.New) && candidate.GetParameters().Length == 1);
+
+            var returnType = method.ReturnType.GetGenericTypeDefinition();
+
+            Assert.That(returnType, Is.EqualTo(typeof(IFixtureConfigurator<>)));
         }
 
         [Test]
-        public void New_WithInstance_ReturnsFixtureConfigurator()
+        public void WithoutInstance_UsesFactoryConfiguration()
         {
-            var result = _factory.New(new TestClass());
-            Assert.That(result, Is.InstanceOf<IFixtureConfigurator<TestClass>>());
+            var factory = new FixtureFactory().With("injected");
+
+            var result = factory.New<StringConstructorClass>().Build();
+
+            Assert.That(result.Value, Is.EqualTo("injected"));
         }
 
         [Test]
-        public void New_WithNullInstance_Throws()
+        public void WithInstance_BuildsThatInstance()
         {
-            Assert.Throws<ArgumentNullException>(() => _factory.New<TestClass>(null!));
+            var factory = new FixtureFactory();
+            var instance = new ConstructorSetsValueClass();
+
+            var result = factory.New(instance).Build();
+
+            Assert.That(result, Is.SameAs(instance));
         }
 
         [Test]
-        public void New_InterfaceType_Throws()
+        public void WithInstance_UsesFactoryConfiguration()
         {
-            Assert.Throws<InvalidOperationException>(() => _factory.New<ITestInterface>());
+            var factory = new FixtureFactory().With("injected");
+            var instance = new PropertyHolder<StringConstructorClass>();
+
+            var result = factory.New(instance).Instantiate(x => x.Value).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("injected"));
         }
 
         [Test]
-        public void New_AbstractType_Throws()
+        public void InterfaceType_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => _factory.New<AbstractTestClass>());
+            var factory = new FixtureFactory();
+
+            Assert.Throws<InvalidOperationException>(() => factory.New<IMarkerInterface>());
         }
 
         [Test]
-        public void New_WithOptions_ReturnsFixtureConstructor()
+        public void AbstractType_ThrowsInvalidOperationException()
         {
-            var factory = new FixtureFactory(FixtureOptions.Default);
-            var result = factory.New<TestClass>();
-            Assert.That(result, Is.Not.Null);
+            var factory = new FixtureFactory();
+
+            Assert.Throws<InvalidOperationException>(() => factory.New<AbstractClass>());
         }
 
         [Test]
-        public void New_FixtureUsesFactoryContext()
+        public void NullInstance_ThrowsArgumentNullException()
         {
-            var fixtureA = _factory.New<TestClass>();
-            var fixtureB = _factory.New<TestClass>();
+            var factory = new FixtureFactory();
+            ConstructorSetsValueClass instance = null!;
 
-            Assert.That(TestHelper.GetContext(fixtureA), Is.SameAs(TestHelper.GetContext(fixtureB)));
-        }
-
-        [Test]
-        public void New_WithInstance_FixtureUsesFactoryContext()
-        {
-            var fixtureA = _factory.New(new TestClass());
-            var fixtureB = _factory.New(new TestClass());
-
-            Assert.That(TestHelper.GetContext(fixtureA), Is.SameAs(TestHelper.GetContext(fixtureB)));
+            Assert.Throws<ArgumentNullException>(() => factory.New(instance));
         }
     }
 }

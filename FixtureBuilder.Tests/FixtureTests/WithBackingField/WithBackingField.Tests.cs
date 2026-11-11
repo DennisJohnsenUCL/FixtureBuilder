@@ -1,521 +1,259 @@
-﻿#pragma warning disable CS0649
-#pragma warning disable IDE0044 // Add readonly modifier
-
-using System.Reflection;
-using FixtureBuilder.Core;
-using Moq;
+﻿using System.Reflection;
 
 namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal sealed class WithBackingFieldTests
     {
-        private readonly static string _text = "Test string";
-        private readonly static int _number = 123;
+        #region Backing field lookup
 
-        class NormalClass
+        [Test]
+        public void AutoProperty_SetsBackingField()
         {
-            public string Text { get; set; } = null!;
-            public int Number { get; set; }
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+
+            var result = fixture.WithBackingField(x => x.Value, "value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void Property_SetsProperty()
+        public void ExplicitBackingField_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<NormalClass>();
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
 
-            fixture.WithBackingField(t => t.Text, _text);
+            var result = fixture.WithBackingField(x => x.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(_text));
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        private class MultiWordBackingFieldClass
+        {
+            private readonly string _multiWordValue = null!;
+            public string MultiWordValue => _multiWordValue;
         }
 
         [Test]
-        public void NotAClassProperty_ThrowsException()
+        public void ExplicitBackingFieldWithMultiWordName_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<TestClass>();
+            var fixture = TestHelper.MakeFixture<MultiWordBackingFieldClass>();
 
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.GetHashCode(), _number));
+            var result = fixture.WithBackingField(x => x.MultiWordValue, "value").Build();
+
+            Assert.That(result.MultiWordValue, Is.EqualTo("value"));
         }
 
         [Test]
-        public void NoClassPropertyBackingField_ThrowsException()
+        public void MethodCall_ThrowsInvalidOperationException()
         {
-            var fixture = TestHelper.MakeFixture<TestClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
 
-            fixture.With(t => t.Text, "test");
-
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Text.Length, _number));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.GetHashCode(), 123));
         }
 
         [Test]
-        public void ExplicitBackingField_SetsProperty()
+        public void PropertyWithoutFindableBackingField_ThrowsInvalidOperationException()
         {
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+            fixture.With(x => x.Value, "value");
 
-            fixture.WithBackingField(t => t.Text, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(_text));
-        }
-
-        class ExplicitBackingFieldNoUnderscoreClass
-        {
-            private readonly string _privateExplicitField = null!;
-            public string PrivateExplicitField => _privateExplicitField;
-        }
-        [Test]
-        public void ExplicitBackingFieldNoUnderscore_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldNoUnderscoreClass>();
-
-            fixture.WithBackingField(t => t.PrivateExplicitField, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.PrivateExplicitField, Is.EqualTo(_text));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.Value.Length, 123));
         }
 
         [Test]
-        public void DerivedProperty_SetsProperty()
+        public void Field_ThrowsInvalidOperationException()
         {
-            var fixture = TestHelper.MakeFixture<DerivedTestClass>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<string>>();
 
-            fixture.WithBackingField(t => t.Text, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(_text));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.Value, "value"));
         }
 
         [Test]
-        public void OverriddenProperty_SetsProperty()
+        public void ExpressionEndingInNullableValue_ThrowsInvalidOperationException()
         {
-            var fixture = TestHelper.MakeFixture<DerivedTestClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PointStruct?>>();
 
-            fixture.WithBackingField(t => t.Number, _number);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Number, Is.EqualTo(_number));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.Value!.Value, new PointStruct()));
         }
 
-        class VirtualAutoPropertyBase
+        [Test]
+        public void NotConstructed_ConstructsImplicitlyAndSetsBackingField()
         {
-            public virtual int Number { get; }
+            var fixture = Fixture.New<PropertyHolder<string>>();
+
+            var result = fixture.WithBackingField(x => x.Value, "value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
-        class UnrelatedFieldOverrideClass : VirtualAutoPropertyBase
+
+        #endregion
+
+        #region Inheritance and interfaces
+
+        [Test]
+        public void InheritedAutoProperty_SetsBackingField()
         {
-            private int _other;
-            public override int Number => _other;
+            var fixture = TestHelper.MakeFixture<DerivedClass>();
+
+            var result = fixture.WithBackingField(x => x.Value, "value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
-        // _other does not follow the naming conventions and no field name is passed, so the base auto-property's
+
+        private class NotOverridingClass : VirtualPropertyClass;
+
+        [Test]
+        public void InheritedVirtualAutoProperty_SetsBackingField()
+        {
+            var fixture = TestHelper.MakeFixture<NotOverridingClass>();
+
+            var result = fixture.WithBackingField(x => x.Value, 123).Build();
+
+            Assert.That(result.Value, Is.EqualTo(123));
+        }
+
+        [Test]
+        public void OverriddenAutoProperty_SetsBackingField()
+        {
+            var fixture = TestHelper.MakeFixture<OverridingClass>();
+
+            var result = fixture.WithBackingField(x => x.Value, 123).Build();
+
+            Assert.That(result.Value, Is.EqualTo(123));
+        }
+
+        private class GetOnlyVirtualPropertyClass
+        {
+            public virtual int Value { get; }
+        }
+
+        private class UnconventionalFieldOverrideClass : GetOnlyVirtualPropertyClass
+        {
+            private int _unconventionalName;
+            public override int Value => _unconventionalName;
+        }
+
+        // _unconventionalName does not follow the naming conventions and no field name is passed, so the base auto-property's
         // field is written instead. The getter cannot be inspected, so this cannot be detected.
         [Test]
-        public void OverriddenPropertyUnrelatedFieldName_WritesBaseAutoPropertyFieldSilently()
+        public void OverridingPropertyWithUnconventionalField_WritesBaseAutoPropertyFieldSilently()
         {
-            var fixture = TestHelper.MakeFixture<UnrelatedFieldOverrideClass>();
+            var fixture = TestHelper.MakeFixture<UnconventionalFieldOverrideClass>();
 
-            Assert.DoesNotThrow(() => fixture.WithBackingField(t => t.Number, _number));
+            var result = fixture.WithBackingField(x => x.Value, 123).Build();
 
-            var result = TestHelper.GetFixture(fixture);
-            var baseField = typeof(VirtualAutoPropertyBase).GetField("<Number>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var baseField = typeof(GetOnlyVirtualPropertyClass).GetField("<Value>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var baseFieldValue = baseField.GetValue(result);
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(baseField.GetValue(result), Is.EqualTo(_number));
-                Assert.That(result.Number, Is.Not.EqualTo(_number));
+                Assert.That(baseFieldValue, Is.EqualTo(123));
+                Assert.That(result.Value, Is.Zero);
             }
         }
 
         [Test]
-        public void ImplicitInterfaceImplementation_SetsProperty()
+        public void ImplicitInterfaceImplementation_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<InterfaceTestClass>();
+            var fixture = TestHelper.MakeFixture<ImplicitImplementationClass>();
 
-            fixture.WithBackingField(t => t.ImplicitProperty, _text);
+            var result = fixture.WithBackingField(x => x.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.ImplicitProperty, Is.EqualTo(_text));
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void CastToInterface_ImplicitImplementation_SetsProperty()
+        public void CastToInterface_ImplicitImplementation_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<InterfaceTestClass>().CastTo<ITestInterface>();
+            var fixture = TestHelper.MakeFixture<ImplicitImplementationClass>().CastTo<IValueInterface>();
 
-            fixture.WithBackingField(t => t.ImplicitProperty, _text);
+            var result = fixture.WithBackingField(x => x.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.ImplicitProperty, Is.EqualTo(_text));
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        #endregion
+
+        #region Member chains
+
+        [Test]
+        public void PropertyChain_SetsBackingFieldOfLastMember()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolder<string>>>();
+
+            var result = fixture.WithBackingField(x => x.Value.Value, "value").Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void TwiceDerivedClass_PropertyInDerivedClass_SetsProperty()
+        public void LongerPropertyChain_SetsBackingFieldOfLastMember()
         {
-            var fixture = TestHelper.MakeFixture<TwiceDerivedClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolder<PropertyHolder<int>>>>();
 
-            fixture.WithBackingField(p => p.Number, _number);
+            var result = fixture.WithBackingField(x => x.Value.Value.Value, 123).Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Number, Is.EqualTo(_number));
-        }
-
-        class NestedPropertyClass
-        {
-            public NestedClass NestedClass { get; set; } = null!;
-        }
-        [Test]
-        public void NestedProperty_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
-
-            fixture.WithBackingField(t => t.NestedClass.Value, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.Value, Is.EqualTo(_text));
+            Assert.That(result.Value.Value.Value, Is.EqualTo(123));
         }
 
         [Test]
-        public void DerivedNestedProperty_SetsProperty()
+        public void PropertyChainStartingInInheritedProperty_SetsBackingFieldOfLastMember()
         {
-            var fixture = TestHelper.MakeFixture<DerivedTestClass>();
+            var fixture = TestHelper.MakeFixture<DerivedChainClass>();
 
-            fixture.WithBackingField(t => t.NestedClass.Value, _text);
+            var result = fixture.WithBackingField(x => x.Value.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.Value, Is.EqualTo(_text));
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void DeeperNestedProperty_SetsProperty()
+        public void PropertyChainEndingInInheritedAutoProperty_SetsBackingFieldOfLastMember()
         {
-            var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<DerivedClass>>();
 
-            fixture.WithBackingField(t => t.NestedClass.DeeperNestedClass.Value, _number);
+            var result = fixture.WithBackingField(x => x.Value.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.DeeperNestedClass.Value, Is.EqualTo(_number));
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void DeeperDerivedNestedProperty_Overridden_SetsProperty()
+        public void PropertyChainEndingInOverriddenAutoProperty_SetsBackingFieldOfLastMember()
         {
-            var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<OverridingClass>>();
 
-            fixture.WithBackingField(t => t.NestedClass.DerivedNestedClass.Value, _number);
+            var result = fixture.WithBackingField(x => x.Value.Value, 123).Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.DerivedNestedClass.Value, Is.EqualTo(_number));
+            Assert.That(result.Value.Value, Is.EqualTo(123));
         }
 
         [Test]
-        public void DeeperDerivedNestedProperty_NotOverridden_SetsProperty()
+        public void PropertyChainWithFieldName_SetsNamedFieldOfLastMember()
         {
-            var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<UnconventionalBackingFieldClass>>();
 
-            fixture.WithBackingField(t => t.NestedClass.DerivedNestedClass.String, _text);
+            var result = fixture.WithBackingField(x => x.Value.Value, "value", "_unconventionalName").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.DerivedNestedClass.String, Is.EqualTo(_text));
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void FieldNameGiven_DeeperNestedProperty_SetsProperty()
+        public void FieldInChain_SetsBackingFieldOfLastMember()
         {
-            var fieldName = "_privateField";
-            var fixture = TestHelper.MakeFixture<NestedPropertyClass>();
+            var fixture = TestHelper.MakeFixture<FieldHolder<PropertyHolder<string>>>();
 
-            fixture.WithBackingField(t => t.NestedClass.DeeperNestedClass.Text, _text, fieldName);
+            var result = fixture.WithBackingField(x => x.Value.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.NestedClass.DeeperNestedClass.Text, Is.EqualTo(_text));
-        }
-
-        class CollectionDifferentTypeClass
-        {
-            private readonly List<string> _stringList = null!;
-            public IReadOnlyList<string> StringList => _stringList;
-        }
-        [Test]
-        public void BackingFieldDifferentCollectionType_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<CollectionDifferentTypeClass>();
-
-            fixture.WithBackingField(t => t.StringList, [_text]);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.StringList.Single(), Is.EqualTo(_text));
-        }
-
-        class NullableValueListClass
-        {
-            private readonly List<int?> _list = null!;
-            public IEnumerable<int> List => _list.Cast<int>();
-        }
-        [Test]
-        public void NullableValueListField_NonNullableValueListValue_SetsField()
-        {
-            var fieldName = "_list";
-            var list = new List<int>() { _number };
-            var fixture = TestHelper.MakeFixture<NullableValueListClass>();
-
-            fixture.WithBackingField(c => c.List, list, fieldName);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.List.Single(), Is.EqualTo(_number));
-        }
-
-        class NullableReferenceListClass
-        {
-            private readonly List<string?> _list = null!;
-            public IEnumerable<string> List => _list.Cast<string>();
-        }
-        [Test]
-        public void NullableReferenceListField_NonNullableReferenceListValue_SetsField()
-        {
-            var fieldName = "_list";
-            var list = new List<string>() { _text };
-            var fixture = TestHelper.MakeFixture<NullableReferenceListClass>();
-
-            fixture.WithBackingField(c => c.List, list, fieldName);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.List.Single(), Is.EqualTo(_text));
-        }
-
-        class NonNullableReferenceListClass
-        {
-            private readonly List<string> _list = null!;
-            public IEnumerable<string?> List => _list.Cast<string?>();
-        }
-        [Test]
-        public void NonNullableReferenceListField_NullableReferenceListValue_SetsField()
-        {
-            var fieldName = "_list";
-            var list = new List<string?>() { _text, null };
-            var fixture = TestHelper.MakeFixture<NonNullableReferenceListClass>();
-
-            fixture.WithBackingField(c => c.List, list, fieldName);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.List.First(), Is.EqualTo(_text));
-        }
-
-        class ValueMembersClass
-        {
-            private int? _nullable;
-            public int? Nullable { get => _nullable; set { _nullable = value; } }
-
-            private int _nonNullable;
-            public int? NonNullable { get => _nonNullable; set { _nonNullable = (int)value!; } }
-        }
-        [Test]
-        public void NullableValueField_NullValue_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<ValueMembersClass>();
-
-            fixture = fixture.WithBackingField(x => x.Nullable, null);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Nullable, Is.Null);
+            Assert.That(result.Value.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void NonNullableValueField_NullValue_ThrowsException()
+        public void StructPropertyInChain_SetsBackingFieldOfLastMember()
         {
-            var fixture = TestHelper.MakeFixture<ValueMembersClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ReadOnlyPropertyHolderStruct<int>>>();
 
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(x => x.NonNullable, null));
+            var result = fixture.WithBackingField(x => x.Value.Value, 123).Build();
+
+            Assert.That(result.Value.Value, Is.EqualTo(123));
         }
 
-        [Test]
-        public void InstantiatesFixture()
-        {
-            var fixture = TestHelper.MakeFixture<NormalClass>();
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.WithBackingField(x => x.Text, "Hello"));
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
-        }
-
-        class FieldIntermediateClass
-        {
-            public NormalClass NormalClass = null!;
-        }
-
-        [Test]
-        public void FieldIntermediate_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<FieldIntermediateClass>();
-
-            fixture.WithBackingField(t => t.NormalClass.Text, _text);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.NormalClass.Text, Is.EqualTo(_text));
-        }
-
-        class ImplicitConversionClass
-        {
-            private readonly TargetType _value;
-            public SourceType Value => new() { Inner = _value.Inner };
-        }
-
-        struct SourceType
-        {
-            public int Inner;
-        }
-
-        struct TargetType
-        {
-            public int Inner;
-            public static implicit operator TargetType(SourceType s) => new() { Inner = s.Inner };
-        }
-
-        [Test]
-        public void WithBackingField_ImplicitConversion_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<ImplicitConversionClass>();
-            TestHelper.SetOption(fixture, o => o.AllowImplicitConversion = true);
-
-            var source = new SourceType { Inner = 42 };
-            fixture.WithBackingField(t => t.Value, source);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Value.Inner, Is.EqualTo(42));
-        }
-
-        class ImplicitConversionListClass
-        {
-            private readonly List<TargetType> _values = null!;
-            public List<SourceType> Values => [.. _values.Select(t => new SourceType { Inner = t.Inner })];
-        }
-        [Test]
-        public void WithBackingField_ImplicitConversion_ListElements_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<ImplicitConversionListClass>();
-            TestHelper.SetOption(fixture, o => o.AllowImplicitConversion = true);
-
-            var source = new List<SourceType>
-            {
-                new() { Inner = 1 },
-                new() { Inner = 2 },
-                new() { Inner = 3 }
-            };
-
-            fixture.WithBackingField(t => t.Values, source);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Values.Select(v => v.Inner), Is.EqualTo([1, 2, 3]));
-        }
-
-        class ImplicitConversionDictionaryClass
-        {
-            private readonly Dictionary<string, TargetType> _values = null!;
-            public Dictionary<string, SourceType> Values => _values.ToDictionary(k => k.Key, v => new SourceType { Inner = v.Value.Inner });
-        }
-
-        [Test]
-        public void WithBackingField_ImplicitConversion_DictionaryElements_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<ImplicitConversionDictionaryClass>();
-            TestHelper.SetOption(fixture, o => o.AllowImplicitConversion = true);
-
-            var source = new Dictionary<string, SourceType>
-            {
-                { "one", new() { Inner = 1 } },
-                { "two", new() { Inner = 2 } },
-                { "three", new() { Inner = 3 } }
-            };
-
-            fixture.WithBackingField(t => t.Values, source);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Values.Select(v => v.Value.Inner), Is.EqualTo([1, 2, 3]));
-        }
-
-        class WideningFieldClass
-        {
-            private readonly long _number;
-            public int Number => (int)_number;
-        }
-        [Test]
-        public void WideningFieldType_NoConverter_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<WideningFieldClass>();
-
-            fixture.WithBackingField(t => t.Number, _number);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Number, Is.EqualTo(_number));
-        }
-
-        [Test]
-        public void WideningFieldType_ConverterHandlesValue_SetsConvertedValue()
-        {
-            var converted = 456L;
-            var converter = new Mock<ICustomConverter>();
-            converter.Setup(c => c.Convert(typeof(long), _number)).Returns(converted);
-            var fixture = new FixtureFactory()
-                .AddConverter(converter.Object)
-                .New(new WideningFieldClass());
-
-            fixture.WithBackingField(t => t.Number, _number);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Number, Is.EqualTo(converted));
-        }
-
-        [Test]
-        public void WideningFieldType_ConverterReturnsWrongType_ThrowsException()
-        {
-            var converter = new Mock<ICustomConverter>();
-            converter.Setup(c => c.Convert(typeof(long), _number)).Returns(_text);
-            var fixture = new FixtureFactory()
-                .AddConverter(converter.Object)
-                .New(new WideningFieldClass());
-
-            Assert.Throws<InvalidCastException>(() => fixture.WithBackingField(t => t.Number, _number));
-        }
-
-        class NarrowingFieldClass
-        {
-            private readonly int _number;
-            public long Number => _number;
-        }
-        [Test]
-        public void NarrowingFieldType_ThrowsException()
-        {
-            var fixture = TestHelper.MakeFixture<NarrowingFieldClass>();
-
-            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Number, 123L));
-        }
-
-        [Test]
-        public void NarrowingFieldType_ExceptionHasSetValueExceptionAsInner()
-        {
-            var fixture = TestHelper.MakeFixture<NarrowingFieldClass>();
-
-            var ex = Assert.Throws<InvalidOperationException>(() => fixture.WithBackingField(t => t.Number, 123L));
-
-            Assert.That(ex?.InnerException, Is.InstanceOf<ArgumentException>());
-        }
-
-        struct Point
-        {
-            private int _z;
-            public readonly int Z => _z;
-        }
-        class StructPropertyIntermediateClass
-        {
-            public Point Center { get; set; }
-        }
-        [Test]
-        public void StructPropertyIntermediate_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<StructPropertyIntermediateClass>();
-
-            fixture.WithBackingField(t => t.Center.Z, _number);
-
-            var result = TestHelper.GetFixture(fixture);
-            Assert.That(result.Center.Z, Is.EqualTo(_number));
-        }
+        #endregion
     }
 }

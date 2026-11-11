@@ -1,4 +1,4 @@
-using FixtureBuilder.Assignment.ValueProviders.Providers;
+﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
@@ -7,63 +7,30 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class CharProviderTests
     {
-        private CharProvider _sut;
-        private Mock<IFixtureContext> _contextMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new CharProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
-
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_Char_ReturnsAsciiLetter()
         {
-            Assert.DoesNotThrow(() => new CharProvider());
-        }
-
-        [Test]
-        public void Resolve_Char_ReturnsAsciiLetter()
-        {
+            var provider = new CharProvider();
             var request = TestHelper.MakeRequest(typeof(char));
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result, Is.Not.Null);
                 Assert.That(result, Is.TypeOf<char>());
-                Assert.That(char.IsAsciiLetter((char)result!), Is.True);
+                Assert.That(result, Is.InRange('A', 'Z').Or.InRange('a', 'z'));
             }
         }
 
-        [Test]
-        public void Resolve_String_ReturnsNoResult()
+        [TestCase(typeof(char?))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(int))]
+        public void ResolveValue_OtherType_ReturnsNoResult(Type type)
         {
-            var request = TestHelper.MakeRequest(typeof(string));
+            var provider = new CharProvider();
+            var request = TestHelper.MakeRequest(type);
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_NullableChar_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(char?));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_Int_ReturnsNoResult()
-        {
-            var request = TestHelper.MakeRequest(typeof(int));
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }

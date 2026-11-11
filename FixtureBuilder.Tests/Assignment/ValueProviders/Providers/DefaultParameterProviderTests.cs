@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0060
-
-using System.Reflection;
+﻿using System.Reflection;
 using FixtureBuilder.Assignment.ValueProviders.Providers;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -10,162 +8,166 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders.Providers
 {
     internal sealed class DefaultParameterProviderTests
     {
-        private DefaultParameterProvider _sut;
-        private readonly Type _rootType = typeof(object);
-        private Mock<IFixtureContext> _contextMock;
-
-        private static ParameterInfo GetParameterInfo(string methodName, string paramName)
-        {
-            return typeof(SampleMethods)
-                .GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic)!
-                .GetParameters()
-                .First(p => p.Name == paramName);
-        }
-
-        private static class SampleMethods
-        {
-            internal static void WithDefault(int value = 42) { }
-            internal static void WithoutDefault(int value) { }
-            internal static void WithNullDefault(string? value = null) { }
-            internal static void WithStringDefault(string value = "hello") { }
-            internal static void WithDefaultStruct(CancellationToken value = default) { }
-            internal static void WithNullableNullDefault(int? value = null) { }
-            internal static void WithNullableEnumDefault(DayOfWeek? value = DayOfWeek.Friday) { }
-            internal static void WithNullableByteEnumDefault(ByteEnum? value = ByteEnum.Second) { }
-            internal static void WithNullableFlagsEnumDefault(BindingFlags? value = BindingFlags.Public | BindingFlags.Instance) { }
-            internal static void WithNullableEnumNullDefault(DayOfWeek? value = null) { }
-        }
-
-        internal enum ByteEnum : byte { First, Second }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new DefaultParameterProvider();
-            _contextMock = new Mock<IFixtureContext>();
-        }
+        #region Default values
 
         [Test]
-        public void DefaultConstructor_DoesNotThrow()
+        public void ResolveValue_ValueTypeDefault_ReturnsDefault()
         {
-            Assert.DoesNotThrow(() => new DefaultParameterProvider());
-        }
+            static void Method(int value = 42) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
 
-        [Test]
-        public void Resolve_ParameterWithDefaultValue_OptionEnabled_ReturnsDefaultValue()
-        {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.EqualTo(42));
         }
 
         [Test]
-        public void Resolve_ParameterWithDefaultValue_OptionDisabled_ReturnsNoResult()
+        public void ResolveValue_ReferenceTypeDefault_ReturnsDefault()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions { PreferDefaultParameterValues = false };
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            static void Method(string value = "default") { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
-            Assert.That(result, Is.TypeOf<NoResult>());
+            Assert.That(result, Is.EqualTo("default"));
         }
 
         [Test]
-        public void Resolve_ParameterWithoutDefaultValue_OptionEnabled_ReturnsNoResult()
+        public void ResolveValue_NullDefaultForReferenceType_ReturnsNull()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithoutDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            static void Method(string? value = null) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Resolve_ParameterWithNullDefault_OptionEnabled_ReturnsNull()
-        {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithNullDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
-
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
-        public void Resolve_ParameterWithStringDefault_OptionEnabled_ReturnsStringDefault()
+        public void ResolveValue_NullDefaultForNullableValueType_ReturnsNull()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithStringDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            static void Method(int? value = null) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
-            Assert.That(result, Is.EqualTo("hello"));
+            Assert.That(result, Is.Null);
         }
 
         [Test]
-        public void Resolve_StructParameterWithDefaultLiteral_OptionEnabled_ReturnsDefaultStruct()
+        public void ResolveValue_DefaultLiteralForStruct_ReturnsDefaultStruct()
         {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithDefaultStruct), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+            static void Method(CancellationToken value = default) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.EqualTo(default(CancellationToken)));
         }
 
-        [Test]
-        public void Resolve_NullableParameterWithNullDefault_OptionEnabled_ReturnsNull()
-        {
-            var paramInfo = GetParameterInfo(nameof(SampleMethods.WithNullableNullDefault), "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+        #endregion
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+        #region Nullable enum defaults
+
+        [Test]
+        public void ResolveValue_NullableEnumDefault_ReturnsEnumValue()
+        {
+            static void Method(DayOfWeek? value = DayOfWeek.Friday) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.EqualTo(DayOfWeek.Friday));
+        }
+
+        private enum ByteEnum : byte
+        {
+            First,
+            Second
+        }
+
+        [Test]
+        public void ResolveValue_NullableByteEnumDefault_ReturnsEnumValue()
+        {
+            static void Method(ByteEnum? value = ByteEnum.Second) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.EqualTo(ByteEnum.Second));
+        }
+
+        [Test]
+        public void ResolveValue_NullableFlagsEnumCombinedDefault_ReturnsEnumValue()
+        {
+            static void Method(BindingFlags? value = BindingFlags.Public | BindingFlags.Instance) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.EqualTo(BindingFlags.Public | BindingFlags.Instance));
+        }
+
+        [Test]
+        public void ResolveValue_NullableEnumNullDefault_ReturnsNull()
+        {
+            static void Method(DayOfWeek? value = null) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             Assert.That(result, Is.Null);
         }
 
-        [TestCase(nameof(SampleMethods.WithNullableEnumDefault), DayOfWeek.Friday, TestName = "Resolve_NullableEnumParameterWithDefault_OptionEnabled_ReturnsEnumValue")]
-        [TestCase(nameof(SampleMethods.WithNullableByteEnumDefault), ByteEnum.Second, TestName = "Resolve_NullableByteEnumParameterWithDefault_OptionEnabled_ReturnsEnumValue")]
-        [TestCase(nameof(SampleMethods.WithNullableFlagsEnumDefault), BindingFlags.Public | BindingFlags.Instance, TestName = "Resolve_NullableFlagsEnumParameterWithCombinedDefault_OptionEnabled_ReturnsEnumValue")]
-        [TestCase(nameof(SampleMethods.WithNullableEnumNullDefault), null, TestName = "Resolve_NullableEnumParameterWithNullDefault_OptionEnabled_ReturnsNull")]
-        public void Resolve_NullableEnumParameterWithDefault_OptionEnabled_ReturnsTypedDefault(string methodName, object? expected)
-        {
-            var paramInfo = GetParameterInfo(methodName, "value");
-            var request = new FixtureRequest(paramInfo.ParameterType, paramInfo, _rootType);
-            var options = new FixtureOptions();
-            _contextMock.Setup(c => c.OptionsFor(It.IsAny<Type>())).Returns(options);
+        #endregion
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
-
-            Assert.That(result, Is.EqualTo(expected));
-        }
+        #region No result
 
         [Test]
-        public void Resolve_NonParameterSource_ReturnsNoResult()
+        public void ResolveValue_DefaultValuesNotPreferred_ReturnsNoResult()
         {
-            var request = TestHelper.MakeRequest(typeof(int));
+            static void Method(int value = 42) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var options = new FixtureOptions { PreferDefaultParameterValues = false };
+            var provider = new DefaultParameterProvider();
 
-            var result = _sut.ResolveValue(request, _contextMock.Object);
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
+
+        [Test]
+        public void ResolveValue_ParameterWithoutDefault_ReturnsNoResult()
+        {
+            static void Method(int value) { }
+            var request = TestHelper.MakeRequest(TestHelper.FirstParameter(Method));
+            var provider = new DefaultParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        [Test]
+        public void ResolveValue_SourceIsNotParameter_ReturnsNoResult()
+        {
+            var request = TestHelper.MakeRequest(typeof(int));
+            var provider = new DefaultParameterProvider();
+
+            var result = provider.ResolveValue(request, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            Assert.That(result, Is.TypeOf<NoResult>());
+        }
+
+        #endregion
     }
 }

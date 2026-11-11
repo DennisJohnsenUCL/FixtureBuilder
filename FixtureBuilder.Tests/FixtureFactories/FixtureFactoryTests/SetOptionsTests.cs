@@ -1,61 +1,33 @@
-﻿using FixtureBuilder.Core;
-
-namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
+﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class SetOptionsTests
     {
-        private FixtureFactory _factory;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _factory = new FixtureFactory();
-        }
-
         [Test]
-        public void Options_DefaultConstructor_ReturnsDefaultOptions()
+        public void ChangesOptions()
         {
-            Assert.That(_factory.Options.AllowPrivateConstructors, Is.EqualTo(FixtureOptions.Default.AllowPrivateConstructors));
-        }
+            var factory = new FixtureFactory();
 
-        [Test]
-        public void Options_ConstructorWithOptions_ReturnsProvidedOptions()
-        {
-            var options = new FixtureOptions { AllowPrivateConstructors = false };
-
-            var factory = new FixtureFactory(options);
+            factory.SetOptions(options => options.AllowPrivateConstructors = false);
 
             Assert.That(factory.Options.AllowPrivateConstructors, Is.False);
         }
 
         [Test]
-        public void Options_Set_UpdatesOptions()
+        public void FixturesUseChangedOptions()
         {
-            var options = new FixtureOptions { AllowPrivateConstructors = false };
+            var factory = new FixtureFactory();
+            factory.SetOptions(options => options.AllowPrivateConstructors = false);
+            var fixture = factory.New<PrivateConstructorClass>();
 
-            _factory.Options = options;
-
-            Assert.That(_factory.Options, Is.SameAs(options));
+            Assert.Throws<InvalidOperationException>(() => fixture.Build());
         }
 
         [Test]
-        public void Options_SetNull_Throws()
+        public void NullAction_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => _factory.Options = null!);
-        }
+            var factory = new FixtureFactory();
 
-        [Test]
-        public void SetOptions_Action_UpdatesOptions()
-        {
-            _factory.SetOptions(o => o.AllowPrivateConstructors = false);
-
-            Assert.That(_factory.Options.AllowPrivateConstructors, Is.False);
-        }
-
-        [Test]
-        public void SetOptions_NullAction_Throws()
-        {
-            Assert.Throws<ArgumentNullException>(() => _factory.SetOptions(null!));
+            Assert.Throws<ArgumentNullException>(() => factory.SetOptions(null!));
         }
     }
 }

@@ -1,79 +1,67 @@
-﻿#pragma warning disable CS0169
-#pragma warning disable CS0649
-
-namespace FixtureBuilder.Tests.FixtureTests
+﻿namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class WithBackingFieldUntypedTests
     {
-        private readonly static string _text = "Test string";
-        private readonly static int _number = 123;
-
-        class SameTypeClass
-        {
-            public string Text { get; set; } = null!;
-        }
         [Test]
-        public void SameTypeField_SetsProperty()
+        public void ValueOfPropertyType_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<SameTypeClass>();
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
 
-            fixture.WithBackingFieldUntyped(t => t.Text, _text);
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(_text));
-        }
-
-        class WideningFieldClass
-        {
-            private readonly long _number;
-            public int Number => (int)_number;
-        }
-        [Test]
-        public void WideningFieldType_SetsField()
-        {
-            var fixture = TestHelper.MakeFixture<WideningFieldClass>();
-
-            fixture.WithBackingFieldUntyped(t => t.Number, _number);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Number, Is.EqualTo(_number));
-        }
-
-        class DifferentTypeNotAssignableClass
-        {
-            private int _someProperty;
-            public string SomeProperty { get => _someProperty.ToString(); set { _someProperty = int.Parse(value); } }
-        }
-        [Test]
-        public void DifferentTypeField_NotAssignable_SetsProperty()
-        {
-            var fixture = TestHelper.MakeFixture<DifferentTypeNotAssignableClass>();
-
-            Assert.Throws<InvalidOperationException>(
-                () => fixture.WithBackingFieldUntyped(t => t.SomeProperty, _text));
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void FieldNameGiven_Assignable_SetsProperty()
+        public void WiderBackingField_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<DifferentTypeNotAssignableClass>();
+            var fixture = TestHelper.MakeFixture<WiderBackingFieldClass>();
 
-            fixture.WithBackingFieldUntyped(t => t.SomeProperty, _number, "_someProperty");
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, 123).Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.SomeProperty, Is.EqualTo(_number.ToString()));
+            Assert.That(result.Value, Is.EqualTo(123));
+        }
+
+        private class IntFieldStringPropertyClass
+        {
+            private int _value;
+            public string Value { get => _value.ToString(); set => _value = int.Parse(value); }
         }
 
         [Test]
-        public void WithBackingFieldUntyped_InstantiatesFixture()
+        public void ValueOfFieldType_SetsBackingField()
         {
-            var fixture = TestHelper.MakeFixture<SameTypeClass>();
+            var fixture = TestHelper.MakeFixture<IntFieldStringPropertyClass>();
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.WithBackingFieldUntyped(t => t.Text, _text));
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, 123, "_value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("123"));
+        }
+
+        [Test]
+        public void ValueNotAssignableToBackingField_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<IntFieldStringPropertyClass>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingFieldUntyped(x => x.Value, "value"));
+        }
+
+        [Test]
+        public void MethodCall_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithBackingFieldUntyped(x => x.GetHashCode(), 123));
+        }
+
+        [Test]
+        public void NotConstructed_ConstructsImplicitlyAndSetsBackingField()
+        {
+            var fixture = Fixture.New<PropertyHolder<string>>();
+
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, "value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
     }
 }

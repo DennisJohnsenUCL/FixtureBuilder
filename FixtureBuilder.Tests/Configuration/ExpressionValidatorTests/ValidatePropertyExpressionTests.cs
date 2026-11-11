@@ -1,80 +1,80 @@
-﻿using FixtureBuilder.Configuration;
+﻿using System.Linq.Expressions;
+using FixtureBuilder.Configuration;
 
 namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidatePropertyExpressionTests
     {
-        private class Outer
-        {
-            public Inner Prop { get; set; } = new();
-            public Inner Field = new();
-            public string Name { get; set; } = "";
-            public string NameField = "";
-            public Point? NullablePointField = new Point();
-        }
-
-        private class Inner
-        {
-            public string Value { get; set; } = "";
-            public string ValueField = "";
-        }
-
-        private struct Point;
+        #region Accepted
 
         [Test]
-        public void SingleProperty_DoesNotThrow()
+        public void Property_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Name));
+            Expression<Func<PropertyHolder<string>, string>> expression = x => x.Value;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
         [Test]
-        public void NestedProperty_DoesNotThrow()
+        public void PropertyChain_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Prop.Value));
+            Expression<Func<PropertyHolder<PropertyHolder<string>>, string>> expression = x => x.Value.Value;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
         [Test]
         public void FieldThenProperty_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Field.Value));
+            Expression<Func<FieldHolder<PropertyHolder<string>>, string>> expression = x => x.Value.Value;
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidatePropertyExpression(expression));
+        }
+
+        #endregion
+
+        #region Rejected
+
+        [Test]
+        public void Field_ThrowsInvalidOperationException()
+        {
+            Expression<Func<FieldHolder<string>, string>> expression = x => x.Value;
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
         [Test]
-        public void SingleField_Throws()
+        public void PropertyThenField_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.NameField));
+            Expression<Func<PropertyHolder<FieldHolder<string>>, string>> expression = x => x.Value.Value;
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
         [Test]
-        public void PropertyThenField_Throws()
+        public void Parameter_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => x.Prop.ValueField));
+            Expression<Func<PropertyHolder<string>, PropertyHolder<string>>> expression = x => x;
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
         [Test]
-        public void BareParameter_Throws()
+        public void Constant_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, Outer>(x => x));
+            Expression<Func<PropertyHolder<string>, string>> expression = x => "constant";
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
         [Test]
-        public void Constant_Throws()
+        public void TrailingNullableValue_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, string>(x => "hello"));
+            Expression<Func<FieldHolder<PointStruct?>, PointStruct>> expression = x => x.Value!.Value;
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }
 
-        [Test]
-        public void FieldThenTrailingNullableValue_Throws()
-        {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidatePropertyExpression<Outer, Point>(x => x.NullablePointField!.Value));
-        }
+        #endregion
     }
 }

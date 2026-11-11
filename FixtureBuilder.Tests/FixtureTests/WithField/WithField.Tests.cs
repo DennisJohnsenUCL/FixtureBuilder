@@ -2,154 +2,105 @@
 {
     internal sealed class WithFieldTests
     {
-        private readonly static string _text = "Test string";
-        private readonly static int _number = 123;
-
         [Test]
-        public void ClassPrivateField_SetsField()
+        public void PrivateField_SetsField()
         {
-            var fieldName = "_text";
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
 
-            fixture.WithField(fieldName, _text);
+            var result = fixture.WithField("_value", "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(_text));
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void NullValue_SetsField()
+        public void NullValue_SetsNull()
         {
-            var fieldName = "_text";
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
+            fixture.WithField("_value", "value");
 
-            fixture.WithField<string>(fieldName, null!);
+            var result = fixture.WithField<string>("_value", null!).Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.Null);
+            Assert.That(result.Value, Is.Null);
         }
 
         [Test]
-        public void IncorrectFieldName_ThrowsException()
+        public void UnknownField_ThrowsInvalidOperationException()
         {
-            var fieldName = "_notAField";
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
 
-            Assert.Throws<InvalidOperationException>(() => fixture.WithField(fieldName, _text));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField("_unknown", "value"));
         }
 
         [Test]
-        public void IncorrectFieldType_ThrowsException()
+        public void ValueOfWrongType_ThrowsInvalidOperationException()
         {
-            var fieldName = "_text";
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
 
-            Assert.Throws<InvalidOperationException>(() => fixture.WithField(fieldName, _number));
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField("_value", 123));
         }
 
         [Test]
         public void InheritedProtectedField_SetsField()
         {
-            var fieldName = "_inheritedField";
-            var fixture = TestHelper.MakeFixture<DerivedTestClass>();
+            var fixture = TestHelper.MakeFixture<DerivedFromProtectedFieldClass>();
 
-            fixture.WithField(fieldName, _text);
+            var result = fixture.WithField("_value", "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.InheritedFieldGetter, Is.EqualTo(_text));
-        }
-
-        class PrivateFieldBase
-        {
-            private readonly string _baseText = null!;
-            public string BaseText => _baseText;
-        }
-        class PrivateFieldChild : PrivateFieldBase;
-        class PrivateFieldGrandchild : PrivateFieldChild;
-        [Test]
-        public void InheritedPrivateField_SetsField()
-        {
-            var fieldName = "_baseText";
-            var fixture = TestHelper.MakeFixture<PrivateFieldGrandchild>();
-
-            fixture.WithField(fieldName, _text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.BaseText, Is.EqualTo(_text));
-        }
-
-        record FieldRecord
-        {
-            private readonly string _text = null!;
-            public string Text => _text;
-        }
-        [Test]
-        public void RecordField_SetsField()
-        {
-            var text = "Test string";
-            var fixture = TestHelper.MakeFixture<FieldRecord>();
-
-            fixture.WithField("_text", text);
-
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.Text, Is.EqualTo(text));
-        }
-
-        class StringListClass
-        {
-            private readonly List<string> _stringList = null!;
-            public List<string> StringList => _stringList;
-        }
-        [Test]
-        public void CollectionTypeField_StringParameter_ThrowsException()
-        {
-            var fieldName = "_stringList";
-            var fixture = TestHelper.MakeFixture<StringListClass>();
-
-            Assert.Throws<InvalidOperationException>(() => fixture.WithField(fieldName, _text));
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void CollectionTypeField_CollectionParameter_SetsField()
+        public void PrivateFieldInheritedTwoLevelsUp_SetsField()
         {
-            var fieldName = "_stringList";
-            var fixture = TestHelper.MakeFixture<StringListClass>();
+            var fixture = TestHelper.MakeFixture<GrandchildOfPrivateFieldClass>();
 
-            fixture.WithField<List<string>>(fieldName, [_text]);
+            var result = fixture.WithField("_value", "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            Assert.That(field.StringList[0], Is.EqualTo(_text));
+            Assert.That(result.Value, Is.EqualTo("value"));
+        }
+
+        private record PrivateFieldRecord
+        {
+            private readonly string _value = null!;
+            public string Value => _value;
         }
 
         [Test]
-        public void CollectionTypeField_CollectionParameters_SetsField()
+        public void PrivateFieldOfRecord_SetsField()
         {
-            var fieldName = "_stringList";
-            var secondEntry = "More test";
-            var fixture = TestHelper.MakeFixture<StringListClass>();
+            var fixture = TestHelper.MakeFixture<PrivateFieldRecord>();
 
-            fixture.WithField<List<string>>(fieldName, [_text, secondEntry]);
+            var result = fixture.WithField("_value", "value").Build();
 
-            var field = TestHelper.GetFixture(fixture);
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(field.StringList[0], Is.EqualTo(_text));
-                Assert.That(field.StringList[1], Is.EqualTo(secondEntry));
-            }
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
 
         [Test]
-        public void WithField_InstantiatesFixture()
+        public void ListField_ListValue_SetsField()
         {
-            var fieldName = "_text";
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<List<string>>>();
 
-            var fixture = TestHelper.MakeFixture<ExplicitBackingFieldClass>();
+            var result = fixture.WithField<List<string>>("_value", ["first", "second"]).Build();
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.DoesNotThrow(() => fixture.WithField(fieldName, _text));
-                Assert.That(TestHelper.GetFixture(fixture), Is.Not.Null);
-            }
+            Assert.That(result.Value, Is.EqualTo(["first", "second"]));
+        }
+
+        [Test]
+        public void ListField_ElementValue_ThrowsInvalidOperationException()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<List<string>>>();
+
+            Assert.Throws<InvalidOperationException>(() => fixture.WithField("_value", "value"));
+        }
+
+        [Test]
+        public void NotConstructed_ConstructsImplicitlyAndSetsField()
+        {
+            var fixture = Fixture.New<ReadOnlyPropertyHolder<string>>();
+
+            var result = fixture.WithField("_value", "value").Build();
+
+            Assert.That(result.Value, Is.EqualTo("value"));
         }
     }
 }

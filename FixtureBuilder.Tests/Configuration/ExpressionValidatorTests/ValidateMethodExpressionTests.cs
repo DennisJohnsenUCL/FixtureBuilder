@@ -1,72 +1,65 @@
-﻿#pragma warning disable CA1822
-
+﻿using System.Linq.Expressions;
 using FixtureBuilder.Configuration;
 
 namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
 {
     internal sealed class ValidateMethodExpressionTests
     {
-        private class Outer
-        {
-            public Inner Prop { get; set; } = new();
-            public Inner Field = new();
-            public Point? NullablePoint { get; set; }
-            public int GetValue() => 42;
-        }
-
-        private class Inner
-        {
-            public int DoSomething() => 1;
-        }
-
-        private struct Point
-        {
-#pragma warning disable IDE0251 // Make member 'readonly'
-            public int DoSomething() => 1;
-#pragma warning restore IDE0251 // Make member 'readonly'
-        }
+        #region Accepted
 
         [Test]
         public void MethodOnProperty_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.Prop.DoSomething()));
+            Expression<Action<PropertyHolder<string>>> expression = x => x.Value.GetHashCode();
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateMethodExpression(expression));
         }
 
         [Test]
         public void MethodOnField_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.Field.DoSomething()));
+            Expression<Action<FieldHolder<string>>> expression = x => x.Value.GetHashCode();
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateMethodExpression(expression));
         }
 
         [Test]
-        public void MethodDirectlyOnParameter_DoesNotThrow()
+        public void MethodOnParameter_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.GetValue()));
+            Expression<Action<PropertyHolder<string>>> expression = x => x.GetHashCode();
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateMethodExpression(expression));
         }
 
         [Test]
         public void MethodOnNullableValue_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
-                ExpressionValidator.ValidateMethodExpression<Outer>(x => x.NullablePoint!.Value.DoSomething()));
+            Expression<Action<PropertyHolder<PointStruct?>>> expression = x => x.Value!.Value.GetHashCode();
+
+            Assert.DoesNotThrow(() => ExpressionValidator.ValidateMethodExpression(expression));
+        }
+
+        #endregion
+
+        #region Rejected
+
+        [Test]
+        public void StaticMethod_ThrowsInvalidOperationException()
+        {
+            Expression<Action<PropertyHolder<string>>> expression = x => Console.WriteLine();
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateMethodExpression(expression));
         }
 
         [Test]
-        public void StaticMethod_Throws()
+        public void MethodOnCapturedVariable_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateMethodExpression<Outer>(x => Console.WriteLine()));
+            var holder = new PropertyHolder<string>();
+            Expression<Action<PropertyHolder<string>>> expression = x => holder.GetHashCode();
+
+            Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateMethodExpression(expression));
         }
 
-        [Test]
-        public void MethodOnCapturedVariable_Throws()
-        {
-            var outer = new Outer();
-            Assert.Throws<InvalidOperationException>(() =>
-                ExpressionValidator.ValidateMethodExpression<Outer>(x => outer.GetValue()));
-        }
+        #endregion
     }
 }

@@ -1,370 +1,347 @@
-﻿#pragma warning disable CS0169
-
-using System.Reflection;
+﻿using System.Reflection;
 using FixtureBuilder.Configuration;
 
 namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
 {
     internal sealed class GetPropertyBackingFieldTests
     {
-        private class SimpleTarget
+        private class NamedFieldAndAutoPropertyClass
         {
             private readonly int _value;
             public int Value { get; set; }
         }
 
-        private class AutoPropTarget
+        #region Field names
+
+        [Test]
+        public void FieldName_FindsNamedField()
+        {
+            var property = typeof(NamedFieldAndAutoPropertyClass).GetProperty(nameof(NamedFieldAndAutoPropertyClass.Value))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(NamedFieldAndAutoPropertyClass), property, "_value");
+
+            Assert.That(result?.Name, Is.EqualTo("_value"));
+        }
+
+        [Test]
+        public void NoFieldName_AutoProperty_FindsAutoPropertyBackingField()
+        {
+            var property = typeof(PropertyHolder<string>).GetProperty(nameof(PropertyHolder<>.Value))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(PropertyHolder<string>), property, null);
+
+            Assert.That(result?.Name, Is.EqualTo("<Value>k__BackingField"));
+        }
+
+        [Test]
+        public void UnknownFieldName_ReturnsNull()
+        {
+            var property = typeof(NamedFieldAndAutoPropertyClass).GetProperty(nameof(NamedFieldAndAutoPropertyClass.Value))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(NamedFieldAndAutoPropertyClass), property, "_unknown");
+
+            Assert.That(result, Is.Null);
+        }
+
+        private class InternalPropertyClass
+        {
+            internal string Name { get; set; } = null!;
+        }
+
+        [Test]
+        public void NoFieldName_InternalAutoProperty_FindsAutoPropertyBackingField()
+        {
+            var property = typeof(InternalPropertyClass).GetProperty(nameof(InternalPropertyClass.Name), BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(InternalPropertyClass), property, null);
+
+            Assert.That(result?.Name, Is.EqualTo("<Name>k__BackingField"));
+        }
+
+        #endregion
+
+        #region Inheritance
+
+        private class NameClass
         {
             public string Name { get; set; } = null!;
         }
 
-        private interface IWithProp
-        {
-            int Id { get; set; }
-        }
-
-        private class ImplementsInterface : IWithProp
-        {
-            public int Id { get; set; }
-        }
-
-        private class DerivedTarget : SimpleTarget { }
-
-        private class VirtualBase
+        private class VirtualNumberClass
         {
             public virtual int Number { get; set; }
         }
 
-        private class AutoOverride : VirtualBase
+        private class DerivedFromNamedFieldClass : NamedFieldAndAutoPropertyClass;
+
+        [Test]
+        public void FieldNameOfFieldDeclaredOnBaseType_FindsBaseTypeField()
+        {
+            var property = typeof(NamedFieldAndAutoPropertyClass).GetProperty(nameof(NamedFieldAndAutoPropertyClass.Value))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(DerivedFromNamedFieldClass), property, "_value");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result?.Name, Is.EqualTo("_value"));
+                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(NamedFieldAndAutoPropertyClass)));
+            }
+        }
+
+        private class OverridingNumberClass : VirtualNumberClass
         {
             public override int Number { get; set; }
         }
 
-        private class AutoOverrideChild : AutoOverride { }
+        private class DerivedFromOverridingNumberClass : OverridingNumberClass;
 
-        private class GetterOnlyOverride : VirtualBase
+        // Expression trees reference the original virtual declaration, so the base property is what arrives here.
+        [TestCase(typeof(OverridingNumberClass))]
+        [TestCase(typeof(DerivedFromOverridingNumberClass))]
+        public void OverriddenAutoProperty_FindsOverridingField(Type parentType)
+        {
+            var property = typeof(VirtualNumberClass).GetProperty(nameof(VirtualNumberClass.Number))!;
+
+            var result = FieldHelper.GetPropertyBackingField(parentType, property, null);
+
+            Assert.That(result?.DeclaringType, Is.EqualTo(typeof(OverridingNumberClass)));
+        }
+
+        private class GetterOnlyOverrideClass : VirtualNumberClass
         {
             public override int Number => base.Number;
         }
 
-        private class PrivateFieldBase
+        [Test]
+        public void GetterOnlyOverride_FindsBaseField()
+        {
+            var property = typeof(VirtualNumberClass).GetProperty(nameof(VirtualNumberClass.Number))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(GetterOnlyOverrideClass), property, null);
+
+            Assert.That(result?.DeclaringType, Is.EqualTo(typeof(VirtualNumberClass)));
+        }
+
+        private class PrivateFieldBaseClass
         {
             private readonly int _number = 1;
             protected int ReadNumber() => _number;
         }
 
-        private class ReadsPrivateBaseField : PrivateFieldBase
+        private class ReadsPrivateBaseFieldClass : PrivateFieldBaseClass
         {
             public int Number => ReadNumber();
         }
 
-        private class CustomPrivateFieldBase
+        // Type.GetField does not return private fields of base types, so these are only found by searching the base types.
+        [Test]
+        public void PrivateBaseFieldReadThroughBaseMethod_FindsFieldReadByGetter()
         {
-            private readonly int _custom = 1;
-            protected int ReadCustom() => _custom;
+            var property = typeof(ReadsPrivateBaseFieldClass).GetProperty(nameof(ReadsPrivateBaseFieldClass.Number))!;
+            var instance = new ReadsPrivateBaseFieldClass();
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ReadsPrivateBaseFieldClass), property, null);
+
+            result!.SetValue(instance, 42);
+            var number = property.GetValue(instance);
+            Assert.That(number, Is.EqualTo(42));
         }
 
-        private class ReadsCustomPrivateBaseField : CustomPrivateFieldBase
+        private class UnconventionalPrivateFieldBaseClass
         {
-            public int Number => ReadCustom();
+            private readonly int _unconventionalName = 1;
+            protected int ReadNumber() => _unconventionalName;
         }
 
-        private class HidingDerived : AutoPropTarget
+        private class ReadsUnconventionalPrivateBaseFieldClass : UnconventionalPrivateFieldBaseClass
+        {
+            public int Number => ReadNumber();
+        }
+
+        [Test]
+        public void FieldNameOfPrivateBaseField_FindsFieldReadByGetter()
+        {
+            var property = typeof(ReadsUnconventionalPrivateBaseFieldClass).GetProperty(nameof(ReadsUnconventionalPrivateBaseFieldClass.Number))!;
+            var instance = new ReadsUnconventionalPrivateBaseFieldClass();
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ReadsUnconventionalPrivateBaseFieldClass), property, "_unconventionalName");
+
+            result!.SetValue(instance, 42);
+            var number = property.GetValue(instance);
+            Assert.That(number, Is.EqualTo(42));
+        }
+
+        private class HidingNameClass : NameClass
         {
             public new string Name { get; set; } = null!;
         }
 
-        private class ConventionalFieldDerived : AutoPropTarget
+        [Test]
+        public void PropertyHiddenWithNew_FindsHiddenPropertyField()
+        {
+            var property = typeof(NameClass).GetProperty(nameof(NameClass.Name))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(HidingNameClass), property, null);
+
+            Assert.That(result?.DeclaringType, Is.EqualTo(typeof(NameClass)));
+        }
+
+        private class ConventionalFieldInDerivedClass : NameClass
         {
             private readonly string _name = null!;
             public string Nickname => _name;
         }
 
-        private class InternalPropTarget
+        [Test]
+        public void ConventionallyNamedFieldInDerivedType_FindsDeclaringTypeField()
         {
-            internal string Name { get; set; } = null!;
+            var property = typeof(NameClass).GetProperty(nameof(NameClass.Name))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ConventionalFieldInDerivedClass), property, null);
+
+            Assert.That(result?.DeclaringType, Is.EqualTo(typeof(NameClass)));
         }
 
-        private interface INamed
+        #endregion
+
+        #region Interfaces
+
+        private interface IIdInterface
+        {
+            int Id { get; set; }
+        }
+
+        private interface INameInterface
         {
             string Name { get; }
         }
 
-        private interface IHasValue<T>
+        private class ImplicitIdClass : IIdInterface
+        {
+            public int Id { get; set; }
+        }
+
+        [Test]
+        public void InterfaceProperty_FindsImplementationAutoPropertyBackingField()
+        {
+            var property = typeof(IIdInterface).GetProperty(nameof(IIdInterface.Id))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ImplicitIdClass), property, null);
+
+            Assert.That(result?.Name, Is.EqualTo("<Id>k__BackingField"));
+        }
+
+        [Test]
+        public void InterfacePropertyNotImplementedByParent_ReturnsNull()
+        {
+            var property = typeof(IIdInterface).GetProperty(nameof(IIdInterface.Id))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(NamedFieldAndAutoPropertyClass), property, null);
+
+            Assert.That(result, Is.Null);
+        }
+
+        private class ExplicitNameClass : INameInterface
+        {
+            string INameInterface.Name { get; } = null!;
+        }
+
+        private class DerivedFromExplicitNameClass : ExplicitNameClass;
+
+        private interface IValueInterface<T>
         {
             T Value { get; }
         }
 
-        private class ExplicitNamed : INamed
+        private class ExplicitGenericValueClass : IValueInterface<string>
         {
-            string INamed.Name { get; } = null!;
+            string IValueInterface<string>.Value { get; } = null!;
         }
 
-        private class ExplicitNamedChild : ExplicitNamed { }
-
-        private class ExplicitHasValue : IHasValue<string>
+        [TestCase(typeof(ExplicitNameClass), typeof(INameInterface), "Name")]
+        [TestCase(typeof(DerivedFromExplicitNameClass), typeof(INameInterface), "Name")]
+        [TestCase(typeof(ExplicitGenericValueClass), typeof(IValueInterface<string>), "Value")]
+        public void ExplicitInterfaceAutoProperty_FindsFieldReadByGetter(Type parentType, Type interfaceType, string propertyName)
         {
-            string IHasValue<string>.Value { get; } = null!;
+            var property = interfaceType.GetProperty(propertyName)!;
+            var instance = Activator.CreateInstance(parentType)!;
+
+            var result = FieldHelper.GetPropertyBackingField(parentType, property, null);
+
+            result!.SetValue(instance, "value");
+            var value = property.GetValue(instance);
+            Assert.That(value, Is.EqualTo("value"));
         }
 
-        private class ExplicitHandWrittenNamed : INamed
+        private class ExplicitNameWithConventionalFieldClass : INameInterface
         {
             private readonly string _name = null!;
-            string INamed.Name => _name;
+            string INameInterface.Name => _name;
         }
 
-        private class ExplicitCustomNamed : INamed
+        [Test]
+        public void ExplicitInterfacePropertyWithConventionalField_FindsConventionalField()
         {
-            private readonly string _custom = null!;
-            string INamed.Name => _custom;
+            var property = typeof(INameInterface).GetProperty(nameof(INameInterface.Name))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ExplicitNameWithConventionalFieldClass), property, null);
+
+            Assert.That(result?.Name, Is.EqualTo("_name"));
         }
 
-        private class VirtualImplementation : IWithProp
+        private class ExplicitNameWithUnconventionalFieldClass : INameInterface
+        {
+            private readonly string _unconventionalName = null!;
+            string INameInterface.Name => _unconventionalName;
+        }
+
+        [Test]
+        public void ExplicitInterfacePropertyAndFieldName_FindsNamedField()
+        {
+            var property = typeof(INameInterface).GetProperty(nameof(INameInterface.Name))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(ExplicitNameWithUnconventionalFieldClass), property, "_unconventionalName");
+
+            Assert.That(result?.Name, Is.EqualTo("_unconventionalName"));
+        }
+
+        private class VirtualIdClass : IIdInterface
         {
             public virtual int Id { get; set; }
         }
 
-        private class OverridingImplementation : VirtualImplementation
+        private class OverridingIdClass : VirtualIdClass
         {
             public override int Id { get; set; }
         }
 
-        private interface IWithDefault
+        [Test]
+        public void InterfacePropertyWithOverriddenImplementation_FindsOverridingField()
+        {
+            var property = typeof(IIdInterface).GetProperty(nameof(IIdInterface.Id))!;
+
+            var result = FieldHelper.GetPropertyBackingField(typeof(OverridingIdClass), property, null);
+
+            Assert.That(result?.DeclaringType, Is.EqualTo(typeof(OverridingIdClass)));
+        }
+
+        private interface IDefaultNameInterface
         {
             string Name => "default";
         }
 
-        private class UsesDefault : IWithDefault { }
+        private class DefaultNameClass : IDefaultNameInterface;
 
         [Test]
-        public void GetPropertyBackingField_ExplicitFieldName_FindsField()
+        public void DefaultInterfaceMember_ReturnsNull()
         {
-            var property = typeof(SimpleTarget).GetProperty("Value")!;
+            var property = typeof(IDefaultNameInterface).GetProperty(nameof(IDefaultNameInterface.Name))!;
 
-            var result = FieldHelper.GetPropertyBackingField(typeof(SimpleTarget), property, "_value");
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.Name, Is.EqualTo("_value"));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_NullFieldName_FindsAutoPropertyBackingField()
-        {
-            var property = typeof(AutoPropTarget).GetProperty("Name")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(AutoPropTarget), property, null);
-
-            Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        public void GetPropertyBackingField_FieldOnDeclaringType_FallsBackToDeclaringType()
-        {
-            var property = typeof(SimpleTarget).GetProperty("Value")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(DerivedTarget), property, "_value");
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.Name, Is.EqualTo("_value"));
-                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(SimpleTarget)));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_InterfaceProperty_NullFieldName_FindsBackingField()
-        {
-            var interfaceProp = typeof(IWithProp).GetProperty("Id")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(ImplementsInterface), interfaceProp, null);
-
-            Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        public void GetPropertyBackingField_ExplicitFieldName_NotFound_ReturnsNull()
-        {
-            var property = typeof(SimpleTarget).GetProperty("Value")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(SimpleTarget), property, "nonexistent");
+            var result = FieldHelper.GetPropertyBackingField(typeof(DefaultNameClass), property, null);
 
             Assert.That(result, Is.Null);
         }
 
-        [Test]
-        public void GetPropertyBackingField_NullFieldName_NoMatchAnywhere_ReturnsNull()
-        {
-            var property = typeof(IWithProp).GetProperty("Id")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(SimpleTarget), property, null);
-
-            Assert.That(result, Is.Null);
-        }
-
-        // Expression trees reference the original virtual declaration, so the base property is what arrives here.
-        [TestCase(typeof(AutoOverride))]
-        [TestCase(typeof(AutoOverrideChild))]
-        public void GetPropertyBackingField_OverriddenAutoProperty_FindsOverridingField(Type parentType)
-        {
-            var property = typeof(VirtualBase).GetProperty("Number")!;
-
-            var result = FieldHelper.GetPropertyBackingField(parentType, property, null);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(AutoOverride)));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_GetterOnlyOverride_FindsBaseField()
-        {
-            var property = typeof(VirtualBase).GetProperty("Number")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(GetterOnlyOverride), property, null);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(VirtualBase)));
-            }
-        }
-
-        // Type.GetField does not return private fields of base types, so these are only found by searching the base types.
-        [Test]
-        public void GetPropertyBackingField_PrivateBaseFieldReadThroughBaseMethod_FindsFieldReadByGetter()
-        {
-            var property = typeof(ReadsPrivateBaseField).GetProperty("Number")!;
-            var instance = new ReadsPrivateBaseField();
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(ReadsPrivateBaseField), property, null);
-
-            Assert.That(result, Is.Not.Null);
-            result!.SetValue(instance, 42);
-            Assert.That(property.GetValue(instance), Is.EqualTo(42));
-        }
-
-        [Test]
-        public void GetPropertyBackingField_ExplicitFieldName_PrivateBaseField_FindsFieldReadByGetter()
-        {
-            var property = typeof(ReadsCustomPrivateBaseField).GetProperty("Number")!;
-            var instance = new ReadsCustomPrivateBaseField();
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(ReadsCustomPrivateBaseField), property, "_custom");
-
-            Assert.That(result, Is.Not.Null);
-            result!.SetValue(instance, 42);
-            Assert.That(property.GetValue(instance), Is.EqualTo(42));
-        }
-
-        [Test]
-        public void GetPropertyBackingField_PropertyHiddenWithNew_FindsHiddenPropertyField()
-        {
-            var property = typeof(AutoPropTarget).GetProperty("Name")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(HidingDerived), property, null);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(AutoPropTarget)));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_DerivedTypeHasConventionallyNamedField_FindsDeclaringTypeField()
-        {
-            var property = typeof(AutoPropTarget).GetProperty("Name")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(ConventionalFieldDerived), property, null);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(AutoPropTarget)));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_InternalProperty_FindsBackingField()
-        {
-            var property = typeof(InternalPropTarget).GetProperty("Name", BindingFlags.Instance | BindingFlags.NonPublic)!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(InternalPropTarget), property, null);
-
-            Assert.That(result, Is.Not.Null);
-        }
-
-        [TestCase(typeof(ExplicitNamed), typeof(INamed), "Name")]
-        [TestCase(typeof(ExplicitNamedChild), typeof(INamed), "Name")]
-        [TestCase(typeof(ExplicitHasValue), typeof(IHasValue<string>), "Value")]
-        public void GetPropertyBackingField_ExplicitInterfaceAutoProperty_FindsFieldReadByGetter(Type parentType, Type interfaceType, string propertyName)
-        {
-            var interfaceProp = interfaceType.GetProperty(propertyName)!;
-            var instance = Activator.CreateInstance(parentType)!;
-
-            var result = FieldHelper.GetPropertyBackingField(parentType, interfaceProp, null);
-
-            Assert.That(result, Is.Not.Null);
-            result!.SetValue(instance, "value");
-            Assert.That(interfaceProp.GetValue(instance), Is.EqualTo("value"));
-        }
-
-        [Test]
-        public void GetPropertyBackingField_ExplicitInterfaceHandWrittenField_FindsConventionallyNamedField()
-        {
-            var interfaceProp = typeof(INamed).GetProperty("Name")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(ExplicitHandWrittenNamed), interfaceProp, null);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.Name, Is.EqualTo("_name"));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_InterfaceProperty_ExplicitFieldName_FindsField()
-        {
-            var interfaceProp = typeof(INamed).GetProperty("Name")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(ExplicitCustomNamed), interfaceProp, "_custom");
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.Name, Is.EqualTo("_custom"));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_InterfaceImplementationOverridden_FindsOverridingField()
-        {
-            var interfaceProp = typeof(IWithProp).GetProperty("Id")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(OverridingImplementation), interfaceProp, null);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(result, Is.Not.Null);
-                Assert.That(result?.DeclaringType, Is.EqualTo(typeof(OverridingImplementation)));
-            }
-        }
-
-        [Test]
-        public void GetPropertyBackingField_DefaultInterfaceMember_ReturnsNull()
-        {
-            var interfaceProp = typeof(IWithDefault).GetProperty("Name")!;
-
-            var result = FieldHelper.GetPropertyBackingField(typeof(UsesDefault), interfaceProp, null);
-
-            Assert.That(result, Is.Null);
-        }
+        #endregion
     }
 }
