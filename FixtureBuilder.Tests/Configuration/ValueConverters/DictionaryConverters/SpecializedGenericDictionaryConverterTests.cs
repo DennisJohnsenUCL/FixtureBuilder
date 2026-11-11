@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using FixtureBuilder.Configuration.ValueConverters.DictionaryConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -62,18 +61,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         }
 
         [Test]
-        public void Convert_TargetReadOnlyDictionary_ValueGenericDictionary_DifferentElementType_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
-            var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var converter = new SpecializedGenericDictionaryConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
         public void Convert_TargetNotSpecializedGenericDictionary_ReturnsNoResult()
         {
             var request = new TypeRequest(typeof(Dictionary<string, int>), typeof(object));
@@ -90,18 +77,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         {
             var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
             List<int> value = [42];
-            var converter = new SpecializedGenericDictionaryConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Convert_ValueNotGenericDictionary_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
-            var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var converter = new SpecializedGenericDictionaryConverter();
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());

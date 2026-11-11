@@ -129,6 +129,16 @@ namespace FixtureBuilder.Tests.FixtureTests.CreateUninitialized
         }
 
         [Test]
+        public void MemberOfSystemTypeWithoutParameterlessConstructor_CreatesMemberUninitialized()
+        {
+            var fixture = Fixture.New<PropertyHolder<Uri>>();
+
+            var result = fixture.CreateUninitialized(InitializeMembers.All).Build();
+
+            Assert.That(result.Value, Is.Not.Null);
+        }
+
+        [Test]
         public void MemberTypeInNamespaceStartingWithSystem_CreatesMemberUninitializedWithMembers()
         {
             var fixture = Fixture.New<PropertyHolder<SystemUnderTest.Invoice>>();

@@ -124,7 +124,7 @@ namespace FixtureBuilder.Configuration
         /// If <c>false</c>, the instance passed to <paramref name="configure"/> is the parent that owns the final property.
         /// </param>
         /// <param name="configure">Applies the change to the resolved instance.</param>
-        internal void ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, Action<object, DataMemberInfo> configure)
+        private void ResolveDataMemberPath(MemberExpression? memberExpr, object root, bool resolveInstance, Action<object, DataMemberInfo> configure)
         {
             var members = new Stack<DataMemberInfo>();
             while (memberExpr != null)
@@ -168,7 +168,7 @@ namespace FixtureBuilder.Configuration
         /// Thrown when the value is <see langword="null"/> and nested instantiation is disabled, the property
         /// does not have a setter, or a provider returned <see langword="null"/>.
         /// </exception>
-        internal object InitializeDataMemberValue(object parent, DataMemberInfo dataMember)
+        private object InitializeDataMemberValue(object parent, DataMemberInfo dataMember)
         {
             var current = dataMember.GetValue(parent);
             if (current != null) return current;

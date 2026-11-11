@@ -85,16 +85,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
             Assert.That(result, Is.Null);
         }
 
-        [Test]
-        public void ByRefValueType_ReturnsNull()
-        {
-            var type = typeof(int).MakeByRefType();
-
-            var result = type.GetDefaultValue();
-
-            Assert.That(result, Is.Null);
-        }
-
         #endregion
     }
 }

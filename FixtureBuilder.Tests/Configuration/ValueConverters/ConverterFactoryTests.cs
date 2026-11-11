@@ -30,7 +30,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         [TestCase(typeof(ImmutableArray<string>))]
         [TestCase(typeof(ImmutableSortedSet<string>))]
         [TestCase(typeof(FrozenSet<string>))]
-        [TestCase(typeof(string[]))]
         [TestCase(typeof(ArrayList))]
         [TestCase(typeof(Stack))]
         [TestCase(typeof(Queue))]
@@ -46,6 +45,22 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(result, Is.InstanceOf(collectionType));
+                Assert.That(result, Is.EqualTo(["value"]));
+            }
+        }
+
+        [Test]
+        public void CreateDefaultConverter_ConvertsListToArray()
+        {
+            var converter = ConverterFactory.CreateDefaultConverter();
+            var request = new TypeRequest(typeof(string[]), typeof(object));
+            List<string> value = ["value"];
+
+            var result = converter.Convert(request, value, typeof(string[]), Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.InstanceOf<string[]>());
                 Assert.That(result, Is.EqualTo(["value"]));
             }
         }

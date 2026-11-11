@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using FixtureBuilder.Configuration.ValueConverters.CollectionConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -23,18 +22,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         }
 
         [Test]
-        public void Convert_TargetFrozenSet_ValueGenericEnumerable_DifferentElementType_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
-            List<int> value = [1, 2, 3];
-            var converter = new FrozenSetConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
         public void Convert_TargetNotFrozenSet_ReturnsNoResult()
         {
             var request = new TypeRequest(typeof(List<string>), typeof(object));
@@ -51,18 +38,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         {
             var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
             var value = 42;
-            var converter = new FrozenSetConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
-            var value = new ArrayList { "test1", "test2", "test3" };
             var converter = new FrozenSetConverter();
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());

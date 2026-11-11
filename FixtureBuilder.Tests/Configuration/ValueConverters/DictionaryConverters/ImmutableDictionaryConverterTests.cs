@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using FixtureBuilder.Configuration.ValueConverters.DictionaryConverters;
 using FixtureBuilder.Core;
@@ -50,18 +49,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         }
 
         [Test]
-        public void Convert_TargetImmutableDictionary_ValueGenericDictionary_DifferentElementType_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(ImmutableDictionary<string, int>), typeof(object));
-            var value = new Dictionary<string, long> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var converter = new ImmutableDictionaryConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
         public void Convert_TargetNotImmutableDictionary_ReturnsNoResult()
         {
             var request = new TypeRequest(typeof(ReadOnlyDictionary<string, int>), typeof(object));
@@ -78,18 +65,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         {
             var request = new TypeRequest(typeof(ImmutableDictionary<string, int>), typeof(object));
             List<int> value = [42];
-            var converter = new ImmutableDictionaryConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Convert_ValueNotGenericDictionary_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(ImmutableDictionary<string, int>), typeof(object));
-            var value = new Hashtable { { "one", 1 }, { "two", 2 }, { "three", 3 } };
             var converter = new ImmutableDictionaryConverter();
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());

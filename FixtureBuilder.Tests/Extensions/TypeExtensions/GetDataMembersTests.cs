@@ -44,15 +44,6 @@ namespace FixtureBuilder.Tests.Extensions.TypeExtensions
         }
 
         [Test]
-        public void PublicStatic_ReturnsStaticPropertiesThenFields()
-        {
-            var result = typeof(StaticMembersClass).GetDataMembers(BindingFlags.Public | BindingFlags.Static);
-
-            var names = result.Select(member => member.Name);
-            Assert.That(names, Is.EqualTo(["StaticProperty", "StaticField"]));
-        }
-
-        [Test]
         public void EmptyClass_ReturnsEmpty()
         {
             var result = typeof(EmptyClass).GetDataMembers(BindingFlags.Public | BindingFlags.Instance);

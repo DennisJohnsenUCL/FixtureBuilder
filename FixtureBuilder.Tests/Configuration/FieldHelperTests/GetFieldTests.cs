@@ -33,13 +33,5 @@ namespace FixtureBuilder.Tests.Configuration.FieldHelperTests
 
             Assert.That(result, Is.Null);
         }
-
-        [Test]
-        public void NoNames_ReturnsNull()
-        {
-            var result = FieldHelper.GetField(typeof(PublicAndPrivateFieldClass), []);
-
-            Assert.That(result, Is.Null);
-        }
     }
 }

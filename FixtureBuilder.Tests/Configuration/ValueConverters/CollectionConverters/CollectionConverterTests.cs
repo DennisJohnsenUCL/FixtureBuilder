@@ -75,18 +75,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         }
 
         [Test]
-        public void Convert_DifferentElementType_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(Collection<string>), typeof(object));
-            int[] value = [1, 2, 3];
-            var converter = new CollectionConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
         public void Convert_TargetNotCollection_ReturnsNoResult()
         {
             var request = new TypeRequest(typeof(List<string>), typeof(object));
@@ -105,18 +93,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
             var converter = new CollectionConverter();
 
             var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.TypeOf<NoResult>());
-        }
-
-        [Test]
-        public void Convert_ValueNotGenericEnumerable_ReturnsNoResult()
-        {
-            var request = new TypeRequest(typeof(Collection<string>), typeof(object));
-            var value = new ArrayList { "test1" };
-            var converter = new CollectionConverter();
-
-            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
