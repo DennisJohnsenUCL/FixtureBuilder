@@ -1,5 +1,4 @@
-﻿using FixtureBuilder.Assignment.ValueProviders;
-using FixtureBuilder.Core;
+﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Assignment.ValueProviders.Providers
@@ -17,8 +16,7 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
         {
             if (request.Type == typeof(string))
             {
-                if (request.Name != null) return request.Name;
-                return "";
+                return request.Name ?? "";
             }
 
             return NoResult.Instance;

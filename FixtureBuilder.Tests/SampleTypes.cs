@@ -143,7 +143,9 @@ namespace SystemUnderTest
 }
 
 // No namespace.
+#pragma warning disable RCS1110 // Declare type inside namespace
 internal class GlobalNamespaceClass
+#pragma warning restore RCS1110 // Declare type inside namespace
 {
     public string Value { get; set; } = null!;
 }

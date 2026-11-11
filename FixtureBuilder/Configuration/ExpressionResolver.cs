@@ -184,8 +184,8 @@ namespace FixtureBuilder.Configuration
 
             current = _context.ProvideWithStrategy(request, _context.OptionsFor(_rootType).NestedMemberInstantiationMethod, InitializeMembers.None)
                 ?? throw new InvalidOperationException($"User-registered Provider returned null for {dataMember.Name} in Expression chain resolution. " +
-                $"Providers for types in Expression chain Resolution must return concrete values. " +
-                $"Use Instantiate to explicitly instantiate the member instead.");
+                "Providers for types in Expression chain Resolution must return concrete values. " +
+                "Use Instantiate to explicitly instantiate the member instead.");
 
             dataMember.SetValue(parent, current);
             return current;

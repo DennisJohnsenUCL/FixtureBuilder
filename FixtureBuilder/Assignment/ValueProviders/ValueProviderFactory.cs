@@ -2,7 +2,7 @@
 
 namespace FixtureBuilder.Assignment.ValueProviders
 {
-    internal class ValueProviderFactory
+    internal static class ValueProviderFactory
     {
         public static ICompositeValueProvider CreateDefaultValueProvider()
         {

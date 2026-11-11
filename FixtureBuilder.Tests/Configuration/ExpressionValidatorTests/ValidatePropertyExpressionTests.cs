@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         [Test]
         public void Constant_ThrowsInvalidOperationException()
         {
-            Expression<Func<PropertyHolder<string>, string>> expression = x => "constant";
+            Expression<Func<PropertyHolder<string>, string>> expression = _ => "constant";
 
             Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidatePropertyExpression(expression));
         }

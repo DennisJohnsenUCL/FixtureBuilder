@@ -216,10 +216,8 @@ namespace FixtureBuilder
             ExpressionValidator.ValidatePropertyExpression(expr);
             ExpressionValidator.ValidatePropertyWriteable(expr);
 
-            _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember) =>
-            {
-                dataMember.Property.SetValue(instance, value);
-            });
+            _expressionResolver.ResolveDataMemberParent(_fixture, expr, (instance, dataMember)
+                => dataMember.Property.SetValue(instance, value));
 
             return this;
         }
@@ -307,16 +305,21 @@ namespace FixtureBuilder
 
         private void ValidateNullFixture()
         {
-            if (_fixture is not null) throw new InvalidOperationException(
-                $"The {typeof(T).Name} fixture is already constructed. Construction methods can only be called once, before any configuration method or Build.");
+            if (_fixture is not null)
+            {
+                throw new InvalidOperationException(
+                    $"The {typeof(T).Name} fixture is already constructed. Construction methods can only be called once, before any configuration method or Build.");
+            }
         }
 
         internal T InstantiateFixture()
         {
             if (!_context.OptionsFor(typeof(T)).AllowImplicitConstruction)
-                throw new InvalidOperationException($"Skipping instantiation step is not allowed. " +
-                    $"Please use UseAutoConstructor, UseConstructor, or CreateUninitialized before calling any configuration methods. " +
-                    $"Explicit instantiation can be allowed via AllowImplicitConstruction option.");
+            {
+                throw new InvalidOperationException("Skipping instantiation step is not allowed. " +
+                    "Please use UseAutoConstructor, UseConstructor, or CreateUninitialized before calling any configuration methods. " +
+                    "Explicit instantiation can be allowed via AllowImplicitConstruction option.");
+            }
 
             var request = new TypeRequest(typeof(T), typeof(T));
 

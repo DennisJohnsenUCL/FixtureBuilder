@@ -40,7 +40,7 @@ namespace FixtureBuilder.Configuration.ValueConverters
                 if (result == null && originalType.IsValueType && Nullable.GetUnderlyingType(originalType) is null)
                     throw new InvalidCastException($"Converter returned null when converting {value.GetType().Name} to {originalType.Name}, which is a non-nullable value type.");
 
-                if (result != null && !result.GetType().IsAssignableTo(originalType))
+                if (result?.GetType().IsAssignableTo(originalType) == false)
                     throw new InvalidCastException($"Converter returned object of type {result.GetType().Name}, which is unassignable to target of type {originalType.Name}");
 
                 return result;

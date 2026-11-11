@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Core;
 using FixtureBuilder.Creation.UninitializedProviders;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure

@@ -57,7 +57,7 @@
         {
             var fixture = TestHelper.MakeFixture<PublicMethodClass>();
 
-            Assert.Throws<InvalidOperationException>(() => fixture.Invoke(x => Console.WriteLine()));
+            Assert.Throws<InvalidOperationException>(() => fixture.Invoke(_ => Console.WriteLine()));
         }
 
         [Test]

@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
             var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
-            var value = 42;
+            const int value = 42;
             var converter = new FrozenSetConverter();
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());

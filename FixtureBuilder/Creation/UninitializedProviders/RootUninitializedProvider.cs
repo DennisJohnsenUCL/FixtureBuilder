@@ -38,7 +38,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
             {
                 instance = RuntimeHelpers.GetUninitializedObject(request.Type);
             }
-            catch (Exception) { }
+            catch { }
 
             if (instance is not NoResult && initializeMembers != InitializeMembers.None)
             {

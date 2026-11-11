@@ -36,7 +36,7 @@ namespace FixtureBuilder.Assignment.ValueProviders
                 if (result == null && isValueTypeNotNullable)
                 {
                     throw new InvalidOperationException($"ValueProvider {provider.GetType().Name} returned null for a non-nullable value type. " +
-                        $"This is not allowed as null cannot be assigned to non-nullable value types.");
+                        "This is not allowed as null cannot be assigned to non-nullable value types.");
                 }
 
                 if (result is not NoResult) return result;

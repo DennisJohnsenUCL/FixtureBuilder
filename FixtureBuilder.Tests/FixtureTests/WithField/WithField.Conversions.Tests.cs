@@ -7,7 +7,7 @@
         [Test]
         public void NonNullableReferenceField_NullableTypedValue_SetsField()
         {
-            string? value = "value";
+            const string? value = "value";
             var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
 
             var result = fixture.WithField("_value", value).Build();
@@ -44,7 +44,7 @@
         [Test]
         public void NullableReferenceField_NullableTypedValue_SetsField()
         {
-            string? value = "value";
+            const string? value = "value";
             var fixture = TestHelper.MakeFixture<NullableReferenceFieldClass>();
 
             var result = fixture.WithField("Value", value).Build();

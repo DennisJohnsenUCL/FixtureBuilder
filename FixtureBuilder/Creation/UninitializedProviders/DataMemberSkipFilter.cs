@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Configuration;
+using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Creation.UninitializedProviders
 {

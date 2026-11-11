@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace FixtureBuilder.Configuration
 {
-    internal class ExpressionValidator
+    internal static class ExpressionValidator
     {
         /// <summary>
         /// Validates that the final property in the specified expression has a setter.
@@ -41,8 +41,10 @@ namespace FixtureBuilder.Configuration
         public static void ValidateExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (expr.Body is not MemberExpression || !IsMemberChainOnParameter(expr.Body, expr.Parameters[0]))
+            {
                 throw new InvalidOperationException(
                     "Expression must be a direct property or field access chain, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
+            }
 
             ThrowIfEndsInNullableValue(expr);
         }
@@ -64,8 +66,10 @@ namespace FixtureBuilder.Configuration
         public static void ValidatePropertyExpression<T, TProp>(Expression<Func<T, TProp>> expr)
         {
             if (expr.Body is not MemberExpression { Member: PropertyInfo } || !IsMemberChainOnParameter(expr.Body, expr.Parameters[0]))
+            {
                 throw new InvalidOperationException(
                     "Expression must be a direct property or field access chain terminating in a property, e.g., x => x.Field1.Property2. Methods, constants, and computed values are not valid.");
+            }
 
             ThrowIfEndsInNullableValue(expr);
         }
@@ -86,15 +90,19 @@ namespace FixtureBuilder.Configuration
         public static void ValidateMethodExpression<T>(Expression<Action<T>> expr)
         {
             if (expr.Body is not MethodCallExpression { Object: { } obj } || !IsMemberChainOnParameter(obj, expr.Parameters[0]))
+            {
                 throw new InvalidOperationException(
                     "Expression must be a method call on a direct property access chain, e.g., x => x.Property1.DoSomething(). Static methods, extension methods, constants, and calls not rooted in the parameter are not valid.");
+            }
         }
 
         private static void ThrowIfEndsInNullableValue(LambdaExpression expr)
         {
             if (expr.Body is MemberExpression me && IsNullableValueProperty(me.Member))
+            {
                 throw new InvalidOperationException(
                     $"Expression '{expr}' ends in Nullable<T>.Value. The expression selects the member to configure, so target the nullable member itself: '{Expression.Lambda(me.Expression!, expr.Parameters)}'.");
+            }
         }
 
         internal static bool IsNullableValueProperty(MemberInfo member)

@@ -46,7 +46,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         [Test]
         public void StaticMethod_ThrowsInvalidOperationException()
         {
-            Expression<Action<PropertyHolder<string>>> expression = x => Console.WriteLine();
+            Expression<Action<PropertyHolder<string>>> expression = _ => Console.WriteLine();
 
             Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateMethodExpression(expression));
         }
@@ -55,7 +55,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void MethodOnCapturedVariable_ThrowsInvalidOperationException()
         {
             var holder = new PropertyHolder<string>();
-            Expression<Action<PropertyHolder<string>>> expression = x => holder.GetHashCode();
+            Expression<Action<PropertyHolder<string>>> expression = _ => holder.GetHashCode();
 
             Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateMethodExpression(expression));
         }

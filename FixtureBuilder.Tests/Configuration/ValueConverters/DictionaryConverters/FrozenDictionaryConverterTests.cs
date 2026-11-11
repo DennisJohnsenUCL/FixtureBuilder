@@ -14,7 +14,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         {
             var request = new TypeRequest(typeof(FrozenDictionary<string, int>), typeof(object));
             var value = new Dictionary<string, int> { { "one", 1 }, { "two", 2 }, { "three", 3 } };
-            var expected = FrozenDictionary.ToFrozenDictionary(value, null);
+            var expected = value.ToFrozenDictionary(null);
             var converter = new FrozenDictionaryConverter();
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());
@@ -27,7 +27,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.DictionaryConverter
         {
             var request = new TypeRequest(typeof(FrozenDictionary<string, int>), typeof(object));
             List<KeyValuePair<string, int>> value = [new("one", 1), new("two", 2), new("three", 3)];
-            var expected = FrozenDictionary.ToFrozenDictionary(value, null);
+            var expected = value.ToFrozenDictionary(null);
             var converter = new FrozenDictionaryConverter();
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>());

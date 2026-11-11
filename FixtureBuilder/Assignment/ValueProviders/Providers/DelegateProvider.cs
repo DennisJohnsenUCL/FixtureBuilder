@@ -27,13 +27,19 @@ namespace FixtureBuilder.Assignment.ValueProviders.Providers
 
                 var parameters = invoke.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
 
-                Expression? body = null;
-                if (invoke.ReturnType == typeof(Task)) body = Expression.Constant(Task.CompletedTask);
+                Expression body;
+                if (invoke.ReturnType == typeof(Task))
+                {
+                    body = Expression.Constant(Task.CompletedTask);
+                }
                 else if (invoke.ReturnType.GetGenericTypeDefinitionOrDefault() == typeof(Task<>))
                 {
                     body = Expression.Constant(CompletedTaskFactory.Create(invoke.ReturnType.GenericTypeArguments[0]));
                 }
-                else body = Expression.Default(invoke.ReturnType);
+                else
+                {
+                    body = Expression.Default(invoke.ReturnType);
+                }
 
                 return Expression.Lambda(request.Type, body, parameters).Compile();
             }

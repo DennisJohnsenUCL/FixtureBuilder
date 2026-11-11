@@ -23,7 +23,10 @@ namespace FixtureBuilder.Configuration
             {
                 fieldInfo.SetValue(instance, value);
             }
-            else throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field {fieldInfo.Name} of type {fieldType.Name}");
+            else
+            {
+                throw new InvalidOperationException($"Cannot assign value of type {sourceType.Name} to field {fieldInfo.Name} of type {fieldType.Name}");
+            }
         }
 
         public static void SetBackingFieldValue(FieldInfo backingField, PropertyInfo property, object instance, object? value, Type rootType, IFixtureContext context)
@@ -129,7 +132,7 @@ namespace FixtureBuilder.Configuration
 
         private static void ValidateNullableValueTypeAssignment(Type type, object? value)
         {
-            if (value == null && type.IsValueType && !(type.GetGenericTypeDefinitionOrDefault() == typeof(Nullable<>)))
+            if (value == null && type.IsValueType && type.GetGenericTypeDefinitionOrDefault() != typeof(Nullable<>))
                 throw new InvalidOperationException("Cannot assign null to a non-nullable value type. Consider passing default instead.");
         }
 

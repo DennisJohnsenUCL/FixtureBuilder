@@ -1,8 +1,6 @@
-﻿using FixtureBuilder.Assignment.ValueProviders.Providers;
-
-namespace FixtureBuilder.Creation.UninitializedProviders
+﻿namespace FixtureBuilder.Creation.UninitializedProviders
 {
-    internal class UninitializedProviderFactory
+    internal static class UninitializedProviderFactory
     {
         public static IRootUninitializedProvider CreateDefaultUninitializedProvider()
         {

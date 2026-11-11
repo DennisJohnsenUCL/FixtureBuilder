@@ -14,8 +14,11 @@ namespace FixtureBuilder.Configuration.ValueConverters.Casters
             var request = new TypeRequest(linked, rootType);
             var converted = context.Converter.Convert(request, item, targetType, context);
             if (converted is NoResult)
+            {
                 throw new InvalidCastException(
                     $"Cannot convert element of type {item.GetType().Name} to {targetType.Name}.");
+            }
+
             return converted;
         }
     }

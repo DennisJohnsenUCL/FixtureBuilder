@@ -62,7 +62,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         [Test]
         public void Constant_ThrowsInvalidOperationException()
         {
-            Expression<Func<PropertyHolder<string>, string>> expression = x => "constant";
+            Expression<Func<PropertyHolder<string>, string>> expression = _ => "constant";
 
             Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
         }
@@ -79,7 +79,7 @@ namespace FixtureBuilder.Tests.Configuration.ExpressionValidatorTests
         public void CapturedVariable_ThrowsInvalidOperationException()
         {
             var holder = new PropertyHolder<string>();
-            Expression<Func<PropertyHolder<string>, string>> expression = x => holder.Value;
+            Expression<Func<PropertyHolder<string>, string>> expression = _ => holder.Value;
 
             Assert.Throws<InvalidOperationException>(() => ExpressionValidator.ValidateExpression(expression));
         }

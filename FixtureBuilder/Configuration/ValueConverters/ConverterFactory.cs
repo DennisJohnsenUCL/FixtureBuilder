@@ -5,7 +5,7 @@ using FixtureBuilder.Configuration.ValueConverters.DictionaryConverters;
 
 namespace FixtureBuilder.Configuration.ValueConverters
 {
-    internal class ConverterFactory
+    internal static class ConverterFactory
     {
         public static ICompositeConverter CreateDefaultConverter()
         {

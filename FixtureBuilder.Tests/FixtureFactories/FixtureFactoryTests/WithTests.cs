@@ -68,7 +68,7 @@
         [Test]
         public void With_NullValue_AppliesNull()
         {
-            string? value = null;
+            const string? value = null;
             var factory = new FixtureFactory().With(value);
 
             var result = factory.New<StringConstructorClass>().Build();

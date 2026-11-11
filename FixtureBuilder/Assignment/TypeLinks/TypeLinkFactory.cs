@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace FixtureBuilder.Assignment.TypeLinks
 {
-    internal class TypeLinkFactory
+    internal static class TypeLinkFactory
     {
         public static ICompositeTypeLink CreateDefaultTypeLink()
         {
@@ -24,7 +24,7 @@ namespace FixtureBuilder.Assignment.TypeLinks
                 new TypeLink(typeof(IList), typeof(ArrayList)),
                 new TypeLink(typeof(ICollection), typeof(ArrayList)),
                 new TypeLink(typeof(IEnumerable), typeof(ArrayList)),
-                
+
                 //Dictionaries
                 new TypeLink(typeof(IDictionary<,>), typeof(Dictionary<,>)),
                 new TypeLink(typeof(IImmutableDictionary<,>), typeof(ImmutableDictionary<,>)),

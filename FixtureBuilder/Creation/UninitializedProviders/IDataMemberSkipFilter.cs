@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Creation.UninitializedProviders
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Creation.UninitializedProviders
 {
     internal interface IDataMemberSkipFilter
     {

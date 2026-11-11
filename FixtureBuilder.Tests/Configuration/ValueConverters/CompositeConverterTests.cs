@@ -23,10 +23,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         {
             var enumerableCaster = new Mock<IEnumerableElementCaster>();
             enumerableCaster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((TypeRequest request, object value, IFixtureContext context) => value);
+                .Returns((TypeRequest _, object value, IFixtureContext _) => value);
             var dictionaryCaster = new Mock<IDictionaryElementCaster>();
             dictionaryCaster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((TypeRequest request, object value, IFixtureContext context) => value);
+                .Returns((TypeRequest _, object value, IFixtureContext _) => value);
 
             return new CompositeConverter(converters, enumerableCaster.Object, dictionaryCaster.Object);
         }
