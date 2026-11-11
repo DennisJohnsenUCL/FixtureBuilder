@@ -1,7 +1,7 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberResolution
 {
     internal interface ICompositeUninitializedProvider
     {

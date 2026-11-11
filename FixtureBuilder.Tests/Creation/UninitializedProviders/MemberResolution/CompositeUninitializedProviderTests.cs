@@ -1,6 +1,6 @@
-﻿using FixtureBuilder.Creation.UninitializedProviders;
+﻿using FixtureBuilder.Creation.UninitializedProviders.MemberResolution;
 
-namespace FixtureBuilder.Tests.Creation.UninitializedProviders
+namespace FixtureBuilder.Tests.Creation.UninitializedProviders.MemberResolution
 {
     internal sealed class CompositeUninitializedProviderTests
     {

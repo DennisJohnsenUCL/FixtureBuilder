@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using FixtureBuilder.Core;
-using FixtureBuilder.Creation.UninitializedProviders;
+using FixtureBuilder.Creation.UninitializedProviders.MemberInitialization;
+using Microsoft.Contoso;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Contoso
@@ -23,7 +24,7 @@ namespace MicrosoftGraphClient
     }
 }
 
-namespace FixtureBuilder.Tests.Creation.UninitializedProviders
+namespace FixtureBuilder.Tests.Creation.UninitializedProviders.MemberInitialization
 {
     internal sealed class DataMemberSkipFilterTests
     {
@@ -55,7 +56,7 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
         public void ShouldSkip_PropertyFromMicrosoftChildNamespace_ReturnsTrue()
         {
             var filter = new DataMemberSkipFilter();
-            var member = TestHelper.PropertyMember(typeof(Microsoft.Contoso.Widget), nameof(Microsoft.Contoso.Widget.Name));
+            var member = TestHelper.PropertyMember(typeof(Widget), nameof(Widget.Name));
 
             var result = filter.ShouldSkip(member, InitializeMembers.All);
 

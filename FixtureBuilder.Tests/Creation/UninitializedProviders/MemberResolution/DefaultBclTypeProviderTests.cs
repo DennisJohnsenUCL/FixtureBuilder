@@ -1,10 +1,10 @@
 ﻿using System.Text;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
-using FixtureBuilder.Creation.UninitializedProviders;
+using FixtureBuilder.Creation.UninitializedProviders.MemberResolution;
 using Moq;
 
-namespace FixtureBuilder.Tests.Creation.UninitializedProviders
+namespace FixtureBuilder.Tests.Creation.UninitializedProviders.MemberResolution
 {
     internal sealed class DefaultBclTypeProviderTests
     {

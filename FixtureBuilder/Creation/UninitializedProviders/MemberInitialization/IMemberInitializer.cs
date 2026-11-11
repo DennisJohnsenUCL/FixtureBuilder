@@ -1,6 +1,6 @@
 ﻿using FixtureBuilder.Core.FixtureContexts;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberInitialization
 {
     internal interface IMemberInitializer
     {

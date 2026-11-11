@@ -1,6 +1,6 @@
 ﻿using FixtureBuilder.Core;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberInitialization
 {
     internal interface IDataMemberSkipFilter
     {

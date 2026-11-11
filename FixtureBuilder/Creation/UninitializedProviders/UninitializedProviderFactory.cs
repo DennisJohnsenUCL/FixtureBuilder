@@ -1,4 +1,7 @@
-﻿namespace FixtureBuilder.Creation.UninitializedProviders
+﻿using FixtureBuilder.Creation.UninitializedProviders.MemberInitialization;
+using FixtureBuilder.Creation.UninitializedProviders.MemberResolution;
+
+namespace FixtureBuilder.Creation.UninitializedProviders
 {
     internal static class UninitializedProviderFactory
     {

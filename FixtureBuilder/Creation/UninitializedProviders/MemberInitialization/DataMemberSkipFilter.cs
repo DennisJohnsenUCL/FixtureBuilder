@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberInitialization
 {
     /// <summary>
     /// Determines whether a <see cref="DataMemberInfo"/> should be skipped during fixture

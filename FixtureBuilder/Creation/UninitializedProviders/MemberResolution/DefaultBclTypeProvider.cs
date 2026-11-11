@@ -2,7 +2,7 @@
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberResolution
 {
     /// <summary>
     /// Provides fixture instances for Base Class Library (BCL) types in the <c>System</c> namespace hierarchy.

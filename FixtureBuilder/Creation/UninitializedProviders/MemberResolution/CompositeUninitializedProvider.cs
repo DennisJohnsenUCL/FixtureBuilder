@@ -1,7 +1,8 @@
 ﻿using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Creation.UninitializedProviders.MemberInitialization;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberResolution
 {
     /// <summary>
     /// The <see cref="ICompositeUninitializedProvider"/> used by <see cref="MemberInitializer"/> to resolve

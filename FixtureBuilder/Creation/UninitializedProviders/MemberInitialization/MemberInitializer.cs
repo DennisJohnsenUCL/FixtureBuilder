@@ -3,9 +3,10 @@ using System.Runtime.CompilerServices;
 using FixtureBuilder.Configuration;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Creation.UninitializedProviders.MemberResolution;
 using FixtureBuilder.Extensions;
 
-namespace FixtureBuilder.Creation.UninitializedProviders
+namespace FixtureBuilder.Creation.UninitializedProviders.MemberInitialization
 {
     /// <summary>
     /// Iterates over an object's data members (properties and fields) and initializes any

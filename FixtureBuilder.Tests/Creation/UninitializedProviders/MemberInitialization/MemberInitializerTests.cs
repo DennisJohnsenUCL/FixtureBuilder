@@ -1,7 +1,8 @@
-﻿using FixtureBuilder.Creation.UninitializedProviders;
+﻿using FixtureBuilder.Creation.UninitializedProviders.MemberInitialization;
+using FixtureBuilder.Creation.UninitializedProviders.MemberResolution;
 using Moq;
 
-namespace FixtureBuilder.Tests.Creation.UninitializedProviders
+namespace FixtureBuilder.Tests.Creation.UninitializedProviders.MemberInitialization
 {
     internal sealed class MemberInitializerTests
     {
