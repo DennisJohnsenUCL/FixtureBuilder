@@ -39,10 +39,9 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when a property along the path does not have a getter, when a <see langword="null"/> member
-        /// along the path cannot be initialized because nested instantiation is disabled, the property does not
-        /// have a setter, or a provider returned <see langword="null"/>, or when a changed struct along the path
-        /// is held by a property without a setter.
+        /// Thrown when a <see langword="null"/> member along the path cannot be initialized because nested
+        /// instantiation is disabled, the property does not have a setter, or a provider returned
+        /// <see langword="null"/>, or when a changed struct along the path is held by a property without a setter.
         /// </exception>
         public void ResolveDataMemberParent<T, TProp>(T root, Expression<Func<T, TProp>> expr, Action<object, DataMemberInfo> configure)
         {
@@ -72,10 +71,9 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when a property along the path does not have a getter, when a <see langword="null"/> member
-        /// along the path cannot be initialized because nested instantiation is disabled, the property does not
-        /// have a setter, or a provider returned <see langword="null"/>, or when a changed struct along the path
-        /// is held by a property without a setter.
+        /// Thrown when a <see langword="null"/> member along the path cannot be initialized because nested
+        /// instantiation is disabled, the property does not have a setter, or a provider returned
+        /// <see langword="null"/>, or when a changed struct along the path is held by a property without a setter.
         /// </exception>
         public void ResolveDataMemberInstance<T, TProp>(T root, Expression<Func<T, TProp>> expr, Action<object, DataMemberInfo> configure)
         {
@@ -99,10 +97,9 @@ namespace FixtureBuilder.Configuration
         /// </param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="root"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when a property along the path does not have a getter, when a <see langword="null"/> member
-        /// along the path cannot be initialized because nested instantiation is disabled, the property does not
-        /// have a setter, or a provider returned <see langword="null"/>, or when a changed struct along the path
-        /// is held by a property without a setter.
+        /// Thrown when a <see langword="null"/> member along the path cannot be initialized because nested
+        /// instantiation is disabled, the property does not have a setter, or a provider returned
+        /// <see langword="null"/>, or when a changed struct along the path is held by a property without a setter.
         /// </exception>
         public void ResolveMethodParent<T>(T root, Expression<Action<T>> expr)
         {
@@ -168,14 +165,11 @@ namespace FixtureBuilder.Configuration
         /// <param name="dataMember">The property to read or initialize.</param>
         /// <returns>The existing or newly initialized value of the property.</returns>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when the property does not have a getter, or when the value is <see langword="null"/> and
-        /// nested instantiation is disabled, the property does not have a setter, or a provider returned <see langword="null"/>.
+        /// Thrown when the value is <see langword="null"/> and nested instantiation is disabled, the property
+        /// does not have a setter, or a provider returned <see langword="null"/>.
         /// </exception>
         internal object InitializeDataMemberValue(object parent, DataMemberInfo dataMember)
         {
-            if (dataMember.IsPropertyInfo && !dataMember.Property.CanRead)
-                throw new InvalidOperationException($"Property {dataMember.Name} does not have a getter. It is not possible to work with nested properties unless every member in the chain has a getter.");
-
             var current = dataMember.GetValue(parent);
             if (current != null) return current;
 
