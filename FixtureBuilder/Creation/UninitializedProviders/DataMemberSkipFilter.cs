@@ -6,7 +6,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 {
     /// <summary>
     /// Determines whether a <see cref="DataMemberInfo"/> should be skipped during fixture
-    /// member initialization. Members are skipped if they belong to <c>System</c> or <c>Microsoft</c> namespaces, are static,
+    /// member initialization. Members are skipped if they belong to <c>System</c> or <c>Microsoft</c> namespaces,
     /// are inaccessible properties (write-only, indexed, of a ref struct type such as <see cref="Span{T}"/>,
     /// or read-only without an auto-property backing field), are compiler-generated
     /// backing fields, or — when <see cref="InitializeMembers.NonNullables"/> is specified —
@@ -18,7 +18,7 @@ namespace FixtureBuilder.Creation.UninitializedProviders
 
         public bool ShouldSkip(DataMemberInfo dataMember, InitializeMembers initializeMembers)
         {
-            if (IsFromSkippedNamespace(dataMember) || dataMember.IsStatic)
+            if (IsFromSkippedNamespace(dataMember))
                 return true;
 
             if (IsInaccessibleProperty(dataMember))

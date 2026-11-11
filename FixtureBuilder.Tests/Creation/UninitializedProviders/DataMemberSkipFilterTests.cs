@@ -107,32 +107,6 @@ namespace FixtureBuilder.Tests.Creation.UninitializedProviders
 
         #endregion
 
-        #region Static members
-
-        [Test]
-        public void ShouldSkip_StaticProperty_ReturnsTrue()
-        {
-            var filter = new DataMemberSkipFilter();
-            var member = TestHelper.PropertyMember(typeof(StaticMembersClass), nameof(StaticMembersClass.StaticProperty));
-
-            var result = filter.ShouldSkip(member, InitializeMembers.All);
-
-            Assert.That(result, Is.True);
-        }
-
-        [Test]
-        public void ShouldSkip_StaticField_ReturnsTrue()
-        {
-            var filter = new DataMemberSkipFilter();
-            var member = TestHelper.FieldMember(typeof(StaticMembersClass), nameof(StaticMembersClass.StaticField));
-
-            var result = filter.ShouldSkip(member, InitializeMembers.All);
-
-            Assert.That(result, Is.True);
-        }
-
-        #endregion
-
         #region Inaccessible properties
 
         private class GetOnlyAutoPropertyClass
