@@ -42,6 +42,19 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
+        // A value the casters made fit is used as is, the same as a value that fit to begin with.
+        [Test]
+        public void Convert_CastValueAssignableToOriginalType_ReturnsCastValueWithoutTryingConverters()
+        {
+            List<int> values = [1, 2, 3];
+            var composite = MakeComposite(new FixedValueConverter(new List<int>()));
+            var request = new TypeRequest(typeof(List<int>), typeof(object));
+
+            var result = composite.Convert(request, values, typeof(IEnumerable<int>), Mock.Of<IFixtureContext>());
+
+            Assert.That(result, Is.SameAs(values));
+        }
+
         // Later converters can be user converters with side effects, so they must not run once a value is converted.
         [Test]
         public void Convert_FirstConverterResolves_DoesNotCallLaterConverters()
