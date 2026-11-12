@@ -45,6 +45,16 @@
         }
 
         [Test]
+        public void NullInstance_ThrowsArgumentNullException()
+        {
+            EmptyClass instance = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => Fixture.New(instance));
+
+            Assert.That(ex.ParamName, Is.EqualTo("instance"));
+        }
+
+        [Test]
         public void FixtureInstance_ThrowsInvalidOperationException()
         {
             var instance = Fixture.New<EmptyClass>();

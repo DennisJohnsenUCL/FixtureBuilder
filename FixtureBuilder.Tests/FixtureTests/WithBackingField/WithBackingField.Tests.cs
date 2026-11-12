@@ -4,6 +4,40 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
 {
     internal sealed class WithBackingFieldTests
     {
+        #region Arguments
+
+        [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithBackingField<string>(null!, "value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullExpressionWithFieldName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithBackingField<string>(null!, "value", "_value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullFieldName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithBackingField(x => x.Value, "value", null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("fieldName"));
+        }
+
+        #endregion
+
         #region Backing field lookup
 
         [Test]

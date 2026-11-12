@@ -22,6 +22,30 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
             }
         }
 
+        #region Arguments
+
+        [Test]
+        public void SetOptions_NullAction_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.SetOptions(null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("optionsAction"));
+        }
+
+        [Test]
+        public void OptionsSetter_Null_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.Options = null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("value"));
+        }
+
+        #endregion
+
         #region SetOptions
 
         private class NullableAndDefaultParameterClass(int? count, int size = 99)
@@ -105,14 +129,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
             }
         }
 
-        [Test]
-        public void SetOptions_NullAction_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.SetOptions(null!)));
-        }
-
         #endregion
 
         #region Options setter
@@ -125,14 +141,6 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
             var fixture = factory.New<PrivateConstructorClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.Build());
-        }
-
-        [Test]
-        public void OptionsSetter_Null_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.Options = null!));
         }
 
         #endregion

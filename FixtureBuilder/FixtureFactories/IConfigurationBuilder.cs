@@ -11,11 +11,13 @@ namespace FixtureBuilder.FixtureFactories
         /// <summary>
         /// Sets the options for this configuration scope.
         /// </summary>
+        /// <exception cref="ArgumentNullException">The property is being set to <see langword="null"/>.</exception>
         FixtureOptions Options { set; }
 
         /// <summary>
         /// Configures the options for this configuration scope via a mutating action.
         /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="optionsAction"/> is <see langword="null"/>.</exception>
         TReturn SetOptions(Action<FixtureOptions> optionsAction);
 
         /// <summary>
@@ -24,6 +26,7 @@ namespace FixtureBuilder.FixtureFactories
         /// <remarks>
         /// The provider must return <c>NoResult.Instance</c> for requests it does not handle. A <c>null</c> return is treated as an explicit null assignment.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="provider"/> is <see langword="null"/>.</exception>
         TReturn AddProvider(ICustomProvider provider);
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace FixtureBuilder.FixtureFactories
         /// The converter must return <c>NoResult.Instance</c> for conversions it does not handle. A <c>null</c> return is treated as an explicit null assignment, except for a non-nullable value type, where it throws an <see cref="InvalidCastException"/>.
         /// Returning a value that is not assignable to the field or element type being converted to throws an <see cref="InvalidCastException"/>.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="converter"/> is <see langword="null"/>.</exception>
         TReturn AddConverter(ICustomConverter converter);
 
         /// <summary>
@@ -43,11 +47,13 @@ namespace FixtureBuilder.FixtureFactories
         /// <summary>
         /// Registers a type link that substitutes <paramref name="typeIn"/> with <paramref name="typeOut"/> during value resolution.
         /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="typeIn"/> or <paramref name="typeOut"/> is <see langword="null"/>.</exception>
         TReturn AddTypeLink(Type typeIn, Type typeOut);
 
         /// <summary>
         /// Registers a custom type link for type substitution during value resolution.
         /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="typeLink"/> is <see langword="null"/>.</exception>
         TReturn AddTypeLink(ICustomTypeLink typeLink);
     }
 }

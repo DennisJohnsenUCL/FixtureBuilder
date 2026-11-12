@@ -41,5 +41,15 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             Assert.Throws<InvalidCastException>(() => fixture.WithBackingField(x => x.Value, 123));
         }
+
+        [Test]
+        public void NullConverter_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.AddConverter(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("converter"));
+        }
     }
 }

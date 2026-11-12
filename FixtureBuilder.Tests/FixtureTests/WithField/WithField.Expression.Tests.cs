@@ -91,6 +91,26 @@
         }
 
         [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ReadOnlyPropertyHolder<string>>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithField<ReadOnlyPropertyHolder<string>, string>(null!, "_value", "value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullFieldName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ReadOnlyPropertyHolder<string>>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithField(x => x.Value, null!, "value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("fieldName"));
+        }
+
+        [Test]
         public void NotConstructed_ConstructsImplicitlyAndSetsField()
         {
             var fixture = Fixture.New<PropertyHolder<ReadOnlyPropertyHolder<string>>>();

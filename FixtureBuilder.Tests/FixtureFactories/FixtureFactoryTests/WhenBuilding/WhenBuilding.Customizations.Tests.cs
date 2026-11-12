@@ -1,7 +1,63 @@
-﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.WhenBuilding
 {
     internal sealed class WhenBuildingCustomizationsTests
     {
+        #region Arguments
+
+        [Test]
+        public void AddProvider_Null_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddProvider(null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("provider"));
+        }
+
+        [Test]
+        public void AddConverter_Null_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddConverter(null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("converter"));
+        }
+
+        [Test]
+        public void AddTypeLink_NullInType_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddTypeLink(null!, typeof(MarkerImplementationClass))));
+
+            Assert.That(ex.ParamName, Is.EqualTo("typeIn"));
+        }
+
+        [Test]
+        public void AddTypeLink_NullOutType_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddTypeLink(typeof(IMarkerInterface), null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("typeOut"));
+        }
+
+        [Test]
+        public void AddTypeLink_NullCustomTypeLink_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.AddTypeLink((ICustomTypeLink)null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("typeLink"));
+        }
+
+        #endregion
+
         #region AddProvider
 
         [Test]

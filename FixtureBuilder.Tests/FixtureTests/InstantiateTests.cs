@@ -4,6 +4,60 @@ namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class InstantiateTests
     {
+        #region Arguments
+
+        [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.Instantiate<ConstructorSetsValueClass>(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void UseAutoConstructor_NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.Instantiate<ConstructorSetsValueClass>(null!, constructor => constructor.UseAutoConstructor()));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullConstructorFunction_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.Instantiate(x => x.Value, null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void UseConstructor_NullArguments_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.Instantiate(x => x.Value, constructor => constructor.UseConstructor(null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("args"));
+        }
+
+        [Test]
+        public void UseCustomInstantiator_NullInstantiator_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<ConstructorSetsValueClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.Instantiate(x => x.Value, constructor => constructor.UseCustomInstantiator(null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("instantiator"));
+        }
+
+        #endregion
+
         #region Default instantiation
 
         [Test]

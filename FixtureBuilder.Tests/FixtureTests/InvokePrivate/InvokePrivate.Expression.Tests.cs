@@ -57,6 +57,36 @@
         }
 
         [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.InvokePrivate<PrivateMethodClass>(null!, "Call"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullMethodName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.InvokePrivate(x => x.Value, null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("methodName"));
+        }
+
+        [Test]
+        public void NullArguments_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<PrivateMethodClass>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.InvokePrivate(x => x.Value, "Call", null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("arguments"));
+        }
+
+        [Test]
         public void PropertyChain_InitializesChainAndInvokesMethodOnLastMember()
         {
             var fixture = TestHelper.MakeFixture<PropertyHolder<PropertyHolder<PrivateMethodClass>>>();

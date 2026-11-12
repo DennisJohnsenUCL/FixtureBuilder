@@ -40,6 +40,16 @@
         }
 
         [Test]
+        public void NullFieldName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithField(null!, "value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("fieldName"));
+        }
+
+        [Test]
         public void InheritedProtectedField_SetsField()
         {
             var fixture = TestHelper.MakeFixture<DerivedFromProtectedFieldClass>();

@@ -29,7 +29,9 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
         {
             var factory = new FixtureFactory();
 
-            Assert.Throws<ArgumentNullException>(() => factory.Options = null!);
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.Options = null!);
+
+            Assert.That(ex.ParamName, Is.EqualTo("value"));
         }
     }
 }

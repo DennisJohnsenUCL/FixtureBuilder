@@ -2,6 +2,146 @@
 {
     internal sealed class WhenBuildingTests
     {
+        #region Arguments
+
+        [Test]
+        public void NullAction_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("builderAction"));
+        }
+
+        [Test]
+        public void WithFunc_NullFunc_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+            Func<string> func = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.With(func)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void WithNamed_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.With("scoped", null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void WithNamedFunc_NullFunc_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+            Func<string> func = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.With(func, "value")));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void WithNamedFunc_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.With(() => "scoped", null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void WithParameterFunc_NullFunc_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+            Func<string> func = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.WithParameter(func)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void WithParameterNamed_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.WithParameter("scoped", null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void WithParameterNamedFunc_NullFunc_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+            Func<string> func = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.WithParameter(func, "value")));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void WithParameterNamedFunc_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(builder => builder.WithParameter(() => "scoped", null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void WithPropertyOrFieldFunc_NullFunc_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+            Func<string> func = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<PropertyHolder<string>>(builder => builder.WithPropertyOrField(func)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void WithPropertyOrFieldNamed_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<PropertyHolder<string>>(builder => builder.WithPropertyOrField("scoped", null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void WithPropertyOrFieldNamedFunc_NullFunc_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+            Func<string> func = null!;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<PropertyHolder<string>>(builder => builder.WithPropertyOrField(func, "Value")));
+
+            Assert.That(ex.ParamName, Is.EqualTo("func"));
+        }
+
+        [Test]
+        public void WithPropertyOrFieldNamedFunc_NullName_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<PropertyHolder<string>>(builder => builder.WithPropertyOrField(() => "scoped", null!)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("name"));
+        }
+
+        #endregion
+
         #region Scope
 
         [Test]
@@ -12,14 +152,6 @@
             var result = factory.WhenBuilding<StringConstructorClass>(builder => builder.WithParameter("scoped"));
 
             Assert.That(result, Is.SameAs(factory));
-        }
-
-        [Test]
-        public void NullAction_ThrowsArgumentNullException()
-        {
-            var factory = new FixtureFactory();
-
-            Assert.Throws<ArgumentNullException>(() => factory.WhenBuilding<StringConstructorClass>(null!));
         }
 
         [Test]

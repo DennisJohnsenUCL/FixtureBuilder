@@ -31,6 +31,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="args">The arguments to pass to the constructor. Must match the constructor's parameter types and order.</param>
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="args"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         TReturn UseConstructor(params object[] args);
 
@@ -53,6 +54,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="instantiator">A function that returns the fully constructed instance.</param>
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="instantiator"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         TReturn UseCustomInstantiator(Func<TReturn> instantiator);
     }

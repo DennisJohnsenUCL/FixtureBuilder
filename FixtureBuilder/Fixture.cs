@@ -20,6 +20,11 @@
         /// <typeparam name="T">The type of the object to configure. Must be a reference type.</typeparam>
         /// <param name="instance">The instance to be used for configuration. Cannot be <see langword="null"/>.</param>
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> instance for configuring the specified object.</returns>
-        public static IFixtureConfigurator<T> New<T>(T instance) where T : class => new Fixture<T>(instance);
+        /// <exception cref="ArgumentNullException"><paramref name="instance"/> is <see langword="null"/>.</exception>
+        public static IFixtureConfigurator<T> New<T>(T instance) where T : class
+        {
+            ArgumentNullException.ThrowIfNull(instance);
+            return new Fixture<T>(instance);
+        }
     }
 }

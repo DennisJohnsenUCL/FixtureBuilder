@@ -23,11 +23,13 @@ namespace FixtureBuilder.Configuration
             return (T)_context.AutoConstructingProvider.AutoResolve(request, _context);
         }
 
-        public T UseConstructor(params object?[] arguments)
+        public T UseConstructor(params object?[] args)
         {
+            ArgumentNullException.ThrowIfNull(args);
+
             var type = typeof(T).Unwrap();
 
-            return (T)_context.ConstructingProvider.ResolveWithArguments(type, arguments);
+            return (T)_context.ConstructingProvider.ResolveWithArguments(type, args);
         }
 
         public T CreateUninitialized()
@@ -48,6 +50,8 @@ namespace FixtureBuilder.Configuration
 
         public T UseCustomInstantiator(Func<T> instantiator)
         {
+            ArgumentNullException.ThrowIfNull(instantiator);
+
             var instance = instantiator() ?? throw new InvalidOperationException(
                 $"Custom instantiator for {typeof(T).Name} returned null. Custom instantiators must always return a valid instance.");
 

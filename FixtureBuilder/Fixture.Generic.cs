@@ -63,11 +63,13 @@ namespace FixtureBuilder
             return this;
         }
 
-        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] arguments)
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] args)
         {
+            ArgumentNullException.ThrowIfNull(args);
+
             ValidateNullFixture();
 
-            var instance = _context.ConstructingProvider.ResolveWithArguments(typeof(T), arguments);
+            var instance = _context.ConstructingProvider.ResolveWithArguments(typeof(T), args);
 
             _fixture = (T)instance;
 
@@ -88,6 +90,7 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConstructor<T>.UseCustomInstantiator(Func<T> instantiator)
         {
+            ArgumentNullException.ThrowIfNull(instantiator);
             ValidateNullFixture();
 
             var instance = instantiator() ?? throw new InvalidOperationException(
@@ -110,6 +113,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+
             _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
@@ -123,6 +128,9 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+            ArgumentNullException.ThrowIfNull(func);
+
             _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
@@ -133,6 +141,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithField<TValue>(string fieldName, TValue value)
         {
+            ArgumentNullException.ThrowIfNull(fieldName);
+
             _fixture ??= InstantiateFixture();
 
             return WithFieldInternal(fieldName, typeof(T), value, _fixture);
@@ -140,6 +150,9 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, string fieldName, TValue value)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+            ArgumentNullException.ThrowIfNull(fieldName);
+
             _fixture ??= InstantiateFixture();
 
             ExpressionValidator.ValidateExpression(expr);
@@ -171,16 +184,30 @@ namespace FixtureBuilder
         }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value)
-            => WithBackingFieldInternal(expr, value);
+        {
+            ArgumentNullException.ThrowIfNull(expr);
+            return WithBackingFieldInternal(expr, value);
+        }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName)
-            => WithBackingFieldInternal(expr, value, fieldName);
+        {
+            ArgumentNullException.ThrowIfNull(expr);
+            ArgumentNullException.ThrowIfNull(fieldName);
+            return WithBackingFieldInternal(expr, value, fieldName);
+        }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value)
-            => WithBackingFieldInternal(expr, value);
+        {
+            ArgumentNullException.ThrowIfNull(expr);
+            return WithBackingFieldInternal(expr, value);
+        }
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName)
-            => WithBackingFieldInternal(expr, value, fieldName);
+        {
+            ArgumentNullException.ThrowIfNull(expr);
+            ArgumentNullException.ThrowIfNull(fieldName);
+            return WithBackingFieldInternal(expr, value, fieldName);
+        }
 
         private Fixture<T> WithBackingFieldInternal<TProp>(
             Expression<Func<T, TProp>> expr,
@@ -206,6 +233,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+
             _fixture ??= InstantiateFixture();
 
             ExpressionValidator.ValidatePropertyExpression(expr);
@@ -219,6 +248,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.With<TProp>(Expression<Func<T, TProp>> expr, TProp value)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+
             _fixture ??= InstantiateFixture();
             ExpressionValidator.ValidateExpression(expr);
 
@@ -244,6 +275,8 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.Invoke(Expression<Action<T>> expr)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+
             _fixture ??= InstantiateFixture();
 
             ExpressionValidator.ValidateMethodExpression(expr);
@@ -257,6 +290,9 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate(string methodName, params object?[] arguments)
         {
+            ArgumentNullException.ThrowIfNull(methodName);
+            ArgumentNullException.ThrowIfNull(arguments);
+
             _fixture ??= InstantiateFixture();
 
             InvokePrivateInternal(typeof(T), _fixture, methodName, arguments);
@@ -266,6 +302,10 @@ namespace FixtureBuilder
 
         IFixtureConfigurator<T> IFixtureConfigurator<T>.InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, string methodName, params object?[] arguments)
         {
+            ArgumentNullException.ThrowIfNull(expr);
+            ArgumentNullException.ThrowIfNull(methodName);
+            ArgumentNullException.ThrowIfNull(arguments);
+
             _fixture ??= InstantiateFixture();
 
             ExpressionValidator.ValidateExpression(expr);

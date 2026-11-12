@@ -61,6 +61,16 @@
         }
 
         [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PublicMethodClass>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.Invoke(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
         public void NotConstructed_ConstructsImplicitlyAndInvokesMethod()
         {
             var fixture = Fixture.New<PublicMethodClass>();

@@ -50,6 +50,7 @@ namespace FixtureBuilder
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> AddProvider(ICustomProvider provider)
         {
+            ArgumentNullException.ThrowIfNull(provider);
             var adaptedProvider = new CustomProviderAdapter(provider);
             var decoratedRootProvider = new RootProviderDecorator(adaptedProvider, typeof(TRoot));
             _context.ValueProvider.AddRootProvider(decoratedRootProvider);
@@ -59,6 +60,7 @@ namespace FixtureBuilder
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> AddConverter(ICustomConverter converter)
         {
+            ArgumentNullException.ThrowIfNull(converter);
             var adaptedConverter = new CustomConverterAdapter(converter);
             var decoratedRootConverter = new RootConverterDecorator(adaptedConverter, typeof(TRoot));
             _context.Converter.AddRootConverter(decoratedRootConverter);
@@ -71,11 +73,17 @@ namespace FixtureBuilder
 
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> AddTypeLink(Type typeIn, Type typeOut)
-            => AddTypeLink(new TypeLink(typeIn, typeOut));
+        {
+            ArgumentNullException.ThrowIfNull(typeIn);
+            ArgumentNullException.ThrowIfNull(typeOut);
+
+            return AddTypeLink(new TypeLink(typeIn, typeOut));
+        }
 
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> AddTypeLink(ICustomTypeLink typeLink)
         {
+            ArgumentNullException.ThrowIfNull(typeLink);
             var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
             return AddTypeLink(adaptedTypeLink);
         }
@@ -95,29 +103,77 @@ namespace FixtureBuilder
 
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> With<T>(T value) => Add(_innerBuilder.With(value));
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> With<T>(Func<T> func) => Add(_innerBuilder.With(func));
+        public RootConfigurationBuilder<TRoot> With<T>(Func<T> func)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            return Add(_innerBuilder.With(func));
+        }
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> With<T>(T value, string name) => Add(_innerBuilder.With(value, name));
+        public RootConfigurationBuilder<TRoot> With<T>(T value, string name)
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            return Add(_innerBuilder.With(value, name));
+        }
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> With<T>(Func<T> func, string name) => Add(_innerBuilder.With(func, name));
+        public RootConfigurationBuilder<TRoot> With<T>(Func<T> func, string name)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(name);
+            return Add(_innerBuilder.With(func, name));
+        }
 
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> WithParameter<T>(T value) => Add(_innerBuilder.WithParameter(value));
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> WithParameter<T>(Func<T> func) => Add(_innerBuilder.WithParameter(func));
+        public RootConfigurationBuilder<TRoot> WithParameter<T>(Func<T> func)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            return Add(_innerBuilder.WithParameter(func));
+        }
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> WithParameter<T>(T value, string name) => Add(_innerBuilder.WithParameter(value, name));
+        public RootConfigurationBuilder<TRoot> WithParameter<T>(T value, string name)
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            return Add(_innerBuilder.WithParameter(value, name));
+        }
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> WithParameter<T>(Func<T> func, string name) => Add(_innerBuilder.WithParameter(func, name));
+        public RootConfigurationBuilder<TRoot> WithParameter<T>(Func<T> func, string name)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(name);
+            return Add(_innerBuilder.WithParameter(func, name));
+        }
 
         /// <inheritdoc />
         public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(T value) => Add(_innerBuilder.WithPropertyOrField(value));
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(Func<T> func) => Add(_innerBuilder.WithPropertyOrField(func));
+        public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(Func<T> func)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            return Add(_innerBuilder.WithPropertyOrField(func));
+        }
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(T value, string name) => Add(_innerBuilder.WithPropertyOrField(value, name));
+        public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(T value, string name)
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            return Add(_innerBuilder.WithPropertyOrField(value, name));
+        }
+
         /// <inheritdoc />
-        public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(Func<T> func, string name) => Add(_innerBuilder.WithPropertyOrField(func, name));
+        public RootConfigurationBuilder<TRoot> WithPropertyOrField<T>(Func<T> func, string name)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(name);
+            return Add(_innerBuilder.WithPropertyOrField(func, name));
+        }
     }
 }

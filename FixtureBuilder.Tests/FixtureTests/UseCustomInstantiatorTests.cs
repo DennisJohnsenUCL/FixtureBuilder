@@ -70,6 +70,16 @@
         }
 
         [Test]
+        public void NullInstantiator_ThrowsArgumentNullException()
+        {
+            var fixture = Fixture.New<PropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.UseCustomInstantiator(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("instantiator"));
+        }
+
+        [Test]
         public void AlreadyConstructed_ThrowsInvalidOperationException()
         {
             var fixture = Fixture.New<PropertyHolder<string>>();

@@ -2,6 +2,30 @@
 {
     internal sealed class InvokePrivateTests
     {
+        #region Arguments
+
+        [Test]
+        public void NullMethodName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PrivateMethodClass>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.InvokePrivate(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("methodName"));
+        }
+
+        [Test]
+        public void NullArguments_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PrivateMethodClass>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.InvokePrivate("Call", null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("arguments"));
+        }
+
+        #endregion
+
         #region Invocation
 
         [Test]

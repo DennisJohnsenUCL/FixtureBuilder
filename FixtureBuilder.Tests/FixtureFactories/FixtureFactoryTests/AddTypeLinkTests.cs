@@ -1,8 +1,44 @@
-﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 {
     internal sealed class AddTypeLinkTests
     {
         private class GenericImplementationClass<T> : IGenericInterface<T>;
+
+        #region Arguments
+
+        [Test]
+        public void NullInType_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.AddTypeLink(null!, typeof(MarkerImplementationClass)));
+
+            Assert.That(ex.ParamName, Is.EqualTo("typeIn"));
+        }
+
+        [Test]
+        public void NullOutType_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.AddTypeLink(typeof(IMarkerInterface), null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("typeOut"));
+        }
+
+        [Test]
+        public void NullCustomTypeLink_ThrowsArgumentNullException()
+        {
+            var factory = new FixtureFactory();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.AddTypeLink((ICustomTypeLink)null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("typeLink"));
+        }
+
+        #endregion
 
         #region Linking
 

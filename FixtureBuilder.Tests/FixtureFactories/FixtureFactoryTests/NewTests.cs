@@ -76,7 +76,9 @@
             var factory = new FixtureFactory();
             ConstructorSetsValueClass instance = null!;
 
-            Assert.Throws<ArgumentNullException>(() => factory.New(instance));
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.New(instance));
+
+            Assert.That(ex.ParamName, Is.EqualTo("instance"));
         }
     }
 }

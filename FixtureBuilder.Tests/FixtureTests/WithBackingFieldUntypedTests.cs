@@ -55,6 +55,36 @@
         }
 
         [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithBackingFieldUntyped<string>(null!, "value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullExpressionWithFieldName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithBackingFieldUntyped<string>(null!, "value", "_value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
+        public void NullFieldName_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithBackingFieldUntyped(x => x.Value, "value", null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("fieldName"));
+        }
+
+        [Test]
         public void NotConstructed_ConstructsImplicitlyAndSetsBackingField()
         {
             var fixture = Fixture.New<PropertyHolder<string>>();

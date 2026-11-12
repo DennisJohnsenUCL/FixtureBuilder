@@ -27,7 +27,9 @@
         {
             var factory = new FixtureFactory();
 
-            Assert.Throws<ArgumentNullException>(() => factory.SetOptions(null!));
+            var ex = Assert.Throws<ArgumentNullException>(() => factory.SetOptions(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("action"));
         }
     }
 }

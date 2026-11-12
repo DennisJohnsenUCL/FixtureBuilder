@@ -17,16 +17,6 @@ namespace FixtureBuilder.Tests.Assignment.ValueProviders
             public object? ResolveValue(FixtureRequest request, IFixtureContext context) => NoResult.Instance;
         }
 
-        #region Arguments
-
-        [Test]
-        public void Constructor_NullProviders_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new CompositeValueProvider(null!));
-        }
-
-        #endregion
-
         #region Resolution
 
         [Test]

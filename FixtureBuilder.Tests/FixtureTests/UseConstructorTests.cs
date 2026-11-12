@@ -68,6 +68,16 @@
             Assert.Throws<InvalidOperationException>(() => fixture.UseConstructor("value", 123));
         }
 
+        [Test]
+        public void NullArguments_ThrowsArgumentNullException()
+        {
+            var fixture = Fixture.New<ConstructorSetsValueClass>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.UseConstructor(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("args"));
+        }
+
         private record InitializedPropertyRecord
         {
             public string Value { get; init; } = "constructor";

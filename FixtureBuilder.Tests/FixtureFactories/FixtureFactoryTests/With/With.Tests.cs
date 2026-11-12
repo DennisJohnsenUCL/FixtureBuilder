@@ -1,4 +1,4 @@
-﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
+﻿namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests.With
 {
     internal sealed class WithTests
     {

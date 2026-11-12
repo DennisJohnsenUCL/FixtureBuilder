@@ -31,6 +31,7 @@ namespace FixtureBuilder
         /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
         /// </remarks>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr);
 
@@ -43,6 +44,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// If the property has a setter, the value is assigned through it; otherwise, the backing field is set directly.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> or <paramref name="func"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> Instantiate<TProp>(Expression<Func<T, TProp>> expr, Func<IConstructor<TProp>, TProp> func);
 
@@ -55,6 +57,7 @@ namespace FixtureBuilder
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field on <typeparamref name="T"/> or its base types.</param>
         /// <param name="value">The value to assign to the specified field.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="fieldName"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithField<TValue>([MemberAccessor(AccessorType.Field, GenericSource.Class, 0)] string fieldName, TValue value);
 
@@ -68,6 +71,7 @@ namespace FixtureBuilder
         /// <param name="fieldName">The name of the field to set. This must match the name of an existing field on the resolved member.</param>
         /// <param name="value">The value to assign to the specified field.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> or <paramref name="fieldName"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithField<TProp, TValue>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Field, GenericSource.Method, 0)] string fieldName, TValue value);
 
@@ -82,6 +86,7 @@ namespace FixtureBuilder
         /// The backing field is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value);
@@ -97,6 +102,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when the backing field name cannot be automatically discovered.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> or <paramref name="fieldName"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingField<TProp>(Expression<Func<T, TProp>> expr, TProp value, string fieldName);
@@ -113,6 +119,7 @@ namespace FixtureBuilder
         /// The backing field is automatically discovered using common naming conventions.
         /// Supports both regular properties and interface-implemented properties with explicit backing fields.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value);
@@ -128,6 +135,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Use this overload when the backing field has a different type from the property and its name cannot be automatically discovered.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> or <paramref name="fieldName"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidCastException"/>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithBackingFieldUntyped<TProp>(Expression<Func<T, TProp>> expr, object? value, string fieldName);
@@ -139,6 +147,7 @@ namespace FixtureBuilder
         /// <param name="expr">An expression identifying the property to set. The property must have a setter. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <param name="value">The value to assign to the property.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> WithSetter<TProp>(Expression<Func<T, TProp>> expr, TProp value);
 
@@ -152,6 +161,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Automatically determines whether to use the property setter (if writable) or directly set the backing field (if read-only).
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         IFixtureConfigurator<T> With<TProp>(Expression<Func<T, TProp>> expr, TProp value);
 
@@ -160,6 +170,7 @@ namespace FixtureBuilder
         /// </summary>
         /// <param name="expr">A lambda expression representing a method call on the fixture, e.g. <c>x => x.Child.DoSomething()</c>. Intermediate properties or fields in the chain are automatically initialized if allowed via <see cref="FixtureOptions.AllowInstantiateNestedMembers"/>.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the expression is not a valid method call on a property or field access chain.</exception>
         IFixtureConfigurator<T> Invoke(Expression<Action<T>> expr);
 
@@ -172,6 +183,7 @@ namespace FixtureBuilder
         /// <param name="methodName">The name of the method to invoke on the fixture.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="methodName"/> or <paramref name="arguments"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
         /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on <typeparamref name="T"/> or its base types.</exception>
         IFixtureConfigurator<T> InvokePrivate([MemberAccessor(AccessorType.Method, GenericSource.Class, 0)] string methodName, params object[] arguments);
@@ -187,6 +199,7 @@ namespace FixtureBuilder
         /// <param name="methodName">The name of the method to invoke on the resolved member.</param>
         /// <param name="arguments">Arguments to pass to the method.</param>
         /// <returns>The current configurator for further configuration.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="expr"/>, <paramref name="methodName"/>, or <paramref name="arguments"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the expression is invalid.</exception>
         /// <exception cref="MissingMethodException">Thrown if no method matching the name and arguments is found on the runtime type of the resolved member or its base types.</exception>
         IFixtureConfigurator<T> InvokePrivate<TProp>(Expression<Func<T, TProp>> expr, [MemberAccessor(AccessorType.Method, GenericSource.Method, 0)] string methodName, params object[] arguments);

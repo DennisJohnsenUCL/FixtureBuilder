@@ -31,5 +31,13 @@ namespace FixtureBuilder.Tests.FixtureFactories.FixtureFactoryTests
 
             Assert.Throws<InvalidOperationException>(() => fixture.Build());
         }
+
+        [Test]
+        public void NullOptions_ThrowsArgumentNullException()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => new FixtureFactory(null!));
+
+            Assert.That(ex.ParamName, Is.EqualTo("options"));
+        }
     }
 }

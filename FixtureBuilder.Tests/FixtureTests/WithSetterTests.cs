@@ -84,6 +84,16 @@
         }
 
         [Test]
+        public void NullExpression_ThrowsArgumentNullException()
+        {
+            var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();
+
+            var ex = Assert.Throws<ArgumentNullException>(() => fixture.WithSetter<string>(null!, "value"));
+
+            Assert.That(ex.ParamName, Is.EqualTo("expr"));
+        }
+
+        [Test]
         public void ListProperty_SetsList()
         {
             var fixture = TestHelper.MakeFixture<PropertyHolder<List<string>>>();

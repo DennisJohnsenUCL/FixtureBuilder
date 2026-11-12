@@ -23,6 +23,7 @@ namespace FixtureBuilder
         /// <summary>
         /// Gets or sets the global options for this factory.
         /// </summary>
+        /// <exception cref="ArgumentNullException">The property is being set to <see langword="null"/>.</exception>
         public FixtureOptions Options
         {
             get => _context.GetBaseOptions();
@@ -45,8 +46,11 @@ namespace FixtureBuilder
         /// <summary>
         /// Creates a new fixture factory with the specified options.
         /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
         public FixtureFactory(FixtureOptions options)
         {
+            ArgumentNullException.ThrowIfNull(options);
+
             _context = InitializeContext(options);
             _providerBuilder = InitializeProviderBuilder();
         }
@@ -62,6 +66,7 @@ namespace FixtureBuilder
         /// <summary>
         /// Creates a new fixture configurator for type <typeparamref name="T"/> using an existing instance.
         /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="instance"/> is <see langword="null"/>.</exception>
         public IFixtureConfigurator<T> New<T>(T instance) where T : class
         {
             ArgumentNullException.ThrowIfNull(instance);
@@ -76,7 +81,10 @@ namespace FixtureBuilder
             return ((IFixtureConstructor<T>)new Fixture<T>(_context)).Build();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Configures the options for this configuration scope via a mutating action.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="action"/> is <see langword="null"/>.</exception>
         public FixtureFactory SetOptions(Action<FixtureOptions> action)
         {
             ArgumentNullException.ThrowIfNull(action);
@@ -92,11 +100,17 @@ namespace FixtureBuilder
 
         /// <inheritdoc/>
         public FixtureFactory AddTypeLink(Type typeIn, Type typeOut)
-            => AddTypeLink(new TypeLink(typeIn, typeOut));
+        {
+            ArgumentNullException.ThrowIfNull(typeIn);
+            ArgumentNullException.ThrowIfNull(typeOut);
+
+            return AddTypeLink(new TypeLink(typeIn, typeOut));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory AddTypeLink(ICustomTypeLink typeLink)
         {
+            ArgumentNullException.ThrowIfNull(typeLink);
             var adaptedTypeLink = new CustomTypeLinkAdapter(typeLink);
             return AddTypeLink(adaptedTypeLink);
         }
@@ -110,6 +124,7 @@ namespace FixtureBuilder
         /// <inheritdoc/>
         public FixtureFactory AddProvider(ICustomProvider provider)
         {
+            ArgumentNullException.ThrowIfNull(provider);
             var adaptedProvider = new CustomProviderAdapter(provider);
             _context.ValueProvider.AddProvider(adaptedProvider);
             return this;
@@ -118,6 +133,7 @@ namespace FixtureBuilder
         /// <inheritdoc/>
         public FixtureFactory AddConverter(ICustomConverter converter)
         {
+            ArgumentNullException.ThrowIfNull(converter);
             var adaptedConverter = new CustomConverterAdapter(converter);
             _context.Converter.AddConverter(adaptedConverter);
             return this;
@@ -133,15 +149,25 @@ namespace FixtureBuilder
 
         /// <inheritdoc/>
         public FixtureFactory With<T>(Func<T> func)
-            => AddProvider(b => b.With(func));
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            return AddProvider(b => b.With(func));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory With<T>(T value, string name)
-            => AddProvider(b => b.With(value, name));
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            return AddProvider(b => b.With(value, name));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory With<T>(Func<T> func, string name)
-            => AddProvider(b => b.With(func, name));
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(name);
+            return AddProvider(b => b.With(func, name));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(T value)
@@ -149,15 +175,25 @@ namespace FixtureBuilder
 
         /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(Func<T> func)
-            => AddProvider(b => b.WithParameter(func));
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            return AddProvider(b => b.WithParameter(func));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(T value, string name)
-            => AddProvider(b => b.WithParameter(value, name));
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            return AddProvider(b => b.WithParameter(value, name));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory WithParameter<T>(Func<T> func, string name)
-            => AddProvider(b => b.WithParameter(func, name));
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(name);
+            return AddProvider(b => b.WithParameter(func, name));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(T value)
@@ -165,15 +201,25 @@ namespace FixtureBuilder
 
         /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(Func<T> func)
-            => AddProvider(b => b.WithPropertyOrField(func));
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            return AddProvider(b => b.WithPropertyOrField(func));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(T value, string name)
-            => AddProvider(b => b.WithPropertyOrField(value, name));
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            return AddProvider(b => b.WithPropertyOrField(value, name));
+        }
 
         /// <inheritdoc/>
         public FixtureFactory WithPropertyOrField<T>(Func<T> func, string name)
-            => AddProvider(b => b.WithPropertyOrField(func, name));
+        {
+            ArgumentNullException.ThrowIfNull(func);
+            ArgumentNullException.ThrowIfNull(name);
+            return AddProvider(b => b.WithPropertyOrField(func, name));
+        }
 
         private FixtureFactory AddProvider(Func<MatchingProviderBuilder, MatchingProvider> build)
         {
@@ -189,6 +235,7 @@ namespace FixtureBuilder
         /// <remarks>
         /// Values, providers, converters, and type links registered here take precedence over factory-wide registrations, regardless of registration order.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="builderAction"/> is <see langword="null"/>.</exception>
         public FixtureFactory WhenBuilding<TRoot>(Action<RootConfigurationBuilder<TRoot>> builderAction)
         {
             ArgumentNullException.ThrowIfNull(builderAction);
