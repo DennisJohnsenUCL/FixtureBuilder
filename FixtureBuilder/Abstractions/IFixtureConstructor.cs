@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.Core;
-using FixtureBuilder.Creation.UninitializedProviders;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder
@@ -34,7 +33,7 @@ namespace FixtureBuilder
         /// <returns>An <see cref="IFixtureConfigurator{T}"/> for further configuration.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="args"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
-        IFixtureConfigurator<T> UseConstructor(params object[] args);
+        IFixtureConfigurator<T> UseConstructor(params object?[] args);
 
         /// <summary>
         /// Instantiates the fixture by automatically selecting a constructor and resolving all dependencies recursively.

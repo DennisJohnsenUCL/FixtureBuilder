@@ -63,7 +63,7 @@ namespace FixtureBuilder
             return this;
         }
 
-        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object[] args)
+        IFixtureConfigurator<T> IFixtureConstructor<T>.UseConstructor(params object?[] args)
         {
             ArgumentNullException.ThrowIfNull(args);
 

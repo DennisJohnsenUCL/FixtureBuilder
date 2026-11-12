@@ -1,5 +1,4 @@
 ﻿using FixtureBuilder.Core;
-using FixtureBuilder.Creation.UninitializedProviders;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace FixtureBuilder
@@ -33,7 +32,7 @@ namespace FixtureBuilder
         /// <returns>The result of type <typeparamref name="TReturn"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="args"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException"/>
-        TReturn UseConstructor(params object[] args);
+        TReturn UseConstructor(params object?[] args);
 
         /// <summary>
         /// Creates an instance by automatically selecting a constructor and resolving all dependencies recursively.

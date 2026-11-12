@@ -43,7 +43,7 @@
         {
             var fixture = Fixture.New<NullableTextAndNumberClass>();
 
-            var result = fixture.UseConstructor(null!, 7).Build();
+            var result = fixture.UseConstructor(null, 7).Build();
 
             using (Assert.EnterMultipleScope())
             {
