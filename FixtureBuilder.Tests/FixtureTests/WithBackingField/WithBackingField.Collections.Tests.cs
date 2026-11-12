@@ -207,6 +207,38 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(result.Values, Is.EqualTo(["value", null]));
         }
 
+        private class ObjectElementsFieldClass
+        {
+            private readonly List<object?> _values = null!;
+            public IEnumerable<string?> Values => _values.Cast<string?>();
+        }
+
+        [Test]
+        public void ObjectElementsField_NullElement_SetsConvertedCollection()
+        {
+            var fixture = TestHelper.MakeFixture<ObjectElementsFieldClass>();
+            List<string?> values = ["value", null];
+
+            var result = fixture.WithBackingField(x => x.Values, values, "_values").Build();
+
+            Assert.That(result.Values, Is.EqualTo(["value", null]));
+        }
+
+        private class NonNullableValueElementsFieldClass
+        {
+            private readonly List<int> _values = null!;
+            public IEnumerable<int?> Values => _values.Cast<int?>();
+        }
+
+        [Test]
+        public void NonNullableValueElementsField_NullElement_ThrowsInvalidCastException()
+        {
+            var fixture = TestHelper.MakeFixture<NonNullableValueElementsFieldClass>();
+            List<int?> values = [123, null];
+
+            Assert.Throws<InvalidCastException>(() => fixture.WithBackingField(x => x.Values, values, "_values"));
+        }
+
         #endregion
     }
 }

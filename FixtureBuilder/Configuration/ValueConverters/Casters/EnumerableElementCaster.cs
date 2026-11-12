@@ -14,7 +14,6 @@ namespace FixtureBuilder.Configuration.ValueConverters.Casters
                 && target.GetEnumerableElementType() is { } targetElementType
                 && value.GetType().GetEnumerableElementType() != targetElementType
                 && target != typeof(string)
-                && !target.IsArray
                 && !target.IsDictionary())
             {
                 var typedList = CastElements(enumerable, targetElementType, request.RootType, context);

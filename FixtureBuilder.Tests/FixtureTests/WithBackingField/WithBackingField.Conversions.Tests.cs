@@ -81,6 +81,26 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             Assert.That(numbers, Is.EqualTo([1, 2, 3]));
         }
 
+        private class ImplicitConversionArrayClass
+        {
+            private readonly ImplicitTargetStruct[] _values = null!;
+            public ImplicitSourceStruct[] Values => [.. _values.Select(target => new ImplicitSourceStruct { Number = target.Number })];
+        }
+
+        [Test]
+        public void ImplicitConversionAllowed_ArrayElements_SetsConvertedElements()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<ImplicitConversionArrayClass>(factory);
+            ImplicitSourceStruct[] values = [new() { Number = 1 }, new() { Number = 2 }, new() { Number = 3 }];
+
+            var result = fixture.WithBackingField(x => x.Values, values).Build();
+
+            var numbers = result.Values.Select(value => value.Number);
+            Assert.That(numbers, Is.EqualTo([1, 2, 3]));
+        }
+
         private class ImplicitConversionDictionaryClass
         {
             private readonly Dictionary<string, ImplicitTargetStruct> _values = null!;

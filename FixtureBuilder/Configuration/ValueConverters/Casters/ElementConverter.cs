@@ -7,6 +7,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.Casters
     {
         public static object? Convert(object? item, Type targetType, Type rootType, IFixtureContext context)
         {
+            if (targetType.IsValueType && Nullable.GetUnderlyingType(targetType) is null && item is null)
+                throw new InvalidCastException($"Cannot assign a null element to a collection with non-nullable element type {targetType.Name}.");
+
             if (item == null) return null;
             if (targetType.IsAssignableFrom(item.GetType())) return item;
 

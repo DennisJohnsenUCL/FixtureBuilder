@@ -1,24 +1,22 @@
-﻿using System.Collections;
+﻿using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
+using FixtureBuilder.Extensions;
 
 namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
 {
     internal class ArrayConverter : IValueConverter
     {
+        private static readonly MethodInfo ToArrayMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToArray))!;
+
         public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             if (request.Type.IsArray
-                && value is IEnumerable enumerable)
+                && request.Type.GetEnumerableElementType() is { } elementType
+                && value.GetType().GetEnumerableElementType() == elementType)
             {
-                var valuesList = enumerable.Cast<object>().ToList();
-                var elementType = request.Type.GetElementType()!;
-                var array = Array.CreateInstance(elementType, valuesList.Count);
-                for (int i = 0; i < valuesList.Count; i++)
-                {
-                    array.SetValue(valuesList[i], i);
-                }
-                return array;
+                var toArray = ToArrayMethod.MakeGenericMethod(elementType);
+                return toArray.Invoke(null, [value]);
             }
 
             return NoResult.Instance;

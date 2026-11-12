@@ -48,18 +48,6 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         }
 
         [Test]
-        public void Cast_ArrayTarget_ReturnsValueUnchanged()
-        {
-            var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(long[]), typeof(object));
-            List<int> value = [1, 2, 3];
-
-            var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
-
-            Assert.That(result, Is.SameAs(value));
-        }
-
-        [Test]
         public void Cast_DictionaryTarget_ReturnsValueUnchanged()
         {
             var caster = new EnumerableElementCaster();
