@@ -31,7 +31,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Converters
 
         private static MethodInfo? FindImplicit(Type searchType, Type parameterType, Type returnType)
         {
-            return searchType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            return searchType.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
                 .FirstOrDefault(m =>
                     m.Name == "op_Implicit" &&
                     m.ReturnType == returnType &&

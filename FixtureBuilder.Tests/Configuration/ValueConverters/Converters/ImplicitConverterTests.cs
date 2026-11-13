@@ -39,6 +39,21 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
             Assert.That(result, Is.TypeOf<NoResult>());
         }
 
+        private class DerivedImplicitToIntClass : ImplicitToIntClass;
+
+        [Test]
+        public void Convert_OperatorOnBaseOfSourceType_ReturnsConvertedValue()
+        {
+            var converter = new ImplicitConverter();
+            var request = new TypeRequest(typeof(int), typeof(object));
+            var value = new DerivedImplicitToIntClass { Number = 42 };
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
+
+            Assert.That(result, Is.EqualTo(42));
+        }
+
         private struct ImplicitFromIntStruct
         {
             public int Number;
