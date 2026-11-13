@@ -15,8 +15,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
                 && request.Type.GetEnumerableElementType() is { } elementType
                 && value.GetType().GetEnumerableElementType() == elementType)
             {
-                var toArray = ToArrayMethod.MakeGenericMethod(elementType);
-                return toArray.Invoke(null, [value]);
+                return ToArrayMethod
+                    .MakeGenericMethod(elementType)
+                    .Invoke(null, [value]);
             }
 
             return NoResult.Instance;

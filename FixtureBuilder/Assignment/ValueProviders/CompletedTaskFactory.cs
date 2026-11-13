@@ -1,10 +1,14 @@
-﻿namespace FixtureBuilder.Assignment.ValueProviders
+﻿using System.Reflection;
+
+namespace FixtureBuilder.Assignment.ValueProviders
 {
     /// <summary>
     /// Creates completed <see cref="Task{TResult}"/> instances for result types that are only known at runtime.
     /// </summary>
     internal static class CompletedTaskFactory
     {
+        private static readonly MethodInfo FromResultMethod = typeof(Task).GetMethod(nameof(Task.FromResult))!;
+
         /// <summary>
         /// Creates a completed <see cref="Task{TResult}"/> holding the default value of the specified result type,
         /// via <see cref="Task.FromResult{TResult}(TResult)"/>.
@@ -13,8 +17,7 @@
         /// <returns>A completed <see cref="Task{TResult}"/> of <paramref name="genericParam"/>.</returns>
         public static object Create(Type genericParam)
         {
-            return typeof(Task)
-                .GetMethod("FromResult")!
+            return FromResultMethod
                 .MakeGenericMethod(genericParam)
                 .Invoke(null, [null])!;
         }

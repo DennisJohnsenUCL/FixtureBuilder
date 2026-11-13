@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
@@ -22,21 +21,17 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
                 var genericTypeDef = target.GetGenericTypeDefinition();
 
                 var factoryTypeName = genericTypeDef.FullName!.Replace("`1", "");
-                var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
-                    ?? throw new InvalidOperationException($"Failed to resolve factory type for {target.Name}.");
+                var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")!;
 
                 var createRangeMethod = factoryType
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                    .FirstOrDefault(m =>
+                    .First(m =>
                         m.Name == "CreateRange" &&
-                        m.IsGenericMethodDefinition &&
-                        m.GetParameters().Length == 1)
-                    ?? throw new InvalidOperationException($"Failed to get CreateRange method for {target.Name}.");
+                        m.GetParameters().Length == 1);
 
                 var genericCreateRange = createRangeMethod.MakeGenericMethod(elementType);
 
-                return genericCreateRange.Invoke(null, [value]) as IEnumerable
-                    ?? throw new InvalidOperationException($"Failed to create immutable collection for {target.Name}.");
+                return genericCreateRange.Invoke(null, [value]);
             }
 
             return NoResult.Instance;

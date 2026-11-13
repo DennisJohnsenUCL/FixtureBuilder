@@ -8,6 +8,12 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
 {
     internal class FrozenDictionaryConverter : IValueConverter
     {
+        private static readonly MethodInfo ToFrozenDictionaryMethod = typeof(FrozenDictionary)
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .First(m => m.Name == nameof(FrozenDictionary.ToFrozenDictionary)
+                    && m.GetParameters().Length == 2);
+
+
         public object? Convert(TypeRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
@@ -16,17 +22,9 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
             {
                 var (fieldKeyType, fieldValueType) = target.GetDictionaryEnumerableTypes();
 
-                var ToFrozenDictionaryMethod = typeof(FrozenDictionary)
-                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                    .FirstOrDefault(m =>
-                        m.Name == "ToFrozenDictionary" &&
-                        m.IsGenericMethodDefinition &&
-                        m.GetParameters().Length == 2)
-                    ?? throw new MissingMethodException("Did not find ToFrozenDictionary method for FrozenDictionary.");
-
-                var genericToFrozenDictionary = ToFrozenDictionaryMethod.MakeGenericMethod(fieldKeyType!, fieldValueType!);
-
-                return genericToFrozenDictionary.Invoke(null, [value, null])!;
+                return ToFrozenDictionaryMethod
+                    .MakeGenericMethod(fieldKeyType!, fieldValueType!)
+                    .Invoke(null, [value, null]);
             }
 
             return NoResult.Instance;

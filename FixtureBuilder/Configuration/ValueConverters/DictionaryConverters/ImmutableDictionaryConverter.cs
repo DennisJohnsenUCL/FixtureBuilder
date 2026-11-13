@@ -21,20 +21,17 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
                 var (fieldKeyType, fieldValueType) = target.GetDictionaryEnumerableTypes();
 
                 var factoryTypeName = genericTypeDef.FullName!.Replace("`2", "");
-                var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")
-                    ?? throw new InvalidOperationException($"Failed to resolve factory type for {target.Name}.");
+                var factoryType = Type.GetType(factoryTypeName + ", System.Collections.Immutable")!;
 
                 var createRangeMethod = factoryType
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                    .FirstOrDefault(m =>
+                    .First(m =>
                         m.Name == "CreateRange" &&
-                        m.IsGenericMethodDefinition &&
-                        m.GetParameters().Length == 1)
-                    ?? throw new MissingMethodException("Did not find CreateRange method for ImmutableDictionary.");
+                        m.GetParameters().Length == 1);
 
                 var genericCreateRange = createRangeMethod.MakeGenericMethod(fieldKeyType!, fieldValueType!);
 
-                return genericCreateRange.Invoke(null, [value])!;
+                return genericCreateRange.Invoke(null, [value]);
             }
             return NoResult.Instance;
         }
