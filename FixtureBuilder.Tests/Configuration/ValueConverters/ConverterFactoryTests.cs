@@ -93,6 +93,22 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         }
 
         [Test]
+        public void CreateDefaultConverter_ConvertsTupleToTupleOfAssignableElementTypes()
+        {
+            var converter = ConverterFactory.CreateDefaultConverter();
+            var request = TestHelper.MakeConverterRequest(typeof((object, object)));
+            var value = (1, "value");
+
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result, Is.TypeOf<(object, object)>());
+                Assert.That(result, Is.EqualTo(((object)1, (object)"value")));
+            }
+        }
+
+        [Test]
         public void CreateDefaultConverter_ImplicitConversionAllowed_ConvertsWithImplicitOperator()
         {
             var converter = ConverterFactory.CreateDefaultConverter();

@@ -61,6 +61,18 @@ namespace FixtureBuilder.Tests.FixtureTests
         }
 
         [Test]
+        public void ImplicitConversionAllowed_NarrowerTupleElements_SetsWidenedTuple()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<(long, long)>>(factory);
+
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, (1, 2)).Build();
+
+            Assert.That(result.Value, Is.EqualTo((1L, 2L)));
+        }
+
+        [Test]
         public void MethodCall_ThrowsInvalidOperationException()
         {
             var fixture = TestHelper.MakeFixture<PropertyHolder<string>>();

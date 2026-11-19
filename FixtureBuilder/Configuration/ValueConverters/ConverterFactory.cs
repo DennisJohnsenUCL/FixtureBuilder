@@ -22,6 +22,7 @@ namespace FixtureBuilder.Configuration.ValueConverters
                 new FrozenDictionaryConverter(),
                 new SpecializedGenericDictionaryConverter(),
                 new NonGenericDictionaryConverter(),
+                new TupleConverter(),
                 new ImplicitConverter()]);
 
             var composite = new CompositeConverter(converters, new EnumerableElementCaster(), new DictionaryElementCaster());
