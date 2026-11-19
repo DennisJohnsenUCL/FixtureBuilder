@@ -10,23 +10,23 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
     {
         private class FixedValueConverter(object? result) : IValueConverter
         {
-            public object? Convert(TypeRequest request, object value, IFixtureContext context) => result;
+            public object? Convert(ConverterRequest request, object value, IFixtureContext context) => result;
         }
 
         private class NoResultConverter : IValueConverter
         {
-            public object? Convert(TypeRequest request, object value, IFixtureContext context) => NoResult.Instance;
+            public object? Convert(ConverterRequest request, object value, IFixtureContext context) => NoResult.Instance;
         }
 
         // The casters run before the converters; here they hand the value on unchanged.
         private static CompositeConverter MakeComposite(params IValueConverter[] converters)
         {
             var enumerableCaster = new Mock<IEnumerableElementCaster>();
-            enumerableCaster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((TypeRequest _, object value, IFixtureContext _) => value);
+            enumerableCaster.Setup(x => x.Cast(It.IsAny<ConverterRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((ConverterRequest _, object value, IFixtureContext _) => value);
             var dictionaryCaster = new Mock<IDictionaryElementCaster>();
-            dictionaryCaster.Setup(x => x.Cast(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
-                .Returns((TypeRequest _, object value, IFixtureContext _) => value);
+            dictionaryCaster.Setup(x => x.Cast(It.IsAny<ConverterRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()))
+                .Returns((ConverterRequest _, object value, IFixtureContext _) => value);
 
             return new CompositeConverter(converters, enumerableCaster.Object, dictionaryCaster.Object);
         }
@@ -35,9 +35,9 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         public void Convert_NoConverterResolves_ReturnsNoResult()
         {
             var composite = MakeComposite(new NoResultConverter(), new NoResultConverter());
-            var request = new TypeRequest(typeof(string), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string));
 
-            var result = composite.Convert(request, 5, typeof(string), Mock.Of<IFixtureContext>());
+            var result = composite.Convert(request, 5, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.TypeOf<NoResult>());
         }
@@ -48,9 +48,9 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         {
             List<int> values = [1, 2, 3];
             var composite = MakeComposite(new FixedValueConverter(new List<int>()));
-            var request = new TypeRequest(typeof(List<int>), typeof(object));
+            var request = new ConverterRequest(typeof(List<int>), typeof(object), typeof(IEnumerable<int>));
 
-            var result = composite.Convert(request, values, typeof(IEnumerable<int>), Mock.Of<IFixtureContext>());
+            var result = composite.Convert(request, values, Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.SameAs(values));
         }
@@ -61,20 +61,20 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         {
             var laterConverter = new Mock<IValueConverter>();
             var composite = MakeComposite(new FixedValueConverter("first"), laterConverter.Object);
-            var request = new TypeRequest(typeof(string), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string));
 
-            composite.Convert(request, 5, typeof(string), Mock.Of<IFixtureContext>());
+            composite.Convert(request, 5, Mock.Of<IFixtureContext>());
 
-            laterConverter.Verify(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
+            laterConverter.Verify(x => x.Convert(It.IsAny<ConverterRequest>(), It.IsAny<object>(), It.IsAny<IFixtureContext>()), Times.Never);
         }
 
         [Test]
         public void Convert_NullForNullableValueTypeTarget_ReturnsNull()
         {
             var composite = MakeComposite(new FixedValueConverter(null));
-            var request = new TypeRequest(typeof(int), typeof(object));
+            var request = new ConverterRequest(typeof(int), typeof(object), typeof(int?));
 
-            var result = composite.Convert(request, "value", typeof(int?), Mock.Of<IFixtureContext>());
+            var result = composite.Convert(request, "value", Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.Null);
         }
@@ -84,9 +84,9 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         {
             var expected = new OtherMarkerImplementationClass();
             var composite = MakeComposite(new FixedValueConverter(expected));
-            var request = new TypeRequest(typeof(MarkerImplementationClass), typeof(object));
+            var request = new ConverterRequest(typeof(MarkerImplementationClass), typeof(object), typeof(IMarkerInterface));
 
-            var result = composite.Convert(request, "value", typeof(IMarkerInterface), Mock.Of<IFixtureContext>());
+            var result = composite.Convert(request, "value", Mock.Of<IFixtureContext>());
 
             Assert.That(result, Is.SameAs(expected));
         }

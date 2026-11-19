@@ -10,7 +10,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
     {
         private readonly IEnumerable<Type> _types = [typeof(ImmutableDictionary<,>), typeof(ImmutableSortedDictionary<,>)];
 
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object? Convert(ConverterRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (_types.Contains(target.GetGenericTypeDefinitionOrDefault())

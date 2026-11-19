@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
+using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
@@ -40,8 +41,8 @@ namespace FixtureBuilder.Configuration
             if (sourceType != null && fieldType != sourceType && !fieldType.IsAssignableFrom(sourceType))
             {
                 var linked = context.UnwrapAndLink(fieldType, rootType);
-                var request = new TypeRequest(linked, rootType);
-                var convertedValue = context.Converter.Convert(request, value!, fieldType, context);
+                var request = new ConverterRequest(linked, rootType, fieldType);
+                var convertedValue = context.Converter.Convert(request, value!, context);
                 if (convertedValue is not NoResult) value = convertedValue;
             }
             try

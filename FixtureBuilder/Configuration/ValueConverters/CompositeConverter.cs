@@ -27,11 +27,12 @@ namespace FixtureBuilder.Configuration.ValueConverters
             _dictionaryElementCaster = dictionaryElementCaster;
         }
 
-        public object? Convert(TypeRequest request, object value, Type originalType, IFixtureContext context)
+        public object? Convert(ConverterRequest request, object value, IFixtureContext context)
         {
             value = _enumerableElementCaster.Cast(request, value, context);
             value = _dictionaryElementCaster.Cast(request, value, context);
 
+            var originalType = request.OriginalType;
             if (value.GetType().IsAssignableTo(originalType)) return value;
 
             foreach (var converter in _rootConverters.Concat(_converters))

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
-using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
@@ -9,7 +8,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Casters
 {
     internal class DictionaryElementCaster : IDictionaryElementCaster
     {
-        public object Cast(TypeRequest request, object value, IFixtureContext context)
+        public object Cast(ConverterRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (target.IsDictionary()

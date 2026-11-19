@@ -13,7 +13,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(Collection<string>))]
         public void Convert_ArrayValue_ReturnsCollectionWithSameElements(Type targetType)
         {
-            var request = new TypeRequest(targetType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(targetType);
             string[] value = ["test1", "test2", "test3"];
             var converter = new CollectionConverter();
 
@@ -31,7 +31,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(Collection<string>))]
         public void Convert_ValueThatIsNotList_ReturnsCollectionWithSameElements(Type targetType)
         {
-            var request = new TypeRequest(targetType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(targetType);
             var value = new Queue<string>(["test1", "test2", "test3"]);
             var converter = new CollectionConverter();
 
@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(Collection<string>))]
         public void Convert_ValueChangedAfterConversion_ResultIsUnchanged(Type targetType)
         {
-            var request = new TypeRequest(targetType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(targetType);
             List<string> value = ["test1", "test2", "test3"];
             var converter = new CollectionConverter();
 
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ArrayValueToCollection_ResultCanBeAddedTo()
         {
-            var request = new TypeRequest(typeof(Collection<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(Collection<string>));
             string[] value = ["test1", "test2", "test3"];
             var converter = new CollectionConverter();
 
@@ -77,7 +77,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotCollection_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             string[] value = ["test1"];
             var converter = new CollectionConverter();
 
@@ -89,7 +89,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(Collection<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(Collection<string>));
             var converter = new CollectionConverter();
 
             var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>());

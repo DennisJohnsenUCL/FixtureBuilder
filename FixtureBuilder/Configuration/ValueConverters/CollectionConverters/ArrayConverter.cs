@@ -9,7 +9,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.CollectionConverters
     {
         private static readonly MethodInfo ToArrayMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToArray))!;
 
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object? Convert(ConverterRequest request, object value, IFixtureContext context)
         {
             if (request.Type.IsArray
                 && request.Type.GetEnumerableElementType() is { } elementType

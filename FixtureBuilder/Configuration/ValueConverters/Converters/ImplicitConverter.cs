@@ -11,7 +11,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Converters
     /// </summary>
     internal class ImplicitConverter : IValueConverter
     {
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object? Convert(ConverterRequest request, object value, IFixtureContext context)
         {
             if (context.OptionsFor(request.RootType).AllowImplicitConversion)
             {

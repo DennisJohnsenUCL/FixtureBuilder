@@ -18,7 +18,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_OperatorOnSourceType_ReturnsConvertedValue()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(int), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(int));
             var value = new ImplicitToIntClass { Number = 42 };
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
@@ -31,7 +31,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_ImplicitConversionNotAllowed_ReturnsNoResult()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(int), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(int));
             var value = new ImplicitToIntClass { Number = 42 };
 
             var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
@@ -45,7 +45,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_OperatorOnBaseOfSourceType_ReturnsConvertedValue()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(int), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(int));
             var value = new DerivedImplicitToIntClass { Number = 42 };
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
@@ -65,7 +65,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_OperatorOnTargetType_ReturnsConvertedValue()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(ImplicitFromIntStruct), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ImplicitFromIntStruct));
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
             var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
@@ -85,7 +85,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_OperatorOnGenericTargetType_ReturnsConvertedValue()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(ImplicitFromValueClass<int>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ImplicitFromValueClass<int>));
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
             var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
@@ -107,7 +107,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_OperatorAcceptsBaseOfValueType_ReturnsConvertedValue()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(ImplicitFromBaseClass), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ImplicitFromBaseClass));
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
             var result = converter.Convert(request, new DerivedClass(), Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
@@ -119,7 +119,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_NoOperator_ReturnsNoResult()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(string), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string));
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
             var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
@@ -138,7 +138,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Converters
         public void Convert_OnlyExplicitOperator_ReturnsNoResult()
         {
             var converter = new ImplicitConverter();
-            var request = new TypeRequest(typeof(int), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(int));
             var value = new ExplicitToIntClass { Number = 42 };
             var options = new FixtureOptions { AllowImplicitConversion = true };
 

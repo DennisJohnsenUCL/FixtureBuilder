@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetFrozenSet_ValueGenericEnumerable_SameElementType_Converts()
         {
-            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(FrozenSet<string>));
             List<string> value = ["test1", "test2", "test3"];
             var expected = FrozenSet.ToFrozenSet(["test1", "test2", "test3"], null);
             var converter = new FrozenSetConverter();
@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotFrozenSet_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             string[] value = ["test1", "test2", "test3"];
             var converter = new FrozenSetConverter();
 
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(FrozenSet<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(FrozenSet<string>));
             const int value = 42;
             var converter = new FrozenSetConverter();
 

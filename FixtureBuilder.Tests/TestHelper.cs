@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Core;
 
 namespace FixtureBuilder.Tests
@@ -40,6 +41,13 @@ namespace FixtureBuilder.Tests
         /// </summary>
         internal static FixtureRequest MakeRequest(ParameterInfo parameter)
             => new(parameter.ParameterType, parameter, parameter.Member.DeclaringType!);
+
+        /// <summary>
+        /// Creates a converter request for <paramref name="type"/>, with <paramref name="type"/> as the original type
+        /// and <see cref="object"/> as the root type.
+        /// </summary>
+        internal static ConverterRequest MakeConverterRequest(Type type)
+            => new(type, typeof(object), type);
 
         /// <summary>
         /// Gets the public instance property <paramref name="name"/> of <paramref name="type"/> as a data member.

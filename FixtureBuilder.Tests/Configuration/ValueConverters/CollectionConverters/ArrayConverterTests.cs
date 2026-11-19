@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArray_ValueGenericEnumerable_Converts()
         {
-            var request = new TypeRequest(typeof(string[]), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string[]));
             List<string> value = ["test1", "test2", "test3"];
             string[] expected = ["test1", "test2", "test3"];
             var converter = new ArrayConverter();
@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotArray_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             var value = new ArrayList { "test1", "test2", "test3" };
             var converter = new ArrayConverter();
 
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(string[]), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string[]));
             const int value = 42;
             var converter = new ArrayConverter();
 
@@ -48,7 +48,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ElementTypeMismatch_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(long[]), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(long[]));
             List<int> value = [1, 2, 3];
             var converter = new ArrayConverter();
 

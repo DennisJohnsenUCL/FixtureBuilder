@@ -1,10 +1,9 @@
-﻿using FixtureBuilder.Core;
-using FixtureBuilder.Core.FixtureContexts;
+﻿using FixtureBuilder.Core.FixtureContexts;
 
 namespace FixtureBuilder.Configuration.ValueConverters.Casters
 {
     internal interface IDictionaryElementCaster
     {
-        object Cast(TypeRequest request, object value, IFixtureContext context);
+        object Cast(ConverterRequest request, object value, IFixtureContext context);
     }
 }

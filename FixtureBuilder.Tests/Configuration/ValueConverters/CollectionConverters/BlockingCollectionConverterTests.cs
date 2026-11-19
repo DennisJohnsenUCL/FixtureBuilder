@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetBlockingCollection_ValueGenericEnumerable_SameElementType_Converts()
         {
-            var request = new TypeRequest(typeof(BlockingCollection<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(BlockingCollection<string>));
             List<string> value = ["test1", "test2", "test3"];
             var expected = new BlockingCollection<string> { "test1", "test2", "test3" };
             var converter = new BlockingCollectionConverter();
@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetBlockingCollection_ValueIProducerConsumerCollection_Converts()
         {
-            var request = new TypeRequest(typeof(BlockingCollection<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(BlockingCollection<string>));
             var value = new ConcurrentQueue<string>(["test1", "test2", "test3"]);
             var expected = new BlockingCollection<string> { "test1", "test2", "test3" };
             var converter = new BlockingCollectionConverter();
@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotBlockingCollection_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             string[] value = ["test1", "test2", "test3"];
             var converter = new BlockingCollectionConverter();
 
@@ -49,7 +49,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(BlockingCollection<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(BlockingCollection<string>));
             const int value = 42;
             var converter = new BlockingCollectionConverter();
 

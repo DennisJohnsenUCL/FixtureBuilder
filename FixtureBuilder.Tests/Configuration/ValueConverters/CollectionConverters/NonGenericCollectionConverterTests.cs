@@ -11,7 +11,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArrayList_ValueEnumerable_Converts()
         {
-            var request = new TypeRequest(typeof(ArrayList), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ArrayList));
             var value = new Queue(new ArrayList { "test1", "test2", "test3" });
             var expected = new ArrayList { "test1", "test2", "test3" };
             var converter = new NonGenericCollectionConverter();
@@ -24,7 +24,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetStack_ValueEnumerable_Converts()
         {
-            var request = new TypeRequest(typeof(Stack), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(Stack));
             var value = new ArrayList { "test1", "test2", "test3" };
             var expected = new Stack(new ArrayList { "test1", "test2", "test3" });
             var converter = new NonGenericCollectionConverter();
@@ -37,7 +37,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetQueue_ValueEnumerable_Converts()
         {
-            var request = new TypeRequest(typeof(Queue), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(Queue));
             var value = new ArrayList { "test1", "test2", "test3" };
             var expected = new Queue(new ArrayList { "test1", "test2", "test3" });
             var converter = new NonGenericCollectionConverter();
@@ -50,7 +50,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArrayList_ValueGenericEnumerable_Converts()
         {
-            var request = new TypeRequest(typeof(ArrayList), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ArrayList));
             List<string> value = ["test1", "test2", "test3"];
             var expected = new ArrayList { "test1", "test2", "test3" };
             var converter = new NonGenericCollectionConverter();
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetArrayList_ValueNotICollection_Converts()
         {
-            var request = new TypeRequest(typeof(ArrayList), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ArrayList));
             HashSet<string> value = ["test1", "test2", "test3"];
             ArrayList expected = ["test1", "test2", "test3"];
             var converter = new NonGenericCollectionConverter();
@@ -76,7 +76,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotNonGeneric_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             var value = new ArrayList { "test1", "test2", "test3" };
             var converter = new NonGenericCollectionConverter();
 
@@ -88,7 +88,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(ArrayList), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ArrayList));
             const int value = 42;
             var converter = new NonGenericCollectionConverter();
 

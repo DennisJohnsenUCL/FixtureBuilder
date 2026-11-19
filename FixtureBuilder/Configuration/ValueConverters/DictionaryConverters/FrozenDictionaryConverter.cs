@@ -14,7 +14,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.DictionaryConverters
                     && m.GetParameters().Length == 2);
 
 
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object? Convert(ConverterRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (target.GetGenericTypeDefinitionOrDefault() == typeof(FrozenDictionary<,>)

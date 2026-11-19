@@ -37,10 +37,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         public void CreateDefaultConverter_ConvertsArrayToCollectionType(Type collectionType)
         {
             var converter = ConverterFactory.CreateDefaultConverter();
-            var request = new TypeRequest(collectionType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(collectionType);
             string[] value = ["value"];
 
-            var result = converter.Convert(request, value, collectionType, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             using (Assert.EnterMultipleScope())
             {
@@ -53,10 +53,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         public void CreateDefaultConverter_ConvertsListToArray()
         {
             var converter = ConverterFactory.CreateDefaultConverter();
-            var request = new TypeRequest(typeof(string[]), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string[]));
             List<string> value = ["value"];
 
-            var result = converter.Convert(request, value, typeof(string[]), Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             using (Assert.EnterMultipleScope())
             {
@@ -79,10 +79,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         public void CreateDefaultConverter_ConvertsKeyValuePairsToDictionaryType(Type dictionaryType)
         {
             var converter = ConverterFactory.CreateDefaultConverter();
-            var request = new TypeRequest(dictionaryType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(dictionaryType);
             List<KeyValuePair<string, int>> value = [new("one", 1)];
 
-            var result = converter.Convert(request, value, dictionaryType, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == new FixtureOptions()));
 
             var dictionary = (IDictionary)result!;
             using (Assert.EnterMultipleScope())
@@ -96,11 +96,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters
         public void CreateDefaultConverter_ImplicitConversionAllowed_ConvertsWithImplicitOperator()
         {
             var converter = ConverterFactory.CreateDefaultConverter();
-            var request = new TypeRequest(typeof(ImplicitTargetStruct), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ImplicitTargetStruct));
             var value = new ImplicitSourceStruct { Number = 42 };
             var options = new FixtureOptions { AllowImplicitConversion = true };
 
-            var result = converter.Convert(request, value, typeof(ImplicitTargetStruct), Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
+            var result = converter.Convert(request, value, Mock.Of<IFixtureContext>(x => x.OptionsFor(request.RootType) == options));
 
             var converted = (ImplicitTargetStruct)result!;
             Assert.That(converted.Number, Is.EqualTo(42));

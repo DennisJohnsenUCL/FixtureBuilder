@@ -1,6 +1,5 @@
 ﻿using FixtureBuilder.Configuration.ValueConverters;
 using FixtureBuilder.Configuration.ValueConverters.Casters;
-using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using Moq;
 
@@ -14,7 +13,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
             HashSet<int> item = [1, 2, 3];
             List<int> converted = [1, 2, 3];
             var converter = new Mock<ICompositeConverter>();
-            converter.Setup(x => x.Convert(new TypeRequest(typeof(List<int>), typeof(object)), item, typeof(IList<int>), It.IsAny<IFixtureContext>())).Returns(converted);
+            converter.Setup(x => x.Convert(new ConverterRequest(typeof(List<int>), typeof(object), typeof(IList<int>)), item, It.IsAny<IFixtureContext>())).Returns(converted);
             var context = new Mock<IFixtureContext>();
             context.Setup(x => x.UnwrapAndLink(typeof(IList<int>), typeof(object))).Returns(typeof(List<int>));
             context.Setup(x => x.Converter).Returns(converter.Object);

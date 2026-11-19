@@ -15,7 +15,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_ValueNotEnumerable_ReturnsValueUnchanged()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             object value = 5;
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -27,7 +27,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_TargetNotEnumerable_ReturnsValueUnchanged()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(long), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(long));
             List<int> value = [1, 2, 3];
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -39,7 +39,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_StringTarget_ReturnsValueUnchanged()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(string), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(string));
             List<int> value = [1, 2, 3];
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -51,7 +51,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_DictionaryTarget_ReturnsValueUnchanged()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(Dictionary<string, int>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(Dictionary<string, int>));
             List<int> value = [1, 2, 3];
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -63,7 +63,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_SameElementTypes_ReturnsValueUnchanged()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(Stack<int>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(Stack<int>));
             List<int> value = [1, 2, 3];
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -79,7 +79,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_ElementsAssignableToTargetElementType_ReturnsListOfTargetElementType()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(List<object>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<object>));
             List<int> value = [1, 2, 3];
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -95,7 +95,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_NonGenericSource_ReturnsListOfTargetElementType()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             var value = new ArrayList { "a", "b", "c" };
 
             var result = caster.Cast(request, value, Mock.Of<IFixtureContext>());
@@ -111,11 +111,11 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_ElementsNotAssignable_ReturnsListOfElementsConvertedByContextConverter()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             List<int> value = [1, 2];
             var converter = new Mock<ICompositeConverter>();
-            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), 1, typeof(string), It.IsAny<IFixtureContext>())).Returns("one");
-            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), 2, typeof(string), It.IsAny<IFixtureContext>())).Returns("two");
+            converter.Setup(x => x.Convert(It.Is<ConverterRequest>(r => r.OriginalType == typeof(string)), 1, It.IsAny<IFixtureContext>())).Returns("one");
+            converter.Setup(x => x.Convert(It.Is<ConverterRequest>(r => r.OriginalType == typeof(string)), 2, It.IsAny<IFixtureContext>())).Returns("two");
             var context = new Mock<IFixtureContext>();
             context.Setup(x => x.UnwrapAndLink(typeof(string), typeof(object))).Returns(typeof(string));
             context.Setup(x => x.Converter).Returns(converter.Object);
@@ -133,10 +133,10 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.Casters
         public void Cast_ElementsNotConvertible_ThrowsInvalidCastException()
         {
             var caster = new EnumerableElementCaster();
-            var request = new TypeRequest(typeof(List<long>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<long>));
             List<int> value = [1, 2, 3];
             var converter = new Mock<ICompositeConverter>();
-            converter.Setup(x => x.Convert(It.IsAny<TypeRequest>(), It.IsAny<object>(), typeof(long), It.IsAny<IFixtureContext>())).Returns(NoResult.Instance);
+            converter.Setup(x => x.Convert(It.Is<ConverterRequest>(r => r.OriginalType == typeof(long)), It.IsAny<object>(), It.IsAny<IFixtureContext>())).Returns(NoResult.Instance);
             var context = new Mock<IFixtureContext>();
             context.Setup(x => x.UnwrapAndLink(typeof(long), typeof(object))).Returns(typeof(long));
             context.Setup(x => x.Converter).Returns(converter.Object);

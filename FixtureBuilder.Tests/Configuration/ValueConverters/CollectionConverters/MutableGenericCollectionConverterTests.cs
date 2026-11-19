@@ -17,7 +17,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(LinkedList<string>))]
         public void Convert_OrderPreservingTarget_ReturnsCollectionWithElementsInOrder(Type targetType)
         {
-            var request = new TypeRequest(targetType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(targetType);
             string[] value = ["test1", "test2", "test3"];
             var converter = new MutableGenericCollectionConverter();
 
@@ -36,7 +36,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [TestCase(typeof(ConcurrentBag<string>))]
         public void Convert_ReverseOrderTarget_ReturnsCollectionWithElementsReversed(Type targetType)
         {
-            var request = new TypeRequest(targetType, typeof(object));
+            var request = TestHelper.MakeConverterRequest(targetType);
             string[] value = ["test1", "test2", "test3"];
             var converter = new MutableGenericCollectionConverter();
 
@@ -53,7 +53,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueThatIsNotArray_ReturnsList()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             ImmutableList<string> value = ["test1", "test2", "test3"];
             var converter = new MutableGenericCollectionConverter();
 
@@ -65,7 +65,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_TargetNotMutableGenericCollection_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(ImmutableList<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(ImmutableList<string>));
             string[] value = ["test1"];
             var converter = new MutableGenericCollectionConverter();
 
@@ -77,7 +77,7 @@ namespace FixtureBuilder.Tests.Configuration.ValueConverters.CollectionConverter
         [Test]
         public void Convert_ValueNotEnumerable_ReturnsNoResult()
         {
-            var request = new TypeRequest(typeof(List<string>), typeof(object));
+            var request = TestHelper.MakeConverterRequest(typeof(List<string>));
             var converter = new MutableGenericCollectionConverter();
 
             var result = converter.Convert(request, 42, Mock.Of<IFixtureContext>());

@@ -15,7 +15,7 @@ namespace FixtureBuilder.FixtureFactories.RootConfigurationBuilders
             _rootType = rootType;
         }
 
-        public object? Convert(TypeRequest request, object value, IFixtureContext context)
+        public object? Convert(ConverterRequest request, object value, IFixtureContext context)
         {
             if (request.RootType != _rootType)
                 return NoResult.Instance;

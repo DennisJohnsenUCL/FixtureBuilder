@@ -14,8 +14,8 @@ namespace FixtureBuilder.Configuration.ValueConverters.Casters
             if (targetType.IsAssignableFrom(item.GetType())) return item;
 
             var linked = context.UnwrapAndLink(targetType, rootType);
-            var request = new TypeRequest(linked, rootType);
-            var converted = context.Converter.Convert(request, item, targetType, context);
+            var request = new ConverterRequest(linked, rootType, targetType);
+            var converted = context.Converter.Convert(request, item, context);
             if (converted is NoResult)
             {
                 throw new InvalidCastException(

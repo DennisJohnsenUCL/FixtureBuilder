@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using FixtureBuilder.Core;
 using FixtureBuilder.Core.FixtureContexts;
 using FixtureBuilder.Extensions;
 
@@ -7,7 +6,7 @@ namespace FixtureBuilder.Configuration.ValueConverters.Casters
 {
     internal class EnumerableElementCaster : IEnumerableElementCaster
     {
-        public object Cast(TypeRequest request, object value, IFixtureContext context)
+        public object Cast(ConverterRequest request, object value, IFixtureContext context)
         {
             var target = request.Type;
             if (value is IEnumerable enumerable
