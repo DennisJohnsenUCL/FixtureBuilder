@@ -1,4 +1,6 @@
-﻿namespace FixtureBuilder.Tests.FixtureTests
+﻿using FixtureBuilder.Core;
+
+namespace FixtureBuilder.Tests.FixtureTests
 {
     internal sealed class WithBackingFieldUntypedTests
     {
@@ -44,6 +46,18 @@
             var fixture = TestHelper.MakeFixture<IntFieldStringPropertyClass>();
 
             Assert.Throws<InvalidOperationException>(() => fixture.WithBackingFieldUntyped(x => x.Value, "value"));
+        }
+
+        [Test]
+        public void ImplicitConversionAllowed_SetsConvertedValue()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<ReadOnlyPropertyHolder<ImplicitTargetStruct>>(factory);
+
+            var result = fixture.WithBackingFieldUntyped(x => x.Value, new ImplicitSourceStruct { Number = 42 }).Build();
+
+            Assert.That(result.Value.Number, Is.EqualTo(42));
         }
 
         [Test]

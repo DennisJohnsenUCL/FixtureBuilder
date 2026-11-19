@@ -128,6 +128,31 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             }
         }
 
+        private struct ImplicitToNullableIntStruct
+        {
+            public int Number;
+
+            public static implicit operator int?(ImplicitToNullableIntStruct source) => source.Number;
+        }
+
+        private class ImplicitConversionNullableFieldClass
+        {
+            private readonly int? _value;
+            public ImplicitToNullableIntStruct Value => new() { Number = _value ?? 0 };
+        }
+
+        [Test]
+        public void ImplicitConversionAllowed_OperatorToNullableField_SetsConvertedValue()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<ImplicitConversionNullableFieldClass>(factory);
+
+            var result = fixture.WithBackingField(x => x.Value, new ImplicitToNullableIntStruct { Number = 42 }).Build();
+
+            Assert.That(result.Value.Number, Is.EqualTo(42));
+        }
+
         #endregion
 
         #region Field type differs from property type
@@ -165,6 +190,70 @@ namespace FixtureBuilder.Tests.FixtureTests.WithBackingField
             var fixture = TestHelper.MakeFixture<WiderBackingFieldClass>(factory);
 
             Assert.Throws<InvalidCastException>(() => fixture.WithBackingField(x => x.Value, 123));
+        }
+
+        private class NullableWiderBackingFieldClass
+        {
+            private readonly long? _value;
+            public int Value => (int)_value!;
+        }
+
+        [Test]
+        public void NullableWiderBackingField_SetsBackingField()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<NullableWiderBackingFieldClass>(factory);
+
+            var result = fixture.WithBackingField(x => x.Value, 123).Build();
+
+            Assert.That(result.Value, Is.EqualTo(123));
+        }
+
+        private class WiderListElementsBackingFieldClass
+        {
+            private readonly List<long> _values = null!;
+            public IEnumerable<int> Values => _values.Select(value => (int)value);
+        }
+
+        [Test]
+        public void WiderListElementsBackingField_SetsWidenedElements()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<WiderListElementsBackingFieldClass>(factory);
+            List<int> values = [1, 2, 3];
+
+            var result = fixture.WithBackingField(x => x.Values, values).Build();
+
+            Assert.That(result.Values, Is.EqualTo([1, 2, 3]));
+        }
+
+        private class WiderDictionaryValuesBackingFieldClass
+        {
+            private readonly Dictionary<string, long> _values = null!;
+            public Dictionary<string, int> Values => _values.ToDictionary(pair => pair.Key, pair => (int)pair.Value);
+        }
+
+        [Test]
+        public void WiderDictionaryValuesBackingField_SetsWidenedValues()
+        {
+            var options = new FixtureOptions { AllowImplicitConversion = true };
+            var factory = new FixtureFactory(options);
+            var fixture = TestHelper.MakeFixture<WiderDictionaryValuesBackingFieldClass>(factory);
+            var values = new Dictionary<string, int>
+            {
+                ["one"] = 1,
+                ["two"] = 2
+            };
+
+            var result = fixture.WithBackingField(x => x.Values, values).Build();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Values["one"], Is.EqualTo(1));
+                Assert.That(result.Values["two"], Is.EqualTo(2));
+            }
         }
 
         private class NarrowerBackingFieldClass
