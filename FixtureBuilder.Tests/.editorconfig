@@ -31,6 +31,8 @@ dotnet_diagnostic.IDE0251.severity = none
 dotnet_diagnostic.RCS1085.severity = none
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = none
+# CA1517: Use ReadOnlySpan<T> or ReadOnlyMemory<T> instead of Span<T> or Memory<T>
+dotnet_diagnostic.CA1517.severity = none
 
 # Inline arrays as arguments are the normal way to write test input.
 
