@@ -9,6 +9,11 @@
         /// <summary>
         /// Registers a value to be used for all members and parameters of type <typeparamref name="T"/>.
         /// </summary>
+        /// <remarks>
+        /// The same instance is provided on every resolution, for every fixture this registration applies to.
+        /// If <typeparamref name="T"/> is a mutable reference type, configuring members of the provided instance changes it for every fixture that receives it.
+        /// Use the <c>Func&lt;T&gt;</c> overload to provide a new instance per resolution.
+        /// </remarks>
         TReturn With<T>(T value);
 
         /// <summary>
@@ -20,6 +25,11 @@
         /// <summary>
         /// Registers a value to be used for members and parameters of type <typeparamref name="T"/> with a matching name.
         /// </summary>
+        /// <remarks>
+        /// The same instance is provided on every resolution, for every fixture this registration applies to.
+        /// If <typeparamref name="T"/> is a mutable reference type, configuring members of the provided instance changes it for every fixture that receives it.
+        /// Use the <c>Func&lt;T&gt;</c> overload to provide a new instance per resolution.
+        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
         TReturn With<T>(T value, string name);
 
@@ -32,6 +42,11 @@
         /// <summary>
         /// Registers a value to be used for constructor parameters of type <typeparamref name="T"/>.
         /// </summary>
+        /// <remarks>
+        /// The same instance is provided on every resolution, for every fixture this registration applies to.
+        /// If <typeparamref name="T"/> is a mutable reference type, configuring members of the provided instance changes it for every fixture that receives it.
+        /// Use the <c>Func&lt;T&gt;</c> overload to provide a new instance per resolution.
+        /// </remarks>
         TReturn WithParameter<T>(T value);
 
         /// <summary>
@@ -43,6 +58,11 @@
         /// <summary>
         /// Registers a value to be used for constructor parameters of type <typeparamref name="T"/> with a matching name.
         /// </summary>
+        /// <remarks>
+        /// The same instance is provided on every resolution, for every fixture this registration applies to.
+        /// If <typeparamref name="T"/> is a mutable reference type, configuring members of the provided instance changes it for every fixture that receives it.
+        /// Use the <c>Func&lt;T&gt;</c> overload to provide a new instance per resolution.
+        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
         TReturn WithParameter<T>(T value, string name);
 
@@ -55,6 +75,11 @@
         /// <summary>
         /// Registers a value to be used for properties and fields of type <typeparamref name="T"/>.
         /// </summary>
+        /// <remarks>
+        /// The same instance is provided on every resolution, for every fixture this registration applies to.
+        /// If <typeparamref name="T"/> is a mutable reference type, configuring members of the provided instance changes it for every fixture that receives it.
+        /// Use the <c>Func&lt;T&gt;</c> overload to provide a new instance per resolution.
+        /// </remarks>
         TReturn WithPropertyOrField<T>(T value);
 
         /// <summary>
@@ -66,6 +91,11 @@
         /// <summary>
         /// Registers a value to be used for properties and fields of type <typeparamref name="T"/> with a matching name.
         /// </summary>
+        /// <remarks>
+        /// The same instance is provided on every resolution, for every fixture this registration applies to.
+        /// If <typeparamref name="T"/> is a mutable reference type, configuring members of the provided instance changes it for every fixture that receives it.
+        /// Use the <c>Func&lt;T&gt;</c> overload to provide a new instance per resolution.
+        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
         TReturn WithPropertyOrField<T>(T value, string name);
 

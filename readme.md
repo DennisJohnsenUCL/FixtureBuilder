@@ -111,6 +111,8 @@ var user = factory.New<User>().UseAutoConstructor().Build();
 All `With` methods have overloads that take a func delegate instead of a flat value. These allow for registering factories that generate new values every time they are called.
 `With` matches by type across all member kinds (constructor parameters, properties, fields). `WithParameter` and `WithPropertyOrField` restrict matching to specific member kinds. All overloads accepting a name parameter additionally require the member name to match.
 
+A flat value is the same instance every time it is provided. For a mutable reference type, configuring members of that instance on one fixture changes it for every fixture that has received it. Use the func overloads to give each fixture its own instance.
+
 ### Scoped Configuration
 
 Use `WhenBuilding` to scope pre-configured values to a specific test object type:
@@ -175,6 +177,8 @@ factory.AddConverter(myConverter);
 ```
 
 Custom type links implement `ICustomTypeLink`, custom providers implement `ICustomProvider` and custom converters implement `ICustomConverter`. All three, along with `FixtureOptions`, are available in the `FixtureBuilder.Core` namespace.
+
+If a custom provider returns a cached instance of a mutable reference type, that instance is shared the same way: configuring its members on one fixture changes it for every fixture that has received it. Return a new instance per call unless sharing is intended.
 
 ## MemberLens
 

@@ -25,6 +25,8 @@ namespace FixtureBuilder.FixtureFactories
         /// </summary>
         /// <remarks>
         /// The provider must return <c>NoResult.Instance</c> for requests it does not handle. A <c>null</c> return is treated as an explicit null assignment.
+        /// If the provider returns a cached instance of a mutable reference type, that instance is shared by every fixture that receives it,
+        /// and configuring its members changes it for all of them. Return a new instance per call unless sharing is intended.
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="provider"/> is <see langword="null"/>.</exception>
         TReturn AddProvider(ICustomProvider provider);
